@@ -158,6 +158,14 @@
   .roadmap-step.is-current{ color:var(--paper); }
   .roadmap-step.is-current .rn{ color:var(--brass-soft); }
 
+  /* single-column centered content, for agenda / question-list slides */
+  .single-col{ max-width:640px; margin:44px auto 0; }
+  .single-col .item-list{ gap:14px; }
+  .single-col .item{ font-size:16.5px; padding:17px 20px; }
+  .roadmap-lg{ gap:4px; }
+  .roadmap-lg .roadmap-step{ font-size:18px; padding:16px 6px; }
+  .roadmap-lg .roadmap-step .rn{ font-size:13.5px; width:26px; }
+
   /* cover + closing slides */
   .cover-slide, .closing-slide{ text-align:center; }
   .cover-slide .slide-inner, .closing-slide .slide-inner{ display:flex; flex-direction:column; align-items:center; }
@@ -253,43 +261,94 @@
       </div>
     </section>
 
-    <!-- SLIDE 2: PITCH MEETING -->
+    <!-- SLIDE 2: AGENDA -->
     <section class="slide">
       <div class="slide-inner">
-        <p class="slide-eyebrow"><span class="dash"></span>STEP 1 OF 4<span class="slide-duration">30 MIN</span></p>
-        <h1>Pitch Meeting</h1>
-        <p class="slide-sub">A first conversation — who we are, who you are, and what working together looks like.</p>
+        <p class="slide-eyebrow"><span class="dash"></span>PITCH MEETING<span class="slide-duration">30 MIN</span></p>
+        <h1>Today's <em>Agenda</em></h1>
+        <p class="slide-sub">What we'll cover in this first conversation.</p>
+        <div class="single-col">
+          <div class="roadmap roadmap-lg">
+            <div class="roadmap-step is-current"><span class="rn">01</span><strong>Introductions</strong> — who I am, and what we do</div>
+            <div class="roadmap-step"><span class="rn">02</span><strong>The Process</strong> — how an engagement runs, start to finish</div>
+            <div class="roadmap-step"><span class="rn">03</span><strong>About Your Organization</strong> — your team, and your goals</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: INTRODUCTIONS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="slide-eyebrow"><span class="dash"></span>PITCH MEETING<span class="slide-duration">30 MIN</span></p>
+        <h1>Introductions</h1>
+        <p class="slide-sub">Who I am, and what Safath Ahmed Consulting does.</p>
         <div class="slide-cols">
           <div>
             <p class="col-head">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="3"/><path d="M2,17 v-2 a5,5 0 0 1 10,0 v2"/><circle cx="15" cy="8" r="2.3"/><path d="M12.3,17 v-1.6 a4,4 0 0 0 6.7,-3"/></svg>
-              What Happens
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="4"/><path d="M3,18 v-1 a7,7 0 0 1 14,0 v1"/></svg>
+              Who I Am
             </p>
             <div class="item-list">
-              <div class="item"><span class="num">1</span>Safath Ahmed introduction</div>
-              <div class="item"><span class="num">2</span>Organization introductions</div>
-              <div class="item"><span class="num">3</span>Walkthrough of the full engagement process</div>
+              <div class="item"><span class="num">✓</span>PMP Certified — 15 years leading programs across private, public, for-profit &amp; nonprofit sectors</div>
+              <div class="item"><span class="num">✓</span>Built ICNA CSJ's Muslim Prisoner Support Project — 44 states, 400+ facilities</div>
+              <div class="item"><span class="num">✓</span>Streamlined Cars4Jannah — 900+ vehicles, $500K+ raised</div>
+              <div class="item"><span class="num">✓</span>10 years teaching at BIC; BIC Board of Directors</div>
             </div>
           </div>
           <div>
             <p class="col-head">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,5 L8,3 L13,5 L18,3 V15 L13,17 L8,15 L3,17 Z"/><line x1="8" y1="3" x2="8" y2="15"/><line x1="13" y1="5" x2="13" y2="17"/></svg>
-              The Process at a Glance
+              What We Do
             </p>
-            <div class="roadmap">
-              <div class="roadmap-step is-current"><span class="rn">01</span><strong>Pitch Meeting</strong> — this conversation</div>
-              <div class="roadmap-step"><span class="rn">02</span>Intake Meeting — scope the project</div>
-              <div class="roadmap-step"><span class="rn">03</span>MOU Meeting — agree on terms</div>
-              <div class="roadmap-step"><span class="rn">04</span>First Day Actions — kickoff</div>
-              <div class="roadmap-step"><span class="rn">05</span>First Week Actions — get moving</div>
-              <div class="roadmap-step"><span class="rn">06</span>Outcomes — results, delivered</div>
+            <div class="item-list">
+              <div class="item accent-teal"><span class="num">✓</span>Process consulting for Sunni Muslim organizations</div>
+              <div class="item accent-teal"><span class="num">✓</span>Document what's only in someone's head</div>
+              <div class="item accent-teal"><span class="num">✓</span>Build clear, lasting systems</div>
+              <div class="item accent-teal"><span class="num">✓</span>Hand off full ownership — one package, built for a continuous lifecycle</div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 3: INTAKE MEETING -->
+    <!-- SLIDE 4: THE PROCESS AT A GLANCE -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="slide-eyebrow"><span class="dash"></span>PITCH MEETING<span class="slide-duration">30 MIN</span></p>
+        <h1>The Process <em>at a Glance</em></h1>
+        <p class="slide-sub">How this engagement runs, from this conversation to results delivered.</p>
+        <div class="single-col">
+          <div class="roadmap roadmap-lg">
+            <div class="roadmap-step is-current"><span class="rn">01</span><strong>Pitch Meeting</strong> — happening now</div>
+            <div class="roadmap-step"><span class="rn">02</span>Intake Meeting — scope the project</div>
+            <div class="roadmap-step"><span class="rn">03</span>MOU Meeting — agree on terms</div>
+            <div class="roadmap-step"><span class="rn">04</span>First Day Actions — kickoff</div>
+            <div class="roadmap-step"><span class="rn">05</span>First Week Actions — get moving</div>
+            <div class="roadmap-step"><span class="rn">06</span>Outcomes — results, delivered</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: ORGANIZATION INTRODUCTIONS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="slide-eyebrow"><span class="dash"></span>PITCH MEETING<span class="slide-duration">30 MIN</span></p>
+        <h1>Tell Us About <em>Your Organization</em></h1>
+        <p class="slide-sub">A few things we'll ask about.</p>
+        <div class="single-col">
+          <div class="item-list">
+            <div class="item"><span class="num">1</span>Leadership team — who's involved, and their roles</div>
+            <div class="item"><span class="num">2</span>Operations team — who's involved, and their roles</div>
+            <div class="item"><span class="num">3</span>What you do — your mission, and the community you serve</div>
+            <div class="item"><span class="num">4</span>Why now — what's driving your interest in this consulting</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: INTAKE MEETING -->
     <section class="slide">
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 2 OF 4<span class="slide-duration">1 HOUR</span></p>
@@ -320,7 +379,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 4: MOU MEETING -->
+    <!-- SLIDE 7: MOU MEETING -->
     <section class="slide">
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 3 OF 4<span class="slide-duration">1 HOUR</span></p>
@@ -354,7 +413,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 5: PROJECT PLAN / KICKOFF -->
+    <!-- SLIDE 8: PROJECT PLAN / KICKOFF -->
     <section class="slide">
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 4 OF 4<span class="slide-duration">1 HOUR</span></p>
@@ -390,7 +449,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 6: CLOSING -->
+    <!-- SLIDE 9: CLOSING -->
     <section class="slide closing-slide">
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>LET'S GET STARTED<span class="dash"></span></p>
