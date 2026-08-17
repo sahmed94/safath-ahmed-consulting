@@ -367,7 +367,7 @@
   .steps-carousel .step-row{
     flex:0 0 33.3334%; width:33.3334%; box-sizing:border-box;
     display:grid; grid-template-columns:1.3fr 1fr; gap:30px;
-    padding:6px 4px 10px; align-items:start;
+    padding:6px 4px 10px; align-items:center;
   }
   @media (max-width:820px){ .steps-carousel .step-row{grid-template-columns:1fr; gap:18px;} }
 
@@ -379,7 +379,7 @@
   .step-dot.is-active{ background:var(--brass-soft); transform:scale(1.25); }
   .step-dot:hover{ background:rgba(201,163,99,0.5); }
 
-  .step-visual{ grid-column:1 / -1; display:flex; justify-content:center; margin-bottom:6px; }
+  .step-visual{ flex:0 0 100%; display:flex; justify-content:center; margin-bottom:6px; }
   .step-badge{ width:104px; height:104px; }
   .step-badge .badge-ring{ fill:rgba(255,255,255,0.03); stroke:var(--brass-soft); stroke-width:1.8; }
   .step-badge .badge-icon{ fill:none; stroke:var(--paper); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
@@ -388,9 +388,10 @@
   .step-main p{color:var(--muted-invert); margin-top:8px; font-size:14.5px;}
   .step-main .gloss{font-family:var(--mono); font-size:11px; color:var(--brass-soft); display:block; margin-top:8px;}
 
-  .step-io{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; align-content:start; }
-  @media (max-width:700px){ .step-io{grid-template-columns:repeat(2, 1fr);} }
-  @media (max-width:420px){ .step-io{grid-template-columns:1fr;} }
+  .step-io{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; align-content:flex-start; }
+  .step-io .io-box{ flex:0 0 calc((100% - 20px)/3); box-sizing:border-box; }
+  @media (max-width:700px){ .step-io .io-box{ flex-basis:calc((100% - 10px)/2); } }
+  @media (max-width:420px){ .step-io .io-box{ flex-basis:100%; } }
   .io-box{
     border:1px solid var(--line-invert); border-radius:var(--radius);
     padding:14px 16px 13px; background:rgba(255,255,255,0.035);
@@ -492,6 +493,44 @@
 
   /* ---------- RING CHART DRAW-IN ---------- */
   .ring-fill{ transition:stroke-dashoffset 1.5s cubic-bezier(.16,.7,.2,1); }
+
+  /* ---------- WHY / WHO / HOW BANNER ---------- */
+  .www-banner{
+    background:var(--deep); border-bottom:1px solid var(--line-invert);
+    padding:13px 0;
+  }
+  .www-inner{
+    display:flex; align-items:baseline; justify-content:center; gap:14px;
+    flex-wrap:wrap; text-align:center;
+  }
+  .www-label{
+    font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.14em;
+    color:var(--brass-soft); flex-shrink:0;
+    min-width:52px; text-align:right;
+  }
+  .www-text{
+    font-family:var(--serif); font-style:italic; font-size:15.5px;
+    color:var(--paper);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .www-text.is-fading{ opacity:0; transform:translateY(6px); }
+  @media (min-width:900px){
+    .www-label{ font-size:14px; }
+    .www-text{ font-size:17px; }
+  }
+
+  /* ---------- WHATSAPP FAB ---------- */
+  .whatsapp-fab{
+    position:fixed; right:24px; bottom:24px; z-index:60;
+    width:58px; height:58px; border-radius:50%;
+    background:#25D366; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 28px -6px rgba(0,0,0,0.45);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .whatsapp-fab svg{ width:30px; height:30px; }
+  .whatsapp-fab svg path:first-child{ fill:var(--paper); }
+  .whatsapp-fab:hover{ transform:translateY(-3px) scale(1.05); box-shadow:0 14px 34px -6px rgba(0,0,0,0.5); }
+  @media (max-width:600px){ .whatsapp-fab{ right:16px; bottom:16px; width:52px; height:52px; } .whatsapp-fab svg{ width:27px; height:27px; } }
 
   /* ---------- DESKTOP SCALE-UP ---------- */
   /* Mobile already reads fine at native size; desktop was staying at the same small
@@ -608,6 +647,13 @@
     </div>
   </div>
 </header>
+
+<div class="www-banner">
+  <div class="wrap www-inner">
+    <span class="www-label" aria-hidden="true">WHY</span>
+    <span class="www-text" role="status" aria-live="polite">The risk is real — and it compounds every year.</span>
+  </div>
+</div>
 
 <main id="top">
 
@@ -871,15 +917,10 @@
               <p class="io-label">How it's delivered</p>
               <p class="io-val">Workshops, training, Q&amp;A, and videos your team keeps</p>
             </div>
-            <div class="io-box accent-teal">
-              <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><line x1="3" y1="10" x2="14" y2="10"/><path d="M10,6 L14,10 L10,14"/></svg>
-              <p class="io-label">Role continuity</p>
-              <p class="io-val">Transition and cross-training for every role</p>
-            </div>
             <div class="io-box accent-slate">
               <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3,5 L8,3 L13,5 L18,3 V15 L13,17 L8,15 L3,17 Z"/><line x1="8" y1="3" x2="8" y2="15"/><line x1="13" y1="5" x2="13" y2="17"/></svg>
-              <p class="io-label">Tabletop exercises</p>
-              <p class="io-val">The scenario, played out step by step, before it's ever real</p>
+              <p class="io-label">Role readiness</p>
+              <p class="io-val">Cross-training and tabletop exercises — the scenario, played out before it's ever real</p>
             </div>
             <div class="io-box accent-rust">
               <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="1.5"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="7" y1="2" x2="7" y2="5.5"/><line x1="13" y1="2" x2="13" y2="5.5"/></svg>
@@ -975,6 +1016,13 @@
 
 </main>
 
+<a class="whatsapp-fab" href="https://wa.me/15713097035" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16.02,4 C9.42,4 4.06,9.35 4.06,15.94 C4.06,18.08 4.63,20.16 5.71,21.99 L4,28 L10.19,26.34 C11.95,27.31 13.96,27.83 16.02,27.83 C22.62,27.83 27.97,22.48 27.97,15.9 C27.97,9.32 22.62,4 16.02,4 Z"/>
+    <path d="M22.4,19.4 C22.08,20.28 20.72,21.02 19.73,21.24 C19.06,21.38 18.19,21.49 15.26,20.27 C11.5,18.72 9.09,14.9 8.9,14.64 C8.72,14.38 7.37,12.58 7.37,10.72 C7.37,8.86 8.33,7.95 8.72,7.55 C9.04,7.22 9.58,7.07 10.1,7.07 C10.27,7.07 10.42,7.08 10.55,7.09 C10.94,7.1 11.14,7.13 11.4,7.75 C11.72,8.53 12.5,10.39 12.6,10.59 C12.7,10.79 12.8,11.06 12.66,11.32 C12.53,11.59 12.42,11.71 12.22,11.94 C12.02,12.17 11.83,12.35 11.63,12.6 C11.44,12.81 11.23,13.04 11.46,13.44 C11.69,13.83 12.47,15.09 13.62,16.11 C15.1,17.43 16.29,17.85 16.72,18.03 C17.04,18.16 17.43,18.13 17.67,17.87 C17.97,17.54 18.34,17,18.72,16.46 C18.99,16.07 19.33,16.02 19.68,16.15 C20.04,16.27 21.89,17.18 22.28,17.38 C22.67,17.58 22.93,17.67 23.02,17.83 C23.11,17.99 23.11,18.72 22.4,19.4 Z" fill="var(--paper)" stroke="none"/>
+  </svg>
+</a>
+
 <script>
   (function(){
     const NS = "http://www.w3.org/2000/svg";
@@ -1068,7 +1116,7 @@
     }
 
     fills.forEach((f,i)=>{ f.style.strokeDashoffset = String(arcLengths[i]); });
-    nums.forEach(n=>{ n.textContent = '0%'; });
+    nums.forEach((n,i)=>{ n.textContent = targets[i] + '%'; });
     wrap.style.willChange = 'opacity';
     if(svgEl) svgEl.style.willChange = 'transform';
 
@@ -1083,7 +1131,6 @@
       const eased = 1 - Math.pow(1 - progress, 2);
 
       fills.forEach((f,i)=>{ f.style.strokeDashoffset = String(arcLengths[i] * (1 - eased)); });
-      nums.forEach((n,i)=>{ n.textContent = Math.round(eased * targets[i]) + '%'; });
 
       if(svgEl) svgEl.style.transform = `scale(${0.72 + 0.28 * eased})`;
       wrap.style.opacity = String(0.15 + 0.85 * eased);
@@ -1165,6 +1212,30 @@
 
     goTo(0);
     start();
+  })();
+
+  /* Why / Who / How rotating banner */
+  (function(){
+    const label = document.querySelector('.www-label');
+    const text = document.querySelector('.www-text');
+    if(!label || !text) return;
+    const items = [
+      { label:'WHY', text:'The risk is real — and it compounds every year.' },
+      { label:'WHO', text:'Sunni Muslim organizations, masajid, and nonprofits.' },
+      { label:'HOW', text:'One package. Three steps. Built for a continuous lifecycle.' }
+    ];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let i = 0;
+    if(reduce) return;
+    setInterval(()=>{
+      i = (i + 1) % items.length;
+      text.classList.add('is-fading');
+      setTimeout(()=>{
+        label.textContent = items[i].label;
+        text.textContent = items[i].text;
+        text.classList.remove('is-fading');
+      }, 350);
+    }, 3800);
   })();
 </script>
 
