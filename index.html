@@ -506,7 +506,7 @@
   .www-label{
     font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.14em;
     color:var(--brass-soft); flex-shrink:0;
-    min-width:52px; text-align:right;
+    min-width:66px; text-align:right;
   }
   .www-text{
     font-family:var(--serif); font-style:italic; font-size:15.5px;
@@ -1218,14 +1218,17 @@
     start();
   })();
 
-  /* Why / Who / How rotating banner */
+  /* Who / What / When / Where / Why / How rotating banner */
   (function(){
     const label = document.querySelector('.www-label');
     const text = document.querySelector('.www-text');
     if(!label || !text) return;
     const items = [
-      { label:'WHY', text:'The risk is real — and it compounds every year.' },
+      { label:'WHAT', text:'Process consulting — documentation, systems, and clean handoffs.' },
       { label:'WHO', text:'Sunni Muslim organizations, masajid, and nonprofits.' },
+      { label:'WHY', text:'The risk is real — and it compounds every year.' },
+      { label:'WHEN', text:'1–3 months, scoped to your priorities and budget.' },
+      { label:'WHERE', text:'Based in the DMV area.' },
       { label:'HOW', text:'One package. Three steps. Built for a continuous lifecycle.' }
     ];
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
