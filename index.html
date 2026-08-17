@@ -149,6 +149,15 @@
   .pmp-badge *{ fill:none; stroke:var(--brass); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   .credentials-bar .cred-label{ text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-right:4px; flex-shrink:0; }
   @media (max-width:760px){ nav.links{display:none;} }
+  .deck-link-mobile{ display:none; }
+  @media (max-width:760px){
+    .deck-link-mobile{
+      display:inline-block;
+      font-family:var(--mono); font-size:12px; letter-spacing:.03em;
+      color:var(--deep); background:var(--brass-soft);
+      padding:9px 18px; border-radius:20px; text-decoration:none;
+    }
+  }
 
   /* ---------- HERO ---------- */
   .hero{
@@ -608,6 +617,7 @@
       <a href="mailto:Ahmed.Safath@gmail.com">Ahmed.Safath@gmail.com</a>
       <a href="tel:5713097035">(571) 309-7035</a>
     </div>
+    <a class="deck-link-mobile" href="presentation.html">View Process Deck ↗</a>
   </div>
   <div class="credentials-bar">
     <div class="marquee-viewport">
