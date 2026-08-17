@@ -26,6 +26,12 @@
     --line-invert:rgba(255,255,255,0.18);
     --muted:#5B5567;
     --muted-invert:#C9BFE0;
+    --pop-gold:#E8B84B;
+    --pop-violet:#B87FE0;
+    --pop-coral:#F0785A;
+    --pop-emerald:#4ECCA3;
+    --pop-sky:#5CC8E8;
+    --pop-rose:#F0699E;
     --radius:2px;
     --serif:'Fraunces', serif;
     --sans:'IBM Plex Sans', sans-serif;
@@ -92,7 +98,16 @@
     padding:90px 6vw 70px;
     overflow-y:auto; overflow-x:hidden;
   }
-  .slide-inner{ width:100%; max-width:1180px; }
+  .slide-inner{ width:100%; max-width:1180px; position:relative; z-index:1; }
+
+  .ghost-num{
+    position:absolute; top:6%; right:4%; z-index:0;
+    font-family:var(--serif); font-weight:600; font-size:min(30vw, 380px);
+    line-height:1; color:transparent;
+    -webkit-text-stroke:1.5px rgba(255,255,255,0.07);
+    pointer-events:none; user-select:none;
+  }
+  @media (max-width:820px){ .ghost-num{ display:none; } }
 
   /* ---------- STAGGERED ENTRANCE ---------- */
   .slide-inner > *{
@@ -185,36 +200,57 @@
 
   .item-list{ display:flex; flex-direction:column; gap:12px; }
   .item{
-    display:flex; align-items:flex-start; gap:12px;
-    border:1px solid var(--line-invert); border-radius:var(--radius);
+    display:flex; align-items:center; gap:14px;
+    border:1px solid var(--line-invert);
     background:rgba(255,255,255,0.035);
-    padding:14px 16px;
+    padding:15px 18px;
     font-size:15px; line-height:1.45; color:var(--paper);
     transition:transform .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
+    clip-path:polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
   }
+  .item:nth-child(even){ clip-path:polygon(16px 0, 100% 0, 100% 100%, 0 100%, 0 16px); }
   .item:hover{
-    transform:translateY(-3px);
-    border-color:var(--brass-soft);
-    background:rgba(255,255,255,0.06);
-    box-shadow:0 10px 24px -10px rgba(0,0,0,0.5);
+    transform:translateY(-4px) scale(1.015);
+    background:rgba(255,255,255,0.07);
+    box-shadow:0 14px 30px -10px rgba(0,0,0,0.55);
   }
-  .item.accent-teal:hover{ border-color:var(--teal-bright); }
-  .item.accent-rust:hover{ border-color:var(--rust); }
-  .item.accent-slate:hover{ border-color:var(--slate-bright); }
   .item .num{
-    font-family:var(--mono); font-size:12px; color:var(--brass-soft); flex-shrink:0;
-    width:20px; height:20px; border:1px solid var(--brass-soft); border-radius:50%;
-    display:flex; align-items:center; justify-content:center; margin-top:1px;
+    font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--deep); flex-shrink:0;
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 12px -3px rgba(0,0,0,0.5);
   }
-  .item.accent-teal .num{ color:var(--teal-bright); border-color:var(--teal-bright); }
-  .item.accent-rust .num{ color:var(--rust); border-color:var(--rust); }
-  .item.accent-slate .num{ color:var(--slate-bright); border-color:var(--slate-bright); }
+
+  /* cycle 6 colors x alternating shapes across every list, no markup changes needed */
+  .item:nth-child(6n+1) .num{ background:linear-gradient(135deg, var(--pop-gold), #B8863A); border-radius:50%; }
+  .item:nth-child(6n+1){ border-color:rgba(232,184,75,0.35); }
+  .item:nth-child(6n+1):hover{ border-color:var(--pop-gold); }
+
+  .item:nth-child(6n+2) .num{ background:linear-gradient(135deg, var(--pop-violet), #7A45B0); clip-path:polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%); }
+  .item:nth-child(6n+2){ border-color:rgba(184,127,224,0.35); }
+  .item:nth-child(6n+2):hover{ border-color:var(--pop-violet); }
+
+  .item:nth-child(6n+3) .num{ background:linear-gradient(135deg, var(--pop-coral), #C24E32); clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  .item:nth-child(6n+3){ border-color:rgba(240,120,90,0.35); }
+  .item:nth-child(6n+3):hover{ border-color:var(--pop-coral); }
+
+  .item:nth-child(6n+4) .num{ background:linear-gradient(135deg, var(--pop-emerald), #2A9B78); clip-path:polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%); }
+  .item:nth-child(6n+4){ border-color:rgba(78,204,163,0.35); }
+  .item:nth-child(6n+4):hover{ border-color:var(--pop-emerald); }
+
+  .item:nth-child(6n+5) .num{ background:linear-gradient(135deg, var(--pop-sky), #2E93B8); border-radius:50%; }
+  .item:nth-child(6n+5){ border-color:rgba(92,200,232,0.35); }
+  .item:nth-child(6n+5):hover{ border-color:var(--pop-sky); }
+
+  .item:nth-child(6n+6) .num{ background:linear-gradient(135deg, var(--pop-rose), #C43E78); clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  .item:nth-child(6n+6){ border-color:rgba(240,105,158,0.35); }
+  .item:nth-child(6n+6):hover{ border-color:var(--pop-rose); }
 
   /* roadmap mini-list on slide 2 */
   .roadmap{ display:flex; flex-direction:column; gap:0; position:relative; padding-left:8px; }
   .roadmap::before{
     content:""; position:absolute; left:25px; top:26px; bottom:26px; width:2px;
-    background:linear-gradient(180deg, var(--brass-soft), var(--teal-bright) 55%, var(--line-invert));
+    background:linear-gradient(180deg, var(--pop-gold), var(--pop-violet) 30%, var(--pop-coral) 55%, var(--pop-emerald) 75%, var(--pop-sky));
     z-index:0;
   }
   .roadmap-step{
@@ -224,22 +260,29 @@
     position:relative; z-index:1;
     transition:transform .25s ease;
   }
-  .roadmap-step:hover{ transform:translateX(4px); }
+  .roadmap-step:nth-child(even){ transform:translateX(14px); }
+  .roadmap-step:hover{ transform:translateX(4px) scale(1.02); }
+  .roadmap-step:nth-child(even):hover{ transform:translateX(18px) scale(1.02); }
   .roadmap-step .rn{
-    font-family:var(--mono); font-size:12px; color:var(--brass-soft);
-    width:34px; height:34px; border-radius:50%; flex-shrink:0;
-    background:var(--deep); border:2px solid var(--line-invert);
+    font-family:var(--mono); font-size:12px; font-weight:600; color:var(--deep);
+    width:34px; height:34px; flex-shrink:0; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    transition:border-color .3s, background .3s, box-shadow .3s;
+    box-shadow:0 4px 12px -3px rgba(0,0,0,0.5);
+    transition:box-shadow .3s;
   }
+  .roadmap-step:nth-child(6n+1) .rn{ background:linear-gradient(135deg, var(--pop-gold), #B8863A); }
+  .roadmap-step:nth-child(6n+2) .rn{ background:linear-gradient(135deg, var(--pop-violet), #7A45B0); clip-path:polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%); }
+  .roadmap-step:nth-child(6n+3) .rn{ background:linear-gradient(135deg, var(--pop-coral), #C24E32); clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  .roadmap-step:nth-child(6n+4) .rn{ background:linear-gradient(135deg, var(--pop-emerald), #2A9B78); clip-path:polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%); }
+  .roadmap-step:nth-child(6n+5) .rn{ background:linear-gradient(135deg, var(--pop-sky), #2E93B8); }
+  .roadmap-step:nth-child(6n+6) .rn{ background:linear-gradient(135deg, var(--pop-rose), #C43E78); clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
   .roadmap-step strong{ color:var(--paper); font-weight:500; }
   .roadmap-step.is-current{ color:var(--paper); }
   .roadmap-step.is-current .rn{
-    background:var(--brass-soft); color:var(--deep); border-color:var(--brass-soft);
-    box-shadow:0 0 0 6px rgba(201,163,99,0.18);
+    box-shadow:0 0 0 7px rgba(255,255,255,0.12);
     animation:node-pulse 2.4s ease-in-out infinite;
   }
-  @keyframes node-pulse{ 0%,100%{ box-shadow:0 0 0 6px rgba(201,163,99,0.18); } 50%{ box-shadow:0 0 0 10px rgba(201,163,99,0.08); } }
+  @keyframes node-pulse{ 0%,100%{ box-shadow:0 0 0 6px rgba(255,255,255,0.14); } 50%{ box-shadow:0 0 0 11px rgba(255,255,255,0.05); } }
 
   /* single-column centered content, for agenda / question-list slides */
   .single-col{ max-width:640px; margin:44px auto 0; }
@@ -249,6 +292,23 @@
   .roadmap-lg::before{ left:29px; }
   .roadmap-lg .roadmap-step{ font-size:18px; padding:15px 6px; }
   .roadmap-lg .roadmap-step .rn{ font-size:14px; width:42px; height:42px; }
+
+  /* badge cloud — for long deliverable lists, more compact and varied than stacked cards */
+  .badge-cloud{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+  .cloud-badge{
+    display:inline-flex; align-items:center;
+    font-family:var(--sans); font-size:14px; color:var(--deep); font-weight:500;
+    padding:11px 18px; border-radius:24px;
+    box-shadow:0 6px 16px -6px rgba(0,0,0,0.5);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .cloud-badge:hover{ transform:translateY(-3px) scale(1.04); box-shadow:0 12px 22px -6px rgba(0,0,0,0.55); }
+  .cloud-badge:nth-child(6n+1){ background:linear-gradient(120deg, var(--pop-gold), #D9A93E); }
+  .cloud-badge:nth-child(6n+2){ background:linear-gradient(120deg, var(--pop-violet), #A56FD6); }
+  .cloud-badge:nth-child(6n+3){ background:linear-gradient(120deg, var(--pop-coral), #E86B4E); }
+  .cloud-badge:nth-child(6n+4){ background:linear-gradient(120deg, var(--pop-emerald), #3FBB90); }
+  .cloud-badge:nth-child(6n+5){ background:linear-gradient(120deg, var(--pop-sky), #48B8DC); }
+  .cloud-badge:nth-child(6n+6){ background:linear-gradient(120deg, var(--pop-rose), #E85A90); }
 
   /* cover + closing slides */
   .cover-slide, .closing-slide{ text-align:center; }
@@ -461,6 +521,7 @@
 
     <!-- SLIDE 6: INTAKE MEETING -->
     <section class="slide">
+      <span class="ghost-num" aria-hidden="true">02</span>
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 2 OF 4<span class="slide-duration">1 HOUR</span></p>
         <h1>Intake Meeting</h1>
@@ -492,6 +553,7 @@
 
     <!-- SLIDE 7: MOU MEETING -->
     <section class="slide">
+      <span class="ghost-num" aria-hidden="true">03</span>
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 3 OF 4<span class="slide-duration">1 HOUR</span></p>
         <h1>MOU Meeting</h1>
@@ -526,6 +588,7 @@
 
     <!-- SLIDE 8: PROJECT PLAN / KICKOFF -->
     <section class="slide">
+      <span class="ghost-num" aria-hidden="true">04</span>
       <div class="slide-inner">
         <p class="slide-eyebrow"><span class="dash"></span>STEP 4 OF 4<span class="slide-duration">1 HOUR</span></p>
         <h1>Project Plan <em>— Granular Level</em></h1>
@@ -549,14 +612,14 @@
               <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="2" width="10" height="14" rx="1"/><line x1="7" y1="6" x2="13" y2="6"/><line x1="7" y1="9" x2="13" y2="9"/><line x1="7" y1="12" x2="11" y2="12"/></svg>
               Deliverables
             </p>
-            <div class="item-list">
-              <div class="item accent-slate"><span class="num">✓</span>Standing weekly project meeting</div>
-              <div class="item accent-slate"><span class="num">✓</span>Breakout meetings, as needed</div>
-              <div class="item accent-slate"><span class="num">✓</span>Project plan / tracker</div>
-              <div class="item accent-slate"><span class="num">✓</span>Weekly report</div>
-              <div class="item accent-slate"><span class="num">✓</span>Risk register</div>
-              <div class="item accent-slate"><span class="num">✓</span>Issue tracker</div>
-              <div class="item accent-slate"><span class="num">✓</span>Decision tracker</div>
+            <div class="badge-cloud">
+              <span class="cloud-badge">Standing weekly project meeting</span>
+              <span class="cloud-badge">Breakout meetings, as needed</span>
+              <span class="cloud-badge">Project plan / tracker</span>
+              <span class="cloud-badge">Weekly report</span>
+              <span class="cloud-badge">Risk register</span>
+              <span class="cloud-badge">Issue tracker</span>
+              <span class="cloud-badge">Decision tracker</span>
             </div>
           </div>
         </div>
