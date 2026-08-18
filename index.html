@@ -305,10 +305,18 @@
 
   /* ---------- APPROACH ---------- */
   .approach{background:var(--deep); color:var(--paper);}
-  .hww{background:var(--deep); color:var(--paper); padding-top:0;}
-  .hww-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:24px; }
-  @media (max-width:900px){ .hww-grid{ grid-template-columns:repeat(2, 1fr); } }
-  @media (max-width:520px){ .hww-grid{ grid-template-columns:1fr; } }
+  .hww-strip{
+    margin-top:22px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .hww-strip-label{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--muted-invert); flex-shrink:0;
+  }
+  .hww-chip{
+    font-family:var(--sans); font-size:12.5px; color:var(--paper);
+    border:1px solid var(--line-invert); border-radius:20px;
+    padding:6px 14px; background:rgba(255,255,255,0.035);
+  }
   .approach .eyebrow{color:var(--brass-soft);}
   .approach .eyebrow::before{background:var(--brass-soft);}
   .approach h2{color:var(--paper);}
@@ -952,38 +960,13 @@
           <p>Every engagement is scoped to what your organization can genuinely invest. Reach out and we'll size the work to your budget.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- HOW WE WORK -->
-  <section class="hww">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <p class="eyebrow">Our approach</p>
-        <h2>The right tools. Verified by a person.</h2>
-        <p>We don't hand you AI output and call it done.</p>
-      </div>
-      <div class="hww-grid">
-        <div class="io-box reveal accent-brass">
-          <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10,2 L17,5 V10 C17,14.5 14,17.5 10,19 C6,17.5 3,14.5 3,10 V5 Z"/><path d="M6.5,10 L9,12.5 L13.5,7"/></svg>
-          <p class="io-label">Proven tools, not experiments</p>
-          <p class="io-val">We use the same tested, best-practice platforms trusted across the industry — chosen for compliance, clarity, and reliability, not novelty.</p>
-        </div>
-        <div class="io-box reveal accent-teal">
-          <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6,10.5 L9,13.5 L14,7"/></svg>
-          <p class="io-label">Reviewed and tested by us</p>
-          <p class="io-val">Nothing ships until we've read it, checked it, and confirmed it actually works — not machine output taken at face value.</p>
-        </div>
-        <div class="io-box reveal accent-rust">
-          <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/><line x1="4.5" y1="4.5" x2="6" y2="6"/><line x1="14" y1="14" x2="15.5" y2="15.5"/><line x1="15.5" y1="4.5" x2="14" y2="6"/><line x1="6" y1="14" x2="4.5" y2="15.5"/></svg>
-          <p class="io-label">Tool recommendations, included</p>
-          <p class="io-val">Based on your scope, we'll point you toward the specific tools that make sense for your team going forward.</p>
-        </div>
-        <div class="io-box reveal accent-slate">
-          <svg class="io-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3,5 L8,3 L13,5 L18,3 V15 L13,17 L8,15 L3,17 Z"/><line x1="8" y1="3" x2="8" y2="15"/><line x1="13" y1="5" x2="13" y2="17"/></svg>
-          <p class="io-label">A roadmap for what's next</p>
-          <p class="io-val">We'll outline what further development work — if any — is worth pursuing next, scoped to what you actually need.</p>
-        </div>
+      <div class="hww-strip reveal">
+        <span class="hww-strip-label">How we work:</span>
+        <span class="hww-chip">Proven, tested tools</span>
+        <span class="hww-chip">Reviewed &amp; tested by us</span>
+        <span class="hww-chip">Tool recommendations included</span>
+        <span class="hww-chip">A roadmap for what's next</span>
       </div>
     </div>
   </section>
