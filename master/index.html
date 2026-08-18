@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Site Directory — Safath Ahmed Consulting (Internal)</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink:#1A1230;
+    --paper:#FFFFFF;
+    --paper-2:#F4F1F9;
+    --deep:#1F1646;
+    --teal:#6B2FA0;
+    --brass:#A9803F;
+    --brass-soft:#C9A363;
+    --rust:#9C5B3C;
+    --slate:#3E5C76;
+    --teal-bright:#B48EDC;
+    --slate-bright:#8FB0D6;
+    --line:rgba(26,18,48,0.14);
+    --line-invert:rgba(255,255,255,0.18);
+    --muted:#5B5567;
+    --muted-invert:#C9BFE0;
+    --radius:2px;
+    --serif:'Fraunces', serif;
+    --sans:'IBM Plex Sans', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:var(--sans); background:var(--deep); color:var(--paper);
+    min-height:100vh; padding:70px 24px 90px;
+  }
+  .wrap{ max-width:920px; margin:0 auto; }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--brass-soft); border:1px solid var(--line-invert); border-radius:20px;
+    padding:6px 14px; margin-bottom:28px;
+  }
+  .badge::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--brass-soft); }
+
+  h1{
+    font-family:var(--serif); font-weight:600; font-size:clamp(32px,4.5vw,48px);
+    line-height:1.1;
+  }
+  h1 em{ font-style:italic; color:var(--teal-bright); }
+  .sub{
+    font-family:var(--serif); font-style:italic; color:var(--muted-invert);
+    font-size:18px; margin-top:14px; max-width:56ch; line-height:1.5;
+  }
+
+  .instances{ margin-top:56px; display:flex; flex-direction:column; gap:20px; }
+
+  .instance{
+    border:1px solid var(--line-invert); border-radius:var(--radius);
+    background:rgba(255,255,255,0.035);
+    padding:26px 28px;
+    border-top:3px solid var(--brass-soft);
+  }
+  .instance.accent-teal{ border-top-color:var(--teal-bright); }
+  .instance.accent-slate{ border-top-color:var(--slate-bright); }
+  .instance.accent-rust{ border-top-color:var(--rust); }
+
+  .instance-top{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .instance-name{ font-family:var(--serif); font-size:23px; font-weight:600; }
+  .instance-path{ font-family:var(--mono); font-size:11.5px; color:var(--muted-invert); }
+  .instance-desc{ margin-top:8px; color:var(--muted-invert); font-size:14.5px; max-width:64ch; line-height:1.5; }
+
+  .instance-links{ display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; }
+  .instance-links a{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:13px; letter-spacing:.02em;
+    color:var(--paper); text-decoration:none;
+    border:1px solid var(--line-invert); border-radius:var(--radius);
+    padding:11px 18px;
+    transition:border-color .2s, background .2s, transform .2s;
+  }
+  .instance-links a:hover{ border-color:var(--brass-soft); background:rgba(255,255,255,0.06); transform:translateY(-2px); }
+  .instance-links a svg{ width:14px; height:14px; }
+  .instance-links a svg *{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+  .future-note{
+    margin-top:36px; padding-top:24px; border-top:1px dashed var(--line-invert);
+    font-family:var(--mono); font-size:12.5px; color:var(--muted-invert); line-height:1.7;
+  }
+  .future-note strong{ color:var(--brass-soft); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="badge">Internal — not linked from any public page</div>
+
+  <h1>All <em>Instances</em></h1>
+  <p class="sub">Every version of the site, grouped by audience. Each instance has its own homepage and its own onboarding deck — fully self-contained, nothing shared between them.</p>
+
+  <div class="instances">
+
+    <div class="instance">
+      <div class="instance-top">
+        <span class="instance-name">Generic</span>
+        <span class="instance-path">/</span>
+      </div>
+      <p class="instance-desc">The default, audience-neutral version. Works for any business or nonprofit — no industry-specific language.</p>
+      <div class="instance-links">
+        <a href="../index.html">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
+          Homepage
+        </a>
+        <a href="../presentation.html">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="11" rx="1.5"/><line x1="7" y1="18" x2="13" y2="18"/></svg>
+          Process Deck
+        </a>
+      </div>
+    </div>
+
+    <div class="instance accent-teal">
+      <div class="instance-top">
+        <span class="instance-name">Muslim Organizations</span>
+        <span class="instance-path">/muslim-orgs/</span>
+      </div>
+      <p class="instance-desc">Hyper-targeted for Sunni Muslim organizations, masajid, and Islamic nonprofits — Arabic terminology, community-specific credentials, and closing dua included.</p>
+      <div class="instance-links">
+        <a href="../muslim-orgs/index.html">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
+          Homepage
+        </a>
+        <a href="../muslim-orgs/presentation.html">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="11" rx="1.5"/><line x1="7" y1="18" x2="13" y2="18"/></svg>
+          Process Deck
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="future-note">Adding a new instance: create a new folder (e.g. <strong>/christian-orgs/</strong>, <strong>/healthcare/</strong>), fork the generic homepage + deck into it, customize the language, then add a new card here.</p>
+</div>
+
+</body>
+</html>
