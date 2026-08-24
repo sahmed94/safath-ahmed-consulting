@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>মায়ের দোয়া রেন্ট-এ-কার | Sadik Rent A Car</title>
+<meta name="description" content="কিশোরগঞ্জ থেকে বিশ্বস্ত গাড়ি ভাড়া — ১০+ বছরের অভিজ্ঞতা।">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+
+  :root{
+    --ink:#12181F;
+    --paper:#FFFFFF;
+    --paper-2:#F4F6F8;
+    --deep:#0E1520;
+    --accent:#FF7A1A;
+    --accent-dark:#D9630D;
+    --green:#1E9E4E;
+    --blue:#1E7AE0;
+    --red:#E0341E;
+    --gold:#E8A710;
+    --line:rgba(18,24,31,0.12);
+    --line-invert:rgba(255,255,255,0.16);
+    --muted:#5C6773;
+    --muted-invert:#B9C2CC;
+    --radius:10px;
+    --display:'Poppins', 'Hind Siliguri', sans-serif;
+    --sans:'Hind Siliguri', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--sans); color:var(--ink); background:var(--paper); line-height:1.5; overflow-x:hidden; }
+  img,svg{ display:block; max-width:100%; }
+  .wrap{ max-width:1160px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+  section{ padding:64px 0; position:relative; overflow:hidden; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  /* ---------- HEADER ---------- */
+  header{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:1px solid var(--line); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; gap:14px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand-mark{ width:38px; height:38px; border-radius:9px; background:var(--green); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand-mark svg{ width:22px; height:22px; }
+  .brand-mark svg *{ fill:none; stroke:var(--paper); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .brand-text{ line-height:1.2; }
+  .brand-text .bn{ font-weight:700; font-size:17px; display:block; }
+  .brand-text .en{ font-size:11px; color:var(--muted); }
+  .nav-right{ display:flex; align-items:center; gap:12px; }
+  .lang-toggle{ display:flex; border:1px solid var(--line); border-radius:20px; padding:3px; gap:2px; }
+  .lang-btn{ font-weight:600; font-size:12.5px; background:transparent; color:var(--muted); border:none; cursor:pointer; padding:6px 13px; border-radius:16px; transition:background .2s, color .2s; }
+  .lang-btn.is-active{ background:var(--ink); color:var(--paper); }
+  .nav-cta{ font-weight:700; font-size:14px; background:var(--accent); color:var(--paper); text-decoration:none; padding:11px 20px; border-radius:var(--radius); transition:background .2s, transform .2s; }
+  .nav-cta:hover{ background:var(--accent-dark); transform:translateY(-1px); }
+
+  /* ---------- HERO ---------- */
+  .hero{ background:linear-gradient(160deg, var(--deep) 0%, #1A2438 100%); color:var(--paper); padding:56px 0 0; }
+  .hero .wrap{ text-align:center; position:relative; z-index:2; }
+  .hero-eyebrow{ font-weight:700; font-size:14px; letter-spacing:.04em; color:var(--gold); margin-bottom:14px; }
+  .hero h1{ font-weight:700; font-size:clamp(30px,5.4vw,52px); line-height:1.2; }
+  .hero h1 span{ color:var(--accent); }
+  .hero .tagline{ font-size:16px; color:var(--muted-invert); margin-top:12px; }
+  .hero-ctas{ display:flex; gap:14px; justify-content:center; margin-top:28px; flex-wrap:wrap; }
+  .btn-primary{ font-weight:700; font-size:16px; background:var(--accent); color:var(--paper); text-decoration:none; padding:15px 28px; border-radius:var(--radius); transition:background .2s, transform .2s; box-shadow:0 10px 26px -8px rgba(255,122,26,0.6); }
+  .btn-primary:hover{ background:var(--accent-dark); transform:translateY(-2px); }
+  .btn-secondary{ font-weight:700; font-size:16px; background:rgba(255,255,255,0.08); color:var(--paper); text-decoration:none; padding:15px 28px; border-radius:var(--radius); border:1px solid var(--line-invert); transition:border-color .2s, background .2s; }
+  .btn-secondary:hover{ border-color:var(--gold); }
+  .hero-stats{ display:flex; gap:14px; justify-content:center; margin-top:34px; flex-wrap:wrap; }
+  .hero-stat{ text-align:center; }
+  .hero-stat .num{ font-family:var(--display); font-weight:800; font-size:38px; color:var(--gold); line-height:1; }
+  .hero-stat .lbl{ font-size:12.5px; color:var(--muted-invert); margin-top:4px; }
+
+  /* ---------- ROAD ANIMATION ---------- */
+  .road-stage{ position:relative; height:90px; margin-top:44px; overflow:hidden; }
+  .road-line{ position:absolute; top:50%; left:0; right:0; height:4px; transform:translateY(-50%); background-image:repeating-linear-gradient(90deg, var(--gold) 0 26px, transparent 26px 52px); animation:road-scroll 1.4s linear infinite; }
+  @keyframes road-scroll{ from{ background-position-x:0; } to{ background-position-x:-52px; } }
+  .road-car{ position:absolute; top:50%; width:64px; height:64px; transform:translate(-50%,-62%); animation:car-drive 5s ease-in-out infinite; }
+  .road-car svg *{ fill:none; stroke:var(--paper); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .road-car .fill1{ fill:var(--accent); stroke:none; }
+  .road-car .fill2{ fill:var(--paper); stroke:none; }
+  @keyframes car-drive{
+    0%{ left:-8%; }
+    45%{ left:50%; transform:translate(-50%,-64%) scale(1.06); }
+    55%{ left:50%; transform:translate(-50%,-64%) scale(1.06); }
+    100%{ left:108%; }
+  }
+
+  /* ---------- SECTION HEAD ---------- */
+  .shead{ text-align:center; margin-bottom:34px; }
+  .shead .eyebrow{ font-weight:700; font-size:13px; letter-spacing:.04em; margin-bottom:8px; }
+  .shead h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.4vw,36px); }
+  .shead p{ color:var(--muted); margin-top:8px; font-size:15px; }
+
+  /* ---------- FLEET (real photos) ---------- */
+  .fleet{ background:var(--paper-2); }
+  .fleet-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:22px; margin-top:8px; }
+  @media (max-width:760px){ .fleet-grid{ grid-template-columns:1fr; } }
+  .fleet-card{ background:var(--paper); border-radius:var(--radius); overflow:hidden; box-shadow:0 16px 40px -18px rgba(14,21,32,0.25); transition:transform .3s ease; }
+  .fleet-card:hover{ transform:translateY(-6px); }
+  .fleet-photo{ width:100%; height:230px; object-fit:cover; display:block; }
+  .fleet-photo-placeholder{ width:100%; height:230px; background:linear-gradient(135deg,#E9EDF1,#DCE2E8); display:flex; align-items:center; justify-content:center; }
+  .fleet-photo-placeholder svg{ width:70px; height:70px; }
+  .fleet-photo-placeholder svg *{ fill:none; stroke:#9AA5B1; stroke-width:1.4; }
+  .fleet-body{ padding:20px 22px 24px; }
+  .fleet-body h3{ font-family:var(--display); font-weight:700; font-size:19px; }
+  .fleet-body .note{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .fleet-tags{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .fleet-tag{ font-size:12.5px; font-weight:700; color:var(--paper); border-radius:20px; padding:5px 13px; }
+
+  /* ---------- INFOGRAPHIC GRID (services / driver / why-us reused pattern) ---------- */
+  .igrid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:8px; }
+  @media (max-width:900px){ .igrid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:480px){ .igrid{ grid-template-columns:1fr; } }
+  .icard{ text-align:center; background:var(--paper); border-radius:var(--radius); padding:24px 16px; border-top:4px solid var(--accent); box-shadow:0 10px 26px -16px rgba(14,21,32,0.2); transition:transform .25s ease, box-shadow .25s ease; }
+  .icard:hover{ transform:translateY(-5px); box-shadow:0 16px 34px -16px rgba(14,21,32,0.3); }
+  .icon-badge{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .icon-badge svg{ width:26px; height:26px; }
+  .icon-badge svg *{ fill:none; stroke:var(--paper); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .icard h4{ font-weight:700; font-size:15.5px; }
+  .icard p{ font-size:12.5px; color:var(--muted); margin-top:5px; }
+
+  /* accent cycling */
+  .icard:nth-child(8n+1){ border-top-color:var(--accent); } .icard:nth-child(8n+1) .icon-badge{ background:var(--accent); }
+  .icard:nth-child(8n+2){ border-top-color:var(--blue); } .icard:nth-child(8n+2) .icon-badge{ background:var(--blue); }
+  .icard:nth-child(8n+3){ border-top-color:var(--green); } .icard:nth-child(8n+3) .icon-badge{ background:var(--green); }
+  .icard:nth-child(8n+4){ border-top-color:var(--red); } .icard:nth-child(8n+4) .icon-badge{ background:var(--red); }
+  .icard:nth-child(8n+5){ border-top-color:var(--gold); } .icard:nth-child(8n+5) .icon-badge{ background:var(--gold); }
+  .icard:nth-child(8n+6){ border-top-color:var(--blue); } .icard:nth-child(8n+6) .icon-badge{ background:var(--blue); }
+  .icard:nth-child(8n+7){ border-top-color:var(--accent); } .icard:nth-child(8n+7) .icon-badge{ background:var(--accent); }
+  .icard:nth-child(8n+8){ border-top-color:var(--green); } .icard:nth-child(8n+8) .icon-badge{ background:var(--green); }
+
+  /* ---------- GALLERY ---------- */
+  .gallery-grid{ display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:150px; gap:14px; grid-auto-flow:dense; margin-top:8px; }
+  .gtile{ position:relative; border-radius:var(--radius); overflow:hidden; box-shadow:0 12px 28px -16px rgba(14,21,32,0.3); transition:transform .3s ease; }
+  .gtile:hover{ transform:scale(1.02); }
+  .gtile.large{ grid-column:span 2; grid-row:span 2; }
+  .gtile.wide{ grid-column:span 2; }
+  .gtile img, .gtile .illo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .gtile .overlay{ position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,0.72) 0%, transparent 60%); display:flex; align-items:flex-end; padding:16px; }
+  .gtile .label{ color:#fff; font-weight:700; font-size:15px; line-height:1.3; }
+  .gtile .label .sub{ display:block; font-size:11.5px; font-weight:500; opacity:.85; margin-top:2px; }
+  @media (max-width:760px){
+    .gallery-grid{ grid-template-columns:repeat(2, 1fr); grid-auto-rows:150px; }
+    .gtile.large{ grid-column:span 2; grid-row:span 1; height:190px; }
+    .gtile.wide{ grid-column:span 2; }
+  }
+
+  /* ---------- DRIVER TRUST ---------- */
+  .driver{ background:var(--deep); color:var(--paper); }
+  .driver .shead p{ color:var(--muted-invert); }
+  .driver .icard{ background:rgba(255,255,255,0.04); border-top-width:4px; box-shadow:none; }
+  .driver .icard h4{ color:var(--paper); }
+  .driver .icard p{ color:var(--muted-invert); }
+  .driver-photo-wrap{ text-align:center; margin-bottom:36px; }
+  .driver-photo-circle{
+    width:140px; height:140px; border-radius:50%; margin:0 auto;
+    background:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    border:3px dashed var(--line-invert);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .driver-photo-circle svg{ width:56px; height:56px; }
+  .driver-photo-circle svg *{ fill:none; stroke:var(--muted-invert); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  .driver-photo-caption{ font-size:12.5px; color:var(--muted-invert); margin-top:12px; }
+
+  /* ---------- ABOUT SADIK ---------- */
+  .about{ background:var(--paper-2); }
+  .about-grid{ display:grid; grid-template-columns:220px 1fr; gap:36px; align-items:center; margin-top:8px; }
+  @media (max-width:700px){ .about-grid{ grid-template-columns:1fr; text-align:center; } }
+  .about-photo-wrap{ position:relative; }
+  .about-photo{ width:220px; height:220px; border-radius:50%; object-fit:cover; border:6px solid var(--paper); box-shadow:0 16px 40px -14px rgba(14,21,32,0.35); margin:0 auto; }
+  .about-badge{ position:absolute; bottom:6px; right:6px; background:var(--green); color:var(--paper); font-weight:800; font-size:13px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.1; border:4px solid var(--paper); }
+  @media (max-width:700px){ .about-badge{ right:calc(50% - 110px - 10px); } }
+  .about-text h3{ font-family:var(--display); font-weight:800; font-size:24px; }
+  .about-text .role{ color:var(--accent-dark); font-weight:700; font-size:13.5px; margin-top:4px; }
+  .about-text p{ margin-top:14px; color:var(--muted); font-size:15.5px; line-height:1.7; }
+  .about-tags{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; justify-content:flex-start; }
+  @media (max-width:700px){ .about-tags{ justify-content:center; } }
+  .about-tag{ font-size:12.5px; font-weight:700; background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:6px 14px; }
+
+  /* ---------- WHY US STATS ---------- */
+  .why-us{ background:linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color:var(--paper); }
+  .why-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; text-align:center; margin-top:8px; }
+  @media (max-width:700px){ .why-grid{ grid-template-columns:1fr; } }
+  .why-stat{ font-family:var(--display); font-weight:800; font-size:44px; line-height:1; }
+  .why-label{ font-size:14px; margin-top:8px; opacity:.92; }
+
+  /* ---------- HOW TO BOOK ---------- */
+  .book-steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-top:8px; counter-reset:stepnum; }
+  @media (max-width:760px){ .book-steps{ grid-template-columns:1fr; } }
+  .book-step{ text-align:center; position:relative; padding:26px 18px; }
+  .book-num{ width:42px; height:42px; border-radius:50%; background:var(--ink); color:var(--paper); font-family:var(--display); font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .book-step h4{ font-weight:700; font-size:16.5px; }
+  .book-step p{ font-size:13.5px; color:var(--muted); margin-top:6px; }
+
+  /* ---------- CONTACT ---------- */
+  .contact{ text-align:center; }
+  .contact h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.2vw,34px); }
+  .contact p.sub{ color:var(--muted); margin-top:10px; font-size:15.5px; }
+  .contact-cards{ display:flex; gap:14px; justify-content:center; margin-top:28px; flex-wrap:wrap; }
+  .contact-card{ border:1px solid var(--line); border-radius:var(--radius); padding:18px 24px; min-width:190px; text-decoration:none; transition:border-color .2s, transform .2s, box-shadow .2s; }
+  .contact-card:hover{ border-color:var(--accent); transform:translateY(-3px); box-shadow:0 12px 26px -14px rgba(14,21,32,0.25); }
+  .contact-card .label{ font-size:12px; color:var(--muted); }
+  .contact-card .value{ font-weight:700; font-size:18px; margin-top:2px; }
+  .contact-card.primary{ background:var(--accent); border-color:var(--accent); color:var(--paper); }
+  .contact-card.primary .label{ color:rgba(255,255,255,0.85); }
+  .contact-location{ margin-top:26px; font-size:14.5px; color:var(--muted); }
+  .contact-location strong{ color:var(--ink); }
+
+  footer{ text-align:center; padding:24px 0; font-size:12.5px; color:var(--muted); border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,13 L4,8 L7,6 L13,6 L16,8 L17,13"/><rect x="2" y="13" width="16" height="4" rx="1.5"/><circle cx="6" cy="17" r="1.5"/><circle cx="14" cy="17" r="1.5"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="bn">মায়ের দোয়া রেন্ট-এ-কার</span>
+        <span class="en">Sadik Rent A Car</span>
+      </span>
+    </a>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn is-active" data-lang="bn" type="button">বাংলা</button>
+        <button class="lang-btn" data-lang="en" type="button">English</button>
+      </div>
+      <a class="nav-cta" href="tel:+8801945730204" data-en="Call Now">এখনই কল করুন</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <p class="hero-eyebrow" data-en="KISHOREGANJ RENT-A-CAR">কিশোরগঞ্জ রেন্ট-এ-কার</p>
+    <h1 data-en-html="10+ Years of <span>Trusted</span> Car Rental">১০+ বছরের <span>বিশ্বস্ত</span> গাড়ি ভাড়া</h1>
+    <p class="tagline" data-en="One rider, one satisfaction — every single time.">একজন যাত্রী, একটি সন্তুষ্টি — প্রতিবার।</p>
+    <div class="hero-ctas">
+      <a class="btn-primary" href="tel:+8801945730204" data-en="Call Sadik Now">সাদিককে কল করুন</a>
+      <a class="btn-secondary" href="#fleet" data-en="See Our Cars">আমাদের গাড়ি দেখুন</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">১০+</div><div class="lbl" data-en="Years of Service">বছরের সেবা</div></div>
+      <div class="hero-stat"><div class="num">১২</div><div class="lbl" data-en="Seat Microbus">সিটের মাইক্রো</div></div>
+      <div class="hero-stat"><div class="num">২৪/৭</div><div class="lbl" data-en="Ready to Go">যেকোনো সময় প্রস্তুত</div></div>
+    </div>
+  </div>
+  <div class="road-stage" aria-hidden="true">
+    <div class="road-line"></div>
+    <div class="road-car">
+      <svg viewBox="0 0 64 64">
+        <path class="fill1" d="M6,40 L10,26 L18,20 L46,20 L54,26 L58,40 L58,46 L6,46 Z"/>
+        <rect class="fill2" x="16" y="24" width="12" height="10" rx="1.5"/>
+        <rect class="fill2" x="30" y="24" width="16" height="10" rx="1.5"/>
+        <circle class="fill2" cx="18" cy="46" r="6"/>
+        <circle cx="18" cy="46" r="2.4" fill="var(--deep)" stroke="none"/>
+        <circle class="fill2" cx="46" cy="46" r="6"/>
+        <circle cx="46" cy="46" r="2.4" fill="var(--deep)" stroke="none"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO SHOWCASE -->
+<section class="showcase" id="showcase" style="background:var(--paper-2);">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="WATCH OUR VIDEOS">ভিডিওতে দেখুন</p>
+      <h2 data-en="Our Cars &amp; Service">আমাদের গাড়ি ও সার্ভিস</h2>
+    </div>
+    <div class="video-stage reveal" id="videoStage" style="position:relative; width:100%; max-width:900px; margin:0 auto; aspect-ratio:16/9; background:#000; border-radius:var(--radius); overflow:hidden; box-shadow:0 30px 70px -25px rgba(14,21,32,0.35);">
+      <div class="video-slide is-active" data-slide="0" style="position:absolute; inset:0; opacity:1; display:flex; align-items:center; justify-content:center; transition:opacity .5s ease;">
+        <iframe id="ytPlayer" style="width:100%; height:100%; border:none;"
+          src="https://www.youtube.com/embed/3xR4dffQoms?enablejsapi=1&rel=0"
+          title="Sadik Rent A Car" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+      <div class="video-slide" data-slide="1" style="position:absolute; inset:0; opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity .5s ease; pointer-events:none;">
+        <div class="fb-video" data-href="https://www.facebook.com/reel/2386095351915075" data-width="auto" data-show-text="false" style="width:100%; height:100%;"></div>
+      </div>
+    </div>
+    <div class="video-dots" style="display:flex; justify-content:center; gap:10px; margin-top:22px;">
+      <button class="video-dot is-active" data-goto="0" aria-label="Video 1" style="width:9px; height:9px; border-radius:50%; border:1.5px solid var(--accent); background:var(--accent); padding:0; cursor:pointer;"></button>
+      <button class="video-dot" data-goto="1" aria-label="Video 2" style="width:9px; height:9px; border-radius:50%; border:1.5px solid var(--accent); background:transparent; padding:0; cursor:pointer;"></button>
+    </div>
+  </div>
+</section>
+
+<!-- FLEET — REAL PHOTOS -->
+<section class="fleet" id="fleet">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="OUR FLEET">আমাদের গাড়িসমূহ</p>
+      <h2 data-en="Real Cars, Ready Today">আমাদের আসল গাড়ি</h2>
+    </div>
+    <div class="fleet-grid">
+      <div class="fleet-card reveal">
+        <img class="fleet-photo" src="img/van-day.jpg" alt="Sadik Rent A Car microbus">
+        <div class="fleet-body">
+          <h3 data-en="Microbus (HiAce)">মাইক্রো (হাইএস)</h3>
+          <p class="note" data-en="Actual vehicle photo">আমাদের নিজস্ব গাড়ির ছবি</p>
+          <div class="fleet-tags">
+            <span class="fleet-tag" style="background:var(--accent);" data-en="12 Seats">১২ সিট</span>
+            <span class="fleet-tag" style="background:var(--blue);" data-en="AC / Non-AC">এসি / নন-এসি</span>
+          </div>
+        </div>
+      </div>
+      <div class="fleet-card reveal">
+        <div class="fleet-photo-placeholder">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,13 L4,9 L6,7 L14,7 L16,9 L17,13"/><rect x="2" y="13" width="16" height="3.5" rx="1.5"/><circle cx="6" cy="16.5" r="1.3"/><circle cx="14" cy="16.5" r="1.3"/></svg>
+        </div>
+        <div class="fleet-body">
+          <h3 data-en="Private Car">প্রাইভেট কার</h3>
+          <p class="note" data-en="Photo coming soon">শীঘ্রই আসল ছবি যুক্ত হবে</p>
+          <div class="fleet-tags">
+            <span class="fleet-tag" style="background:var(--green);" data-en="AC">এসি</span>
+            <span class="fleet-tag" style="background:var(--gold);" data-en="Comfortable">আরামদায়ক</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES AS GALLERY -->
+<section class="services" style="background:var(--paper-2);">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="WHERE WE TAKE YOU">যেখানে আমরা নিয়ে যাই</p>
+      <h2 data-en="Every Destination, Every Occasion">যেকোনো গন্তব্য, যেকোনো উপলক্ষ্যে</h2>
+    </div>
+    <div class="gallery-grid reveal">
+
+      <div class="gtile large">
+        <img src="img/van-day.jpg" alt="Long distance travel">
+        <div class="overlay">
+          <div class="label" data-en-html="Long Distance<span class='sub'>Anywhere in Bangladesh</span>">দূরপাল্লার ভ্রমণ<span class="sub">বাংলাদেশের যেকোনো স্থানে</span></div>
+        </div>
+      </div>
+
+      <div class="gtile">
+        <svg class="illo" viewBox="0 0 200 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="200" height="170" fill="#1E7AE0"/>
+          <circle cx="165" cy="28" r="24" fill="#ffffff" opacity=".12"/>
+          <circle cx="30" cy="130" r="40" fill="#ffffff" opacity=".08"/>
+          <path d="M100,20 L107,52 L158,72 L158,79 L107,69 L100,105 L114,119 L114,125 L100,119 L86,125 L86,119 L100,105 L93,69 L42,79 L42,72 L93,52 Z" fill="#fff"/>
+        </svg>
+        <div class="overlay"><div class="label" data-en="Dhaka Airport">ঢাকা এয়ারপোর্ট</div></div>
+      </div>
+
+      <div class="gtile">
+        <svg class="illo" viewBox="0 0 200 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="200" height="170" fill="#E8A710"/>
+          <circle cx="85" cy="88" r="30" fill="none" stroke="#fff" stroke-width="7"/>
+          <circle cx="118" cy="88" r="30" fill="none" stroke="#fff" stroke-width="7" opacity=".85"/>
+        </svg>
+        <div class="overlay"><div class="label" data-en="Weddings">বিবাহ অনুষ্ঠান</div></div>
+      </div>
+
+      <div class="gtile">
+        <img src="img/van-night.jpg" alt="Ready day or night">
+        <div class="overlay"><div class="label" data-en="Day &amp; Night">দিনে ও রাতে</div></div>
+      </div>
+
+      <div class="gtile">
+        <svg class="illo" viewBox="0 0 200 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="200" height="170" fill="#1E9E4E"/>
+          <circle cx="155" cy="35" r="20" fill="#FFD86B"/>
+          <path d="M45,170 L45,105 Q45,72 100,72 Q155,72 155,105 L155,170 Z" fill="#0E1520"/>
+          <circle cx="100" cy="60" r="10" fill="#0E1520"/>
+          <line x1="100" y1="50" x2="100" y2="38" stroke="#0E1520" stroke-width="4"/>
+        </svg>
+        <div class="overlay"><div class="label" data-en="Sightseeing">বেড়ানো / দর্শনীয় স্থান</div></div>
+      </div>
+
+      <div class="gtile wide">
+        <svg class="illo" viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="400" height="170" fill="#E0341E"/>
+          <rect x="160" y="40" width="80" height="76" rx="8" fill="#fff"/>
+          <rect x="160" y="40" width="80" height="20" rx="8" fill="#E0341E" opacity=".3"/>
+          <line x1="178" y1="28" x2="178" y2="48" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+          <line x1="222" y1="28" x2="222" y2="48" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+          <line x1="172" y1="76" x2="228" y2="76" stroke="#E0341E" stroke-width="4" stroke-linecap="round"/>
+          <line x1="172" y1="92" x2="210" y2="92" stroke="#E0341E" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <div class="overlay"><div class="label" data-en="Daily, Weekly &amp; Event-Based Rental">দৈনিক, সাপ্তাহিক ও অনুষ্ঠান ভিত্তিক ভাড়া</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DRIVER TRUST -->
+<section class="driver">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--gold);" data-en="YOUR DRIVER">আপনার ড্রাইভার</p>
+      <h2 data-en="Not Just a Driver — Someone You Can Trust">শুধু ড্রাইভার নয় — বিশ্বস্ত একজন সঙ্গী</h2>
+    </div>
+    <div class="driver-photo-wrap reveal">
+      <div class="driver-photo-circle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4,21 v-1 a8,8 0 0 1 16,0 v1"/></svg>
+      </div>
+      <p class="driver-photo-caption" data-en="Driver photo coming soon">ড্রাইভারের ছবি শীঘ্রই যুক্ত হবে</p>
+    </div>
+    <div class="igrid">
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6,10.5 L9,13.5 L14,7"/></svg></div>
+        <h4 data-en="Trustworthy &amp; Friendly">বিশ্বস্ত ও বন্ধুত্বপূর্ণ</h4>
+        <p data-en="Easy to talk to, always polite">সহজে কথা বলা যায়, সবসময় ভদ্র</p>
+      </div>
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2,10 C4,5 8,3 10,3 C12,3 16,5 18,10 C16,15 12,17 10,17 C8,17 4,15 2,10 Z"/><circle cx="10" cy="10" r="3"/></svg></div>
+        <h4 data-en="Knows Every Shortcut">সংক্ষিপ্ত পথ চেনেন</h4>
+        <p data-en="Fastest, smoothest roads">দ্রুততম ও মসৃণ রাস্তা</p>
+      </div>
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M10,5.5 V10 L13.5,12.5"/></svg></div>
+        <h4 data-en="Ready Day or Night">দিনে ও রাতে প্রস্তুত</h4>
+        <p data-en="Anytime you need">যেকোনো সময় প্রয়োজনে</p>
+      </div>
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="4" width="8" height="13" rx="1"/><line x1="3" y1="17" x2="13" y2="17"/><line x1="6" y1="7.5" x2="10" y2="7.5"/><path d="M12,7 L15,9 V15 a1,1 0 0 0 2,0 V8 L15,5.5"/></svg></div>
+        <h4 data-en="Always Clean, Full Tank">সবসময় পরিষ্কার, ফুল ট্যাংক</h4>
+        <p data-en="Car ready before you arrive">আপনার আগেই গাড়ি প্রস্তুত</p>
+      </div>
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10,2 L12.4,7.4 L18,8 L13.8,11.8 L15,17.5 L10,14.5 L5,17.5 L6.2,11.8 L2,8 L7.6,7.4 Z"/></svg></div>
+        <h4 data-en="Knows the Best Stops">পথের সেরা জায়গা চেনেন</h4>
+        <p data-en="Good food, good rest stops">ভালো খাবার, ভালো বিশ্রামস্থল</p>
+      </div>
+      <div class="icard reveal">
+        <div class="icon-badge"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6,10.5 L9,13.5 L14,7"/></svg></div>
+        <h4 data-en="Safety First">নিরাপত্তা সবার আগে</h4>
+        <p data-en="Careful, steady driving">সতর্ক ও স্থির ড্রাইভিং</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT SADIK -->
+<section class="about">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="THE OWNER">মালিকের পরিচয়</p>
+      <h2 data-en="Meet Sadik">সাদিকের সাথে পরিচয়</h2>
+    </div>
+    <div class="about-grid reveal">
+      <div class="about-photo-wrap">
+        <img class="about-photo" src="img/sadik-owner.jpg" alt="Md. Taufiqur Rahman (Sadik)">
+        <div class="about-badge">১০+<br><span style="font-size:9px; font-weight:600;">বছর</span></div>
+      </div>
+      <div class="about-text">
+        <h3>মো: তাওফিকুর রহমান (সাদিক)</h3>
+        <p class="role" data-en="PROPRIETOR, MAYER DOA RENT-A-CAR">প্রোপ্রাইটর, মায়ের দোয়া রেন্ট-এ-কার</p>
+        <p data-en="Known and trusted throughout the Kishoreganj community for over a decade. Fair pricing, honest business, and a personal commitment to every single customer.">এক দশকেরও বেশি সময় ধরে কিশোরগঞ্জের মানুষের কাছে পরিচিত ও বিশ্বস্ত মুখ। ন্যায্য মূল্য, সৎ ব্যবসা, এবং প্রতিটি গ্রাহকের প্রতি ব্যক্তিগত প্রতিশ্রুতি।</p>
+        <div class="about-tags">
+          <span class="about-tag" data-en="🤝 Community Trusted">🤝 কমিউনিটিতে বিশ্বস্ত</span>
+          <span class="about-tag" data-en="⚖️ Fair Pricing">⚖️ ন্যায্য মূল্য</span>
+          <span class="about-tag" data-en="📞 Direct Contact">📞 সরাসরি যোগাযোগ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-us">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="reveal">
+        <div class="why-stat">১০+</div>
+        <div class="why-label" data-en="Years in Business">বছর ধরে ব্যবসায়</div>
+      </div>
+      <div class="reveal">
+        <div class="why-stat">১২</div>
+        <div class="why-label" data-en="Seat Spacious Microbus">সিটের প্রশস্ত মাইক্রো</div>
+      </div>
+      <div class="reveal">
+        <div class="why-stat">১০০%</div>
+        <div class="why-label" data-en="Direct, No Agents">সরাসরি, কোনো এজেন্ট নয়</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO BOOK -->
+<section class="how-to-book">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="BOOKING PROCESS">বুকিং প্রক্রিয়া</p>
+      <h2 data-en="3 Simple Steps">মাত্র ৩ ধাপ</h2>
+    </div>
+    <div class="book-steps">
+      <div class="book-step reveal">
+        <div class="book-num">১</div>
+        <h4 data-en="Call Us">কল করুন</h4>
+        <p data-en="No waiting line">কোনো ওয়েটিং লাইন নেই</p>
+      </div>
+      <div class="book-step reveal">
+        <div class="book-num">২</div>
+        <h4 data-en="Confirm Date &amp; Car">তারিখ ও গাড়ি নিশ্চিত করুন</h4>
+        <p data-en="Transparent pricing, no hidden costs">স্বচ্ছ মূল্য, কোনো লুকানো খরচ নেই</p>
+      </div>
+      <div class="book-step reveal">
+        <div class="book-num">৩</div>
+        <h4 data-en="Car Ready">গাড়ি প্রস্তুত</h4>
+        <p data-en="Travel with peace of mind">নিশ্চিন্তে যাত্রা করুন</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <h2 class="reveal" data-en="Contact Us to Book a Car">গাড়ি ভাড়া লাগলে যোগাযোগ করুন</h2>
+    <p class="sub reveal" data-en="Call anytime — we are always ready.">যেকোনো সময় কল করুন — আমরা সবসময় প্রস্তুত।</p>
+    <div class="contact-cards reveal">
+      <a class="contact-card primary" href="tel:+8801945730204">
+        <div class="label" data-en="Phone (Sadik)">ফোন (সাদিক)</div>
+        <div class="value">01945-730204</div>
+      </a>
+      <a class="contact-card" href="tel:+8801715497385">
+        <div class="label" data-en="Phone (Alternate)">ফোন (বিকল্প)</div>
+        <div class="value">01715-497385</div>
+      </a>
+      <a class="contact-card" href="https://wa.me/8801945730204" target="_blank" rel="noopener">
+        <div class="label" data-en="WhatsApp">হোয়াটসঅ্যাপ</div>
+        <div class="value" style="font-size:15px;" data-en="Send Message ↗">মেসেজ পাঠান ↗</div>
+      </a>
+      <a class="contact-card" href="https://m.me/61561371748495" target="_blank" rel="noopener">
+        <div class="label" data-en="Messenger (Page)">মেসেঞ্জার (পেজ)</div>
+        <div class="value" style="font-size:15px;">Sadik Rent A Car ↗</div>
+      </a>
+      <a class="contact-card" href="https://m.me/mdtaufiku" target="_blank" rel="noopener">
+        <div class="label" data-en="Messenger (Taufiku)">মেসেঞ্জার (তৌফিক)</div>
+        <div class="value" style="font-size:15px;" data-en="Send Message ↗">মেসেজ পাঠান ↗</div>
+      </a>
+    </div>
+    <p class="contact-location reveal" data-en-html="📍 <strong>Address:</strong> Old Stadium, Kishoreganj (near Bachchu Medical Hall)">📍 <strong>ঠিকানা:</strong> পুরাতন স্টেডিয়াম, কিশোরগঞ্জ (বাচ্চু মেডিকেল হলের কাছে)</p>
+  </div>
+</section>
+
+<footer>
+  মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car
+</footer>
+
+<script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
+<div id="fb-root"></div>
+
+<script>
+  (function(){
+    // scroll reveal
+    const items = document.querySelectorAll('.reveal');
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting));
+      }, { threshold:0.15 });
+      items.forEach(el => io.observe(el));
+    } else {
+      items.forEach(el => el.classList.add('is-visible'));
+    }
+
+    // video carousel
+    const stage = document.getElementById('videoStage');
+    const slides = stage.querySelectorAll('.video-slide');
+    const dots = document.querySelectorAll('.video-dot');
+    let fbFallbackTimer = null;
+    function goTo(index){
+      slides.forEach((s,i) => {
+        s.style.opacity = i === index ? '1' : '0';
+        s.style.pointerEvents = i === index ? 'auto' : 'none';
+      });
+      dots.forEach((d,i) => {
+        d.classList.toggle('is-active', i === index);
+        d.style.background = i === index ? 'var(--accent)' : 'transparent';
+      });
+      clearTimeout(fbFallbackTimer);
+      if(index === 1){
+        fbFallbackTimer = setTimeout(() => goTo(0), 60000);
+      }
+    }
+    dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.goto,10))));
+    window.onYouTubeIframeAPIReady = function(){
+      new YT.Player('ytPlayer', {
+        events: { onStateChange: function(e){ if(e.data === YT.PlayerState.ENDED){ goTo(1); } } }
+      });
+    };
+    const ytScript = document.createElement('script');
+    ytScript.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(ytScript);
+
+    // language toggle
+    const textEls = document.querySelectorAll('[data-en]');
+    const htmlEls = document.querySelectorAll('[data-en-html]');
+    const langBtns = document.querySelectorAll('.lang-btn');
+    textEls.forEach(el => { el.dataset.bn = el.textContent; });
+    htmlEls.forEach(el => { el.dataset.bnHtml = el.innerHTML; });
+    function setLang(lang){
+      textEls.forEach(el => { el.textContent = lang === 'en' ? el.dataset.en : el.dataset.bn; });
+      htmlEls.forEach(el => { el.innerHTML = lang === 'en' ? el.dataset.enHtml : el.dataset.bnHtml; });
+      document.documentElement.lang = lang;
+      langBtns.forEach(b => b.classList.toggle('is-active', b.dataset.lang === lang));
+    }
+    langBtns.forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+  })();
+</script>
+
+</body>
+</html>
