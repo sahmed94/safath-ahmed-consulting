@@ -123,8 +123,8 @@
   .cat-tab:hover{ border-color:var(--blue); color:var(--ink); }
   .cat-tab.is-active{ background:var(--blue); border-color:var(--blue); color:#fff; }
   .cat-panel{ display:none; }
-  .panel-photo{ position:relative; border-radius:var(--radius); overflow:hidden; margin:0 auto 24px; max-width:520px; background:var(--ink); }
-  .panel-photo img{ width:100%; height:auto; display:block; margin:0 auto; image-rendering:auto; filter:saturate(1.08) contrast(1.03); }
+  .panel-photo{ position:relative; border-radius:var(--radius); overflow:hidden; margin:0 auto 24px; max-width:900px; height:360px; background:var(--ink); }
+  .panel-photo img{ width:100%; height:100%; object-fit:cover; display:block; image-rendering:auto; filter:saturate(1.08) contrast(1.03); }
   .panel-photo span{ position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(10,34,64,0.85), transparent); color:#fff; font-size:13px; font-weight:600; padding:14px 18px; }
   .cat-panel.is-shown{ display:block; }
 
@@ -240,7 +240,7 @@
       <a class="btn-outline" href="tel:3012770700">301-277-0700</a>
     </div>
     <div class="hero-photo-frame reveal">
-      <img src="img/carwash_bay.jpg" alt="Kenilworth Car Wash storefront">
+      <img src="img/carwash_hq.jpg" alt="Kenilworth Car Wash storefront">
     </div>
   </div>
 </section>
@@ -269,7 +269,7 @@
 
     <!-- CAR WASH -->
     <div class="cat-panel is-shown reveal" data-panel="car">
-      <div class="panel-photo"><img src="img/wash_tunnel.jpg" alt="Soft cloth car wash tunnel"><span>Our automated soft cloth wash</span></div>
+      <div class="panel-photo"><img src="img/wash_tunnel_hq.jpg" alt="Soft cloth car wash tunnel"><span>Our automated soft cloth wash</span></div>
       <div class="tier-grid">
         <div class="tier pop-item">
           <h3>Regular Wash</h3>
@@ -317,7 +317,7 @@
 
     <!-- TRUCK WASH -->
     <div class="cat-panel reveal" data-panel="truck">
-      <div class="panel-photo"><img src="img/truckwash_bay.jpg" alt="Kenilworth truck wash bay"><span>Our dedicated truck wash bay</span></div>
+      <div class="panel-photo"><img src="img/truckwash_hq.jpg" alt="Kenilworth truck wash bay"><span>Our dedicated truck wash bay</span></div>
       <div class="tier-grid tier-4">
         <div class="tier pop-item">
           <h3>Small Truck</h3>
@@ -368,7 +368,7 @@
 
     <!-- DETAILING -->
     <div class="cat-panel reveal" data-panel="detail">
-      <div class="panel-photo"><img src="img/detailing_interior.jpg" alt="Interior detailing at Kenilworth Car Wash"><span>Interior shampooing is our specialty</span></div>
+      <div class="panel-photo"><img src="img/detailing_hq.jpg" alt="Interior detailing at Kenilworth Car Wash"><span>Interior shampooing is our specialty</span></div>
       <div class="dsvc-grid">
         <div class="dsvc pop-item">
           <div class="dsvc-icon" style="background:var(--blue-bright);"><svg viewBox="0 0 20 20"><path d="M10,2 C6,8 4,12 4,15 a6,6 0 0 0 12,0 C16,12 14,8 10,2 Z"/></svg></div>
@@ -409,7 +409,7 @@
     <div class="cat-panel reveal" data-panel="more">
       <div class="more-grid">
         <div class="more-card pop-item">
-          <div class="more-top more-top-photo"><img src="img/engine_cleaning.jpg" alt="Engine steam cleaning"></div>
+          <div class="more-top more-top-photo"><img src="img/engine_hq.jpg" alt="Engine steam cleaning"></div>
           <div class="more-body">
             <h3>Engine Cleaning</h3>
             <p>Steam cleaning removes dirt &amp; grime, reduces corrosion, and helps your engine run cooler.</p>
@@ -417,7 +417,7 @@
           </div>
         </div>
         <div class="more-card pop-item">
-          <div class="more-top more-top-photo"><img src="img/def_pump.jpg" alt="Diesel exhaust fluid pump"></div>
+          <div class="more-top more-top-photo"><img src="img/def_hq.jpg" alt="Diesel exhaust fluid pump"></div>
           <div class="more-body">
             <h3>Diesel Exhaust Fluid</h3>
             <p>Pay-at-the-pump DEF — priced lower than a 2.5-gallon box, no messy containers. Most diesels need a refill every third fill-up.</p>
