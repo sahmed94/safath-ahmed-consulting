@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Straight Path Auto — Maintenance &amp; Repair</title>
+<meta name="description" content="Straight Path Auto — honest, mobile mechanic service across MD, DC & Northern VA. Owned and operated by Bai Abi Barry.">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#EAEAEA;
+    --paper:#0A0A0A;
+    --paper-2:#131313;
+    --paper-3:#181818;
+    --line:rgba(255,255,255,0.1);
+    --line-soft:rgba(255,255,255,0.06);
+    --red:#B91C1C;
+    --red-bright:#EF4444;
+    --amber:#E8A710;
+    --blue:#1E7AE0;
+    --green:#1E9E4E;
+    --purple:#8B5CF6;
+    --gold:#F5B800;
+    --muted:#9AA1AA;
+    --radius:14px;
+    --display:'Poppins', sans-serif;
+    --sans:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--sans); color:var(--ink); background:var(--paper); line-height:1.5; overflow-x:hidden; }
+  img,svg{ display:block; max-width:100%; }
+  .wrap{ max-width:1160px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+  section{ padding:56px 0; position:relative; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  .progress-track{ position:fixed; top:0; left:0; right:0; height:3px; z-index:70; background:rgba(255,255,255,0.06); }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--red), var(--gold)); box-shadow:0 0 10px rgba(239,68,68,0.6); transition:width .15s ease-out; }
+
+  @keyframes item-pop{ from{ opacity:0; transform:translateY(16px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .is-visible .pop-item, .is-open .pop-item{ animation:item-pop .55s cubic-bezier(.34,1.56,.64,1) backwards; }
+  .pop-item:nth-child(1){ animation-delay:.05s; } .pop-item:nth-child(2){ animation-delay:.1s; }
+  .pop-item:nth-child(3){ animation-delay:.15s; } .pop-item:nth-child(4){ animation-delay:.2s; }
+  .pop-item:nth-child(5){ animation-delay:.25s; }
+
+  .texture::before{
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.5;
+    background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
+  }
+
+  /* ---------- HEADER ---------- */
+  header{ position:sticky; top:0; z-index:50; background:rgba(10,10,10,0.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; gap:14px; }
+  .brand{ display:flex; align-items:center; gap:9px; text-decoration:none; }
+  .brand-mark{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, var(--red-bright), var(--red)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand-mark svg{ width:18px; height:18px; }
+  .brand-mark svg *{ fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .brand-text .main{ font-family:var(--display); font-weight:800; font-size:15px; letter-spacing:-0.01em; color:#fff; }
+  .nav-cta{
+    font-weight:700; font-size:13.5px; color:#fff; text-decoration:none; padding:10px 20px; border-radius:30px;
+    background:linear-gradient(135deg, var(--red-bright), var(--red));
+    box-shadow:0 4px 18px -4px rgba(239,68,68,0.6);
+    animation:cta-glow 3s ease-in-out infinite;
+  }
+  @keyframes cta-glow{ 0%,100%{ box-shadow:0 4px 18px -4px rgba(239,68,68,0.6); } 50%{ box-shadow:0 4px 24px -2px rgba(239,68,68,0.9); } }
+
+  /* ---------- HERO ---------- */
+  .hero{ background:radial-gradient(ellipse at top, #1a1010 0%, #0a0a0a 60%); padding:44px 0 0; text-align:center; overflow:hidden; position:relative; }
+  .hero-glow{ position:absolute; top:-10%; left:50%; transform:translateX(-50%); width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(185,28,28,0.22), transparent 70%); animation:glow-pulse 5s ease-in-out infinite; pointer-events:none; }
+  @keyframes glow-pulse{ 0%,100%{ opacity:.6; transform:translateX(-50%) scale(1); } 50%{ opacity:1; transform:translateX(-50%) scale(1.08); } }
+  .hero-bismillah{ font-size:12px; letter-spacing:.15em; color:var(--red-bright); position:relative; z-index:1; }
+  .hero-owner{ font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-top:4px; position:relative; z-index:1; }
+  .hero-owner strong{ color:var(--red-bright); }
+  .hero h1{
+    font-family:var(--display); font-weight:800; font-size:clamp(30px,6vw,58px); letter-spacing:-0.02em; line-height:1.02; margin-top:14px; position:relative; z-index:1;
+    background:linear-gradient(100deg, #fff 30%, #ff9d9d 45%, #fff 60%); background-size:220% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 6s ease-in-out infinite;
+  }
+  @keyframes shimmer{ 0%{ background-position:200% 0; } 100%{ background-position:-200% 0; } }
+  .hero h1 .accent{ background:linear-gradient(100deg, var(--gold), #fff, var(--gold)); background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shimmer 6s ease-in-out infinite; }
+  .hero-tagline{ font-size:14.5px; letter-spacing:.02em; color:var(--muted); margin-top:10px; }
+  .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+  .btn-outline{ font-weight:700; font-size:13.5px; background:transparent; color:#fff; text-decoration:none; padding:13px 26px; border-radius:30px; border:1px solid rgba(255,255,255,0.35); transition:background .2s, border-color .2s; }
+  .btn-outline:hover{ background:#fff; color:#0a0a0a; }
+  .btn-solid{
+    font-weight:700; font-size:13.5px; color:#fff; text-decoration:none; padding:13px 26px; border-radius:30px; display:inline-flex; align-items:center; gap:8px;
+    background:linear-gradient(135deg, var(--red-bright), var(--red));
+    box-shadow:0 6px 22px -6px rgba(239,68,68,0.6);
+    transition:transform .2s;
+  }
+  .btn-solid:hover{ transform:translateY(-2px); }
+  .hero-trust{ margin-top:26px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap; font-size:11px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; }
+  .hero-trust span{ display:flex; align-items:center; gap:5px; }
+  .hero-trust svg{ width:12px; height:12px; }
+  .hero-trust svg *{ fill:none; stroke:var(--red-bright); stroke-width:2; }
+
+  .gear-stage{ position:relative; height:110px; margin-top:26px; }
+  .gear-stage svg{ position:absolute; }
+  .gear-stage svg *{ fill:none; stroke:rgba(255,255,255,0.16); stroke-width:1.6; }
+  .gear-big{ width:110px; height:110px; left:calc(50% - 95px); top:0px; animation:spin 12s linear infinite; }
+  .gear-small{ width:72px; height:72px; left:calc(50% + 12px); top:22px; animation:spin-rev 8s linear infinite; }
+  .gear-tiny{ width:46px; height:46px; left:calc(50% + 72px); top:52px; animation:spin 6s linear infinite; }
+  @keyframes spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  @keyframes spin-rev{ from{ transform:rotate(0deg); } to{ transform:rotate(-360deg); } }
+
+  /* ---------- SECTION HEAD ---------- */
+  .shead{ text-align:center; margin-bottom:26px; }
+  .shead .eyebrow{ display:inline-block; font-weight:700; font-size:11.5px; letter-spacing:.18em; color:var(--red-bright); background:rgba(185,28,28,0.12); padding:5px 15px; border-radius:20px; margin-bottom:12px; }
+  .shead h2{ font-family:var(--display); font-weight:800; font-size:clamp(26px,4vw,42px); color:#fff; letter-spacing:-0.01em; }
+
+  /* ---------- CATEGORY BUTTONS ---------- */
+  .cat-buttons{ display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin-bottom:30px; }
+  .cat-btn{
+    display:flex; align-items:center; gap:7px;
+    font-size:13px; font-weight:700; color:var(--muted);
+    background:var(--paper-2); border:1.5px solid var(--line); border-radius:24px; padding:9px 18px 9px 12px;
+    cursor:pointer; transition:all .2s ease;
+  }
+  .cat-btn svg{ width:16px; height:16px; }
+  .cat-btn svg *{ fill:none; stroke:var(--cat-color); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .cat-btn:hover{ border-color:var(--cat-color); color:#fff; }
+  .cat-btn.is-active{ background:var(--cat-color); border-color:var(--cat-color); color:#0a0a0a; }
+  .cat-btn.is-active svg *{ stroke:#0a0a0a; }
+  .cat-btn[data-cat="Maintenance"]{ --cat-color:var(--red-bright); }
+  .cat-btn[data-cat="Safety"]{ --cat-color:var(--amber); }
+  .cat-btn[data-cat="Engine"]{ --cat-color:var(--blue); }
+  .cat-btn[data-cat="Drivetrain"]{ --cat-color:var(--green); }
+  .cat-btn[data-cat="Electrical"]{ --cat-color:var(--purple); }
+
+  /* ---------- CAR DIAGRAM ---------- */
+  .car-diagram{ position:relative; max-width:640px; margin:0 auto; }
+  .car-svg{ width:100%; height:auto; display:block; }
+  .hotspot{
+    position:absolute; transform:translate(-50%,-50%);
+    width:40px; height:40px; border-radius:50%;
+    background:var(--paper-2); border:2px solid var(--cat-color, var(--red-bright));
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0; transition:transform .2s ease, background .2s ease;
+  }
+  .hotspot svg{ width:18px; height:18px; position:relative; z-index:1; }
+  .hotspot svg *{ fill:none; stroke:var(--cat-color, var(--red-bright)); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .hotspot:hover{ transform:translate(-50%,-50%) scale(1.1); }
+  .hotspot.is-active{ background:var(--cat-color, var(--red-bright)); }
+  .hotspot.is-active svg *{ stroke:#0a0a0a; }
+  .hotspot-dot{ position:absolute; inset:-6px; border-radius:50%; border:1.5px solid var(--cat-color, var(--red-bright)); animation:hotspot-pulse 2.2s ease-out infinite; }
+  @keyframes hotspot-pulse{ 0%{ transform:scale(0.9); opacity:1; } 100%{ transform:scale(1.4); opacity:0; } }
+  .hotspot[data-cat="Drivetrain"]{ --cat-color:var(--green); }
+  .hotspot[data-cat="Maintenance"]{ --cat-color:var(--red-bright); }
+  .hotspot[data-cat="Safety"]{ --cat-color:var(--amber); }
+  .hotspot[data-cat="Engine"]{ --cat-color:var(--blue); }
+  .hotspot[data-cat="Electrical"]{ --cat-color:var(--purple); }
+
+  .car-hint{ text-align:center; font-size:12px; color:var(--muted); margin-top:16px; transition:opacity .3s ease; }
+  .car-hint.is-hidden{ opacity:0; height:0; margin:0; overflow:hidden; }
+
+  .detail-panel{ max-width:900px; margin:0 auto; display:grid; gap:12px; grid-template-columns:repeat(2, 1fr); max-height:0; opacity:0; overflow:hidden; transition:max-height .5s ease, opacity .4s ease, margin-top .4s ease; }
+  .detail-panel.is-open{ max-height:1200px; opacity:1; margin-top:26px; }
+  @media (max-width:640px){ .detail-panel{ grid-template-columns:1fr; } }
+  .dcard{
+    display:flex; gap:14px;
+    background:var(--paper-2); border:1px solid var(--line); border-radius:14px; padding:16px;
+    transition:transform .2s ease, border-color .2s ease;
+  }
+  .dcard:hover{ transform:translateY(-3px); border-color:var(--cat-color); }
+  .dcard-illo{
+    width:56px; height:56px; border-radius:12px; flex-shrink:0;
+    background:linear-gradient(135deg, color-mix(in srgb, var(--cat-color) 30%, transparent), color-mix(in srgb, var(--cat-color) 10%, transparent));
+    border:1px solid color-mix(in srgb, var(--cat-color) 40%, transparent);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dcard-illo svg{ width:30px; height:30px; }
+  .dcard-illo svg *{ fill:none; stroke:var(--cat-color); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .dcard-body{ flex:1; min-width:0; }
+  .dcard-body h4{ font-family:var(--display); font-weight:700; font-size:15px; color:#fff; }
+  .dcard-body .dwhy{ font-size:12px; color:var(--cat-color); font-weight:600; margin-top:3px; }
+  .dcard-body .drow{ display:flex; gap:6px; font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.4; }
+  .dcard-body .drow b{ color:#c8c8c8; font-weight:600; flex-shrink:0; min-width:46px; }
+  .services-note{ text-align:center; margin-top:24px; font-size:11.5px; letter-spacing:.05em; color:var(--muted); text-transform:uppercase; }
+
+  /* ---------- CREDIBILITY (merged) ---------- */
+  .credibility{ background:linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%); }
+  .cred-grid{ display:grid; grid-template-columns:190px 1fr; gap:34px; align-items:center; }
+  @media (max-width:760px){ .cred-grid{ grid-template-columns:1fr; text-align:center; } }
+  .cred-photo-circle{
+    width:190px; height:190px; border-radius:50%; margin:0 auto; position:relative;
+    background:linear-gradient(135deg, rgba(185,28,28,0.18), rgba(255,255,255,0.03));
+    border:3px dashed var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cred-photo-circle::after{ content:""; position:absolute; inset:-9px; border-radius:50%; border:2px solid rgba(239,68,68,0.35); animation:ring-pulse 2.6s ease-out infinite; }
+  @keyframes ring-pulse{ 0%{ transform:scale(0.94); opacity:1; } 100%{ transform:scale(1.15); opacity:0; } }
+  .cred-photo-circle svg{ width:64px; height:64px; }
+  .cred-photo-circle svg *{ fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  .cred-caption{ font-size:11px; color:var(--muted); margin-top:10px; text-align:center; }
+  .cred-text .kicker{ font-size:11.5px; letter-spacing:.15em; color:var(--red-bright); font-weight:700; }
+  .cred-text h3{ font-family:var(--display); font-weight:800; font-size:26px; color:#fff; margin-top:6px; }
+  .cred-text p{ margin-top:10px; color:var(--muted); font-size:14.5px; line-height:1.6; max-width:60ch; }
+
+  .badge-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  @media (max-width:760px){ .badge-row{ justify-content:center; } }
+  .stat-badge{
+    display:flex; align-items:baseline; gap:7px; padding:10px 16px; border-radius:12px;
+    background:var(--bg-color); border:1px solid var(--border-color);
+  }
+  .stat-badge .n{ font-family:var(--display); font-weight:800; font-size:22px; color:#fff; }
+  .stat-badge .l{ font-size:11px; color:var(--muted); font-weight:600; }
+  .cert-badge{
+    display:flex; align-items:center; gap:7px; padding:9px 15px; border-radius:20px;
+    background:var(--paper-3); border:1px solid var(--line); font-size:12.5px; font-weight:600; color:#dcdcdc;
+  }
+  .cert-badge svg{ width:15px; height:15px; }
+  .cert-badge svg *{ fill:none; stroke:var(--badge-color); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* ---------- FOOTER (merged contact + footer) ---------- */
+  .final{ text-align:center; background:linear-gradient(160deg, #150a0a 0%, #0a0a0a 70%); padding:56px 0 26px; }
+  .final h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.6vw,36px); color:#fff; }
+  .final p.sub{ color:var(--muted); margin-top:8px; font-size:14px; }
+  .final-cards{ display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+  .fcard{
+    border-radius:14px; padding:16px 24px; min-width:190px; text-decoration:none; transition:transform .2s ease;
+  }
+  .fcard:hover{ transform:translateY(-3px); }
+  .fcard .label{ font-size:11px; color:rgba(255,255,255,0.7); letter-spacing:.05em; text-transform:uppercase; }
+  .fcard .value{ font-weight:700; font-size:16px; margin-top:3px; color:#fff; }
+  .fcard.primary{ background:linear-gradient(135deg, var(--red-bright), var(--red)); box-shadow:0 8px 24px -8px rgba(239,68,68,0.5); }
+  .fcard.secondary{ background:var(--paper-2); border:1px solid var(--line); }
+  .final-area{ margin-top:22px; font-size:13px; color:var(--muted); }
+  .final-area strong{ color:#fff; }
+  .final-foot{ margin-top:34px; padding-top:20px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,13 L4,8 L7,6 L13,6 L16,8 L17,13"/><rect x="2" y="13" width="16" height="4" rx="1.5"/><circle cx="6" cy="17" r="1.5"/><circle cx="14" cy="17" r="1.5"/></svg>
+      </span>
+      <span class="brand-text"><span class="main">Straight Path Auto</span></span>
+    </a>
+    <a class="nav-cta" href="tel:3015757839">Call Now</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="hero-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <p class="hero-owner">Owned &amp; operated by <strong>Bai Abi Barry</strong></p>
+    <h1>Straight Path Auto <span class="accent">— Maintenance &amp; Repair</span></h1>
+    <p class="hero-tagline">Quality Service. Honest Work. Every Time.</p>
+    <div class="hero-ctas">
+      <a class="btn-outline" href="#services">Explore Services</a>
+      <a class="btn-solid" href="tel:3015757839">
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M4,3 h4 l2,5 -2.5,1.5 a11,11 0 0 0 5,5 L14,12 l5,2 v4 a2,2 0 0 1 -2,2 A15,15 0 0 1 2,5 A2,2 0 0 1 4,3 Z" fill="#fff" stroke="none"/></svg>
+        Request Service
+      </a>
+    </div>
+    <div class="hero-trust">
+      <span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 L8,14 L16,5"/></svg> Mobile Service</span>
+      <span>All Makes &amp; Models</span>
+      <span>301-575-7839</span>
+    </div>
+    <div class="gear-stage" aria-hidden="true">
+      <svg class="gear-big" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="10"/>
+        <g stroke-width="1.4">
+          <line x1="50" y1="8" x2="50" y2="20"/><line x1="50" y1="80" x2="50" y2="92"/>
+          <line x1="8" y1="50" x2="20" y2="50"/><line x1="80" y1="50" x2="92" y2="50"/>
+          <line x1="20" y1="20" x2="28" y2="28"/><line x1="72" y1="72" x2="80" y2="80"/>
+          <line x1="80" y1="20" x2="72" y2="28"/><line x1="28" y1="72" x2="20" y2="80"/>
+        </g>
+      </svg>
+      <svg class="gear-small" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="28"/><circle cx="50" cy="50" r="9"/>
+        <g stroke-width="1.4"><line x1="50" y1="10" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="90"/><line x1="10" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="90" y2="50"/></g>
+      </svg>
+      <svg class="gear-tiny" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="26"/><circle cx="50" cy="50" r="8"/>
+        <g stroke-width="1.6"><line x1="50" y1="12" x2="50" y2="24"/><line x1="50" y1="76" x2="50" y2="88"/><line x1="12" y1="50" x2="24" y2="50"/><line x1="76" y1="50" x2="88" y2="50"/></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="texture">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">WHAT WE OFFER</p>
+      <h2>Pick a Category</h2>
+    </div>
+
+    <div class="cat-buttons reveal">
+      <button class="cat-btn" data-cat="Maintenance"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7,7 L7,3.5 L9.5,3.5 L13,6.5 L13,7 Z"/><rect x="5" y="7" width="10" height="10" rx="1.5"/><circle cx="10" cy="12" r="2.2"/></svg> Maintenance</button>
+      <button class="cat-btn" data-cat="Safety"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M7,5.5 a5.5,7.5 0 0 0 0,9"/><path d="M13,5.5 a5.5,7.5 0 0 1 0,9"/><line x1="10" y1="6.5" x2="10" y2="11.5"/></svg> Safety</button>
+      <button class="cat-btn" data-cat="Engine"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="8" y="2" width="4" height="3.5" rx="0.5"/><path d="M7.5,5.5 L7.5,9 L6.5,11.5 L6.5,16 L13.5,16 L13.5,11.5 L12.5,9 L12.5,5.5 Z"/></svg> Engine</button>
+      <button class="cat-btn" data-cat="Drivetrain"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><line x1="10" y1="2" x2="10" y2="4.2"/><line x1="10" y1="15.8" x2="10" y2="18"/><line x1="2" y1="10" x2="4.2" y2="10"/><line x1="15.8" y1="10" x2="18" y2="10"/></svg> Drivetrain</button>
+      <button class="cat-btn" data-cat="Electrical"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="6" width="14" height="10" rx="1.5"/><rect x="16" y="9" width="2" height="4" rx="0.5"/><line x1="6.5" y1="6" x2="6.5" y2="4"/><line x1="12" y1="6" x2="12" y2="4"/></svg> Electrical</button>
+    </div>
+
+    <div class="car-diagram reveal">
+      <svg class="car-svg" viewBox="0 0 600 220" aria-hidden="true">
+        <path d="M50,140 C50,125 60,115 75,115 L140,115 C155,90 175,70 200,70 L340,70 C365,70 385,90 400,115 L525,115 C540,115 550,125 550,140 L550,150 L50,150 Z" fill="#1a1a1a" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+        <path d="M212,75 L328,75 C345,75 358,88 368,108 L172,108 C182,88 195,75 212,75 Z" fill="rgba(185,28,28,0.12)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+        <line x1="270" y1="75" x2="270" y2="108" stroke="rgba(255,255,255,0.1)"/>
+        <circle cx="140" cy="150" r="32" fill="#0a0a0a" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+        <circle cx="140" cy="150" r="13" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+        <circle cx="400" cy="150" r="32" fill="#0a0a0a" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+        <circle cx="400" cy="150" r="13" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+      </svg>
+
+      <button class="hotspot" style="left:23.3%; top:68%;" data-cat="Drivetrain" aria-label="Drivetrain services">
+        <span class="hotspot-dot"></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.8"/><line x1="10" y1="2" x2="10" y2="4.2"/><line x1="10" y1="15.8" x2="10" y2="18"/><line x1="2" y1="10" x2="4.2" y2="10"/><line x1="15.8" y1="10" x2="18" y2="10"/></svg>
+      </button>
+      <button class="hotspot" style="left:45%; top:32%;" data-cat="Maintenance" aria-label="Maintenance services">
+        <span class="hotspot-dot"></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7,7 L7,3.5 L9.5,3.5 L13,6.5 L13,7 Z"/><rect x="5" y="7" width="10" height="10" rx="1.5"/><circle cx="10" cy="12" r="2.2"/></svg>
+      </button>
+      <button class="hotspot" style="left:66.7%; top:68%;" data-cat="Safety" aria-label="Safety services">
+        <span class="hotspot-dot"></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M7,5.5 a5.5,7.5 0 0 0 0,9"/><path d="M13,5.5 a5.5,7.5 0 0 1 0,9"/><line x1="10" y1="6.5" x2="10" y2="11.5"/></svg>
+      </button>
+      <button class="hotspot" style="left:78.3%; top:45%;" data-cat="Engine" aria-label="Engine services">
+        <span class="hotspot-dot"></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="8" y="2" width="4" height="3.5" rx="0.5"/><path d="M7.5,5.5 L7.5,9 L6.5,11.5 L6.5,16 L13.5,16 L13.5,11.5 L12.5,9 L12.5,5.5 Z"/></svg>
+      </button>
+      <button class="hotspot" style="left:90.8%; top:59%;" data-cat="Electrical" aria-label="Electrical services">
+        <span class="hotspot-dot"></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="6" width="14" height="10" rx="1.5"/><rect x="16" y="9" width="2" height="4" rx="0.5"/><line x1="6.5" y1="6" x2="6.5" y2="4"/><line x1="12" y1="6" x2="12" y2="4"/></svg>
+      </button>
+    </div>
+
+    <p class="car-hint" id="carHint">↑ Pick a category or tap a part on the car</p>
+    <div class="detail-panel" id="detailPanel"></div>
+    <p class="services-note">Mobile Repair • No Hidden Fees • Honest Quotes</p>
+  </div>
+</section>
+
+<!-- CREDIBILITY (merged Expertise + Experience + Owned/Operated) -->
+<section class="credibility texture">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">EXPERTISE YOU CAN TRUST</p>
+      <h2>Owned &amp; Operated by Bai Abi Barry</h2>
+    </div>
+    <div class="cred-grid reveal">
+      <div>
+        <div class="cred-photo-circle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4,21 v-1 a8,8 0 0 1 16,0 v1"/></svg>
+        </div>
+        <p class="cred-caption">Photo coming soon</p>
+      </div>
+      <div class="cred-text">
+        <p class="kicker">FOUNDER &amp; LEAD TECHNICIAN · EST. 2018</p>
+        <h3>15+ Years of Honest, Hands-On Work</h3>
+        <p>Bai personally handles every job — building relationships, not just transactions. Serving Prince George's County, MD and beyond.</p>
+
+        <div class="badge-row">
+          <div class="stat-badge" style="--bg-color:rgba(239,68,68,0.1); --border-color:rgba(239,68,68,0.3);"><span class="n">15+</span><span class="l">YEARS</span></div>
+          <div class="stat-badge" style="--bg-color:rgba(232,167,16,0.1); --border-color:rgba(232,167,16,0.3);"><span class="n">1,000+</span><span class="l">VEHICLES SERVICED</span></div>
+        </div>
+        <div class="badge-row">
+          <span class="cert-badge" style="--badge-color:var(--blue);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 L8,14 L16,5"/></svg> Certified — All Services</span>
+          <span class="cert-badge" style="--badge-color:var(--green);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 L8,14 L16,5"/></svg> Jiffy Lube Technician</span>
+          <span class="cert-badge" style="--badge-color:var(--purple);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 L8,14 L16,5"/></svg> Montgomery College Auto</span>
+          <span class="cert-badge" style="--badge-color:var(--red-bright);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 L8,14 L16,5"/></svg> Mobile Service</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER (merged contact + footer) -->
+<section class="final" id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Request Service</h2>
+    <p class="sub reveal">Call or email — we'll confirm your appointment quickly.</p>
+    <div class="final-cards reveal">
+      <a class="fcard primary" href="tel:3015757839">
+        <div class="label">Call</div>
+        <div class="value">301-575-7839</div>
+      </a>
+      <a class="fcard secondary" href="mailto:baiabibarry1@gmail.com">
+        <div class="label">Email</div>
+        <div class="value" style="font-size:14px;">baiabibarry1@gmail.com</div>
+      </a>
+    </div>
+    <p class="final-area">📍 <strong>Service Area:</strong> Mobile service across MD, DC &amp; Northern VA</p>
+    <p class="final-foot">Straight Path Auto — Owned by Bai Abi Barry</p>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const items = document.querySelectorAll('.reveal');
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting));
+      }, { threshold:0.12 });
+      items.forEach(el => io.observe(el));
+    } else {
+      items.forEach(el => el.classList.add('is-visible'));
+    }
+
+    const progressFill = document.getElementById('progressFill');
+    function updateProgress(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if(progressFill) progressFill.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive:true });
+    updateProgress();
+
+    const serviceData = {
+      Maintenance: [
+        { icon:'<path d="M7,7 L7,3.5 L9.5,3.5 L13,6.5 L13,7 Z"/><rect x="5" y="7" width="10" height="10" rx="1.5"/><circle cx="10" cy="12" r="2.2"/>', name:'Oil Change', why:'Prevents engine wear &amp; overheating', parts:'Oil + filter', service:'Full oil &amp; filter change', freq:'Every 5,000–7,500 mi' },
+        { icon:'<circle cx="10" cy="10" r="7.5"/><circle cx="10" cy="10" r="3"/><line x1="10" y1="2.5" x2="10" y2="5"/><line x1="10" y1="15" x2="10" y2="17.5"/><line x1="2.5" y1="10" x2="5" y2="10"/><line x1="15" y1="10" x2="17.5" y2="10"/>', name:'Tire Rotation', why:'Even tread wear, longer tire life', parts:'—', service:'Front-to-back rotation', freq:'Every 5,000–7,500 mi' },
+        { icon:'<rect x="3" y="4" width="14" height="12" rx="1"/><line x1="5.5" y1="4" x2="5.5" y2="16"/><line x1="8" y1="4" x2="8" y2="16"/><line x1="10.5" y1="4" x2="10.5" y2="16"/><line x1="13" y1="4" x2="13" y2="16"/><line x1="15.5" y1="4" x2="15.5" y2="16"/>', name:'Air Filters', why:'Better airflow &amp; efficiency', parts:'Engine + cabin filter', service:'Filter replacement', freq:'Every 12,000–15,000 mi' }
+      ],
+      Safety: [
+        { icon:'<circle cx="10" cy="10" r="8"/><path d="M7,5.5 a5.5,7.5 0 0 0 0,9"/><path d="M13,5.5 a5.5,7.5 0 0 1 0,9"/><line x1="10" y1="6.5" x2="10" y2="11.5"/>', name:'Brake Service', why:'Safe, reliable stopping power', parts:'Pads, rotors, fluid', service:'Inspect, replace, flush', freq:'Inspect every 12,000 mi' }
+      ],
+      Engine: [
+        { icon:'<rect x="8" y="2" width="4" height="3.5" rx="0.5"/><path d="M7.5,5.5 L7.5,9 L6.5,11.5 L6.5,16 L13.5,16 L13.5,11.5 L12.5,9 L12.5,5.5 Z"/>', name:'Spark Plugs', why:'Smooth starts, better fuel economy', parts:'Spark plugs', service:'Full plug replacement', freq:'Every 30,000–100,000 mi' }
+      ],
+      Drivetrain: [
+        { icon:'<circle cx="10" cy="10" r="3.8"/><line x1="10" y1="2" x2="10" y2="4.2"/><line x1="10" y1="15.8" x2="10" y2="18"/><line x1="2" y1="10" x2="4.2" y2="10"/><line x1="15.8" y1="10" x2="18" y2="10"/>', name:'Transfer Case', why:'Protects 4WD/AWD components', parts:'Transfer case fluid', service:'Fluid service (4WD/AWD)', freq:'Every 30,000–60,000 mi' },
+        { icon:'<circle cx="10" cy="10" r="8"/><path d="M10,5.5 V10 L13.5,12.5"/>', name:'Transmission Fluid', why:'Smooth shifting, prevents damage', parts:'Trans fluid + filter', service:'Full fluid exchange', freq:'Every 30,000–60,000 mi' },
+        { icon:'<circle cx="7" cy="10" r="4"/><circle cx="13" cy="10" r="4"/><line x1="7" y1="6" x2="7" y2="7.3"/><line x1="13" y1="6" x2="13" y2="7.3"/>', name:'Differential Fluid', why:'Protects gears from wear', parts:'Differential fluid', service:'Gear fluid exchange', freq:'Every 30,000–50,000 mi' }
+      ],
+      Electrical: [
+        { icon:'<rect x="3" y="6" width="14" height="10" rx="1.5"/><rect x="16" y="9" width="2" height="4" rx="0.5"/><line x1="6.5" y1="6" x2="6.5" y2="4"/><line x1="12" y1="6" x2="12" y2="4"/>', name:'Battery', why:'Reliable starts, no breakdowns', parts:'Battery', service:'Test, remove, install', freq:'Every 3–5 years' },
+        { icon:'<circle cx="7.5" cy="10" r="4.5"/><line x1="13" y1="6.5" x2="17" y2="4.5"/><line x1="13" y1="10" x2="18" y2="10"/><line x1="13" y1="13.5" x2="17" y2="15.5"/>', name:'Light Bulbs', why:'Visibility &amp; safety on the road', parts:'Head/tail/brake bulbs', service:'Bulb replacement', freq:'As needed' }
+      ]
+    };
+    const catColorVar = { Maintenance:'--red-bright', Safety:'--amber', Engine:'--blue', Drivetrain:'--green', Electrical:'--purple' };
+
+    const hotspots = document.querySelectorAll('.hotspot');
+    const catBtns = document.querySelectorAll('.cat-btn');
+    const panel = document.getElementById('detailPanel');
+    const hint = document.getElementById('carHint');
+
+    function openCategory(cat){
+      hotspots.forEach(h => h.classList.toggle('is-active', h.dataset.cat === cat));
+      catBtns.forEach(b => b.classList.toggle('is-active', b.dataset.cat === cat));
+      hint.classList.add('is-hidden');
+      const items = serviceData[cat] || [];
+      panel.innerHTML = items.map(it => `
+        <div class="dcard pop-item" style="--cat-color:var(${catColorVar[cat]});">
+          <div class="dcard-illo"><svg viewBox="0 0 20 20" aria-hidden="true">${it.icon}</svg></div>
+          <div class="dcard-body">
+            <h4>${it.name}</h4>
+            <div class="dwhy">${it.why}</div>
+            <div class="drow"><b>Parts</b><span>${it.parts}</span></div>
+            <div class="drow"><b>Service</b><span>${it.service}</span></div>
+            <div class="drow"><b>Freq</b><span>${it.freq}</span></div>
+          </div>
+        </div>
+      `).join('');
+      panel.classList.add('is-open');
+    }
+    function closeCategory(){
+      hotspots.forEach(h => h.classList.remove('is-active'));
+      catBtns.forEach(b => b.classList.remove('is-active'));
+      panel.classList.remove('is-open');
+      hint.classList.remove('is-hidden');
+    }
+    function toggleCategory(cat, sourceEl){
+      if(sourceEl.classList.contains('is-active')){ closeCategory(); }
+      else{ openCategory(cat); }
+    }
+    hotspots.forEach(hs => hs.addEventListener('click', () => toggleCategory(hs.dataset.cat, hs)));
+    catBtns.forEach(btn => btn.addEventListener('click', () => toggleCategory(btn.dataset.cat, btn)));
+  })();
+</script>
+
+</body>
+</html>
