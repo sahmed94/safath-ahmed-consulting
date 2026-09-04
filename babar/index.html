@@ -82,44 +82,19 @@
   .brand-mark svg *{ fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .brand-text .main{ font-family:var(--display); font-weight:800; font-size:16px; color:var(--ink); display:block; line-height:1.1; }
   .brand-text .sub{ font-size:10.5px; letter-spacing:.1em; color:var(--blue); font-weight:600; }
-  .nav-right{ display:flex; align-items:center; gap:12px; }
-
-  .hours-dd{ position:relative; }
-  .hours-dd-btn{
-    display:flex; align-items:center; gap:7px;
-    font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--ink);
-    background:var(--paper-2); border:1px solid var(--line); border-radius:24px;
-    padding:9px 14px; cursor:pointer; transition:background .2s, border-color .2s;
-  }
-  .hours-dd-btn:hover{ border-color:var(--blue); }
-  .hours-dd-btn svg{ width:12px; height:12px; transition:transform .2s; }
-  .hours-dd-btn svg *{ fill:none; stroke:var(--muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .hours-dd.is-open .hours-dd-btn svg{ transform:rotate(180deg); }
+  .hours-bar{ background:var(--ink); border-top:1px solid rgba(255,255,255,0.08); }
+  .hours-bar-inner{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:9px 24px; font-size:12px; color:var(--muted-invert); }
+  .hb-item b{ color:var(--yellow); font-weight:700; margin-right:4px; }
+  .hb-sep{ color:rgba(255,255,255,0.2); }
   .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(47,174,102,0.6); animation:live-pulse 2s infinite; flex-shrink:0; }
   @keyframes live-pulse{ 0%{ box-shadow:0 0 0 0 rgba(47,174,102,0.5); } 70%{ box-shadow:0 0 0 6px rgba(47,174,102,0); } 100%{ box-shadow:0 0 0 0 rgba(47,174,102,0); } }
-
-  .hours-dd-panel{
-    position:absolute; top:calc(100% + 10px); right:0; width:300px;
-    background:var(--paper); border:1px solid var(--line); border-radius:14px;
-    box-shadow:0 20px 45px -15px rgba(13,34,64,0.3);
-    padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:14px 18px;
-    opacity:0; visibility:hidden; transform:translateY(-8px); transition:opacity .25s, transform .25s, visibility .25s;
-    z-index:60;
-  }
-  .hours-dd.is-open .hours-dd-panel{ opacity:1; visibility:visible; transform:translateY(0); }
-  .hdd-col h4{ font-size:12.5px; font-weight:700; color:var(--blue); margin-bottom:8px; }
-  .hdd-row{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); padding:3px 0; }
-  .hdd-row b{ color:var(--ink); }
-  .hdd-loc{ grid-column:1 / -1; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px; }
 
   .nav-cta{ font-weight:700; font-size:13.5px; color:#fff; text-decoration:none; padding:11px 22px; border-radius:30px; background:linear-gradient(135deg, var(--blue-bright), var(--blue)); box-shadow:0 6px 18px -6px rgba(21,101,192,0.5); }
 
   /* ---------- HERO ---------- */
-  .hero{ position:relative; color:#fff; text-align:center; overflow:hidden; }
-  .hero-photo-wrap{ position:relative; height:56vh; min-height:380px; }
-  .hero-photo{ width:100%; height:100%; object-fit:cover; display:block; }
-  .hero-overlay{ position:absolute; inset:0; background:linear-gradient(160deg, rgba(10,42,77,0.88) 0%, rgba(21,101,192,0.82) 100%); }
-  .hero-content{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; }
+  .hero{ background:linear-gradient(160deg, var(--deep) 0%, var(--blue) 100%); color:#fff; text-align:center; overflow:hidden; padding:56px 0 0; }
+  .hero-photo-frame{ max-width:460px; margin:34px auto 0; border-radius:14px; overflow:hidden; border:3px solid rgba(255,255,255,0.25); box-shadow:0 20px 50px -15px rgba(0,0,0,0.5); }
+  .hero-photo-frame img{ width:100%; height:auto; display:block; filter:saturate(1.1) contrast(1.05); }
   .hero-eyebrow{ font-weight:700; font-size:13px; letter-spacing:.2em; color:var(--yellow); }
   .hero h1{ font-family:var(--display); font-weight:800; font-size:clamp(32px,5.6vw,58px); line-height:1.08; margin-top:12px; }
   .hero h1 span{ color:var(--yellow); }
@@ -129,7 +104,6 @@
   .btn-solid:hover{ transform:translateY(-2px); }
   .btn-outline{ font-weight:700; font-size:14px; color:#fff; text-decoration:none; padding:14px 28px; border-radius:30px; border:1px solid rgba(255,255,255,0.4); transition:background .2s; }
   .btn-outline:hover{ background:rgba(255,255,255,0.1); }
-  .hero-illo{ margin-top:34px; height:110px; position:relative; }
 
   .strip{ background:var(--ink); color:#fff; padding:14px 0; }
   .strip .wrap{ display:flex; justify-content:center; gap:26px; flex-wrap:wrap; font-size:12px; letter-spacing:.05em; color:var(--muted-invert); }
@@ -146,9 +120,9 @@
   .cat-tab:hover{ border-color:var(--blue); color:var(--ink); }
   .cat-tab.is-active{ background:var(--blue); border-color:var(--blue); color:#fff; }
   .cat-panel{ display:none; }
-  .panel-photo{ position:relative; border-radius:var(--radius); overflow:hidden; margin-bottom:24px; max-height:220px; }
-  .panel-photo img{ width:100%; height:220px; object-fit:cover; display:block; }
-  .panel-photo span{ position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(10,34,64,0.8), transparent); color:#fff; font-size:13px; font-weight:600; padding:14px 18px; }
+  .panel-photo{ position:relative; border-radius:var(--radius); overflow:hidden; margin:0 auto 24px; max-width:520px; background:var(--ink); }
+  .panel-photo img{ width:100%; height:auto; display:block; margin:0 auto; image-rendering:auto; filter:saturate(1.08) contrast(1.03); }
+  .panel-photo span{ position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(10,34,64,0.85), transparent); color:#fff; font-size:13px; font-weight:600; padding:14px 18px; }
   .cat-panel.is-shown{ display:block; }
 
   /* ---------- PRICING TIER CARDS ---------- */
@@ -202,17 +176,6 @@
   .more-body p{ font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.5; }
   .more-body .mprice{ font-weight:700; color:var(--blue); font-size:13px; margin-top:8px; }
 
-  /* ---------- HOURS ---------- */
-  .hours{ background:var(--paper-2); }
-  .hours-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  @media (max-width:700px){ .hours-grid{ grid-template-columns:1fr; } }
-  .hcard{ background:var(--paper); border-radius:var(--radius); padding:26px; }
-  .hcard h3{ font-family:var(--display); font-weight:700; font-size:18px; color:var(--blue); }
-  .hcard .hrow{ display:flex; justify-content:space-between; font-size:14px; padding:9px 0; border-bottom:1px solid var(--line); }
-  .hcard .hrow:last-child{ border-bottom:none; }
-  .hcard .hrow b{ color:var(--ink); }
-  .hcard .hnote{ font-size:11.5px; color:var(--muted); margin-top:10px; font-style:italic; }
-
   /* ---------- FOOTER ---------- */
   .final{ text-align:center; background:linear-gradient(160deg, var(--deep) 0%, var(--ink) 100%); color:#fff; padding:60px 0 28px; }
   .final h2{ font-family:var(--display); font-weight:800; font-size:clamp(26px,3.6vw,40px); }
@@ -251,47 +214,32 @@
       </span>
       <span class="brand-text"><span class="main">Kenilworth</span><span class="sub">CAR WASH</span></span>
     </a>
-    <div class="nav-right">
-      <div class="hours-dd">
-        <button class="hours-dd-btn" id="hoursDdBtn">
-          <span class="live-dot"></span>
-          <span>Hours &amp; Location</span>
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5,8 L10,13 L15,8"/></svg>
-        </button>
-        <div class="hours-dd-panel" id="hoursDdPanel">
-          <div class="hdd-col">
-            <h4>🚿 Wash Hours</h4>
-            <div class="hdd-row"><span>Mon–Fri</span><b>8–6:30</b></div>
-            <div class="hdd-row"><span>Saturday</span><b>8–6</b></div>
-            <div class="hdd-row"><span>Sunday</span><b>9–3</b></div>
-          </div>
-          <div class="hdd-col">
-            <h4>⛽ Gas Hours</h4>
-            <div class="hdd-row"><span>Mon–Fri</span><b>6–7:30</b></div>
-            <div class="hdd-row"><span>Saturday</span><b>7–6</b></div>
-            <div class="hdd-row"><span>Sunday</span><b>8:30–3</b></div>
-          </div>
-          <div class="hdd-loc">📍 3501 Kenilworth Ave., Hyattsville, MD 20781</div>
-        </div>
-      </div>
-      <a class="nav-cta" href="tel:3012770700">Call Now</a>
+    <a class="nav-cta" href="tel:3012770700">Call Now</a>
+  </div>
+  <div class="hours-bar">
+    <div class="wrap hours-bar-inner">
+      <span class="live-dot"></span>
+      <span class="hb-item"><b>🚿 Wash</b> Mon–Fri 8–6:30 · Sat 8–6 · Sun 9–3</span>
+      <span class="hb-sep">|</span>
+      <span class="hb-item"><b>⛽ Gas</b> Mon–Fri 6–7:30 · Sat 7–6 · Sun 8:30–3</span>
+      <span class="hb-sep">|</span>
+      <span class="hb-item">📍 3501 Kenilworth Ave., Hyattsville, MD</span>
     </div>
   </div>
 </header>
 
 <!-- HERO -->
-<section class="hero" id="top" style="padding:0;">
-  <div class="hero-photo-wrap">
-    <img class="hero-photo" src="img/wash_tunnel.jpg" alt="Automated soft cloth car wash at Kenilworth Car Wash">
-    <div class="hero-overlay"></div>
-  </div>
-  <div class="wrap hero-content">
+<section class="hero" id="top">
+  <div class="wrap">
     <p class="hero-eyebrow">SERVING ALL OF PG COUNTY</p>
     <h1>Your Car Deserves <span>the Ultimate Wash</span></h1>
     <p class="hero-tagline">Car wash · Truck wash · Detailing · Gas station — all in one stop, Hyattsville MD</p>
     <div class="hero-ctas">
       <a class="btn-solid" href="#services">See Pricing</a>
       <a class="btn-outline" href="tel:3012770700">301-277-0700</a>
+    </div>
+    <div class="hero-photo-frame reveal">
+      <img src="img/carwash_bay.jpg" alt="Kenilworth Car Wash storefront">
     </div>
   </div>
 </section>
@@ -543,17 +491,6 @@
         const cat = tab.dataset.cat;
         panels.forEach(p => p.classList.toggle('is-shown', p.dataset.panel === cat));
       });
-    });
-
-    // hours dropdown
-    const hoursDd = document.querySelector('.hours-dd');
-    const hoursDdBtn = document.getElementById('hoursDdBtn');
-    hoursDdBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      hoursDd.classList.toggle('is-open');
-    });
-    document.addEventListener('click', (e) => {
-      if(!hoursDd.contains(e.target)) hoursDd.classList.remove('is-open');
     });
 
     // floating bubbles
