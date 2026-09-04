@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Kenilworth Car Wash — Car, Truck &amp; Detailing Services</title>
+<meta name="description" content="Kenilworth Car Wash — serving all of PG County. Car wash, truck wash, detailing, engine cleaning &amp; more in Hyattsville, MD.">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#0D2240;
+    --paper:#FFFFFF;
+    --paper-2:#F0F7FC;
+    --deep:#0A2A4D;
+    --blue:#1565C0;
+    --blue-bright:#2196F3;
+    --cyan:#00BCD4;
+    --yellow:#FFC107;
+    --orange:#FF6F3C;
+    --green:#2FAE66;
+    --line:rgba(13,34,64,0.1);
+    --line-invert:rgba(255,255,255,0.16);
+    --muted:#5A6B80;
+    --muted-invert:#B8CBE0;
+    --radius:14px;
+    --display:'Poppins', sans-serif;
+    --sans:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--sans); color:var(--ink); background:var(--paper); line-height:1.5; overflow-x:hidden; }
+  img,svg{ display:block; max-width:100%; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+  section{ padding:60px 0; position:relative; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+
+  @keyframes item-pop{ from{ opacity:0; transform:translateY(16px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .pop-item{ animation:item-pop .5s cubic-bezier(.34,1.56,.64,1) backwards; }
+
+  .progress-track{ position:fixed; top:0; left:0; right:0; height:3px; z-index:70; background:rgba(21,101,192,0.1); }
+
+  /* ---------- FLOATING BUBBLES ---------- */
+  .bubbles{ position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+  .bubble{ position:absolute; border-radius:50%; opacity:.5; animation:bubble-float linear infinite; }
+  @keyframes bubble-float{
+    0%{ transform:translateY(110vh) translateX(0) scale(1); opacity:0; }
+    10%{ opacity:.5; }
+    90%{ opacity:.35; }
+    100%{ transform:translateY(-15vh) translateX(30px) scale(1.15); opacity:0; }
+  }
+
+  /* ---------- STICKY CALL BUTTON ---------- */
+  .sticky-call{
+    position:fixed; bottom:22px; right:22px; z-index:60;
+    width:60px; height:60px; border-radius:50%;
+    background:linear-gradient(135deg, var(--yellow), #FFB300);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 28px -8px rgba(255,193,7,0.7);
+    animation:sticky-pulse 2.4s ease-in-out infinite;
+    text-decoration:none;
+  }
+  .sticky-call svg{ width:26px; height:26px; }
+  .sticky-call svg *{ fill:var(--ink); stroke:none; }
+  @keyframes sticky-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--blue), var(--cyan)); transition:width .15s ease-out; }
+
+  /* ---------- HEADER ---------- */
+  header{ position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; gap:14px; }
+  .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand-mark{ width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg, var(--blue-bright), var(--blue)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand-mark svg{ width:20px; height:20px; }
+  .brand-mark svg *{ fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .brand-text .main{ font-family:var(--display); font-weight:800; font-size:16px; color:var(--ink); display:block; line-height:1.1; }
+  .brand-text .sub{ font-size:10.5px; letter-spacing:.1em; color:var(--blue); font-weight:600; }
+  .nav-right{ display:flex; align-items:center; gap:12px; }
+
+  .hours-dd{ position:relative; }
+  .hours-dd-btn{
+    display:flex; align-items:center; gap:7px;
+    font-family:var(--sans); font-size:12.5px; font-weight:600; color:var(--ink);
+    background:var(--paper-2); border:1px solid var(--line); border-radius:24px;
+    padding:9px 14px; cursor:pointer; transition:background .2s, border-color .2s;
+  }
+  .hours-dd-btn:hover{ border-color:var(--blue); }
+  .hours-dd-btn svg{ width:12px; height:12px; transition:transform .2s; }
+  .hours-dd-btn svg *{ fill:none; stroke:var(--muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .hours-dd.is-open .hours-dd-btn svg{ transform:rotate(180deg); }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(47,174,102,0.6); animation:live-pulse 2s infinite; flex-shrink:0; }
+  @keyframes live-pulse{ 0%{ box-shadow:0 0 0 0 rgba(47,174,102,0.5); } 70%{ box-shadow:0 0 0 6px rgba(47,174,102,0); } 100%{ box-shadow:0 0 0 0 rgba(47,174,102,0); } }
+
+  .hours-dd-panel{
+    position:absolute; top:calc(100% + 10px); right:0; width:300px;
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    box-shadow:0 20px 45px -15px rgba(13,34,64,0.3);
+    padding:18px; display:grid; grid-template-columns:1fr 1fr; gap:14px 18px;
+    opacity:0; visibility:hidden; transform:translateY(-8px); transition:opacity .25s, transform .25s, visibility .25s;
+    z-index:60;
+  }
+  .hours-dd.is-open .hours-dd-panel{ opacity:1; visibility:visible; transform:translateY(0); }
+  .hdd-col h4{ font-size:12.5px; font-weight:700; color:var(--blue); margin-bottom:8px; }
+  .hdd-row{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); padding:3px 0; }
+  .hdd-row b{ color:var(--ink); }
+  .hdd-loc{ grid-column:1 / -1; font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+
+  .nav-cta{ font-weight:700; font-size:13.5px; color:#fff; text-decoration:none; padding:11px 22px; border-radius:30px; background:linear-gradient(135deg, var(--blue-bright), var(--blue)); box-shadow:0 6px 18px -6px rgba(21,101,192,0.5); }
+
+  /* ---------- HERO ---------- */
+  .hero{ position:relative; color:#fff; text-align:center; overflow:hidden; }
+  .hero-photo-wrap{ position:relative; height:56vh; min-height:380px; }
+  .hero-photo{ width:100%; height:100%; object-fit:cover; display:block; }
+  .hero-overlay{ position:absolute; inset:0; background:linear-gradient(160deg, rgba(10,42,77,0.88) 0%, rgba(21,101,192,0.82) 100%); }
+  .hero-content{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; }
+  .hero-eyebrow{ font-weight:700; font-size:13px; letter-spacing:.2em; color:var(--yellow); }
+  .hero h1{ font-family:var(--display); font-weight:800; font-size:clamp(32px,5.6vw,58px); line-height:1.08; margin-top:12px; }
+  .hero h1 span{ color:var(--yellow); }
+  .hero-tagline{ font-size:16px; margin-top:12px; color:var(--muted-invert); }
+  .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+  .btn-solid{ font-weight:700; font-size:14px; color:var(--ink); text-decoration:none; padding:14px 28px; border-radius:30px; background:var(--yellow); box-shadow:0 8px 22px -6px rgba(255,193,7,0.5); transition:transform .2s; }
+  .btn-solid:hover{ transform:translateY(-2px); }
+  .btn-outline{ font-weight:700; font-size:14px; color:#fff; text-decoration:none; padding:14px 28px; border-radius:30px; border:1px solid rgba(255,255,255,0.4); transition:background .2s; }
+  .btn-outline:hover{ background:rgba(255,255,255,0.1); }
+  .hero-illo{ margin-top:34px; height:110px; position:relative; }
+
+  .strip{ background:var(--ink); color:#fff; padding:14px 0; }
+  .strip .wrap{ display:flex; justify-content:center; gap:26px; flex-wrap:wrap; font-size:12px; letter-spacing:.05em; color:var(--muted-invert); }
+  .strip strong{ color:var(--yellow); }
+
+  /* ---------- SECTION HEAD ---------- */
+  .shead{ text-align:center; margin-bottom:32px; }
+  .shead .eyebrow{ display:inline-block; font-weight:700; font-size:11.5px; letter-spacing:.18em; color:var(--blue); background:rgba(21,101,192,0.1); padding:5px 15px; border-radius:20px; margin-bottom:12px; }
+  .shead h2{ font-family:var(--display); font-weight:800; font-size:clamp(26px,3.6vw,40px); }
+
+  /* ---------- CATEGORY TABS ---------- */
+  .cat-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin-bottom:34px; }
+  .cat-tab{ font-size:13.5px; font-weight:700; color:var(--muted); background:var(--paper); border:1.5px solid var(--line); border-radius:24px; padding:10px 20px; cursor:pointer; transition:all .2s; }
+  .cat-tab:hover{ border-color:var(--blue); color:var(--ink); }
+  .cat-tab.is-active{ background:var(--blue); border-color:var(--blue); color:#fff; }
+  .cat-panel{ display:none; }
+  .panel-photo{ position:relative; border-radius:var(--radius); overflow:hidden; margin-bottom:24px; max-height:220px; }
+  .panel-photo img{ width:100%; height:220px; object-fit:cover; display:block; }
+  .panel-photo span{ position:absolute; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(10,34,64,0.8), transparent); color:#fff; font-size:13px; font-weight:600; padding:14px 18px; }
+  .cat-panel.is-shown{ display:block; }
+
+  /* ---------- PRICING TIER CARDS ---------- */
+  .tier-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+  @media (max-width:800px){ .tier-grid{ grid-template-columns:1fr; } }
+  .tier-grid.tier-4{ grid-template-columns:repeat(4, 1fr); }
+  @media (max-width:900px){ .tier-grid.tier-4{ grid-template-columns:repeat(2, 1fr); } }
+  .tier{ background:var(--paper); border:2px solid var(--line); border-radius:var(--radius); padding:26px 22px; position:relative; transition:transform .25s ease, box-shadow .25s ease; }
+  .tier:hover{ transform:translateY(-10px) scale(1.02); box-shadow:0 26px 50px -20px rgba(21,101,192,0.35); }
+  .tier.is-popular{ border-color:var(--blue); box-shadow:0 16px 36px -18px rgba(21,101,192,0.35); }
+  .tier-badge{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--yellow); color:var(--ink); font-size:11px; font-weight:800; letter-spacing:.05em; padding:5px 14px; border-radius:20px; }
+  .tier h3{ font-family:var(--display); font-weight:700; font-size:19px; text-align:center; }
+  .tier .price{ font-family:var(--display); font-weight:800; font-size:38px; color:var(--blue); text-align:center; margin-top:6px; }
+  .tier .price sup{ font-size:16px; }
+  .tier ul{ list-style:none; margin-top:18px; display:flex; flex-direction:column; gap:9px; }
+  .tier li{ font-size:13px; color:var(--ink); display:flex; align-items:flex-start; gap:8px; }
+  .tier li svg{ width:15px; height:15px; flex-shrink:0; margin-top:2px; }
+  .tier li svg *{ fill:none; stroke:var(--green); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .tier-note{ font-size:11px; color:var(--muted); text-align:center; margin-top:14px; }
+
+  /* ---------- ADD-ON GRID ---------- */
+  .addon-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px; margin-top:22px; }
+  .addon{ background:var(--paper-2); border-radius:10px; padding:14px 16px; text-align:center; }
+  .addon .n{ font-family:var(--display); font-weight:800; font-size:20px; color:var(--blue); }
+  .addon .l{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+
+  /* ---------- DETAIL SERVICE CARDS ---------- */
+  .dsvc-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; }
+  @media (max-width:700px){ .dsvc-grid{ grid-template-columns:1fr; } }
+  .dsvc{ display:flex; gap:14px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px 18px; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .dsvc:hover{ transform:translateY(-4px); box-shadow:0 16px 32px -18px rgba(13,34,64,0.25); border-color:var(--blue-bright); }
+  .dsvc-icon{ width:44px; height:44px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .dsvc-icon svg{ width:22px; height:22px; }
+  .dsvc-icon svg *{ fill:none; stroke:#fff; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .dsvc h4{ font-family:var(--display); font-weight:700; font-size:15.5px; }
+  .dsvc p{ font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .dsvc .dprice{ font-weight:700; font-size:12.5px; color:var(--blue); margin-top:6px; }
+
+  /* ---------- ADD-ON SERVICES (Engine/DEF/Windshield) ---------- */
+  .more-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  @media (max-width:800px){ .more-grid{ grid-template-columns:1fr; } }
+  .more-card{ background:var(--paper); border-radius:var(--radius); overflow:hidden; box-shadow:0 14px 30px -18px rgba(13,34,64,0.2); transition:transform .25s ease; }
+  .more-card:hover{ transform:translateY(-5px); }
+  .more-top{ height:100px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .more-top-photo{ padding:0; }
+  .more-top-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .more-top svg{ width:42px; height:42px; }
+  .more-top svg *{ fill:none; stroke:#fff; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  .more-body{ padding:18px 20px 22px; }
+  .more-body h3{ font-family:var(--display); font-weight:700; font-size:17px; }
+  .more-body p{ font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.5; }
+  .more-body .mprice{ font-weight:700; color:var(--blue); font-size:13px; margin-top:8px; }
+
+  /* ---------- HOURS ---------- */
+  .hours{ background:var(--paper-2); }
+  .hours-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:700px){ .hours-grid{ grid-template-columns:1fr; } }
+  .hcard{ background:var(--paper); border-radius:var(--radius); padding:26px; }
+  .hcard h3{ font-family:var(--display); font-weight:700; font-size:18px; color:var(--blue); }
+  .hcard .hrow{ display:flex; justify-content:space-between; font-size:14px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .hcard .hrow:last-child{ border-bottom:none; }
+  .hcard .hrow b{ color:var(--ink); }
+  .hcard .hnote{ font-size:11.5px; color:var(--muted); margin-top:10px; font-style:italic; }
+
+  /* ---------- FOOTER ---------- */
+  .final{ text-align:center; background:linear-gradient(160deg, var(--deep) 0%, var(--ink) 100%); color:#fff; padding:60px 0 28px; }
+  .final h2{ font-family:var(--display); font-weight:800; font-size:clamp(26px,3.6vw,40px); }
+  .final p.sub{ color:var(--muted-invert); margin-top:10px; font-size:15px; }
+  .final-cards{ display:flex; gap:14px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
+  .fcard{ border-radius:12px; padding:18px 26px; min-width:200px; text-decoration:none; transition:transform .2s; }
+  .fcard:hover{ transform:translateY(-3px); }
+  .fcard .label{ font-size:11px; letter-spacing:.05em; text-transform:uppercase; }
+  .fcard .value{ font-weight:700; font-size:17px; margin-top:3px; }
+  .fcard.primary{ background:linear-gradient(135deg, var(--yellow), #FFB300); color:var(--ink); }
+  .fcard.primary .label{ color:rgba(13,34,64,0.7); }
+  .fcard.secondary{ background:rgba(255,255,255,0.06); border:1px solid var(--line-invert); }
+  .final-area{ margin-top:24px; font-size:14px; color:var(--muted-invert); }
+  .final-area strong{ color:#fff; }
+  .final-social{ margin-top:24px; display:flex; gap:14px; justify-content:center; }
+  .final-social a{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line-invert); display:flex; align-items:center; justify-content:center; transition:border-color .2s, background .2s; }
+  .final-social a:hover{ border-color:var(--yellow); background:rgba(255,255,255,0.06); }
+  .final-social svg{ width:16px; height:16px; }
+  .final-social svg *{ fill:none; stroke:#fff; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .final-foot{ margin-top:30px; padding-top:18px; border-top:1px solid var(--line-invert); font-size:11.5px; color:var(--muted-invert); }
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="bubbles" id="bubbles" aria-hidden="true"></div>
+<a class="sticky-call" href="tel:3012770700" aria-label="Call Kenilworth Car Wash">
+  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,3 h4 l2,5 -2.5,1.5 a11,11 0 0 0 5,5 L14,12 l5,2 v4 a2,2 0 0 1 -2,2 A15,15 0 0 1 2,5 A2,2 0 0 1 4,3 Z"/></svg>
+</a>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,13 L4,8 L7,6 L13,6 L16,8 L17,13"/><rect x="2" y="13" width="16" height="4" rx="1.5"/><circle cx="6" cy="17" r="1.5"/><circle cx="14" cy="17" r="1.5"/></svg>
+      </span>
+      <span class="brand-text"><span class="main">Kenilworth</span><span class="sub">CAR WASH</span></span>
+    </a>
+    <div class="nav-right">
+      <div class="hours-dd">
+        <button class="hours-dd-btn" id="hoursDdBtn">
+          <span class="live-dot"></span>
+          <span>Hours &amp; Location</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5,8 L10,13 L15,8"/></svg>
+        </button>
+        <div class="hours-dd-panel" id="hoursDdPanel">
+          <div class="hdd-col">
+            <h4>🚿 Wash Hours</h4>
+            <div class="hdd-row"><span>Mon–Fri</span><b>8–6:30</b></div>
+            <div class="hdd-row"><span>Saturday</span><b>8–6</b></div>
+            <div class="hdd-row"><span>Sunday</span><b>9–3</b></div>
+          </div>
+          <div class="hdd-col">
+            <h4>⛽ Gas Hours</h4>
+            <div class="hdd-row"><span>Mon–Fri</span><b>6–7:30</b></div>
+            <div class="hdd-row"><span>Saturday</span><b>7–6</b></div>
+            <div class="hdd-row"><span>Sunday</span><b>8:30–3</b></div>
+          </div>
+          <div class="hdd-loc">📍 3501 Kenilworth Ave., Hyattsville, MD 20781</div>
+        </div>
+      </div>
+      <a class="nav-cta" href="tel:3012770700">Call Now</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top" style="padding:0;">
+  <div class="hero-photo-wrap">
+    <img class="hero-photo" src="img/wash_tunnel.jpg" alt="Automated soft cloth car wash at Kenilworth Car Wash">
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="wrap hero-content">
+    <p class="hero-eyebrow">SERVING ALL OF PG COUNTY</p>
+    <h1>Your Car Deserves <span>the Ultimate Wash</span></h1>
+    <p class="hero-tagline">Car wash · Truck wash · Detailing · Gas station — all in one stop, Hyattsville MD</p>
+    <div class="hero-ctas">
+      <a class="btn-solid" href="#services">See Pricing</a>
+      <a class="btn-outline" href="tel:3012770700">301-277-0700</a>
+    </div>
+  </div>
+</section>
+<div class="strip">
+  <div class="wrap">
+    <span><strong>301-277-0700</strong></span>
+    <span>3501 Kenilworth Ave., Hyattsville, MD</span>
+    <span>Open 7 Days a Week</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" style="background:radial-gradient(circle at 15% 10%, rgba(33,150,243,0.06), transparent 40%), radial-gradient(circle at 85% 90%, rgba(0,188,212,0.06), transparent 40%);">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">PRICING</p>
+      <h2>Pick Your Service</h2>
+    </div>
+
+    <div class="cat-tabs reveal">
+      <button class="cat-tab is-active" data-cat="car">Car Wash</button>
+      <button class="cat-tab" data-cat="truck">Truck Wash</button>
+      <button class="cat-tab" data-cat="detail">Detailing</button>
+      <button class="cat-tab" data-cat="more">Engine, DEF &amp; Windshield</button>
+    </div>
+
+    <!-- CAR WASH -->
+    <div class="cat-panel is-shown reveal" data-panel="car">
+      <div class="panel-photo"><img src="img/wash_tunnel.jpg" alt="Soft cloth car wash tunnel"><span>Our automated soft cloth wash</span></div>
+      <div class="tier-grid">
+        <div class="tier pop-item">
+          <h3>Regular Wash</h3>
+          <div class="price">$12<sup>.50</sup></div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Soft cloth brushless car wash</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Hand dry</li>
+          </ul>
+        </div>
+        <div class="tier is-popular pop-item">
+          <div class="tier-badge">MOST POPULAR</div>
+          <h3>Super Wash</h3>
+          <div class="price">$14<sup>.75</sup></div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Soft cloth brushless wash</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Blue Coral foam polish</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Blue Coral clear coat protectant</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Undercarriage wash</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Hand dry</li>
+          </ul>
+        </div>
+        <div class="tier pop-item">
+          <h3>Ultimate Wash</h3>
+          <div class="price">$20<sup>.75</sup></div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Soft cloth brushless wash</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Hot wax &amp; shine</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Wheel cleaner &amp; tire shine</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Blue Coral triple coat polish</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Rain-X protectant</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Undercarriage wash</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Air freshener &amp; moist towel</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Hand dry</li>
+          </ul>
+        </div>
+      </div>
+      <p class="tier-note">*Additional $2 for Ultimate &amp; Super Wash on large SUVs, vans, and pickups</p>
+      <div class="addon-grid">
+        <div class="addon"><div class="n">$25</div><div class="l">Engine Steam Cleaning</div></div>
+        <div class="addon"><div class="n">$5</div><div class="l">Simoniz Hot Wax &amp; Shine</div></div>
+        <div class="addon"><div class="n">$4</div><div class="l">Simoniz Tire Shine</div></div>
+        <div class="addon"><div class="n">$45.99</div><div class="l">Car Wash Coupon Book</div></div>
+      </div>
+    </div>
+
+    <!-- TRUCK WASH -->
+    <div class="cat-panel reveal" data-panel="truck">
+      <div class="panel-photo"><img src="img/truckwash_bay.jpg" alt="Kenilworth truck wash bay"><span>Our dedicated truck wash bay</span></div>
+      <div class="tier-grid tier-4">
+        <div class="tier pop-item">
+          <h3>Small Truck</h3>
+          <div class="price">$15</div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Full-size SUV</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Full-size pickup</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Full-size van</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>High-top van</li>
+          </ul>
+        </div>
+        <div class="tier pop-item">
+          <h3>Large Truck</h3>
+          <div class="price">$17<sup>.75</sup></div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Step van</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Flatbed tow truck</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>School bus</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Mini-bus</li>
+          </ul>
+        </div>
+        <div class="tier pop-item">
+          <h3>Box Truck</h3>
+          <div class="price">$21<sup>.75</sup></div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Single-axle box truck</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Motor home</li>
+          </ul>
+        </div>
+        <div class="tier pop-item">
+          <h3>Dump/Tractor</h3>
+          <div class="price">$52</div>
+          <ul>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Dump truck, tractor only</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Charter bus, two-axle truck</li>
+            <li><svg viewBox="0 0 20 20"><path d="M4,10 L8,14 L16,5"/></svg>Includes Rain-X, sealer wax, underwash</li>
+          </ul>
+        </div>
+      </div>
+      <p class="tier-note">💦 New: Remove road salt with a high-pressure undercarriage blast! · *Extra charge for mud on Dump/Tractor</p>
+      <div class="addon-grid">
+        <div class="addon"><div class="n">$7–$10</div><div class="l">Underwash</div></div>
+        <div class="addon"><div class="n">$30</div><div class="l">Engine Steam Cleaning</div></div>
+        <div class="addon"><div class="n">$5</div><div class="l">Rain-X Protectant</div></div>
+        <div class="addon"><div class="n">$2</div><div class="l">Simoniz Lemon Sealer Wax</div></div>
+      </div>
+    </div>
+
+    <!-- DETAILING -->
+    <div class="cat-panel reveal" data-panel="detail">
+      <div class="panel-photo"><img src="img/detailing_interior.jpg" alt="Interior detailing at Kenilworth Car Wash"><span>Interior shampooing is our specialty</span></div>
+      <div class="dsvc-grid">
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--blue-bright);"><svg viewBox="0 0 20 20"><path d="M10,2 C6,8 4,12 4,15 a6,6 0 0 0 12,0 C16,12 14,8 10,2 Z"/></svg></div>
+          <div><h4>Sealant &amp; Polish</h4><p>Deep clean for vehicles overdue for care. Hand-buffed wax finish.</p><div class="dprice">$39.95 car · $41.95 pickup · $55.95 van</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--cyan);"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="2.5"/></svg></div>
+          <div><h4>Blue Coral Autofoam Sealant</h4><p>Advanced clean, polish &amp; protection with luster-enhancing finish.</p><div class="dprice">$53.95 car · $55.95 pickup · $79.95 van</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--orange);"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg></div>
+          <div><h4>Wheels &amp; Tire Dressing</h4><p>Wheels cleaned and tires dressed to finish the look.</p><div class="dprice">$4 wheels · $4–$5 tire dressing</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--green);"><svg viewBox="0 0 20 20"><path d="M3,13 L4,8 L7,6 L13,6 L16,8 L17,13"/><rect x="2" y="13" width="16" height="4" rx="1.5"/></svg></div>
+          <div><h4>Engine Cleaning</h4><p>Steam-cleaned to remove dirt &amp; grime.</p><div class="dprice">$25 car/pickup/van</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--blue);"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="1.5"/><path d="M6,4 V16 M14,4 V16"/></svg></div>
+          <div><h4>General Interior Cleaning</h4><p>Vacuum &amp; windows.</p><div class="dprice">$30 car/pickup · van by estimate</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--yellow);"><svg viewBox="0 0 20 20" stroke="var(--ink)"><rect x="3" y="4" width="14" height="12" rx="1.5"/><path d="M6,8 h8 M6,11 h8"/></svg></div>
+          <div><h4>Complete Interior Cleaning</h4><p>Seats &amp; rug shampooing included.</p><div class="dprice">Starting at $150 car/pickup</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--terracotta, #B5583A);"><svg viewBox="0 0 20 20"><path d="M4,14 Q4,8 10,8 Q16,8 16,14"/><line x1="4" y1="14" x2="16" y2="14"/></svg></div>
+          <div><h4>Seats Cleaned</h4><p>Velour, cloth, or leather.</p><div class="dprice">$65 car · $55 pickup · $75 van</div></div>
+        </div>
+        <div class="dsvc pop-item">
+          <div class="dsvc-icon" style="background:var(--blue-bright);"><svg viewBox="0 0 20 20"><rect x="3" y="6" width="14" height="10" rx="1.5"/><path d="M3,6 L10,11 L17,6"/></svg></div>
+          <div><h4>Rugs Shampooed</h4><p>By heated extractor.</p><div class="dprice">$65 car · $55 pickup · $75 van</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENGINE / DEF / WINDSHIELD -->
+    <div class="cat-panel reveal" data-panel="more">
+      <div class="more-grid">
+        <div class="more-card pop-item">
+          <div class="more-top more-top-photo"><img src="img/engine_cleaning.jpg" alt="Engine steam cleaning"></div>
+          <div class="more-body">
+            <h3>Engine Cleaning</h3>
+            <p>Steam cleaning removes dirt &amp; grime, reduces corrosion, and helps your engine run cooler.</p>
+            <div class="mprice">$25 cars/pickups/vans · $30 trucks</div>
+          </div>
+        </div>
+        <div class="more-card pop-item">
+          <div class="more-top more-top-photo"><img src="img/def_pump.jpg" alt="Diesel exhaust fluid pump"></div>
+          <div class="more-body">
+            <h3>Diesel Exhaust Fluid</h3>
+            <p>Pay-at-the-pump DEF — priced lower than a 2.5-gallon box, no messy containers. Most diesels need a refill every third fill-up.</p>
+            <div class="mprice">Available at the pump, 7 days a week</div>
+          </div>
+        </div>
+        <div class="more-card pop-item">
+          <div class="more-top" style="background:linear-gradient(135deg, var(--orange), #E64A19);"><svg viewBox="0 0 20 20"><path d="M4,4 h12 v12 h-12 Z"/><path d="M10,4 L7,10 L11,10 L8,16"/></svg></div>
+          <div class="more-body">
+            <h3>Windshield Repair</h3>
+            <p>Cracks, chips &amp; stars fixed fast — most repairs done in about 30 minutes.</p>
+            <div class="mprice">Starting at $50*</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<section class="final" id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Come See Us Today</h2>
+    <p class="sub reveal">Call ahead or just pull in — we're ready for you.</p>
+    <div class="final-cards reveal">
+      <a class="fcard primary" href="tel:3012770700">
+        <div class="label">Call</div>
+        <div class="value">301-277-0700</div>
+      </a>
+      <a class="fcard secondary" href="tel:+14438315753">
+        <div class="label">Babar Iftikhar</div>
+        <div class="value" style="font-size:15px;">+1 (443) 831-5753</div>
+      </a>
+    </div>
+    <p class="final-area reveal">📍 <strong>3501 Kenilworth Ave., Hyattsville, MD 20781</strong> — one mile off Route 50, near the MD-D.C. line</p>
+    <div class="final-social reveal">
+      <a href="https://www.facebook.com/ultimatewash" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 20 20"><path d="M12,7 h-2 a1.5,1.5 0 0 0 -1.5,1.5 V10 H12 L11.6,12.5 H8.5 V18"/><path d="M8.5,10 H6 v2.5 h2.5"/></svg></a>
+      <a href="https://www.yelp.com/biz/kenilworth-car-wash-hyattsville-2" target="_blank" rel="noopener" aria-label="Yelp"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><path d="M10,6 v5 M10,13.5 v0.5"/></svg></a>
+    </div>
+    <p class="final-foot">Kenilworth Car Wash — 3501 Kenilworth Ave., Hyattsville, MD 20781</p>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const items = document.querySelectorAll('.reveal');
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting));
+      }, { threshold:0.1 });
+      items.forEach(el => io.observe(el));
+    } else {
+      items.forEach(el => el.classList.add('is-visible'));
+    }
+
+    const progressFill = document.getElementById('progressFill');
+    function updateProgress(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if(progressFill) progressFill.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive:true });
+    updateProgress();
+
+    const tabs = document.querySelectorAll('.cat-tab');
+    const panels = document.querySelectorAll('.cat-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        const cat = tab.dataset.cat;
+        panels.forEach(p => p.classList.toggle('is-shown', p.dataset.panel === cat));
+      });
+    });
+
+    // hours dropdown
+    const hoursDd = document.querySelector('.hours-dd');
+    const hoursDdBtn = document.getElementById('hoursDdBtn');
+    hoursDdBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hoursDd.classList.toggle('is-open');
+    });
+    document.addEventListener('click', (e) => {
+      if(!hoursDd.contains(e.target)) hoursDd.classList.remove('is-open');
+    });
+
+    // floating bubbles
+    const bubbleContainer = document.getElementById('bubbles');
+    const bubbleColors = ['rgba(33,150,243,0.35)', 'rgba(0,188,212,0.3)', 'rgba(255,193,7,0.25)'];
+    for(let i = 0; i < 14; i++){
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const size = 8 + Math.random() * 26;
+      b.style.width = size + 'px';
+      b.style.height = size + 'px';
+      b.style.left = Math.random() * 100 + 'vw';
+      b.style.background = bubbleColors[i % bubbleColors.length];
+      b.style.animationDuration = (10 + Math.random() * 14) + 's';
+      b.style.animationDelay = (Math.random() * 14) + 's';
+      bubbleContainer.appendChild(b);
+    }
+  })();
+</script>
+
+</body>
+</html>
