@@ -7,7 +7,7 @@
 <title>Site Directory — Safath Ahmed Consulting (Internal)</title>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340..600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
   :root{
     --ink:#1A1230;
@@ -21,188 +21,175 @@
     --slate:#3E5C76;
     --teal-bright:#B48EDC;
     --slate-bright:#8FB0D6;
-    --line:rgba(26,18,48,0.14);
-    --line-invert:rgba(255,255,255,0.18);
+    --gold:#E8A710;
+    --line:rgba(26,18,48,0.12);
     --muted:#5B5567;
-    --muted-invert:#C9BFE0;
-    --radius:2px;
+    --radius:10px;
     --serif:'Fraunces', serif;
     --sans:'IBM Plex Sans', sans-serif;
     --mono:'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    font-family:var(--sans); background:var(--deep); color:var(--paper);
-    min-height:100vh; padding:70px 24px 90px;
-  }
-  .wrap{ max-width:920px; margin:0 auto; }
+  body{ font-family:var(--sans); color:var(--ink); background:var(--paper-2); line-height:1.5; }
+  img,svg{ display:block; max-width:100%; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+  a{ color:inherit; }
 
-  .badge{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
-    color:var(--brass-soft); border:1px solid var(--line-invert); border-radius:20px;
-    padding:6px 14px; margin-bottom:28px;
-  }
-  .badge::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--brass-soft); }
+  /* ---------- HEADER ---------- */
+  header{ background:var(--paper); border-bottom:1px solid var(--line); padding:16px 0; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ font-family:var(--serif); font-weight:600; font-size:20px; text-decoration:none; color:var(--ink); }
+  .brand span{ color:var(--teal); }
+  .nav-badge{ font-family:var(--mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); border:1px solid var(--line); border-radius:20px; padding:7px 16px; }
 
-  h1{
-    font-family:var(--serif); font-weight:600; font-size:clamp(32px,4.5vw,48px);
-    line-height:1.1;
+  /* ---------- HERO BANNER ---------- */
+  .hero-banner{
+    position:relative; overflow:hidden; text-align:center; padding:70px 24px;
+    background:linear-gradient(120deg, var(--deep) 0%, var(--teal) 55%, #B0509C 100%);
+    color:#fff;
   }
-  h1 em{ font-style:italic; color:var(--teal-bright); }
-  .sub{
-    font-family:var(--serif); font-style:italic; color:var(--muted-invert);
-    font-size:18px; margin-top:14px; max-width:56ch; line-height:1.5;
+  .hero-banner::before{
+    content:""; position:absolute; inset:0; opacity:.15;
+    background-image:radial-gradient(circle at 15% 30%, #fff 0, transparent 3px),
+                      radial-gradient(circle at 85% 70%, #fff 0, transparent 3px),
+                      radial-gradient(circle at 50% 15%, #fff 0, transparent 2px),
+                      radial-gradient(circle at 30% 85%, #fff 0, transparent 2px),
+                      radial-gradient(circle at 70% 40%, #fff 0, transparent 2px);
+    background-size:400px 400px;
   }
+  .hero-banner h1{ font-family:var(--serif); font-weight:600; font-size:clamp(30px,4.5vw,46px); position:relative; letter-spacing:.02em; }
+  .hero-banner .crumb{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.75); margin-top:10px; position:relative; }
 
-  .instances{ margin-top:56px; display:flex; flex-direction:column; gap:20px; }
+  /* ---------- SECTION ---------- */
+  section{ padding:56px 0; }
+  .shead{ text-align:center; margin-bottom:34px; }
+  .shead h2{ font-family:var(--serif); font-weight:600; font-size:clamp(24px,3vw,32px); }
+  .shead p{ color:var(--muted); font-size:14px; margin-top:8px; }
 
-  .instance{
-    border:1px solid var(--line-invert); border-radius:var(--radius);
-    background:rgba(255,255,255,0.035);
-    padding:26px 28px;
-    border-top:3px solid var(--brass-soft);
+  /* ---------- CARD GRID ---------- */
+  .card-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+  @media (max-width:860px){ .card-grid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:600px){ .card-grid{ grid-template-columns:1fr; } }
+
+  .pcard{
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+    padding:34px 28px; text-align:center;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   }
-  .instance.accent-teal{ border-top-color:var(--teal-bright); }
-  .instance.accent-slate{ border-top-color:var(--slate-bright); }
-  .instance.accent-rust{ border-top-color:var(--rust); }
-
-  .instance-top{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .instance-name{ font-family:var(--serif); font-size:23px; font-weight:600; }
-  .instance-path{ font-family:var(--mono); font-size:11.5px; color:var(--muted-invert); }
-  .instance-desc{ margin-top:8px; color:var(--muted-invert); font-size:14.5px; max-width:64ch; line-height:1.5; }
-
-  .instance-links{ display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; }
-  .instance-links a{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:var(--mono); font-size:13px; letter-spacing:.02em;
-    color:var(--paper); text-decoration:none;
-    border:1px solid var(--line-invert); border-radius:var(--radius);
-    padding:11px 18px;
-    transition:border-color .2s, background .2s, transform .2s;
+  .pcard:hover{ transform:translateY(-6px); box-shadow:0 20px 40px -20px rgba(26,18,48,0.25); border-color:var(--card-color); }
+  .pcard-mark{
+    width:64px; height:64px; border-radius:50%; margin:0 auto 20px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--card-color); color:#fff;
+    font-family:var(--serif); font-weight:600; font-size:24px;
   }
-  .instance-links a:hover{ border-color:var(--brass-soft); background:rgba(255,255,255,0.06); transform:translateY(-2px); }
-  .instance-links a svg{ width:14px; height:14px; }
-  .instance-links a svg *{ fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-
-  .future-note{
-    margin-top:36px; padding-top:24px; border-top:1px dashed var(--line-invert);
-    font-family:var(--mono); font-size:12.5px; color:var(--muted-invert); line-height:1.7;
+  .pcard h3{ font-family:var(--serif); font-weight:600; font-size:19px; line-height:1.3; }
+  .pcard .meta{ margin-top:16px; font-size:13.5px; color:var(--muted); }
+  .pcard .meta b{ color:var(--ink); font-weight:600; }
+  .pcard .cta{
+    display:inline-block; margin-top:18px; font-family:var(--sans); font-weight:700; font-size:14px;
+    color:var(--card-color); text-decoration:none;
   }
-  .future-note strong{ color:var(--brass-soft); }
+  .pcard .cta:hover{ text-decoration:underline; }
+
+  .note{ text-align:center; font-family:var(--mono); font-size:12px; color:var(--muted); max-width:60ch; margin:0 auto; line-height:1.7; }
+  .note strong{ color:var(--teal); }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="badge">Internal — not linked from any public page</div>
-
-  <h1>All <em>Instances</em></h1>
-  <p class="sub">Every version of the site, grouped by audience. Each instance has its own homepage and its own onboarding deck — fully self-contained, nothing shared between them.</p>
-
-  <div class="instances">
-
-    <div class="instance">
-      <div class="instance-top">
-        <span class="instance-name">Generic</span>
-        <span class="instance-path">/</span>
-      </div>
-      <p class="instance-desc">The default, audience-neutral version. Works for any business or nonprofit — no industry-specific language.</p>
-      <div class="instance-links">
-        <a href="../index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          Homepage
-        </a>
-        <a href="../presentation.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="11" rx="1.5"/><line x1="7" y1="18" x2="13" y2="18"/></svg>
-          Process Deck
-        </a>
-      </div>
-    </div>
-
-    <div class="instance accent-teal">
-      <div class="instance-top">
-        <span class="instance-name">Muslim Organizations</span>
-        <span class="instance-path">/muslim-orgs/</span>
-      </div>
-      <p class="instance-desc">Hyper-targeted for Sunni Muslim organizations, masajid, and Islamic nonprofits — Arabic terminology, community-specific credentials, and closing dua included.</p>
-      <div class="instance-links">
-        <a href="../muslim-orgs/index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          Homepage
-        </a>
-        <a href="../muslim-orgs/presentation.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="11" rx="1.5"/><line x1="7" y1="18" x2="13" y2="18"/></svg>
-          Process Deck
-        </a>
-      </div>
-    </div>
-
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">Safath Ahmed <span>Consulting</span></a>
+    <span class="nav-badge">Internal — Site Directory</span>
   </div>
+</header>
 
-  <p class="future-note">Adding a new instance: create a new folder (e.g. <strong>/christian-orgs/</strong>, <strong>/healthcare/</strong>), fork the generic homepage + deck into it, customize the language, then add a new card here.</p>
-
-  <h2 style="font-family:var(--serif); font-size:24px; font-weight:600; margin-top:56px; margin-bottom:8px;">Other Projects</h2>
-  <p class="sub" style="font-size:15px; margin-top:0; margin-bottom:24px;">Unrelated side projects — not part of the consulting site's instance system.</p>
-
-  <div class="instances">
-    <div class="instance accent-rust">
-      <div class="instance-top">
-        <span class="instance-name">Sadik Rent A Car</span>
-        <span class="instance-path">/sadik/</span>
-      </div>
-      <p class="instance-desc">Rent-a-car business landing page — real photos, bilingual (Bengali/English), owner profile, and service gallery.</p>
-      <div class="instance-links">
-        <a href="../sadik/index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          View Page
-        </a>
-      </div>
-    </div>
-
-    <div class="instance accent-slate">
-      <div class="instance-top">
-        <span class="instance-name">Straight Path Auto (Barry)</span>
-        <span class="instance-path">/barry/</span>
-      </div>
-      <p class="instance-desc">Auto repair shop landing page — interactive clickable car diagram, category-based service browser, owner credentials.</p>
-      <div class="instance-links">
-        <a href="../barry/index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          View Page
-        </a>
-      </div>
-    </div>
-
-    <div class="instance accent-teal">
-      <div class="instance-top">
-        <span class="instance-name">Lawrence Worldwide (Mikail)</span>
-        <span class="instance-path">/mikail/</span>
-      </div>
-      <p class="instance-desc">Construction &amp; craftsman services landing page — real portfolio gallery, category-filterable services, owner profile.</p>
-      <div class="instance-links">
-        <a href="../mikail/index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          View Page
-        </a>
-      </div>
-    </div>
-
-    <div class="instance accent-rust">
-      <div class="instance-top">
-        <span class="instance-name">Kenilworth Car Wash (Babar)</span>
-        <span class="instance-path">/babar/</span>
-      </div>
-      <p class="instance-desc">Car wash &amp; detailing landing page — tiered pricing cards, category-filterable services, real photos, interactive hours dropdown.</p>
-      <div class="instance-links">
-        <a href="../babar/index.html">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 L10,4 L17,10 M5,9 V17 H15 V9"/></svg>
-          View Page
-        </a>
-      </div>
-    </div>
-  </div>
+<div class="hero-banner">
+  <h1>SITE DIRECTORY</h1>
+  <p class="crumb">HOME / SITE DIRECTORY</p>
 </div>
+
+<!-- CONSULTING INSTANCES -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Consulting Instances</h2>
+      <p>Audience-targeted versions of the core consulting site — same business, different framing.</p>
+    </div>
+    <div class="card-grid">
+
+      <div class="pcard" style="--card-color:var(--brass);">
+        <div class="pcard-mark">G</div>
+        <h3>Generic</h3>
+        <div class="meta"><b>Path:</b> /</div>
+        <div class="meta"><b>Type:</b> Audience-neutral consulting</div>
+        <a class="cta" href="../index.html">View Page →</a>
+      </div>
+
+      <div class="pcard" style="--card-color:var(--teal);">
+        <div class="pcard-mark">M</div>
+        <h3>Muslim Organizations</h3>
+        <div class="meta"><b>Path:</b> /muslim-orgs/</div>
+        <div class="meta"><b>Type:</b> Masajid &amp; Islamic nonprofits</div>
+        <a class="cta" href="../muslim-orgs/index.html">View Page →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OTHER PROJECTS -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Other Projects</h2>
+      <p>Unrelated client sites — not part of the consulting instance system.</p>
+    </div>
+    <div class="card-grid">
+
+      <div class="pcard" style="--card-color:var(--rust);">
+        <div class="pcard-mark">S</div>
+        <h3>Sadik Rent A Car</h3>
+        <div class="meta"><b>Path:</b> /sadik/</div>
+        <div class="meta"><b>Type:</b> Car rental, Kishoreganj BD</div>
+        <a class="cta" href="../sadik/index.html">View Page →</a>
+      </div>
+
+      <div class="pcard" style="--card-color:var(--slate);">
+        <div class="pcard-mark">B</div>
+        <h3>Straight Path Auto</h3>
+        <div class="meta"><b>Path:</b> /barry/</div>
+        <div class="meta"><b>Type:</b> Auto maintenance &amp; repair</div>
+        <a class="cta" href="../barry/index.html">View Page →</a>
+      </div>
+
+      <div class="pcard" style="--card-color:var(--gold);">
+        <div class="pcard-mark">L</div>
+        <h3>Lawrence Worldwide</h3>
+        <div class="meta"><b>Path:</b> /mikail/</div>
+        <div class="meta"><b>Type:</b> Construction &amp; craftsman services</div>
+        <a class="cta" href="../mikail/index.html">View Page →</a>
+      </div>
+
+      <div class="pcard" style="--card-color:#1565C0;">
+        <div class="pcard-mark">K</div>
+        <h3>Kenilworth Car Wash</h3>
+        <div class="meta"><b>Path:</b> /babar/</div>
+        <div class="meta"><b>Type:</b> Car wash, truck wash &amp; detailing</div>
+        <a class="cta" href="../babar/index.html">View Page →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTNOTE -->
+<section style="padding-top:0;">
+  <div class="wrap">
+    <p class="note">Adding a new instance: create a new folder, fork the generic homepage into it, customize the language, then add a new card here. Adding a new unrelated project: create a new folder and add a card under <strong>Other Projects</strong>.</p>
+  </div>
+</section>
 
 </body>
 </html>
