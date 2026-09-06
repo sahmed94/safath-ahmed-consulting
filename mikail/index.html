@@ -1,344 +1,607 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
-<title>Lawrence Worldwide — Construction, Repair &amp; Design</title>
-<meta name="description" content="Lawrence Worldwide — licensed craftsman services across Maryland &amp; Washington D.C. Owned and operated by Brandon 'Ameer' Lawrence.">
-
+<title>Lawrence Worldwide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
-
   :root{
-    --ink:#2A2420;
-    --paper:#FAF7F2;
-    --paper-2:#F1EBE0;
-    --deep:#1C1815;
-    --gold:#B5892E;
-    --gold-bright:#D4A94A;
-    --sage:#6B7A5E;
-    --terracotta:#B5583A;
-    --slate:#4A5A6B;
-    --line:rgba(28,24,21,0.12);
-    --line-invert:rgba(255,255,255,0.16);
-    --muted:#7A716A;
-    --muted-invert:#C9BFAF;
-    --radius:4px;
-    --display:'Cormorant Garamond', serif;
-    --sans:'Inter', sans-serif;
+    --surface:#FBFAF5; --surface-2:#F1EEE2; --surface-3:#E9E4D3;
+    --ink:#151109; --ink-soft:#544C3D; --ink-faint:#8C8371; --rule:#E1DBC6; --card:#FFFFFF;
+    --shadow: 0 26px 54px -26px rgba(20,16,8,.35); --shadow-sm: 0 10px 22px -14px rgba(20,16,8,.32);
+    --focus:#1F93C7;
+    --c-red:#E14A2B; --c-red-ink:#8C2412;
+    --c-blue:#1187BE; --c-blue-ink:#0B5876;
+    --c-teal:#0E6E64; --c-teal-ink:#083F3A;
+    --c-gold:#D79A2C; --c-gold-ink:#7A550F;
+    --c-amber:#C2701F; --c-amber-ink:#6E3E0F;
+    --c-cyan:#2AA7BE; --c-cyan-ink:#0C5A69;
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{ font-family:var(--sans); color:var(--ink); background:var(--paper); line-height:1.55; overflow-x:hidden; }
-  img,svg{ display:block; max-width:100%; }
-  .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
-  a{ color:inherit; }
-  section{ padding:64px 0; position:relative; }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface:#0F0D09; --surface-2:#181410; --surface-3:#221C15;
+      --ink:#F4EEE0; --ink-soft:#C9C0AB; --ink-faint:#8F8672; --rule:#332B1F; --card:#181410;
+      --shadow: 0 26px 54px -26px rgba(0,0,0,.7); --shadow-sm: 0 10px 22px -14px rgba(0,0,0,.65);
+      --focus:#5FC6EE;
+      --c-red:#FF6A45; --c-blue:#3FB8EE; --c-teal:#3FBBAE; --c-gold:#F2C158; --c-amber:#E39A4C; --c-cyan:#5FD3E6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface:#0F0D09; --surface-2:#181410; --surface-3:#221C15;
+    --ink:#F4EEE0; --ink-soft:#C9C0AB; --ink-faint:#8F8672; --rule:#332B1F; --card:#181410;
+    --shadow: 0 26px 54px -26px rgba(0,0,0,.7); --shadow-sm: 0 10px 22px -14px rgba(0,0,0,.65);
+    --focus:#5FC6EE;
+    --c-red:#FF6A45; --c-blue:#3FB8EE; --c-teal:#3FBBAE; --c-gold:#F2C158; --c-amber:#E39A4C; --c-cyan:#5FD3E6;
   }
 
-  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .6s ease, transform .6s ease; }
-  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--surface); color:var(--ink); font-family:"Inter", ui-sans-serif, system-ui, sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  img,video{max-width:100%;display:block;}
+  a{color:inherit;}
+  ::selection{background:var(--c-gold);color:#151109;}
+  :focus-visible{outline:2.5px solid var(--focus);outline-offset:3px;}
+  .wrap{max-width:1200px;margin:0 auto;padding-inline:clamp(18px,4vw,48px);}
+  h1,h2,h3{font-family:"Poppins", ui-sans-serif, sans-serif;font-weight:800;letter-spacing:-.01em;text-wrap:balance;margin:0;}
+  .mono{font-family:"IBM Plex Mono", ui-monospace, monospace;}
+  .tabular{font-variant-numeric:tabular-nums;}
 
-  .progress-track{ position:fixed; top:0; left:0; right:0; height:3px; z-index:70; background:rgba(28,24,21,0.08); }
-  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--gold), var(--gold-bright)); transition:width .15s ease-out; }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;} }
 
-  @keyframes item-pop{ from{ opacity:0; transform:translateY(16px) scale(.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
-  .pop-item{ animation:item-pop .55s cubic-bezier(.34,1.56,.64,1) backwards; }
+  /* ---------- shared chrome: progress bar, sticky call, bubbles ---------- */
+  .progress-track{position:fixed;top:0;left:0;right:0;height:3px;z-index:80;background:color-mix(in srgb, var(--ink) 8%, transparent);}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--c-red),var(--c-gold),var(--c-teal),var(--c-blue));transition:width .12s ease-out;}
+  .sticky-call{position:fixed;bottom:22px;right:22px;z-index:70;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--c-red),var(--c-gold));display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px -8px rgba(225,74,43,.55);text-decoration:none;animation:call-pulse 2.6s ease-in-out infinite;}
+  .sticky-call svg{width:24px;height:24px;}
+  .sticky-call svg *{fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  @keyframes call-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  .bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .bubble{position:absolute;border-radius:50%;opacity:.35;animation:bubble-float linear infinite;}
+  @keyframes bubble-float{0%{transform:translateY(0) scale(1);opacity:0;}12%{opacity:.4;}88%{opacity:.25;}100%{transform:translateY(-560px) scale(1.2);opacity:0;}}
 
-  /* ---------- HEADER ---------- */
-  header{ position:sticky; top:0; z-index:50; background:rgba(250,247,242,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
-  .nav{ display:flex; align-items:center; justify-content:space-between; padding:16px 0; gap:16px; }
-  .brand{ font-family:var(--display); font-weight:600; font-size:22px; letter-spacing:.01em; text-decoration:none; color:var(--ink); }
-  .nav-cta{ font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:.04em; color:#fff; background:var(--ink); text-decoration:none; padding:11px 22px; border-radius:2px; transition:background .2s; }
-  .nav-cta:hover{ background:var(--gold); }
+  /* reveal-on-scroll: safe default (visible) until .js is present */
+  .reveal{opacity:1;transform:none;}
+  .js .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease, transform .6s ease;}
+  .js .reveal.is-visible{opacity:1;transform:translateY(0);}
 
-  /* ---------- HERO ---------- */
-  .hero{ position:relative; color:#fff; text-align:center; padding:0; }
-  .hero-img{ width:100%; height:52vh; min-height:340px; object-fit:cover; display:block; filter:brightness(0.55); }
-  .hero-content{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; }
-  .hero-eyebrow{ font-family:var(--sans); font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-bright); }
-  .hero h1{ font-family:var(--display); font-weight:600; font-size:clamp(36px,6vw,68px); line-height:1.05; margin-top:12px; }
-  .hero h1 em{ font-style:italic; color:var(--gold-bright); }
-  .hero-tagline{ font-family:var(--display); font-style:italic; font-size:clamp(17px,2vw,22px); margin-top:14px; color:rgba(255,255,255,0.88); }
-  .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
-  .btn-solid{ font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:.04em; background:var(--gold); color:#1c1815; text-decoration:none; padding:14px 28px; border-radius:2px; transition:background .2s, transform .2s; }
-  .btn-solid:hover{ background:var(--gold-bright); transform:translateY(-2px); }
-  .btn-outline{ font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:.04em; background:transparent; color:#fff; text-decoration:none; padding:14px 28px; border-radius:2px; border:1px solid rgba(255,255,255,0.5); transition:background .2s; }
-  .btn-outline:hover{ background:rgba(255,255,255,0.12); }
+  /* accent bank for tabs/panels */
+  [data-accent="red"]{--accent:var(--c-red);--accent-ink:var(--c-red-ink);}
+  [data-accent="blue"]{--accent:var(--c-blue);--accent-ink:var(--c-blue-ink);}
+  [data-accent="teal"]{--accent:var(--c-teal);--accent-ink:var(--c-teal-ink);}
+  [data-accent="gold"]{--accent:var(--c-gold);--accent-ink:var(--c-gold-ink);}
+  [data-accent="amber"]{--accent:var(--c-amber);--accent-ink:var(--c-amber-ink);}
+  [data-accent="cyan"]{--accent:var(--c-cyan);--accent-ink:var(--c-cyan-ink);}
 
-  .hero-strip{ background:var(--deep); color:#fff; padding:16px 0; }
-  .hero-strip .wrap{ display:flex; justify-content:center; gap:30px; flex-wrap:wrap; font-family:var(--sans); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-invert); }
+  /* ---------- topbar ---------- */
+  .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb, var(--surface) 86%, transparent);backdrop-filter:blur(10px) saturate(1.15);border-bottom:1px solid var(--rule);}
+  .topbar-inner{max-width:1200px;margin:0 auto;padding:12px clamp(18px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .mark{display:flex;align-items:center;gap:10px;font-family:"Poppins",sans-serif;font-weight:800;font-size:19px;}
+  .mark-badge{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--c-red),var(--c-blue));display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700;color:#fff;flex:none;}
+  .topnav{display:flex;align-items:center;gap:20px;font-family:"Inter";font-weight:600;font-size:13px;color:var(--ink-soft);}
+  .topnav a{text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;}
+  .topnav a:hover{color:var(--c-blue);border-color:var(--c-blue);}
+  .btn-cta{background:linear-gradient(120deg,var(--c-red),var(--c-gold));color:#1B1305;font-weight:700;padding:10px 18px;border-radius:100px;text-decoration:none;font-size:13px;box-shadow:var(--shadow-sm);white-space:nowrap;transition:transform .2s ease;}
+  .btn-cta:hover{transform:translateY(-2px);}
+  @media (max-width:820px){.topnav a:not(.btn-cta){display:none;}}
 
-  /* ---------- SECTION HEAD ---------- */
-  .shead{ text-align:center; margin-bottom:34px; }
-  .shead .eyebrow{ font-family:var(--sans); font-weight:600; font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
-  .shead h2{ font-family:var(--display); font-weight:600; font-size:clamp(28px,4vw,44px); margin-top:8px; }
-  .shead p{ color:var(--muted); margin-top:10px; font-size:15.5px; max-width:56ch; margin-left:auto; margin-right:auto; }
+  /* ---------- hero ---------- */
+  .cover{position:relative;padding:clamp(46px,8vw,86px) 0 0;overflow:hidden;}
+  .cover-glow{position:absolute;inset:-20% -10% auto -10%;height:560px;z-index:0;
+    background:
+      radial-gradient(38% 55% at 12% 15%, color-mix(in srgb, var(--c-red) 30%, transparent), transparent 70%),
+      radial-gradient(34% 50% at 82% 10%, color-mix(in srgb, var(--c-blue) 28%, transparent), transparent 70%),
+      radial-gradient(30% 46% at 55% 45%, color-mix(in srgb, var(--c-gold) 20%, transparent), transparent 70%);
+    filter:blur(10px);animation:drift 22s ease-in-out infinite alternate;pointer-events:none;
+  }
+  @keyframes drift{from{transform:translate3d(0,0,0) scale(1);}to{transform:translate3d(0,2%,0) scale(1.06);}}
+  .cover .wrap{position:relative;z-index:1;}
+  .cover-stamp{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--rule);border-radius:100px;padding:7px 16px 7px 10px;margin-bottom:22px;background:var(--card);font-family:"IBM Plex Mono";font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-soft);}
+  .cover-stamp .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(120deg,var(--c-red),var(--c-blue));flex:none;}
+  .cover-title{font-size:clamp(40px,7.6vw,84px);line-height:.98;text-transform:none;}
+  .cover-title .grad{background:linear-gradient(90deg,var(--c-red),var(--c-gold) 35%,var(--c-teal) 68%,var(--c-blue));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hue 9s linear infinite;}
+  @keyframes hue{0%{background-position:0% 50%;}100%{background-position:300% 50%;}}
+  .cover-sub{margin-top:20px;font-size:clamp(16.5px,2vw,20px);color:var(--ink-soft);max-width:56ch;font-weight:400;}
+  .cover-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:26px;align-items:center;}
+  .cover-actions .btn-cta{padding:14px 26px;font-size:13px;}
+  .cover-badges{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;font-size:13px;color:var(--ink-faint);}
+  @media (prefers-reduced-motion: reduce){.cover-glow{animation:none;}.cover-title .grad{animation:none;}}
 
-  /* ---------- SERVICES (category gallery) ---------- */
-  .services{ background:var(--paper-2); }
-  .cat-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:30px; }
-  .cat-tab{ font-family:var(--sans); font-size:12.5px; font-weight:600; letter-spacing:.03em; background:var(--paper); color:var(--muted); border:1px solid var(--line); border-radius:20px; padding:9px 18px; cursor:pointer; transition:all .2s; }
-  .cat-tab:hover{ border-color:var(--gold); color:var(--ink); }
-  .cat-tab.is-active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  /* ---------- ticker ---------- */
+  .ticker{margin-top:clamp(28px,5vw,40px);background:linear-gradient(100deg,var(--c-teal),var(--c-blue));overflow:hidden;padding:12px 0;position:relative;z-index:1;}
+  .ticker-track{display:flex;width:max-content;animation:tick 28s linear infinite;}
+  .ticker span{display:flex;align-items:center;font-family:"IBM Plex Mono";font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:#FBFAF5;padding:0 20px;white-space:nowrap;}
+  .ticker span::after{content:"◆";margin-left:20px;color:var(--c-gold);}
+  @keyframes tick{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media (prefers-reduced-motion: reduce){.ticker-track{animation:none;}}
 
-  .service-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; }
-  @media (max-width:900px){ .service-grid{ grid-template-columns:repeat(2, 1fr); } }
-  @media (max-width:520px){ .service-grid{ grid-template-columns:1fr; } }
-  .svc-card{ display:none; background:var(--paper); border-radius:var(--radius); overflow:hidden; box-shadow:0 14px 34px -18px rgba(28,24,21,0.25); transition:transform .3s ease; }
-  .svc-card.is-shown{ display:block; }
-  .svc-card:hover{ transform:translateY(-5px); }
-  .svc-photo{ width:100%; height:150px; object-fit:cover; display:block; }
-  .svc-photo-placeholder{ width:100%; height:150px; background:linear-gradient(135deg,#E7DFCF,#DCD2BC); display:flex; align-items:center; justify-content:center; }
-  .svc-photo-placeholder svg{ width:36px; height:36px; }
-  .svc-photo-placeholder svg *{ fill:none; stroke:#A99A7E; stroke-width:1.3; }
-  .svc-body{ padding:16px 18px 20px; }
-  .svc-body h3{ font-family:var(--display); font-weight:600; font-size:19px; }
-  .svc-body p{ font-size:12.5px; color:var(--muted); margin-top:6px; line-height:1.5; }
+  /* ---------- hero filmstrip ---------- */
+  .filmstrip-shell{margin-top:clamp(26px,5vw,36px);position:relative;z-index:1;}
+  .filmstrip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px clamp(18px,4vw,48px) 6px;-ms-overflow-style:none;scrollbar-width:none;}
+  .filmstrip::-webkit-scrollbar{display:none;}
+  .film-slide{flex:none;width:min(58vw,240px);aspect-ratio:4/5;border-radius:10px;overflow:hidden;scroll-snap-align:start;position:relative;box-shadow:var(--shadow-sm);border:1px solid var(--rule);transition:transform .3s ease;}
+  .film-slide:hover{transform:translateY(-5px) rotate(-.4deg);}
+  .film-slide img{width:100%;height:100%;object-fit:cover;}
+  .film-slide .film-tag{position:absolute;left:9px;bottom:9px;background:color-mix(in srgb, var(--ink) 80%, transparent);color:#F6F1E4;font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:100px;}
 
-  /* ---------- PORTFOLIO GALLERY ---------- */
-  .gallery-grid{ display:grid; grid-template-columns:repeat(4, 1fr); grid-auto-rows:140px; gap:12px; grid-auto-flow:dense; }
-  @media (max-width:760px){ .gallery-grid{ grid-template-columns:repeat(2, 1fr); } }
-  .gtile{ position:relative; border-radius:var(--radius); overflow:hidden; }
-  .gtile img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .gtile.tall{ grid-row:span 2; }
-  .gtile.wide{ grid-column:span 2; }
-  .gtile .glabel{ position:absolute; inset:0; background:linear-gradient(0deg, rgba(20,16,12,0.75), transparent 55%); display:flex; align-items:flex-end; padding:12px; opacity:0; transition:opacity .25s; }
-  .gtile:hover .glabel{ opacity:1; }
-  .gtile .glabel span{ color:#fff; font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:.03em; }
+  /* ---------- services grid ---------- */
+  .services{background:var(--surface-2);padding:clamp(42px,6vw,60px) 0;position:relative;}
+  .services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:22px;}
+  .service-card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px;transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;}
+  .service-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:var(--sc-color, var(--c-blue));}
+  .service-card .n{font-family:"IBM Plex Mono";font-size:11px;color:var(--sc-color, var(--c-blue));font-weight:700;}
+  .service-card h3{font-family:"Poppins";font-size:17px;margin-top:6px;font-weight:700;}
+  .service-card p{margin:6px 0 0;color:var(--ink-soft);font-size:13px;}
+  .section-eyebrow{display:inline-flex;font-family:"IBM Plex Mono";font-weight:700;font-size:12px;color:#fff;background:var(--c-blue);padding:5px 12px;border-radius:100px;letter-spacing:.04em;}
 
-  /* ---------- ABOUT ---------- */
-  .about{ background:var(--deep); color:#fff; }
-  .about-grid{ display:grid; grid-template-columns:280px 1fr; gap:44px; align-items:center; }
-  @media (max-width:760px){ .about-grid{ grid-template-columns:1fr; text-align:center; } }
-  .about-photo{ width:100%; border-radius:var(--radius); }
-  .about-text .kicker{ font-family:var(--sans); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-bright); }
-  .about-text h3{ font-family:var(--display); font-weight:600; font-size:32px; margin-top:8px; }
-  .about-text p{ margin-top:14px; color:var(--muted-invert); font-size:15px; line-height:1.7; max-width:60ch; }
-  .about-tags{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
-  @media (max-width:760px){ .about-tags{ justify-content:center; } }
-  .about-tag{ font-family:var(--sans); font-size:12px; font-weight:600; background:rgba(255,255,255,0.06); border:1px solid var(--line-invert); border-radius:20px; padding:7px 15px; color:#eee; }
+  /* ---------- tabbed work showcase (condensed) ---------- */
+  .work{padding:clamp(48px,7vw,72px) 0;}
+  .work-head{max-width:70ch;}
+  .work-title{font-size:clamp(28px,4.4vw,44px);margin-top:12px;}
+  .work-sub{margin-top:12px;color:var(--ink-soft);font-size:16px;}
+  .tab-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;}
+  .tab-btn{--tab-color:var(--c-red);font-family:"Poppins";font-weight:700;font-size:14px;color:var(--ink-soft);background:var(--card);border:2px solid var(--rule);border-radius:100px;padding:11px 20px;cursor:pointer;transition:all .2s ease;}
+  .tab-btn:hover{border-color:var(--tab-color);color:var(--ink);}
+  .tab-btn.is-active{background:var(--tab-color);border-color:var(--tab-color);color:#fff;}
+  .tab-panels{margin-top:8px;}
+  .tab-panel{display:none;}
+  .tab-panel.is-open{display:block;}
+  .panel-copy{max-width:66ch;color:var(--ink-soft);font-size:16px;margin-top:22px;}
+  .panel-chips{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .swatch{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--rule);border-radius:100px;padding:4px 10px 4px 4px;}
+  .swatch i{width:16px;height:16px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.12);}
 
-  /* ---------- FOOTER ---------- */
-  .final{ text-align:center; background:var(--paper-2); padding:64px 0 28px; }
-  .final h2{ font-family:var(--display); font-weight:600; font-size:clamp(28px,4vw,42px); }
-  .final p.sub{ color:var(--muted); margin-top:10px; font-size:15px; }
-  .final-cards{ display:flex; gap:14px; justify-content:center; margin-top:28px; flex-wrap:wrap; }
-  .fcard{ border-radius:var(--radius); padding:18px 26px; min-width:210px; text-decoration:none; transition:transform .2s; }
-  .fcard:hover{ transform:translateY(-3px); }
-  .fcard .label{ font-family:var(--sans); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
-  .fcard .value{ font-family:var(--display); font-weight:600; font-size:19px; margin-top:3px; }
-  .fcard.primary{ background:var(--ink); color:#fff; }
-  .fcard.primary .label{ color:rgba(255,255,255,0.65); }
-  .fcard.secondary{ background:var(--paper); border:1px solid var(--line); }
-  .final-meta{ margin-top:32px; display:flex; gap:36px; justify-content:center; flex-wrap:wrap; font-family:var(--sans); font-size:13px; color:var(--muted); }
-  .final-meta strong{ display:block; color:var(--ink); font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px; }
-  .final-social{ margin-top:28px; display:flex; gap:16px; justify-content:center; }
-  .final-social a{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; transition:border-color .2s, background .2s; }
-  .final-social a:hover{ border-color:var(--gold); background:var(--paper); }
-  .final-social svg{ width:16px; height:16px; }
-  .final-social svg *{ fill:none; stroke:var(--ink); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
-  .final-foot{ margin-top:34px; padding-top:20px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted); }
+  /* ---------- carousel ---------- */
+  .carousel{margin-top:22px;}
+  .car-frame{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);background:var(--ink);border:2px solid var(--accent);}
+  .car-track{position:relative;aspect-ratio:16/9;}
+  .car-slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .5s ease;}
+  .car-slide.active{opacity:1;visibility:visible;position:relative;}
+  .car-slide img,.car-slide video{width:100%;height:100%;object-fit:cover;}
+  .car-cap{position:absolute;left:0;right:0;bottom:0;padding:16px 20px 14px;background:linear-gradient(to top, rgba(8,7,4,.86), rgba(8,7,4,0));color:#F6F1E4;font-size:13.5px;display:flex;justify-content:space-between;gap:16px;align-items:flex-end;}
+  .car-cap b{color:#fff;}
+  .car-cap span:last-child{font-family:"IBM Plex Mono";font-size:11px;color:#E7DEC6;flex:none;}
+  .car-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;background:color-mix(in srgb, var(--ink) 50%, transparent);color:#F6F1E4;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .2s ease, transform .2s ease;}
+  .car-btn:hover{background:var(--accent);transform:translateY(-50%) scale(1.08);}
+  .car-prev{left:12px;} .car-next{right:12px;}
+  .car-dots{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;align-items:center;}
+  .car-dots button{width:20px;height:5px;border-radius:3px;border:none;background:var(--rule);cursor:pointer;padding:0;transition:background .2s ease;}
+  .car-dots button.active{background:var(--accent);}
+  .car-count{margin-left:auto;font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-faint);}
+  .play-badge{position:absolute;top:14px;right:14px;z-index:4;background:color-mix(in srgb, var(--ink) 55%, transparent);color:#F6F1E4;font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:100px;}
+
+  /* ---------- founder ---------- */
+  .founder-sec{padding:clamp(44px,7vw,64px) 0;border-top:1px solid var(--rule);}
+  .founder{display:grid;grid-template-columns:200px 1fr;gap:clamp(24px,4vw,44px);align-items:start;}
+  @media (max-width:640px){.founder{grid-template-columns:1fr;}}
+  .founder-photo{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:2px solid var(--c-teal);aspect-ratio:3/4;max-width:220px;}
+  .founder-photo img{width:100%;height:100%;object-fit:cover;}
+  .founder-name{font-family:"Poppins";font-size:26px;margin-bottom:4px;}
+  .founder-role{font-family:"IBM Plex Mono";font-size:11px;color:var(--c-teal-ink);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+  .founder-bio{margin-top:12px;color:var(--ink-soft);max-width:64ch;font-size:15px;}
+  .founder-facts{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;font-size:13.5px;color:var(--ink-soft);}
+
+  /* ---------- cta / footer ---------- */
+  .cta{background:linear-gradient(120deg, var(--c-teal), var(--c-blue));color:#F6F1E4;padding:clamp(48px,7vw,76px) 0;position:relative;overflow:hidden;}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(50% 80% at 90% 0%, color-mix(in srgb, var(--c-gold) 32%, transparent), transparent 70%);}
+  .cta .wrap{position:relative;display:grid;grid-template-columns:1.2fr 1fr;gap:32px;}
+  @media (max-width:760px){.cta .wrap{grid-template-columns:1fr;}}
+  .cta h2{color:#FBFAF5;font-size:clamp(28px,4.2vw,44px);}
+  .cta p{color:#E3F1EF;max-width:44ch;margin-top:8px;}
+  .cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--c-gold);color:#221A0E;font-family:"IBM Plex Mono";font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;padding:14px 22px;border-radius:100px;text-decoration:none;white-space:nowrap;margin-top:18px;transition:transform .2s ease;}
+  .cta-btn:hover{transform:translateY(-2px);}
+  .contact-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:22px;backdrop-filter:blur(6px);}
+  .contact-card .row{display:flex;gap:10px;align-items:baseline;font-size:14px;margin-top:9px;}
+  .contact-card .row:first-child{margin-top:0;}
+  .contact-card a{text-decoration:underline;text-underline-offset:3px;}
+  .contact-card .k{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#BFE3DF;flex:none;min-width:58px;}
+  .social-row{display:flex;gap:12px;margin-top:16px;}
+  .social-row a{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .2s ease, background .2s ease;}
+  .social-row a:hover{background:rgba(255,255,255,.15);transform:translateY(-2px);}
+  .social-row svg{width:15px;height:15px;}
+  .social-row svg *{fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  footer.legal{padding:20px clamp(18px,4vw,48px);text-align:center;color:var(--ink-faint);font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.04em;background:var(--surface-2);}
+
+  @media (prefers-reduced-motion: reduce){.car-slide{transition:none;}.film-slide{transition:none;}}
 </style>
-</head>
-<body>
 
 <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<a class="sticky-call" href="tel:3478285305" aria-label="Call Lawrence Worldwide">
+  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,3 h4 l2,5 -2.5,1.5 a11,11 0 0 0 5,5 L14,12 l5,2 v4 a2,2 0 0 1 -2,2 A15,15 0 0 1 2,5 A2,2 0 0 1 4,3 Z"/></svg>
+</a>
 
-<header>
-  <div class="wrap nav">
-    <a class="brand" href="#top">Lawrence Worldwide</a>
-    <a class="nav-cta" href="#contact">Schedule Service</a>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="hero" id="top" style="padding:0;">
-  <img class="hero-img" src="img/hero_herringbone.jpg" alt="Custom trim wall design by Lawrence Worldwide">
-  <div class="hero-content">
-    <p class="hero-eyebrow">CONSTRUCTION · REPAIR · DESIGN</p>
-    <h1>Bringing Your <em>Projects</em> to Life</h1>
-    <p class="hero-tagline">Craftsman-led home &amp; business improvements across Maryland &amp; D.C.</p>
-    <div class="hero-ctas">
-      <a class="btn-solid" href="#services">View Services</a>
-      <a class="btn-outline" href="#contact">Schedule Service</a>
-    </div>
-  </div>
-</section>
-<div class="hero-strip">
-  <div class="wrap">
-    <span>Licensed Tradesman &amp; General Contractor</span>
-    <span>Bowie, MD</span>
-    <span>Serving MD &amp; Washington D.C.</span>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="mark"><span class="mark-badge">LW</span> Lawrence&nbsp;Worldwide</div>
+    <nav class="topnav">
+      <a href="#services">Services</a>
+      <a href="#work">Our Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a class="btn-cta" href="#contact">Schedule Service</a>
+    </nav>
   </div>
 </div>
 
-<!-- SERVICES -->
-<section id="services" class="services">
+<header class="cover">
+  <div class="cover-glow"></div>
+  <div class="bubbles" id="heroBubbles"></div>
   <div class="wrap">
-    <div class="shead reveal">
-      <p class="eyebrow">WHAT WE OFFER</p>
-      <h2>Explore by Craft</h2>
+    <div class="cover-stamp"><span class="dot"></span>Construction &middot; Repair &middot; Design</div>
+    <h1 class="cover-title">Bringing your <span class="grad">projects</span> to life</h1>
+    <p class="cover-sub">Craftsman-led home &amp; business improvements across Maryland &amp; Washington&nbsp;D.C. &mdash; paint, wallcovering, millwork, tile, and remodels, all under one licensed crew.</p>
+    <div class="cover-actions"><a class="btn-cta" href="#contact">Schedule Service &nbsp;&rarr;</a></div>
+    <div class="cover-badges">
+      <span>🛠️ Licensed Tradesman &amp; General Contractor</span>
+      <span>📍 Bowie, MD &middot; Serving MD &amp; Washington D.C.</span>
+      <span>✈️ Travels for the Right Project</span>
     </div>
+  </div>
 
-    <div class="cat-tabs reveal">
-      <button class="cat-tab is-active" data-filter="All">All</button>
-      <button class="cat-tab" data-filter="Carpentry">Carpentry</button>
-      <button class="cat-tab" data-filter="Wallpaper">Wallpaper</button>
-      <button class="cat-tab" data-filter="Painting">Painting</button>
-      <button class="cat-tab" data-filter="Tiling">Tiling</button>
-      <button class="cat-tab" data-filter="Design">Wall &amp; Ceiling</button>
-      <button class="cat-tab" data-filter="Remodeling">Remodeling</button>
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>Finish Carpentry</span><span>Wallpaper</span><span>Interior Painting</span><span>Exterior Painting</span><span>Interior Tiling</span><span>Exterior Tiling &amp; Stone</span><span>Wall &amp; Ceiling Design</span><span>Remodeling</span>
+      <span>Finish Carpentry</span><span>Wallpaper</span><span>Interior Painting</span><span>Exterior Painting</span><span>Interior Tiling</span><span>Exterior Tiling &amp; Stone</span><span>Wall &amp; Ceiling Design</span><span>Remodeling</span>
     </div>
+  </div>
 
-    <div class="service-grid reveal" id="serviceGrid">
-      <div class="svc-card is-shown pop-item" data-cat="Carpentry">
-        <img class="svc-photo" src="img/woodwork.jpg" alt="Custom built-in woodwork">
-        <div class="svc-body"><h3>Finish Carpentry</h3><p>Custom &amp; built-in woodwork for interior and exterior spaces.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Wallpaper">
-        <img class="svc-photo" src="img/wallpaper_mural.jpg" alt="Custom wallpaper mural installation">
-        <div class="svc-body"><h3>Wallpaper</h3><p>From peel-and-stick to fully custom adhesive murals.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Painting">
-        <img class="svc-photo" src="img/paint_red.jpg" alt="Interior painting">
-        <div class="svc-body"><h3>Interior Painting</h3><p>Color transformations, faux finishes, two-tones, murals.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Painting">
-        <div class="svc-photo-placeholder"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,16 L4,4 L16,4 L16,16 Z"/><path d="M4,10 L16,10"/></svg></div>
-        <div class="svc-body"><h3>Exterior Painting</h3><p>Siding, trim, stone painting, murals, and decks.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Tiling">
-        <div class="svc-photo-placeholder"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><rect x="11" y="11" width="6" height="6"/></svg></div>
-        <div class="svc-body"><h3>Interior Tiling</h3><p>Walls, ceilings, and floors — precise, lasting work.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Tiling">
-        <div class="svc-photo-placeholder"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><rect x="11" y="11" width="6" height="6"/></svg></div>
-        <div class="svc-body"><h3>Exterior Tiling &amp; Stone</h3><p>Stone laying and tile work built for the outdoors.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Design">
-        <img class="svc-photo" src="img/wall_design.jpg" alt="Custom wall and ceiling design">
-        <div class="svc-body"><h3>Wall &amp; Ceiling Design</h3><p>Accent walls, built-ins, plaster &amp; drywall finishing.</p></div>
-      </div>
-      <div class="svc-card is-shown pop-item" data-cat="Remodeling">
-        <img class="svc-photo" src="img/closet.jpg" alt="Custom closet remodel">
-        <div class="svc-body"><h3>Remodeling</h3><p>Small, medium, and large-scale remodels, start to finish.</p></div>
-      </div>
+  <div class="filmstrip-shell">
+    <div class="filmstrip">
+      <div class="film-slide"><img src="img/wc-mural-1.webp" alt="Gold-line botanical mural with floating brass shelves" loading="lazy"><span class="film-tag">Wallpaper</span></div>
+      <div class="film-slide"><img src="img/paint-blue-2.webp" alt="Full room repainted cerulean blue" loading="lazy"><span class="film-tag">Painting</span></div>
+      <div class="film-slide"><img src="img/mw-nursery.webp" alt="Herringbone nursery accent wall with dimensional lettering" loading="lazy"><span class="film-tag">Wall Design</span></div>
+      <div class="film-slide"><img src="img/tile-shower.webp" alt="Frameless glass shower enclosure" loading="lazy"><span class="film-tag">Tiling</span></div>
+      <div class="film-slide"><img src="img/paint-red-1.webp" alt="Full room repainted poppy red" loading="lazy"><span class="film-tag">Painting</span></div>
+      <div class="film-slide"><img src="img/mw-closet-1.webp" alt="Custom closet system with frosted glass doors" loading="lazy"><span class="film-tag">Carpentry</span></div>
+      <div class="film-slide"><img src="img/wc-map-1.webp" alt="World atlas mural wrapping a room corner" loading="lazy"><span class="film-tag">Wallpaper</span></div>
+      <div class="film-slide"><img src="img/ext-stoop.webp" alt="Refinished red brick rowhouse stoop and trim" loading="lazy"><span class="film-tag">Exterior</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="services" id="services">
+  <div class="wrap reveal">
+    <span class="section-eyebrow">What We Offer</span>
+    <h2 class="work-title" style="margin-top:14px;">Explore by craft</h2>
+    <div class="services-grid">
+      <div class="service-card" style="--sc-color:var(--c-amber);"><div class="n">01</div><h3>Finish Carpentry</h3><p>Custom &amp; built-in woodwork for interior and exterior spaces.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-teal);"><div class="n">02</div><h3>Wallpaper</h3><p>From peel-and-stick to fully custom adhesive murals.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-red);"><div class="n">03</div><h3>Interior Painting</h3><p>Color transformations, faux finishes, two-tones, murals.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-red);"><div class="n">04</div><h3>Exterior Painting</h3><p>Siding, trim, stone painting, murals, and decks.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-cyan);"><div class="n">05</div><h3>Interior Tiling</h3><p>Walls, ceilings, and floors &mdash; precise, lasting work.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-cyan);"><div class="n">06</div><h3>Exterior Tiling &amp; Stone</h3><p>Stone laying and tile work built for the outdoors.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-gold);"><div class="n">07</div><h3>Wall &amp; Ceiling Design</h3><p>Accent walls, built-ins, plaster &amp; drywall finishing.</p></div>
+      <div class="service-card" style="--sc-color:var(--c-blue);"><div class="n">08</div><h3>Remodeling</h3><p>Small, medium, and large-scale remodels, start to finish.</p></div>
     </div>
   </div>
 </section>
 
-<!-- PORTFOLIO GALLERY -->
-<section class="portfolio">
-  <div class="wrap">
-    <div class="shead reveal">
-      <p class="eyebrow">RECENT WORK</p>
-      <h2>Portfolio Highlights</h2>
+<section class="work wrap" id="work">
+  <div class="work-head reveal">
+    <span class="section-eyebrow" style="background:var(--c-red);">Recent Work</span>
+    <h2 class="work-title">Pick a trade, see the job</h2>
+    <p class="work-sub">Six trades, one crew. Tap a tab to flip through real jobsites &mdash; photo by photo.</p>
+  </div>
+
+  <div class="tab-row reveal">
+    <button class="tab-btn is-active" data-tab="paint" style="--tab-color:var(--c-red);">🎨 Painting</button>
+    <button class="tab-btn" data-tab="wallcovering" style="--tab-color:var(--c-teal);">🧻 Wallcovering</button>
+    <button class="tab-btn" data-tab="millwork" style="--tab-color:var(--c-amber);">🪚 Millwork</button>
+    <button class="tab-btn" data-tab="tile" style="--tab-color:var(--c-cyan);">🚿 Tile &amp; Baths</button>
+    <button class="tab-btn" data-tab="exterior" style="--tab-color:var(--c-gold);">🏠 Exterior</button>
+    <button class="tab-btn" data-tab="field" style="--tab-color:var(--c-blue);">🎥 In the Field</button>
+  </div>
+
+  <div class="tab-panels reveal">
+
+    <div class="tab-panel is-open" data-panel="paint" data-accent="red">
+      <p class="panel-copy">Two-tone wainscoting, a saturated poppy red wash, and a full cerulean blue suite &mdash; back-rolled wall to wall with crisp cut-ins at every ceiling line, casing, and switch plate.</p>
+      <div class="panel-chips">
+        <span class="swatch"><i style="background:#4F482E"></i>Olive Drab</span>
+        <span class="swatch"><i style="background:#E14A2B"></i>Poppy Red</span>
+        <span class="swatch"><i style="background:#1187BE"></i>Cerulean Blue</span>
+      </div>
+      <figure class="carousel" data-carousel data-interval="4800">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active"><img src="img/paint-two-tone-1.webp" alt="Two-tone room, olive drab below a level cut line"><div class="car-cap"><span><b>Two-Tone Wainscoting</b> &mdash; cut line struck level around the full perimeter</span><span class="tabular">01 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-two-tone-2.webp" alt="Two-tone room, second angle"><div class="car-cap"><span><b>Two-Tone Wainscoting</b> &mdash; color break dead level at every switch plate</span><span class="tabular">02 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-two-tone-3.webp" alt="Finished two-tone room with television mounted"><div class="car-cap"><span><b>Two-Tone Wainscoting</b> &mdash; finished suite, ready for furniture</span><span class="tabular">03 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-red-1.webp" alt="Red painted room, corner view"><div class="car-cap"><span><b>Poppy Red</b> &mdash; first coat, cut-in along the ceiling line</span><span class="tabular">04 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-red-2.webp" alt="Red painted room, second angle"><div class="car-cap"><span><b>Poppy Red</b> &mdash; second coat, casing masked and cut clean</span><span class="tabular">05 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-blue-1.webp" alt="Blue painted room with ceiling fan"><div class="car-cap"><span><b>Cerulean Blue</b> &mdash; ceiling fixtures and vents masked in place</span><span class="tabular">06 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-blue-2.webp" alt="Blue painted wall, straight-on"><div class="car-cap"><span><b>Cerulean Blue</b> &mdash; wall-to-wall coverage, zero flashing</span><span class="tabular">07 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-blue-3.webp" alt="Blue painted room with closet door"><div class="car-cap"><span><b>Cerulean Blue</b> &mdash; window and door casing cut clean</span><span class="tabular">08 / 09</span></div></div>
+            <div class="car-slide"><img src="img/paint-blue-4.webp" alt="Blue painted room with window"><div class="car-cap"><span><b>Cerulean Blue</b> &mdash; corner-to-corner, ready for reveal</span><span class="tabular">09 / 09</span></div></div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
     </div>
-    <div class="gallery-grid reveal">
-      <div class="gtile tall wide"><img src="img/wallpaper_mural.jpg" alt="Wallpaper mural"><div class="glabel"><span>Custom Mural Wallpaper</span></div></div>
-      <div class="gtile"><img src="img/wallpaper_map.jpg" alt="World map wallpaper"><div class="glabel"><span>World Map Mural</span></div></div>
-      <div class="gtile"><img src="img/closet.jpg" alt="Custom closet"><div class="glabel"><span>Custom Closet</span></div></div>
-      <div class="gtile wide"><img src="img/wall_design.jpg" alt="Wall design"><div class="glabel"><span>Wall &amp; Ceiling Design</span></div></div>
-      <div class="gtile"><img src="img/paint_red.jpg" alt="Interior painting"><div class="glabel"><span>Interior Painting</span></div></div>
-      <div class="gtile"><img src="img/paint_blue.jpg" alt="Interior painting"><div class="glabel"><span>Interior Painting</span></div></div>
-      <div class="gtile"><img src="img/wallpaper_zebra.jpg" alt="Patterned wallpaper"><div class="glabel"><span>Patterned Wallpaper</span></div></div>
-      <div class="gtile"><img src="img/woodwork.jpg" alt="Custom woodwork"><div class="glabel"><span>Custom Woodwork</span></div></div>
+
+    <div class="tab-panel" data-panel="wallcovering" data-accent="teal">
+      <p class="panel-copy">A world atlas dry-hung and pattern-matched around a corner, a gold-line botanical mural coordinated with brass shelving, and specialty prints &mdash; photographic, novelty, vintage, and textured &mdash; proof the crew hangs anything.</p>
+      <figure class="carousel" data-carousel data-interval="4800">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active"><img src="img/wc-map-1.webp" alt="World map mural wrapping an inside corner"><div class="car-cap"><span><b>World Atlas Mural</b> &mdash; corner wrap, coastline runs straight through</span><span class="tabular">01 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-map-2.webp" alt="World map mural, full wall"><div class="car-cap"><span><b>World Atlas Mural</b> &mdash; full wall, panel-to-panel registration</span><span class="tabular">02 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-mural-1.webp" alt="Gold-line botanical mural with brass floating shelves"><div class="car-cap"><span><b>Gilded Botanical Mural</b> &mdash; seams landing invisibly inside the linework</span><span class="tabular">03 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-mural-2.webp" alt="Botanical mural, wide angle"><div class="car-cap"><span><b>Gilded Botanical Mural</b> &mdash; floating shelves mounted through the print</span><span class="tabular">04 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-mural-3.webp" alt="Botanical mural with television mounted"><div class="car-cap"><span><b>Gilded Botanical Mural</b> &mdash; finished media wall</span><span class="tabular">05 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-photo-mural.webp" alt="Photographic misted meadow mural in a break room"><div class="car-cap"><span><b>Specialty</b> &mdash; photographic mural, commercial break room</span><span class="tabular">06 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-sunflower.webp" alt="Sunflower print wallcovering on a stair stringer"><div class="car-cap"><span><b>Specialty</b> &mdash; novelty print, wrapped around a stair stringer</span><span class="tabular">07 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-floral.webp" alt="Vintage floral wallcovering accent wall"><div class="car-cap"><span><b>Specialty</b> &mdash; vintage floral repeat, full coverage</span><span class="tabular">08 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-zebra.gif" alt="Zebra print wallcovering in a bar nook"><div class="car-cap"><span><b>Specialty</b> &mdash; statement print, bar-nook accent wall</span><span class="tabular">09 / 10</span></div></div>
+            <div class="car-slide"><img src="img/wc-texture.webp" alt="Textured plaster-effect wallcovering"><div class="car-cap"><span><b>Specialty</b> &mdash; textured vinyl, wash-station wall</span><span class="tabular">10 / 10</span></div></div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
     </div>
+
+    <div class="tab-panel" data-panel="millwork" data-accent="amber">
+      <p class="panel-copy">Custom closet systems with frosted-glass shaker doors, a floating media shelf with a concealed outlet, a window-seat banquette with hinged storage, and dimensional trim feature walls &mdash; including raised lettering on a nursery accent wall.</p>
+      <figure class="carousel" data-carousel data-interval="4800">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active"><img src="img/mw-closet-1.webp" alt="Closet with frosted glass shaker doors"><div class="car-cap"><span><b>Custom Closets</b> &mdash; frosted-glass shaker doors, soft-close hardware</span><span class="tabular">01 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-closet-2.webp" alt="Walk-in closet interior with open shelving"><div class="car-cap"><span><b>Custom Closets</b> &mdash; open shelving wing, ready to load</span><span class="tabular">02 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-closet-3.webp" alt="Walk-in closet, double doors open"><div class="car-cap"><span><b>Custom Closets</b> &mdash; double-door walk-in, crown detail carried through</span><span class="tabular">03 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-closet-4.webp" alt="Closet shelving with mirrored end panel"><div class="car-cap"><span><b>Custom Closets</b> &mdash; mixed shelving, mirrored end panel</span><span class="tabular">04 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-shelf.webp" alt="Floating media shelf with concealed outlet"><div class="car-cap"><span><b>Built-In Millwork</b> &mdash; floating shelf, concealed outlet and cable channel</span><span class="tabular">05 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-banquette-1.webp" alt="Window seat banquette substrate under construction"><div class="car-cap"><span><b>Built-In Millwork</b> &mdash; banquette substrate, cut to the window returns</span><span class="tabular">06 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-banquette-2.webp" alt="Finished window seat banquette with hinged storage lids"><div class="car-cap"><span><b>Built-In Millwork</b> &mdash; hinged lids finished, storage underneath</span><span class="tabular">07 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-lattice.webp" alt="Diamond lattice applied moulding accent wall"><div class="car-cap"><span><b>Trim Feature Walls</b> &mdash; diamond lattice, mitred and caulked</span><span class="tabular">08 / 09</span></div></div>
+            <div class="car-slide"><img src="img/mw-nursery.webp" alt="Nursery accent wall with board and batten and dimensional lettering"><div class="car-cap"><span><b>Trim Feature Walls</b> &mdash; board-and-batten with raised dimensional lettering</span><span class="tabular">09 / 09</span></div></div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
+    </div>
+
+    <div class="tab-panel" data-panel="tile" data-accent="cyan">
+      <p class="panel-copy">Frameless glass shower enclosures, beveled subway surrounds, and patterned floor tile &mdash; grout lines kept tight and caulk joints cut clean at every transition.</p>
+      <figure class="carousel" data-carousel data-interval="4800">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active"><img src="img/tile-shower.webp" alt="Frameless glass shower enclosure with black hardware"><div class="car-cap"><span>Frameless enclosure, corner-mounted niche</span><span class="tabular">01 / 04</span></div></div>
+            <div class="car-slide"><img src="img/tile-subway.webp" alt="Beveled subway tile tub surround"><div class="car-cap"><span>Beveled subway surround, tub to ceiling</span><span class="tabular">02 / 04</span></div></div>
+            <div class="car-slide"><img src="img/tile-floor.webp" alt="Patterned floor tile detail"><div class="car-cap"><span>Patterned floor tile, tight grout lines</span><span class="tabular">03 / 04</span></div></div>
+            <div class="car-slide"><img src="img/tile-baseboard.webp" alt="Baseboard and tile transition detail"><div class="car-cap"><span>Baseboard-to-tile transition, clean caulk line</span><span class="tabular">04 / 04</span></div></div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
+    </div>
+
+    <div class="tab-panel" data-panel="exterior" data-accent="gold">
+      <p class="panel-copy">Repainted pediment door surrounds, a refinished rowhouse stoop, and tubular skylights that pull daylight two stories down into a windowless hallway.</p>
+      <figure class="carousel" data-carousel data-interval="4800">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active"><img src="img/ext-pediment.webp" alt="Repainted pediment door surround"><div class="car-cap"><span>Pediment door surround, fully repainted</span><span class="tabular">01 / 05</span></div></div>
+            <div class="car-slide"><img src="img/ext-stoop.webp" alt="Refinished red brick rowhouse stoop and trim"><div class="car-cap"><span>Rowhouse stoop and trim, refinished street-side</span><span class="tabular">02 / 05</span></div></div>
+            <div class="car-slide"><img src="img/ext-skylight-1.webp" alt="Tubular skylight lighting a daytime hallway"><div class="car-cap"><span>Tubular skylight, daylight to an interior hallway</span><span class="tabular">03 / 05</span></div></div>
+            <div class="car-slide"><img src="img/ext-skylight-2.webp" alt="Tubular skylight in the evening"><div class="car-cap"><span>Same skylight, evening light beam</span><span class="tabular">04 / 05</span></div></div>
+            <div class="car-slide"><img src="img/ext-skylight-3.gif" alt="Tubular skylight light beam in motion"><div class="car-cap"><span>Skylight in motion</span><span class="tabular">05 / 05</span></div></div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
+    </div>
+
+    <div class="tab-panel" data-panel="field" data-accent="blue">
+      <p class="panel-copy">Short clips from live jobsites &mdash; cutting in, rolling, and hanging paper, start to finish.</p>
+      <figure class="carousel" data-carousel data-interval="99999999" data-video="true">
+        <div class="car-frame">
+          <div class="car-track">
+            <div class="car-slide active">
+              <span class="play-badge">&#9654; Clip 01</span>
+              <video src="videos/painting.mp4" controls playsinline preload="metadata"></video>
+              <div class="car-cap"><span>Interior Painting &mdash; Commercial &amp; Residential</span><span class="tabular">01 / 03</span></div>
+            </div>
+            <div class="car-slide">
+              <span class="play-badge">&#9654; Clip 02</span>
+              <video src="videos/wallpaper-1.mp4" controls playsinline preload="metadata"></video>
+              <div class="car-cap"><span>Wallpapering Services &mdash; Residential &amp; Commercial</span><span class="tabular">02 / 03</span></div>
+            </div>
+            <div class="car-slide">
+              <span class="play-badge">&#9654; Clip 03</span>
+              <video src="videos/wallpaper-2.mp4" controls playsinline preload="metadata"></video>
+              <div class="car-cap"><span>Wallpapering Services &mdash; Part Two</span><span class="tabular">03 / 03</span></div>
+            </div>
+          </div>
+          <button class="car-btn car-prev" aria-label="Previous slide">&#8249;</button>
+          <button class="car-btn car-next" aria-label="Next slide">&#8250;</button>
+        </div>
+        <div class="car-dots"></div>
+      </figure>
+    </div>
+
   </div>
 </section>
 
-<!-- ABOUT -->
-<section class="about">
-  <div class="wrap">
-    <div class="shead reveal">
-      <p class="eyebrow" style="color:var(--gold-bright);">THE CRAFTSMAN</p>
-      <h2 style="color:#fff;">Meet Brandon "Ameer" Lawrence</h2>
-    </div>
-    <div class="about-grid reveal">
-      <img class="about-photo" src="img/owner.jpg" alt="Brandon Ameer Lawrence, owner of Lawrence Worldwide">
-      <div class="about-text">
-        <p class="kicker">FOUNDER · LICENSED TRADESMAN &amp; GENERAL CONTRACTOR</p>
-        <h3>Turning Bare Materials Into Finished Spaces</h3>
-        <p>Brandon leads every project personally, with a standard built on precision and integrity. Based in Bowie, MD, serving homes and businesses across Maryland and Washington D.C. — with the flexibility to travel further for the right project.</p>
-        <div class="about-tags">
-          <span class="about-tag">🛠️ Licensed General Contractor</span>
-          <span class="about-tag">📍 Maryland &amp; Washington D.C.</span>
-          <span class="about-tag">✈️ Travels for Unique Projects</span>
+<section class="founder-sec" id="about">
+  <div class="wrap reveal">
+    <span class="section-eyebrow" style="background:var(--c-teal);">The Craftsman</span>
+    <div class="founder" style="margin-top:22px;">
+      <div class="founder-photo"><img src="img/owner.webp" alt="Brandon &quot;Ameer&quot; Lawrence, founder of Lawrence Worldwide"></div>
+      <div>
+        <div class="founder-name">Meet Brandon &ldquo;Ameer&rdquo; Lawrence</div>
+        <div class="founder-role">Founder &middot; Licensed Tradesman &amp; General Contractor</div>
+        <p class="founder-bio">Turning bare materials into finished spaces. Brandon leads every project personally, with a standard built on precision and integrity. Based in Bowie, MD, serving homes and businesses across Maryland and Washington D.C. &mdash; with the flexibility to travel further for the right project.</p>
+        <div class="founder-facts">
+          <span>🛠️ Licensed General Contractor</span>
+          <span>📍 Maryland &amp; Washington D.C.</span>
+          <span>✈️ Travels for Unique Projects</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<section class="final" id="contact">
-  <div class="wrap">
-    <h2 class="reveal">Let's Build Something</h2>
-    <p class="sub reveal">Reach out to discuss your project — I'll follow up personally.</p>
-    <div class="final-cards reveal">
-      <a class="fcard primary" href="tel:3478285305">
-        <div class="label">Call</div>
-        <div class="value">(347) 828-5305</div>
-      </a>
-      <a class="fcard secondary" href="mailto:lawrenceworldwideservices@gmail.com">
-        <div class="label">Email</div>
-        <div class="value" style="font-size:15px;">lawrenceworldwideservices@gmail.com</div>
-      </a>
+<div class="cta" id="contact">
+  <div class="wrap reveal">
+    <div>
+      <h2>Let&rsquo;s build something</h2>
+      <p>Reach out to discuss your project &mdash; Brandon will follow up personally.</p>
+      <a class="cta-btn" href="tel:3478285305">Call (347) 828-5305 &nbsp;&rarr;</a>
     </div>
-    <div class="final-meta reveal">
-      <div><strong>Location</strong>12530 Fairwood Parkway, Suite 102-1229<br>Bowie, MD 20720</div>
-      <div><strong>Availability</strong>Monday — Friday</div>
+    <div class="contact-card">
+      <div class="row"><span class="k">Email</span><a href="mailto:lawrenceworldwideservices@gmail.com">lawrenceworldwideservices@gmail.com</a></div>
+      <div class="row"><span class="k">Address</span><span>12530 Fairwood Parkway, Suite 102-1229, Bowie, MD 20720</span></div>
+      <div class="row"><span class="k">Hours</span><span>Monday &mdash; Friday</span></div>
+      <div class="social-row">
+        <a href="https://www.instagram.com/lawrenceworldwide" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="4"/><circle cx="10" cy="10" r="3.2"/><circle cx="14.3" cy="5.7" r="0.6" fill="#fff" stroke="none"/></svg></a>
+        <a href="https://www.facebook.com/lawrenceworldwidellc" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 20 20"><path d="M12,7 h-2 a1.5,1.5 0 0 0 -1.5,1.5 V10 H12 L11.6,12.5 H8.5 V18"/><path d="M8.5,10 H6 v2.5 h2.5"/></svg></a>
+        <a href="https://www.youtube.com/channel/UCSi9lDlvJ0wtL7-ziagyHqQ" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 20 20"><rect x="2.5" y="5.5" width="15" height="9" rx="2.5"/><path d="M8.5,8 L12,10 L8.5,12 Z" fill="#fff" stroke="none"/></svg></a>
+        <a href="mailto:lawrenceworldwideservices@gmail.com" aria-label="Email"><svg viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="11" rx="1.5"/><path d="M3,5.5 L10,11 L17,5.5"/></svg></a>
+      </div>
     </div>
-    <div class="final-social reveal">
-      <a href="https://www.instagram.com/lawrenceworldwide" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="4"/><circle cx="10" cy="10" r="3.2"/><circle cx="14.3" cy="5.7" r="0.6" fill="var(--ink)" stroke="none"/></svg></a>
-      <a href="https://www.facebook.com/lawrenceworldwidellc" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 20 20"><path d="M12,7 h-2 a1.5,1.5 0 0 0 -1.5,1.5 V10 H12 L11.6,12.5 H8.5 V18"/><path d="M8.5,10 H6 v2.5 h2.5"/></svg></a>
-      <a href="https://www.youtube.com/channel/UCSi9lDlvJ0wtL7-ziagyHqQ" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 20 20"><rect x="2.5" y="5.5" width="15" height="9" rx="2.5"/><path d="M8.5,8 L12,10 L8.5,12 Z" fill="var(--ink)" stroke="none"/></svg></a>
-      <a href="mailto:lawrenceworldwideservices@gmail.com" aria-label="Email"><svg viewBox="0 0 20 20"><rect x="3" y="4.5" width="14" height="11" rx="1.5"/><path d="M3,5.5 L10,11 L17,5.5"/></svg></a>
-    </div>
-    <p class="final-foot">Lawrence Worldwide — Owned &amp; Operated by Brandon "Ameer" Lawrence</p>
   </div>
-</section>
+</div>
+<footer class="legal">LAWRENCE WORLDWIDE &mdash; OWNED &amp; OPERATED BY BRANDON &quot;AMEER&quot; LAWRENCE</footer>
 
 <script>
-  (function(){
-    const items = document.querySelectorAll('.reveal');
-    if('IntersectionObserver' in window){
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting));
-      }, { threshold:0.12 });
-      items.forEach(el => io.observe(el));
-    } else {
-      items.forEach(el => el.classList.add('is-visible'));
-    }
+(function(){
+  document.documentElement.classList.add('js');
 
-    const progressFill = document.getElementById('progressFill');
-    function updateProgress(){
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
-      if(progressFill) progressFill.style.width = pct + '%';
-    }
-    window.addEventListener('scroll', updateProgress, { passive:true });
-    updateProgress();
+  // progress bar
+  var fill = document.getElementById('progressFill');
+  function onScrollProgress(){
+    var h = document.documentElement;
+    var pct = (h.scrollTop) / ((h.scrollHeight - h.clientHeight) || 1) * 100;
+    fill.style.width = pct + '%';
+  }
+  document.addEventListener('scroll', onScrollProgress, {passive:true});
+  onScrollProgress();
 
-    const tabs = document.querySelectorAll('.cat-tab');
-    const cards = document.querySelectorAll('.svc-card');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('is-active'));
-        tab.classList.add('is-active');
-        const filter = tab.dataset.filter;
-        cards.forEach(card => {
-          card.classList.toggle('is-shown', filter === 'All' || card.dataset.cat === filter);
-        });
-      });
+  // floating bubbles
+  var bwrap = document.getElementById('heroBubbles');
+  if(bwrap && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+    var colors = ['var(--c-red)','var(--c-blue)','var(--c-teal)','var(--c-gold)'];
+    for(var i=0;i<14;i++){
+      var b = document.createElement('span');
+      b.className = 'bubble';
+      var size = 8 + Math.random()*22;
+      b.style.width = size+'px'; b.style.height = size+'px';
+      b.style.left = (Math.random()*100)+'%';
+      b.style.bottom = '-40px';
+      b.style.background = colors[i % colors.length];
+      b.style.animationDuration = (10 + Math.random()*10)+'s';
+      b.style.animationDelay = (Math.random()*10)+'s';
+      bwrap.appendChild(b);
+    }
+  }
+
+  // scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('is-visible'); });
+    }, {threshold:.12});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  // carousels
+  var carousels = {}; // panelId -> controller
+  function buildCarousel(root){
+    var slides = Array.prototype.slice.call(root.querySelectorAll('.car-slide'));
+    var dotsWrap = root.querySelector('.car-dots');
+    var prevBtn = root.querySelector('.car-prev');
+    var nextBtn = root.querySelector('.car-next');
+    var interval = parseInt(root.getAttribute('data-interval'), 10) || 6000;
+    var isVideo = root.getAttribute('data-video') === 'true';
+    var idx = slides.findIndex(function(s){return s.classList.contains('active');});
+    if(idx < 0) idx = 0;
+    var timer = null;
+    var enabled = true;
+
+    slides.forEach(function(s, i){
+      var dot = document.createElement('button');
+      dot.setAttribute('aria-label', 'Go to slide ' + (i+1));
+      if(i === idx) dot.classList.add('active');
+      dot.addEventListener('click', function(){ show(i, true); });
+      dotsWrap.appendChild(dot);
     });
-  })();
-</script>
+    var counter = document.createElement('span');
+    counter.className = 'car-count mono';
+    dotsWrap.appendChild(counter);
+    function updateCounter(){ counter.textContent = (idx+1) + ' / ' + slides.length; }
 
-</body>
-</html>
+    function show(i, userAction){
+      var prevVideo = slides[idx].querySelector('video');
+      if(prevVideo) prevVideo.pause();
+      slides[idx].classList.remove('active');
+      dotsWrap.children[idx].classList.remove('active');
+      idx = (i + slides.length) % slides.length;
+      slides[idx].classList.add('active');
+      dotsWrap.children[idx].classList.add('active');
+      updateCounter();
+      if(userAction) restart();
+    }
+    function next(){ show(idx+1); }
+    function prev(){ show(idx-1); }
+    function restart(){
+      if(timer) clearInterval(timer);
+      if(!isVideo && enabled){ timer = setInterval(next, interval); }
+    }
+    function pause(){ if(timer) clearInterval(timer); timer = null; }
+    function resume(){ enabled = true; restart(); }
+    nextBtn.addEventListener('click', function(){ next(); restart(); });
+    prevBtn.addEventListener('click', function(){ prev(); restart(); });
+    root.addEventListener('mouseenter', function(){ if(timer) clearInterval(timer); });
+    root.addEventListener('mouseleave', function(){ if(enabled) restart(); });
+    root.addEventListener('focusin', function(){ if(timer) clearInterval(timer); });
+    root.addEventListener('focusout', function(){ if(enabled) restart(); });
+    root.tabIndex = -1;
+    root.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowRight'){ next(); restart(); }
+      if(e.key === 'ArrowLeft'){ prev(); restart(); }
+    });
+    updateCounter();
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    enabled = !reduceMotion;
+    if(enabled) restart();
+    return {pause:pause, resume:resume};
+  }
+  document.querySelectorAll('[data-carousel]').forEach(function(root){
+    var panel = root.closest('.tab-panel');
+    var key = panel ? panel.getAttribute('data-panel') : Math.random();
+    carousels[key] = buildCarousel(root);
+  });
+
+  // tabs
+  var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.getAttribute('data-tab');
+      tabBtns.forEach(function(b){ b.classList.toggle('is-active', b === btn); });
+      panels.forEach(function(p){
+        var isMatch = p.getAttribute('data-panel') === key;
+        p.classList.toggle('is-open', isMatch);
+        var c = carousels[p.getAttribute('data-panel')];
+        if(c){ if(isMatch){ c.resume(); } else { c.pause(); } }
+      });
+      document.getElementById('work').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  // pause all but the initially-open panel
+  panels.forEach(function(p){
+    if(!p.classList.contains('is-open')){
+      var c = carousels[p.getAttribute('data-panel')];
+      if(c) c.pause();
+    }
+  });
+})();
+</script>
