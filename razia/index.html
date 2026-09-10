@@ -219,7 +219,8 @@
   .cart-close{ width:32px; height:32px; border-radius:50%; background:var(--cream-2); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
   .cart-close svg{ width:16px; height:16px; }
   .cart-close svg *{ stroke:var(--forest-deep); stroke-width:2; }
-  .cart-body{ flex:1; overflow-y:auto; padding:16px 22px; }
+  .cart-scroll{ flex:1; overflow-y:auto; min-height:0; }
+  .cart-body{ padding:16px 22px; }
   .cart-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
   .cart-extras{ padding:0 22px 18px; border-top:1px solid var(--line); padding-top:16px; }
   .cart-label{ display:block; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--forest-deep); margin-bottom:7px; margin-top:14px; }
@@ -570,17 +571,19 @@
     <h3>Your Order</h3>
     <button class="cart-close" id="cartClose" aria-label="Close cart"><svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
   </div>
-  <div class="cart-body" id="cartBody">
-    <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
-  </div>
-  <div class="cart-extras">
-    <label class="cart-label">Pickup Date &amp; Time</label>
-    <div class="cart-datetime">
-      <input type="date" id="pickupDate" class="cart-input">
-      <input type="time" id="pickupTime" class="cart-input">
+  <div class="cart-scroll">
+    <div class="cart-body" id="cartBody">
+      <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
     </div>
-    <label class="cart-label">Your Name, Allergies, or Special Instructions</label>
-    <textarea id="orderNotes" class="cart-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
+    <div class="cart-extras">
+      <label class="cart-label">Pickup Date &amp; Time</label>
+      <div class="cart-datetime">
+        <input type="date" id="pickupDate" class="cart-input">
+        <input type="time" id="pickupTime" class="cart-input">
+      </div>
+      <label class="cart-label">Your Name, Allergies, or Special Instructions</label>
+      <textarea id="orderNotes" class="cart-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
+    </div>
   </div>
   <div class="cart-foot">
     <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
