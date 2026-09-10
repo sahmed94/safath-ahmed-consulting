@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Halal Home Taste Food — Catering by Razia</title>
+<meta name="description" content="Halal Home Taste Food — homemade-style halal catering for weddings, birthdays, and family gatherings. 15+ years of cooking experience.">
+
+<style>
+  @font-face{ font-family:'Caveat'; src:url('https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/Caveat%5Bwght%5D.ttf') format('truetype'); font-weight:400 700; }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --forest:#1C4A34;
+    --forest-deep:#123324;
+    --gold:#C9A13B;
+    --gold-bright:#E0B94E;
+    --cream:#FBF6E9;
+    --cream-2:#F3ECD6;
+    --terracotta:#C1512F;
+    --spice:#D9782E;
+    --ink:#22281F;
+    --muted:#6B6858;
+    --line:rgba(28,74,52,0.15);
+    --radius:14px;
+    --display:'Poppins', sans-serif;
+    --sans:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--sans); color:var(--ink); background:var(--cream); line-height:1.5; overflow-x:hidden; }
+  img,svg{ display:block; max-width:100%; }
+  .wrap{ max-width:1160px; margin:0 auto; padding:0 24px; }
+  a{ color:inherit; }
+  section{ padding:60px 0; position:relative; }
+  button{ font-family:inherit; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:0.01ms !important; } }
+  .reveal{ opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
+  @keyframes pop{ from{ opacity:0; transform:translateY(14px) scale(.96); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .pop-item{ animation:pop .5s cubic-bezier(.34,1.56,.64,1) backwards; }
+
+  .garnish-field{ position:fixed; inset:0; pointer-events:none; z-index:2; overflow:hidden; }
+  .garnish{ position:absolute; opacity:0; animation:garnish-float linear infinite; }
+  @keyframes garnish-float{
+    0%{ transform:translateY(110vh) rotate(0deg) scale(1); opacity:0; }
+    12%{ opacity:.55; }
+    88%{ opacity:.4; }
+    100%{ transform:translateY(-12vh) rotate(50deg) scale(1.1); opacity:0; }
+  }
+
+  header{ position:sticky; top:0; z-index:50; background:rgba(251,246,233,0.94); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:13px 0; gap:12px; }
+  .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .brand-mark{ width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg, var(--gold-bright), var(--gold)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand-mark svg{ width:22px; height:22px; }
+  .brand-mark svg *{ fill:none; stroke:var(--forest-deep); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .brand-text .main{ font-family:var(--display); font-weight:800; font-size:15.5px; color:var(--forest-deep); display:block; line-height:1.1; }
+  .brand-text .sub{ font-size:10px; letter-spacing:.12em; color:var(--terracotta); font-weight:700; }
+  .nav-right{ display:flex; align-items:center; gap:10px; }
+  .cart-btn{ position:relative; width:42px; height:42px; border-radius:50%; background:#fff; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .cart-btn svg{ width:19px; height:19px; }
+  .cart-btn svg *{ fill:none; stroke:var(--forest-deep); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .cart-badge{ position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; padding:0 4px; border-radius:9px; background:var(--terracotta); color:#fff; font-size:10.5px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .nav-cta{ display:flex; align-items:center; gap:6px; font-weight:700; font-size:13px; color:#fff; text-decoration:none; padding:10px 18px; border-radius:30px; background:linear-gradient(135deg, #25D366, #1DA851); box-shadow:0 6px 16px -6px rgba(37,211,102,0.6); }
+  .nav-cta svg{ width:15px; height:15px; }
+  .nav-cta svg *{ fill:#fff; stroke:none; }
+
+  .hero{ position:relative; text-align:center; overflow:hidden; }
+  .hero-photo-bg{ position:relative; height:78vh; min-height:520px; }
+  .hero-photo-bg img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .hero-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(18,51,36,0.55) 0%, rgba(18,51,36,0.78) 55%, rgba(18,51,36,0.95) 100%); }
+  .hero-content{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; color:#fff; z-index:3; }
+  .hero-eyebrow{ display:inline-block; font-weight:700; font-size:12px; letter-spacing:.18em; color:var(--gold-bright); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:6px 16px; border-radius:20px; }
+  .hero h1{ font-family:var(--display); font-weight:800; font-size:clamp(28px,5vw,48px); line-height:1.12; margin-top:16px; max-width:16ch; }
+  .hero h1 span{ color:var(--gold-bright); }
+  .hero p.desc{ font-size:15.5px; color:#E4DCC2; max-width:52ch; margin:14px auto 0; }
+  .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
+  .btn-whatsapp{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:14.5px; color:#fff; text-decoration:none; padding:14px 26px; border-radius:30px; background:linear-gradient(135deg, #25D366, #1DA851); box-shadow:0 10px 26px -6px rgba(37,211,102,0.55); }
+  .btn-whatsapp svg{ width:19px; height:19px; }
+  .btn-whatsapp svg *{ fill:#fff; stroke:none; }
+  .btn-outline-light{ font-weight:700; font-size:14.5px; color:#fff; text-decoration:none; padding:14px 26px; border-radius:30px; border:1.5px solid rgba(255,255,255,0.5); }
+  .hero-badges{ display:flex; gap:9px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+  .hero-badge{ font-size:12px; font-weight:600; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:20px; padding:6px 13px; }
+
+  .strip{ background:var(--forest-deep); color:#fff; padding:12px 0; }
+  .strip .wrap{ display:flex; justify-content:center; gap:24px; flex-wrap:wrap; font-size:11.5px; letter-spacing:.03em; color:#D9CFA8; }
+  .strip strong{ color:var(--gold-bright); }
+
+  .shead{ text-align:center; margin-bottom:28px; position:relative; z-index:3; }
+  .shead .eyebrow{ display:inline-block; font-weight:700; font-size:11px; letter-spacing:.16em; color:var(--terracotta); background:rgba(193,81,47,0.1); padding:5px 15px; border-radius:20px; margin-bottom:12px; }
+  .shead h2{ font-family:var(--display); font-weight:800; font-size:clamp(22px,3.2vw,32px); color:var(--forest-deep); }
+  .shead p{ color:var(--muted); margin-top:7px; font-size:14px; }
+
+  .gallery{ position:relative; z-index:3; }
+  .gallery-stage{ position:relative; max-width:980px; margin:0 auto; height:520px; }
+  .g-photo{ position:absolute; border-radius:16px; overflow:hidden; box-shadow:0 30px 60px -20px rgba(18,51,36,0.4); border:5px solid #fff; transition:transform .35s ease, box-shadow .35s ease, z-index 0s; }
+  .g-photo:hover{ transform:scale(1.05) rotate(0deg) !important; box-shadow:0 40px 70px -15px rgba(18,51,36,0.5); z-index:20 !important; }
+  .g-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .g1{ width:280px; height:340px; left:2%; top:6%; transform:rotate(-7deg); z-index:5; }
+  .g2{ width:230px; height:280px; left:30%; top:0%; transform:rotate(4deg); z-index:8; }
+  .g3{ width:300px; height:360px; left:54%; top:10%; transform:rotate(-3deg); z-index:6; }
+  .g4{ width:220px; height:270px; left:78%; top:20%; transform:rotate(8deg); z-index:4; }
+  .g5{ width:200px; height:240px; left:12%; top:48%; transform:rotate(6deg); z-index:7; }
+  .g6{ width:230px; height:270px; left:45%; top:52%; transform:rotate(-5deg); z-index:9; }
+  @media (max-width:900px){
+    .gallery-stage{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; height:auto; }
+    .g-photo{ position:relative !important; width:100% !important; height:200px !important; left:auto !important; top:auto !important; transform:none !important; }
+  }
+
+  .cat-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin-bottom:28px; position:relative; z-index:3; }
+  .cat-tab{ font-size:13px; font-weight:700; color:var(--forest-deep); background:#fff; border:1.5px solid var(--line); border-radius:24px; padding:9px 18px; cursor:pointer; transition:all .2s; }
+  .cat-tab:hover{ border-color:var(--terracotta); }
+  .cat-tab.is-active{ background:var(--forest-deep); border-color:var(--forest-deep); color:#fff; }
+
+  .menu-grid{ display:none; grid-template-columns:repeat(3, 1fr); gap:18px; position:relative; z-index:3; }
+  .menu-grid.is-shown{ display:grid; }
+  @media (max-width:820px){ .menu-grid{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:520px){ .menu-grid{ grid-template-columns:1fr; } }
+
+  .dish{ background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:0 12px 28px -18px rgba(28,74,52,0.25); transition:transform .25s ease, box-shadow .25s ease; }
+  .dish:hover{ transform:translateY(-5px); box-shadow:0 18px 36px -18px rgba(28,74,52,0.35); }
+  .dish-photo{ width:100%; height:150px; object-fit:cover; display:block; }
+  .dish-photo-fallback{ width:100%; height:150px; display:flex; align-items:center; justify-content:center; background:var(--dish-color); }
+  .dish-photo-fallback svg{ width:34px; height:34px; }
+  .dish-photo-fallback svg *{ fill:none; stroke:#fff; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  .dish-body{ padding:18px 18px 20px; }
+  .dish h3{ font-family:var(--display); font-weight:700; font-size:16.5px; color:var(--forest-deep); }
+  .dish .note{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .dish-price{ display:flex; gap:9px; margin-top:14px; }
+  .price-chip{
+    flex:1; text-align:center; border-radius:10px; padding:9px 4px;
+    background:var(--cream-2); border:1.5px solid transparent; cursor:pointer;
+    position:relative; transition:background .2s, border-color .2s, transform .15s;
+  }
+  .price-chip:hover{ border-color:var(--terracotta); }
+  .price-chip:active{ transform:scale(0.94); }
+  .price-chip.has-qty{ background:rgba(28,74,52,0.1); border-color:var(--forest); }
+  .price-chip .lbl{ font-size:9.5px; font-weight:700; letter-spacing:.04em; color:var(--muted); text-transform:uppercase; }
+  .price-chip .val{ font-family:var(--display); font-weight:800; font-size:15px; color:var(--forest-deep); margin-top:2px; }
+  .price-chip .qty-badge{ position:absolute; top:-8px; right:-8px; min-width:20px; height:20px; padding:0 4px; border-radius:10px; background:var(--terracotta); color:#fff; font-size:11px; font-weight:800; display:none; align-items:center; justify-content:center; }
+  .price-chip.has-qty .qty-badge{ display:flex; }
+  .dish.single .dish-price{ display:block; }
+  .dish.single .price-chip{ text-align:left; padding:10px 12px; }
+
+  .menu-note{ text-align:center; margin-top:26px; font-family:'Caveat', cursive; font-size:21px; color:var(--terracotta); font-weight:600; position:relative; z-index:3; }
+
+  .about{ background:var(--forest-deep); color:#fff; }
+  .about-grid{ display:grid; grid-template-columns:210px 1fr; gap:38px; align-items:center; position:relative; z-index:3; }
+  @media (max-width:760px){ .about-grid{ grid-template-columns:1fr; text-align:center; } }
+  .avatar-circle{
+    width:190px; height:190px; border-radius:50%; margin:0 auto; position:relative;
+    background:linear-gradient(150deg, #F0DCA8, var(--gold));
+    display:flex; align-items:flex-end; justify-content:center; overflow:hidden;
+    box-shadow:0 20px 40px -12px rgba(0,0,0,0.4);
+  }
+  .avatar-circle::after{ content:""; position:absolute; inset:-8px; border-radius:50%; border:2px solid rgba(224,185,78,0.35); animation:ring 2.6s ease-out infinite; }
+  @keyframes ring{ 0%{ transform:scale(0.95); opacity:1; } 100%{ transform:scale(1.14); opacity:0; } }
+  .avatar-svg{ width:100%; height:100%; }
+  .about-text .kicker{ font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-bright); font-weight:700; }
+  .about-text h3{ font-family:var(--display); font-weight:800; font-size:25px; margin-top:8px; }
+  .about-text p{ margin-top:11px; color:#D9CFA8; font-size:14.5px; line-height:1.65; max-width:60ch; }
+  .about-badges{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  @media (max-width:760px){ .about-badges{ justify-content:center; } }
+  .about-badge{ font-size:11.5px; font-weight:600; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); border-radius:20px; padding:6px 14px; }
+
+  .events-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; position:relative; z-index:3; }
+  @media (max-width:700px){ .events-grid{ grid-template-columns:repeat(2, 1fr); } }
+  .event{ text-align:center; }
+  .event-icon{ width:56px; height:56px; border-radius:50%; margin:0 auto 10px; background:var(--cream-2); display:flex; align-items:center; justify-content:center; }
+  .event-icon svg{ width:25px; height:25px; }
+  .event-icon svg *{ fill:none; stroke:var(--forest); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .event span{ font-weight:700; font-size:13px; color:var(--forest-deep); }
+
+  .final{ text-align:center; background:linear-gradient(160deg, var(--forest-deep) 0%, var(--forest) 100%); color:#fff; padding:56px 0 26px; position:relative; z-index:3; }
+  .final h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.4vw,34px); }
+  .final p.sub{ color:#D9CFA8; margin-top:8px; font-size:14.5px; }
+  .final-cards{ display:flex; gap:14px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+  .fcard{ display:flex; align-items:center; gap:9px; border-radius:12px; padding:16px 26px; min-width:210px; text-decoration:none; justify-content:center; transition:transform .2s; }
+  .fcard:hover{ transform:translateY(-3px); }
+  .fcard svg{ width:20px; height:20px; }
+  .fcard.primary{ background:linear-gradient(135deg, #25D366, #1DA851); color:#fff; font-weight:700; }
+  .fcard.primary svg *{ fill:#fff; stroke:none; }
+  .final-note{ margin-top:24px; font-size:13px; color:#D9CFA8; max-width:52ch; margin-left:auto; margin-right:auto; }
+  .final-foot{ margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.12); font-size:11px; color:#A99F7C; }
+
+  .sticky-order{ position:fixed; bottom:20px; right:20px; z-index:60; display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
+  .sticky-btn{ width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 26px -6px rgba(0,0,0,0.4); border:none; cursor:pointer; position:relative; }
+  .sticky-btn.whatsapp{ background:linear-gradient(135deg, #25D366, #1DA851); animation:pulse-btn 2.4s ease-in-out infinite; }
+  .sticky-btn.cart{ background:linear-gradient(135deg, var(--terracotta), var(--spice)); }
+  @keyframes pulse-btn{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.07); } }
+  .sticky-btn svg{ width:26px; height:26px; }
+  .sticky-btn.whatsapp svg *{ fill:#fff; stroke:none; }
+  .sticky-btn.cart svg *{ fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .sticky-cart-badge{ position:absolute; top:-4px; right:-4px; min-width:22px; height:22px; padding:0 5px; border-radius:11px; background:#fff; color:var(--terracotta); font-size:12px; font-weight:800; display:none; align-items:center; justify-content:center; border:2px solid var(--terracotta); }
+  .sticky-cart-badge.show{ display:flex; }
+
+  .cart-overlay{ position:fixed; inset:0; background:rgba(18,40,30,0.5); z-index:70; opacity:0; visibility:hidden; transition:opacity .3s; }
+  .cart-overlay.is-open{ opacity:1; visibility:visible; }
+  .cart-drawer{ position:fixed; top:0; right:0; bottom:0; width:min(400px, 92vw); background:#fff; z-index:71; transform:translateX(100%); transition:transform .35s cubic-bezier(.2,.9,.3,1); display:flex; flex-direction:column; }
+  .cart-drawer.is-open{ transform:translateX(0); }
+  .cart-head{ padding:22px 22px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+  .cart-head h3{ font-family:var(--display); font-weight:800; font-size:19px; color:var(--forest-deep); }
+  .cart-close{ width:32px; height:32px; border-radius:50%; background:var(--cream-2); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .cart-close svg{ width:16px; height:16px; }
+  .cart-close svg *{ stroke:var(--forest-deep); stroke-width:2; }
+  .cart-body{ flex:1; overflow-y:auto; padding:16px 22px; }
+  .cart-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
+  .cart-line{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .cart-line-info{ flex:1; }
+  .cart-line-info .n{ font-weight:700; font-size:14px; color:var(--forest-deep); }
+  .cart-line-info .s{ font-size:11.5px; color:var(--muted); }
+  .cart-line-qty{ display:flex; align-items:center; gap:8px; }
+  .qty-btn{ width:26px; height:26px; border-radius:50%; border:1.5px solid var(--line); background:#fff; cursor:pointer; font-weight:700; font-size:14px; color:var(--forest-deep); display:flex; align-items:center; justify-content:center; }
+  .cart-line-price{ font-weight:800; font-size:13.5px; color:var(--terracotta); min-width:52px; text-align:right; }
+  .cart-foot{ padding:18px 22px 24px; border-top:1px solid var(--line); }
+  .cart-total{ display:flex; justify-content:space-between; font-family:var(--display); font-weight:800; font-size:18px; color:var(--forest-deep); margin-bottom:14px; }
+  .cart-send{ width:100%; display:flex; align-items:center; justify-content:center; gap:9px; padding:15px; border-radius:30px; background:linear-gradient(135deg, #25D366, #1DA851); color:#fff; font-weight:700; font-size:14.5px; border:none; cursor:pointer; }
+  .cart-send svg{ width:19px; height:19px; }
+  .cart-send svg *{ fill:#fff; stroke:none; }
+  .cart-send:disabled{ opacity:0.5; cursor:not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="garnish-field" id="garnishField" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,8 a6,6 0 0 1 12,0 Z"/><circle cx="10" cy="8" r="1"/><rect x="2" y="14" width="16" height="3" rx="1"/></svg>
+      </span>
+      <span class="brand-text"><span class="main">Halal Home Taste Food</span><span class="sub">CATERING BY RAZIA</span></span>
+    </a>
+    <div class="nav-right">
+      <button class="cart-btn" id="cartBtnHeader" aria-label="View cart">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2,3 h2 l1.5,10 h10 l1.5,-7 H6"/><circle cx="8" cy="16" r="1.3"/><circle cx="14" cy="16" r="1.3"/></svg>
+        <span class="cart-badge" id="cartBadgeHeader" style="display:none;">0</span>
+      </button>
+      <a class="nav-cta" href="https://wa.me/12405169397" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+        Order Now
+      </a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="top" style="padding:0;">
+  <div class="hero-photo-bg">
+    <img src="img/spread-wide.jpg" alt="Full catering spread from Halal Home Taste Food">
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">DELICIOUS · AUTHENTIC · MEMORABLE</p>
+    <h1>Homemade Halal Catering, <span>Done Right</span></h1>
+    <p class="desc">Hand-cut zabiha halal meat. Locally sourced ingredients. Fifteen years of recipes built for real gatherings — not just photos.</p>
+    <div class="hero-ctas">
+      <a class="btn-whatsapp" href="https://wa.me/12405169397" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+        Order on WhatsApp
+      </a>
+      <a class="btn-outline-light" href="#menu">Build Your Order</a>
+    </div>
+    <div class="hero-badges">
+      <span class="hero-badge">15+ Years Experience</span>
+      <span class="hero-badge">Hand-Cut Zabiha Halal</span>
+      <span class="hero-badge">Locally Sourced</span>
+    </div>
+  </div>
+</section>
+<div class="strip">
+  <div class="wrap">
+    <span><strong>15+</strong> Years Cooking Experience</span>
+    <span>Made With Care</span>
+    <span>Made for Community</span>
+  </div>
+</div>
+
+<section class="gallery">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">FROM THE KITCHEN</p>
+      <h2>What Comes to Your Table</h2>
+    </div>
+    <div class="gallery-stage reveal">
+      <div class="g-photo g1"><img src="img/qabli-palou.jpg" alt="Qabli Palou"></div>
+      <div class="g-photo g2"><img src="img/mantu.jpg" alt="Traditional dumplings"></div>
+      <div class="g-photo g3"><img src="img/spread-wide-2.jpg" alt="Full catering table spread"></div>
+      <div class="g-photo g4"><img src="img/fruit.jpg" alt="Fresh fruit tray"></div>
+      <div class="g-photo g5"><img src="img/naan.jpg" alt="Fresh naan"></div>
+      <div class="g-photo g6"><img src="img/mix-veg.jpg" alt="Fresh vegetable salad"></div>
+    </div>
+  </div>
+</section>
+
+<section id="menu">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">CATERING MENU</p>
+      <h2>Build Your Order</h2>
+      <p>Tap a price to add it to your order — send the full list on WhatsApp in one tap.</p>
+    </div>
+
+    <div class="cat-tabs reveal">
+      <button class="cat-tab is-active" data-cat="mains">Mains</button>
+      <button class="cat-tab" data-cat="curries">Curries &amp; Beans</button>
+      <button class="cat-tab" data-cat="sides">Sides</button>
+      <button class="cat-tab" data-cat="soups">Soups</button>
+    </div>
+
+    <div class="menu-grid is-shown" data-panel="mains">
+      <div class="dish pop-item">
+        <img class="dish-photo" src="img/qabli-palou.jpg" alt="Qabli Palou">
+        <div class="dish-body">
+          <h3>Qabli Palou</h3>
+          <p class="note">Lamb, chicken, or beef</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <img class="dish-photo" src="img/biryani.jpg" alt="Biryani">
+        <div class="dish-body">
+          <h3>Biryani</h3>
+          <p class="note">Chicken, lamb, or beef</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Biryani" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Biryani" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="13" rx="7" ry="3"/><path d="M4,13 V9 a6,4 0 0 1 12,0 v4"/></svg></div>
+        <div class="dish-body">
+          <h3>White Rice</h3>
+          <p class="note">No meat</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="White Rice" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="White Rice" data-size="Half Tray" data-price="60"><div class="lbl">Half Tray</div><div class="val">$60</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-grid" data-panel="curries">
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--terracotta);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><path d="M7,4 q1,3 0,6 M13,4 q-1,3 0,6"/></svg></div>
+        <div class="dish-body">
+          <h3>Gosht &amp; Daal Falak</h3>
+          <p class="note">Meat &amp; spinach</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <img class="dish-photo" src="img/mantu.jpg" alt="Meat Qurma style dumplings">
+        <div class="dish-body">
+          <h3>Meat Qurma</h3>
+          <p class="note">Lamb, chicken, or beef — no potatoes</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--spice);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><circle cx="7.5" cy="8" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg></div>
+        <div class="dish-body">
+          <h3>Nakhod Qourma</h3>
+          <p class="note">Lamb, beef, or chicken with chickpeas</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><ellipse cx="7.5" cy="8" rx="1" ry="1.3"/><ellipse cx="10.5" cy="7.5" rx="1" ry="1.3"/><ellipse cx="13" cy="8.5" rx="1" ry="1.3"/></svg></div>
+        <div class="dish-body">
+          <h3>Lobia</h3>
+          <p class="note">Beans</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Lobia" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Lobia" data-size="Half Tray" data-price="60"><div class="lbl">Half Tray</div><div class="val">$60</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-grid" data-panel="sides">
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><line x1="6" y1="15" x2="6" y2="5"/><line x1="9" y1="15" x2="9" y2="4"/><line x1="12" y1="15" x2="12" y2="5"/><line x1="15" y1="15" x2="15" y2="6"/></svg></div>
+        <div class="dish-body">
+          <h3>Fries</h3>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Fries" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Fries" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish single pop-item">
+        <img class="dish-photo" src="img/naan.jpg" alt="Naan bread">
+        <div class="dish-body">
+          <h3>Naan</h3>
+          <p class="note">1 piece</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Naan" data-size="Piece" data-price="10" style="display:flex; align-items:center; justify-content:space-between;"><span class="val" style="font-size:19px;">$10 / piece</span><span class="qty-badge" style="position:static; margin-left:8px;">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--forest);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,9 a6,5 0 0 0 12,0 Z"/><path d="M10,9 v-5"/><circle cx="10" cy="3.5" r="1"/></svg></div>
+        <div class="dish-body">
+          <h3>Yogurt</h3>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Yogurt" data-size="Full Tray" data-price="80"><div class="lbl">Full Tray</div><div class="val">$80</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Yogurt" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dish pop-item">
+        <img class="dish-photo" src="img/mix-veg.jpg" alt="Mix Vegetable salad">
+        <div class="dish-body">
+          <h3>Mix Vegetable</h3>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Full Tray" data-price="120"><div class="lbl">Full Tray</div><div class="val">$120</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Half Tray" data-price="90"><div class="lbl">Half Tray</div><div class="val">$90</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-grid" data-panel="soups">
+      <div class="dish pop-item">
+        <div class="dish-photo-fallback" style="--dish-color:var(--terracotta);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 a6,5 0 0 0 12,0 Z"/><path d="M7,6 q1,-2 0,-4 M10,6 q1,-2 0,-4 M13,6 q1,-2 0,-4"/></svg></div>
+        <div class="dish-body">
+          <h3>Chicken / Vegetable / Mix Soup</h3>
+          <p class="note">Your choice</p>
+          <div class="dish-price">
+            <div class="price-chip" data-dish="Soup" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Soup" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="menu-note reveal">Tap any price to add it — change your mind anytime from the cart.</p>
+  </div>
+</section>
+
+<section class="about">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--gold-bright); background:rgba(224,185,78,0.12);">THE COOK</p>
+      <h2 style="color:#fff;">Meet Razia</h2>
+    </div>
+    <div class="about-grid reveal">
+      <div>
+        <div class="avatar-circle">
+          <svg class="avatar-svg" viewBox="0 0 190 190" aria-hidden="true">
+            <path d="M20,190 C20,140 40,105 95,105 C150,105 170,140 170,190 Z" fill="#1C4A34"/>
+            <path d="M45,115 C45,70 65,38 95,38 C125,38 145,70 145,115 C145,130 130,140 95,140 C60,140 45,130 45,115 Z" fill="#22281F"/>
+            <ellipse cx="95" cy="95" rx="38" ry="46" fill="#E8C68F"/>
+            <path d="M40,105 C38,60 60,25 95,25 C130,25 152,60 150,105 C150,80 135,60 95,60 C55,60 40,80 40,105 Z" fill="#1C4A34"/>
+            <path d="M52,100 C50,105 50,118 56,125" fill="none" stroke="#123324" stroke-width="4" stroke-linecap="round"/>
+            <path d="M138,100 C140,105 140,118 134,125" fill="none" stroke="#123324" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="kicker">OWNER · 15+ YEARS OF HOME COOKING</p>
+        <h3>Food Made With the Same Care as Family Dinner</h3>
+        <p>Razia's cooking started at home, feeding her own family. Today she brings the same standard — care, cleanliness, trusted halal ingredients — to every order. Food, to her, is how a community stays close.</p>
+        <div class="about-badges">
+          <span class="about-badge">🍽️ Made With Care</span>
+          <span class="about-badge">🤝 Made for Community</span>
+          <span class="about-badge">✅ Trusted Halal Ingredients</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow">WE CATER, YOU CELEBRATE</p>
+      <h2>Perfect for Any Occasion</h2>
+    </div>
+    <div class="events-grid reveal">
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="10" r="4"/><circle cx="13" cy="10" r="4"/></svg></div><span>Weddings</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,17 V9 a6,6 0 0 1 12,0 V17"/><line x1="10" y1="3" x2="10" y2="5"/><circle cx="10" cy="2" r="0.8"/></svg></div><span>Birthdays</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="7" width="14" height="10" rx="1.5"/><path d="M7,7 V5 a1.5,1.5 0 0 1 1.5,-1.5 h3 a1.5,1.5 0 0 1 1.5,1.5 V7"/></svg></div><span>Corporate Events</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="2.6"/><path d="M2,17 v-2 a5,5 0 0 1 10,0 v2"/><circle cx="15" cy="8" r="2.2"/><path d="M12.3,17 v-1.7 a4,4 0 0 0 6.7,-3"/></svg></div><span>Family Gatherings</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Plan Your Event — We Cater, You Celebrate</h2>
+    <p class="sub reveal">Place your order on WhatsApp, or pick up at your convenience.</p>
+    <div class="final-cards reveal">
+      <a class="fcard primary" href="https://wa.me/12405169397" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+        240-516-9397
+      </a>
+    </div>
+    <p class="final-note reveal">Delivery available for an additional fee, or pick up your order at your convenience. Thank you for supporting a local small business — your trust means a lot to us.</p>
+    <p class="final-foot">Halal Home Taste Food — Catering by Razia</p>
+  </div>
+</section>
+
+<div class="sticky-order">
+  <button class="sticky-btn cart" id="cartBtnSticky" aria-label="View cart">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2,3 h2 l1.5,10 h10 l1.5,-7 H6"/><circle cx="8" cy="16" r="1.3"/><circle cx="14" cy="16" r="1.3"/></svg>
+    <span class="sticky-cart-badge" id="stickyCartBadge">0</span>
+  </button>
+  <a class="sticky-btn whatsapp" href="https://wa.me/12405169397" target="_blank" rel="noopener" aria-label="Message on WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+  </a>
+</div>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Your Order</h3>
+    <button class="cart-close" id="cartClose" aria-label="Close cart"><svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
+    <button class="cart-send" id="cartSend" disabled>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+      Send Order on WhatsApp
+    </button>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const items = document.querySelectorAll('.reveal');
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e => e.target.classList.toggle('is-visible', e.isIntersecting));
+      }, { threshold:0.1 });
+      items.forEach(el => io.observe(el));
+    } else { items.forEach(el => el.classList.add('is-visible')); }
+
+    const tabs = document.querySelectorAll('.cat-tab');
+    const panels = document.querySelectorAll('.menu-grid');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        const cat = tab.dataset.cat;
+        panels.forEach(p => p.classList.toggle('is-shown', p.dataset.panel === cat));
+      });
+    });
+
+    const garnishField = document.getElementById('garnishField');
+    const shapes = [
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10,2 C6,6 4,10 4,13 a6,5 0 0 0 12,0 C16,10 14,6 10,2 Z" fill="#4F7A47"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><circle cx="10" cy="10" r="3" fill="#C1512F"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M6,18 Q6,10 10,10 Q14,10 14,18" fill="none" stroke="#E0B94E" stroke-width="1.6" stroke-linecap="round"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><circle cx="10" cy="10" r="2.4" fill="#E0B94E"/></svg>'
+    ];
+    for(let i = 0; i < 16; i++){
+      const g = document.createElement('div');
+      g.className = 'garnish';
+      const size = 10 + Math.random() * 16;
+      g.style.width = size + 'px';
+      g.style.height = size + 'px';
+      g.style.left = Math.random() * 100 + 'vw';
+      g.style.animationDuration = (14 + Math.random() * 16) + 's';
+      g.style.animationDelay = (Math.random() * 20) + 's';
+      g.innerHTML = shapes[i % shapes.length];
+      garnishField.appendChild(g);
+    }
+
+    const cart = {};
+    const WHATSAPP_NUMBER = '12405169397';
+
+    function cartKey(dish, size){ return dish + '|' + size; }
+
+    function addToCart(dish, size, price){
+      const key = cartKey(dish, size);
+      if(!cart[key]) cart[key] = { dish, size, price, qty:0 };
+      cart[key].qty++;
+      renderCart();
+    }
+    function changeQty(key, delta){
+      if(!cart[key]) return;
+      cart[key].qty += delta;
+      if(cart[key].qty <= 0) delete cart[key];
+      renderCart();
+    }
+
+    function renderCart(){
+      const entries = Object.entries(cart);
+      const cartBody = document.getElementById('cartBody');
+      const cartTotal = document.getElementById('cartTotal');
+      const cartSend = document.getElementById('cartSend');
+      let total = 0;
+      let count = 0;
+
+      document.querySelectorAll('.price-chip').forEach(chip => {
+        chip.classList.remove('has-qty');
+        const badge = chip.querySelector('.qty-badge');
+        if(badge) badge.textContent = '0';
+      });
+
+      if(entries.length === 0){
+        cartBody.innerHTML = '<p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>';
+      } else {
+        cartBody.innerHTML = entries.map(([key, item]) => {
+          const lineTotal = item.price * item.qty;
+          total += lineTotal;
+          count += item.qty;
+          return `
+            <div class="cart-line">
+              <div class="cart-line-info">
+                <div class="n">${item.dish}</div>
+                <div class="s">${item.size === 'Piece' ? 'per piece' : item.size}</div>
+              </div>
+              <div class="cart-line-qty">
+                <button class="qty-btn" data-action="dec" data-key="${key}">−</button>
+                <span>${item.qty}</span>
+                <button class="qty-btn" data-action="inc" data-key="${key}">+</button>
+              </div>
+              <div class="cart-line-price">$${lineTotal}</div>
+            </div>`;
+        }).join('');
+
+        entries.forEach(([key, item]) => {
+          document.querySelectorAll(`.price-chip[data-dish="${CSS.escape(item.dish)}"][data-size="${CSS.escape(item.size)}"]`).forEach(chip => {
+            chip.classList.add('has-qty');
+            const badge = chip.querySelector('.qty-badge');
+            if(badge) badge.textContent = item.qty;
+          });
+        });
+      }
+
+      cartTotal.textContent = '$' + total;
+      cartSend.disabled = entries.length === 0;
+
+      [document.getElementById('cartBadgeHeader'), document.getElementById('stickyCartBadge')].forEach(badge => {
+        if(count > 0){
+          badge.textContent = count;
+          badge.style.display = 'flex';
+          badge.classList.add('show');
+        } else {
+          badge.style.display = 'none';
+          badge.classList.remove('show');
+        }
+      });
+    }
+
+    document.querySelectorAll('.price-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const dish = chip.dataset.dish;
+        const size = chip.dataset.size;
+        const price = parseFloat(chip.dataset.price);
+        addToCart(dish, size, price);
+      });
+    });
+
+    document.getElementById('cartBody').addEventListener('click', (e) => {
+      const btn = e.target.closest('.qty-btn');
+      if(!btn) return;
+      const key = btn.dataset.key;
+      const delta = btn.dataset.action === 'inc' ? 1 : -1;
+      changeQty(key, delta);
+    });
+
+    const drawer = document.getElementById('cartDrawer');
+    const overlay = document.getElementById('cartOverlay');
+    function openCart(){ drawer.classList.add('is-open'); overlay.classList.add('is-open'); }
+    function closeCart(){ drawer.classList.remove('is-open'); overlay.classList.remove('is-open'); }
+    document.getElementById('cartBtnHeader').addEventListener('click', openCart);
+    document.getElementById('cartBtnSticky').addEventListener('click', openCart);
+    document.getElementById('cartClose').addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+
+    document.getElementById('cartSend').addEventListener('click', () => {
+      const entries = Object.values(cart);
+      if(entries.length === 0) return;
+      let total = 0;
+      const lines = ["Hi! I'd like to place a catering order from Halal Home Taste Food:", ""];
+      entries.forEach(item => {
+        const lineTotal = item.price * item.qty;
+        total += lineTotal;
+        const sizeLabel = item.size === 'Piece' ? '' : ' (' + item.size + ')';
+        lines.push(`• ${item.dish}${sizeLabel} x${item.qty} — $${lineTotal}`);
+      });
+      lines.push("");
+      lines.push(`Total: $${total}`);
+      lines.push("");
+      lines.push("Please confirm availability and pickup/delivery details. Thank you!");
+      const message = encodeURIComponent(lines.join('\n'));
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+    });
+
+    renderCart();
+  })();
+</script>
+
+</body>
+</html>
