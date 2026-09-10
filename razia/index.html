@@ -130,19 +130,26 @@
   .dish .note{ font-size:11.5px; color:var(--muted); margin-top:3px; }
   .dish-price{ display:flex; gap:9px; margin-top:14px; }
   .price-chip{
-    flex:1; text-align:center; border-radius:10px; padding:9px 4px;
-    background:var(--cream-2); border:1.5px solid transparent; cursor:pointer;
-    position:relative; transition:background .2s, border-color .2s, transform .15s;
+    flex:1; border-radius:10px; padding:9px 4px; min-height:44px;
+    background:var(--cream-2); border:1.5px solid transparent;
+    position:relative; transition:background .2s, border-color .2s;
+    display:flex; align-items:center; justify-content:center;
   }
   .price-chip:hover{ border-color:var(--terracotta); }
-  .price-chip:active{ transform:scale(0.94); }
   .price-chip.has-qty{ background:rgba(28,74,52,0.1); border-color:var(--forest); }
-  .price-chip .lbl{ font-size:9.5px; font-weight:700; letter-spacing:.04em; color:var(--muted); text-transform:uppercase; }
-  .price-chip .val{ font-family:var(--display); font-weight:800; font-size:15px; color:var(--forest-deep); margin-top:2px; }
-  .price-chip .qty-badge{ position:absolute; top:-8px; right:-8px; min-width:20px; height:20px; padding:0 4px; border-radius:10px; background:var(--terracotta); color:#fff; font-size:11px; font-weight:800; display:none; align-items:center; justify-content:center; }
-  .price-chip.has-qty .qty-badge{ display:flex; }
+  .chip-idle{ text-align:center; cursor:pointer; width:100%; }
+  .chip-idle .lbl{ font-size:9.5px; font-weight:700; letter-spacing:.04em; color:var(--muted); text-transform:uppercase; }
+  .chip-idle .val{ font-family:var(--display); font-weight:800; font-size:15px; color:var(--forest-deep); margin-top:2px; }
+  .price-chip.has-qty .chip-idle{ display:none; }
+  .chip-stepper{ display:none; align-items:center; justify-content:center; gap:10px; width:100%; }
+  .price-chip.has-qty .chip-stepper{ display:flex; }
+  .chip-btn{ width:25px; height:25px; border-radius:50%; border:1.5px solid var(--forest); background:#fff; color:var(--forest-deep); font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0; }
+  .chip-btn:active{ transform:scale(0.9); }
+  .chip-qty{ font-family:var(--display); font-weight:800; font-size:16px; color:var(--forest-deep); min-width:14px; text-align:center; }
   .dish.single .dish-price{ display:block; }
-  .dish.single .price-chip{ text-align:left; padding:10px 12px; }
+  .dish.single .price-chip{ padding:10px 12px; justify-content:flex-start; }
+  .dish.single .chip-idle{ text-align:left; }
+  .dish.single .chip-stepper{ justify-content:flex-start; }
 
   .menu-note{ text-align:center; margin-top:26px; font-family:'Caveat', cursive; font-size:21px; color:var(--terracotta); font-weight:600; position:relative; z-index:3; }
 
@@ -207,6 +214,15 @@
   .cart-close svg *{ stroke:var(--forest-deep); stroke-width:2; }
   .cart-body{ flex:1; overflow-y:auto; padding:16px 22px; }
   .cart-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
+  .cart-extras{ padding:0 22px 18px; border-top:1px solid var(--line); padding-top:16px; }
+  .cart-label{ display:block; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--forest-deep); margin-bottom:7px; margin-top:14px; }
+  .cart-label:first-child{ margin-top:0; }
+  .cart-datetime{ display:flex; gap:8px; }
+  .cart-input{ flex:1; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:13.5px; color:var(--ink); }
+  .cart-input:focus{ outline:none; border-color:var(--forest); }
+  .cart-textarea{ width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:13.5px; color:var(--ink); resize:vertical; }
+  .cart-textarea:focus{ outline:none; border-color:var(--forest); }
+  .cart-textarea::placeholder{ color:var(--muted); }
   .cart-line{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
   .cart-line-info{ flex:1; }
   .cart-line-info .n{ font-weight:700; font-size:14px; color:var(--forest-deep); }
@@ -317,8 +333,8 @@
           <h3>Qabli Palou</h3>
           <p class="note">Lamb, chicken, or beef</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Qabli Palou" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Qabli Palou" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -328,8 +344,8 @@
           <h3>Biryani</h3>
           <p class="note">Chicken, lamb, or beef</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Biryani" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Biryani" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Biryani" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Biryani" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -339,8 +355,8 @@
           <h3>White Rice</h3>
           <p class="note">No meat</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="White Rice" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="White Rice" data-size="Half Tray" data-price="60"><div class="lbl">Half Tray</div><div class="val">$60</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="White Rice" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="White Rice" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -353,8 +369,8 @@
           <h3>Gosht &amp; Daal Falak</h3>
           <p class="note">Meat &amp; spinach</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -364,8 +380,8 @@
           <h3>Meat Qurma</h3>
           <p class="note">Lamb, chicken, or beef — no potatoes</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Meat Qurma" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Meat Qurma" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -375,8 +391,8 @@
           <h3>Nakhod Qourma</h3>
           <p class="note">Lamb, beef, or chicken with chickpeas</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Full Tray" data-price="150"><div class="lbl">Full Tray</div><div class="val">$150</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Half Tray" data-price="100"><div class="lbl">Half Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -386,8 +402,8 @@
           <h3>Lobia</h3>
           <p class="note">Beans</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Lobia" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Lobia" data-size="Half Tray" data-price="60"><div class="lbl">Half Tray</div><div class="val">$60</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Lobia" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Lobia" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -399,8 +415,8 @@
         <div class="dish-body">
           <h3>Fries</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Fries" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Fries" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Fries" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Fries" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -410,7 +426,10 @@
           <h3>Naan</h3>
           <p class="note">1 piece</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Naan" data-size="Piece" data-price="10" style="display:flex; align-items:center; justify-content:space-between;"><span class="val" style="font-size:19px;">$10 / piece</span><span class="qty-badge" style="position:static; margin-left:8px;">0</span></div>
+            <div class="price-chip single-chip" data-dish="Naan" data-size="Piece" data-price="10">
+              <div class="chip-idle"><div class="val" style="font-size:19px;">$10 / piece</div></div>
+              <div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div>
+            </div>
           </div>
         </div>
       </div>
@@ -419,8 +438,8 @@
         <div class="dish-body">
           <h3>Yogurt</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Yogurt" data-size="Full Tray" data-price="80"><div class="lbl">Full Tray</div><div class="val">$80</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Yogurt" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Yogurt" data-size="Full Tray" data-price="80"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$80</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Yogurt" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -429,8 +448,8 @@
         <div class="dish-body">
           <h3>Mix Vegetable</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Mix Vegetable" data-size="Full Tray" data-price="120"><div class="lbl">Full Tray</div><div class="val">$120</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Mix Vegetable" data-size="Half Tray" data-price="90"><div class="lbl">Half Tray</div><div class="val">$90</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Full Tray" data-price="120"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$120</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Half Tray" data-price="90"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$90</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -443,8 +462,8 @@
           <h3>Chicken / Vegetable / Mix Soup</h3>
           <p class="note">Your choice</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Soup" data-size="Full Tray" data-price="100"><div class="lbl">Full Tray</div><div class="val">$100</div><span class="qty-badge">0</span></div>
-            <div class="price-chip" data-dish="Soup" data-size="Half Tray" data-price="50"><div class="lbl">Half Tray</div><div class="val">$50</div><span class="qty-badge">0</span></div>
+            <div class="price-chip" data-dish="Soup" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Soup" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -545,6 +564,15 @@
   <div class="cart-body" id="cartBody">
     <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
   </div>
+  <div class="cart-extras">
+    <label class="cart-label">Pickup Date &amp; Time</label>
+    <div class="cart-datetime">
+      <input type="date" id="pickupDate" class="cart-input">
+      <input type="time" id="pickupTime" class="cart-input">
+    </div>
+    <label class="cart-label">Your Name, Allergies, or Special Instructions</label>
+    <textarea id="orderNotes" class="cart-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
+  </div>
   <div class="cart-foot">
     <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
     <button class="cart-send" id="cartSend" disabled>
@@ -623,8 +651,8 @@
 
       document.querySelectorAll('.price-chip').forEach(chip => {
         chip.classList.remove('has-qty');
-        const badge = chip.querySelector('.qty-badge');
-        if(badge) badge.textContent = '0';
+        const qtyEl = chip.querySelector('.chip-qty');
+        if(qtyEl) qtyEl.textContent = '0';
       });
 
       if(entries.length === 0){
@@ -652,8 +680,8 @@
         entries.forEach(([key, item]) => {
           document.querySelectorAll(`.price-chip[data-dish="${CSS.escape(item.dish)}"][data-size="${CSS.escape(item.size)}"]`).forEach(chip => {
             chip.classList.add('has-qty');
-            const badge = chip.querySelector('.qty-badge');
-            if(badge) badge.textContent = item.qty;
+            const qtyEl = chip.querySelector('.chip-qty');
+            if(qtyEl) qtyEl.textContent = item.qty;
           });
         });
       }
@@ -674,11 +702,26 @@
     }
 
     document.querySelectorAll('.price-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
+      const idle = chip.querySelector('.chip-idle');
+      idle.addEventListener('click', () => {
         const dish = chip.dataset.dish;
         const size = chip.dataset.size;
         const price = parseFloat(chip.dataset.price);
         addToCart(dish, size, price);
+      });
+      chip.querySelectorAll('.chip-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const dish = chip.dataset.dish;
+          const size = chip.dataset.size;
+          const price = parseFloat(chip.dataset.price);
+          const key = cartKey(dish, size);
+          if(btn.dataset.act === 'plus'){
+            addToCart(dish, size, price);
+          } else {
+            changeQty(key, -1);
+          }
+        });
       });
     });
 
@@ -712,6 +755,32 @@
       });
       lines.push("");
       lines.push(`Total: $${total}`);
+
+      const pickupDate = document.getElementById('pickupDate').value;
+      const pickupTime = document.getElementById('pickupTime').value;
+      if(pickupDate || pickupTime){
+        lines.push("");
+        let pickupLine = "Pickup:";
+        if(pickupDate){
+          const d = new Date(pickupDate + 'T00:00:00');
+          pickupLine += " " + d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+        }
+        if(pickupTime){
+          const [h, m] = pickupTime.split(':');
+          const hour = parseInt(h, 10);
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+          pickupLine += (pickupDate ? " at " : " ") + `${hour12}:${m} ${ampm}`;
+        }
+        lines.push(pickupLine);
+      }
+
+      const notes = document.getElementById('orderNotes').value.trim();
+      if(notes){
+        lines.push("");
+        lines.push(`Name/Notes: ${notes}`);
+      }
+
       lines.push("");
       lines.push("Please confirm availability and pickup/delivery details. Thank you!");
       const message = encodeURIComponent(lines.join('\n'));
