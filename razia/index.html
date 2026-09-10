@@ -706,7 +706,7 @@
       lines.push("");
       lines.push("Please confirm availability and pickup/delivery details. Thank you!");
       const message = encodeURIComponent(lines.join('\n'));
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+      window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
     });
 
     renderCart();
