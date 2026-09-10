@@ -764,7 +764,7 @@
         const lineTotal = item.price * item.qty;
         total += lineTotal;
         const sizeLabel = item.size === 'Piece' ? '' : ' (' + item.size + ')';
-        lines.push(`• ${item.dish}${sizeLabel} x${item.qty} — $${lineTotal}`);
+        lines.push(`- ${item.dish}${sizeLabel} x${item.qty} = $${lineTotal}`);
       });
       lines.push("");
       lines.push(`Total: $${total}`);
@@ -797,14 +797,15 @@
       lines.push("");
       lines.push("Please confirm availability and pickup/delivery details. Thank you!");
       const message = encodeURIComponent(lines.join('\n'));
-      const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
+      const waAppUrl = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${message}`;
+      const waWebUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
       const fallback = document.getElementById('cartFallback');
-      fallback.href = waUrl;
+      fallback.href = waWebUrl;
       fallback.style.display = 'block';
 
       const tempLink = document.createElement('a');
-      tempLink.href = waUrl;
+      tempLink.href = waAppUrl;
       tempLink.rel = 'noopener';
       document.body.appendChild(tempLink);
       tempLink.click();
