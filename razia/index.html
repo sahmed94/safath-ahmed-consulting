@@ -160,6 +160,16 @@
 
   .menu-note{ text-align:center; margin-top:26px; font-family:'Caveat', cursive; font-size:21px; color:var(--terracotta); font-weight:600; position:relative; z-index:3; }
 
+  .order-details{ max-width:560px; margin:34px auto 0; background:#fff; border-radius:var(--radius); padding:26px 28px; box-shadow:0 16px 34px -20px rgba(28,74,52,0.25); position:relative; z-index:3; }
+  .od-label{ font-size:12px; font-weight:700; letter-spacing:.03em; color:var(--forest-deep); margin-bottom:8px; margin-top:16px; }
+  .od-label:first-child{ margin-top:0; }
+  .od-datetime{ display:flex; gap:10px; }
+  .od-input{ flex:1; padding:11px 13px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:14px; color:var(--ink); }
+  .od-input:focus{ outline:none; border-color:var(--forest); }
+  .od-textarea{ width:100%; padding:11px 13px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:14px; color:var(--ink); resize:vertical; }
+  .od-textarea:focus{ outline:none; border-color:var(--forest); }
+  .od-textarea::placeholder, .od-input::placeholder{ color:var(--muted); }
+
   .about{ background:var(--forest-deep); color:#fff; }
   .about-grid{ display:grid; grid-template-columns:210px 1fr; gap:38px; align-items:center; position:relative; z-index:3; }
   @media (max-width:760px){ .about-grid{ grid-template-columns:1fr; text-align:center; } }
@@ -187,17 +197,17 @@
   .event-icon svg *{ fill:none; stroke:var(--forest); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
   .event span{ font-weight:700; font-size:13px; color:#fff; }
 
-  .final{ text-align:center; background:linear-gradient(160deg, var(--forest-deep) 0%, var(--forest) 100%); color:#fff; padding:56px 0 26px; position:relative; z-index:3; }
+  .final{ text-align:center; background:linear-gradient(160deg, var(--terracotta) 0%, var(--spice) 100%); color:#fff; padding:56px 0 26px; position:relative; z-index:3; }
   .final h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.4vw,34px); }
-  .final p.sub{ color:#D9CFA8; margin-top:8px; font-size:14.5px; }
+  .final p.sub{ color:rgba(255,255,255,0.85); margin-top:8px; font-size:14.5px; }
   .final-cards{ display:flex; gap:14px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
   .fcard{ display:flex; align-items:center; gap:9px; border-radius:12px; padding:16px 26px; min-width:210px; text-decoration:none; justify-content:center; transition:transform .2s; }
   .fcard:hover{ transform:translateY(-3px); }
   .fcard svg{ width:20px; height:20px; }
   .fcard.primary{ background:linear-gradient(135deg, #25D366, #1DA851); color:#fff; font-weight:700; }
   .fcard.primary svg *{ fill:#fff; stroke:none; }
-  .final-note{ margin-top:24px; font-size:13px; color:#D9CFA8; max-width:52ch; margin-left:auto; margin-right:auto; }
-  .final-foot{ margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.12); font-size:11px; color:#A99F7C; }
+  .final-note{ margin-top:24px; font-size:13px; color:rgba(255,255,255,0.8); max-width:52ch; margin-left:auto; margin-right:auto; }
+  .final-foot{ margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.2); font-size:11px; color:rgba(255,255,255,0.6); }
 
   .sticky-order{ position:fixed; bottom:20px; right:20px; z-index:60; display:flex; flex-direction:column; gap:10px; align-items:flex-end; }
   .sticky-btn{ width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 26px -6px rgba(0,0,0,0.4); border:none; cursor:pointer; position:relative; }
@@ -222,15 +232,6 @@
   .cart-scroll{ flex:1; overflow-y:auto; min-height:0; }
   .cart-body{ padding:16px 22px; }
   .cart-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
-  .cart-extras{ padding:0 22px 18px; border-top:1px solid var(--line); padding-top:16px; }
-  .cart-label{ display:block; font-size:11.5px; font-weight:700; letter-spacing:.03em; color:var(--forest-deep); margin-bottom:7px; margin-top:14px; }
-  .cart-label:first-child{ margin-top:0; }
-  .cart-datetime{ display:flex; gap:8px; }
-  .cart-input{ flex:1; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:13.5px; color:var(--ink); }
-  .cart-input:focus{ outline:none; border-color:var(--forest); }
-  .cart-textarea{ width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:13.5px; color:var(--ink); resize:vertical; }
-  .cart-textarea:focus{ outline:none; border-color:var(--forest); }
-  .cart-textarea::placeholder{ color:var(--muted); }
   .cart-line{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
   .cart-line-info{ flex:1; }
   .cart-line-info .n{ font-weight:700; font-size:14px; color:var(--forest-deep); }
@@ -487,7 +488,17 @@
       </div>
     </div>
 
-    <p class="menu-note reveal">Tap any price to add it — change your mind anytime from the cart.</p>
+    <p class="menu-note reveal">Tap any price to add it — your total updates in the cart automatically.</p>
+
+    <div class="order-details reveal">
+      <p class="od-label">Pickup Date &amp; Time</p>
+      <div class="od-datetime">
+        <input type="date" id="pickupDate" class="od-input">
+        <input type="time" id="pickupTime" class="od-input">
+      </div>
+      <p class="od-label">Your Name, Allergies, or Special Instructions</p>
+      <textarea id="orderNotes" class="od-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
+    </div>
   </div>
 </section>
 
@@ -500,23 +511,23 @@
     <div class="about-grid reveal">
       <div>
         <div class="avatar-circle">
-          <svg class="avatar-svg" viewBox="0 0 190 190" aria-hidden="true">
-            <path d="M137,55 L143,61 L137,67 L141,61 Z" fill="#E0B94E" opacity="0.8"/>
-            <path d="M28,45 L32,49 L28,53 L24,49 Z" fill="#E0B94E" opacity="0.7"/>
-            <path d="M15,190 C15,145 34,116 95,116 C156,116 175,145 175,190 Z" fill="#123324"/>
-            <path d="M30,138 C24,84 48,34 95,34 C142,34 166,84 160,138 C160,108 140,86 95,86 C50,86 30,108 30,138 Z" fill="#1C4A34"/>
-            <ellipse cx="95" cy="106" rx="40" ry="43" fill="#F3CE9E"/>
-            <path d="M48,102 C45,56 66,24 95,24 C124,24 145,56 142,102 C142,75 123,60 95,60 C67,60 48,75 48,102 Z" fill="#1C4A34"/>
-            <path d="M48,102 C45,56 66,24 95,24 C124,24 145,56 142,102" fill="none" stroke="#2E6146" stroke-width="2.5" opacity="0.6"/>
-            <path d="M87,25 L95,36 L103,25 Z" fill="#123324" opacity="0.45"/>
-            <path d="M60,33 C54,18 62,4 72,10 C74,-4 88,-6 95,4 C102,-6 116,-4 118,10 C128,4 136,18 130,33 Z" fill="#ffffff"/>
-            <path d="M72,12 L72,30 M95,5 L95,29 M118,12 L118,30" stroke="#E8E1CE" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-            <rect x="60" y="29" width="70" height="13" rx="6.5" fill="#ffffff"/>
-            <g transform="translate(140,88)">
-              <path d="M0,0 L-15,-9 L-15,9 Z" fill="#E0B94E"/>
-              <path d="M0,0 L15,-9 L15,9 Z" fill="#E0B94E"/>
-              <circle cx="0" cy="0" r="4.5" fill="#C9A13B"/>
+          <svg class="avatar-svg" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M35,17 q3,-7 0,-14" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M50,14 q3,-7 0,-14" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M65,17 q3,-7 0,-14" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            <path d="M23,46 h54 v20 a9,9 0 0 1 -9,9 h-36 a9,9 0 0 1 -9,-9 Z" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M23,51 h-9 v7 h9" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M77,51 h9 v7 h-9" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="50" cy="46" rx="27" ry="5.5" fill="none" stroke="#ffffff" stroke-width="3.4"/>
+            <circle cx="41" cy="45" r="2.3" fill="#ffffff"/>
+            <circle cx="50" cy="47.5" r="2.3" fill="#ffffff"/>
+            <circle cx="59" cy="45" r="2.3" fill="#ffffff"/>
+            <g transform="rotate(-24 74 27)">
+              <ellipse cx="74" cy="27" rx="13" ry="4.2" fill="none" stroke="#ffffff" stroke-width="3"/>
+              <line x1="74" y1="23" x2="74" y2="18" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="74" cy="16.5" r="2.4" fill="#ffffff"/>
             </g>
+            <line x1="14" y1="84" x2="86" y2="84" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
           </svg>
         </div>
       </div>
@@ -574,15 +585,6 @@
   <div class="cart-scroll">
     <div class="cart-body" id="cartBody">
       <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
-    </div>
-    <div class="cart-extras">
-      <label class="cart-label">Pickup Date &amp; Time</label>
-      <div class="cart-datetime">
-        <input type="date" id="pickupDate" class="cart-input">
-        <input type="time" id="pickupTime" class="cart-input">
-      </div>
-      <label class="cart-label">Your Name, Allergies, or Special Instructions</label>
-      <textarea id="orderNotes" class="cart-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
     </div>
   </div>
   <div class="cart-foot">
