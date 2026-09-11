@@ -55,19 +55,19 @@
   }
 
   /* ---------- HEADER ---------- */
-  header{ position:sticky; top:0; z-index:50; background:var(--paper); border-bottom:1px solid var(--line); }
+  header{ position:sticky; top:0; z-index:50; background:var(--deep); border-bottom:1px solid var(--line-invert); }
   .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; gap:14px; flex-wrap:wrap; }
   .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; }
-  .brand-mark{ width:38px; height:38px; border-radius:9px; background:var(--green); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand-mark{ width:38px; height:38px; border-radius:9px; background:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .brand-mark svg{ width:22px; height:22px; }
   .brand-mark svg *{ fill:none; stroke:var(--paper); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .brand-text{ line-height:1.2; }
-  .brand-text .bn{ font-weight:700; font-size:17px; display:block; }
-  .brand-text .en{ font-size:11px; color:var(--muted); }
+  .brand-text .bn{ font-weight:700; font-size:17px; display:block; color:var(--paper); }
+  .brand-text .en{ font-size:11px; color:var(--muted-invert); }
   .nav-right{ display:flex; align-items:center; gap:12px; }
-  .lang-toggle{ display:flex; border:1px solid var(--line); border-radius:20px; padding:3px; gap:2px; }
-  .lang-btn{ font-weight:600; font-size:12.5px; background:transparent; color:var(--muted); border:none; cursor:pointer; padding:6px 13px; border-radius:16px; transition:background .2s, color .2s; }
-  .lang-btn.is-active{ background:var(--ink); color:var(--paper); }
+  .lang-toggle{ display:flex; border:1px solid var(--line-invert); border-radius:20px; padding:3px; gap:2px; }
+  .lang-btn{ font-weight:600; font-size:12.5px; background:transparent; color:var(--muted-invert); border:none; cursor:pointer; padding:6px 13px; border-radius:16px; transition:background .2s, color .2s; }
+  .lang-btn.is-active{ background:var(--accent); color:var(--paper); }
   .nav-cta{ font-weight:700; font-size:14px; background:var(--accent); color:var(--paper); text-decoration:none; padding:11px 20px; border-radius:var(--radius); transition:background .2s, transform .2s; }
   .nav-cta:hover{ background:var(--accent-dark); transform:translateY(-1px); }
   .nav-wa{ width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #25D366, #1DA851); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -96,22 +96,12 @@
   .hero-stat .num{ font-family:var(--display); font-weight:800; font-size:38px; color:var(--gold); line-height:1; }
   .hero-stat .lbl{ font-size:12.5px; color:var(--muted-invert); margin-top:4px; }
 
-  /* ---------- HERO PICTURE LAYERING ---------- */
-  .hero-photos{ position:relative; height:400px; min-width:0; }
-  @media (max-width:900px){ .hero-photos{ height:340px; margin-top:36px; } }
-  .h-photo{ position:absolute; border-radius:14px; overflow:hidden; box-shadow:0 26px 55px -16px rgba(0,0,0,0.55); border:4px solid rgba(255,255,255,0.9); transition:transform .3s ease, box-shadow .3s ease, z-index 0s; }
-  .h-photo:hover{ transform:scale(1.05) rotate(0deg) !important; box-shadow:0 34px 65px -12px rgba(0,0,0,0.65); z-index:20 !important; }
-  .h-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .h1{ width:230px; height:290px; right:34%; top:6%; transform:rotate(-6deg); z-index:5; }
-  .h2{ width:190px; height:190px; right:0; top:0%; transform:rotate(4deg); z-index:8; border-radius:50%; }
-  .h3{ width:230px; height:290px; right:2%; top:36%; transform:rotate(6deg); z-index:4; }
-  @media (max-width:900px){
-    .hero-photos{ display:flex; justify-content:center; align-items:flex-start; gap:0; }
-    .h-photo{ position:relative !important; }
-    .h1{ width:150px !important; height:190px !important; top:20px !important; right:auto !important; left:0 !important; transform:rotate(-7deg) !important; }
-    .h2{ width:130px !important; height:130px !important; top:0 !important; right:auto !important; left:0 !important; margin:0 -14px; z-index:9 !important; }
-    .h3{ width:150px !important; height:190px !important; top:20px !important; right:auto !important; left:0 !important; transform:rotate(7deg) !important; }
-  }
+  /* ---------- HERO PHOTO ---------- */
+  .hero-photos{ position:relative; height:400px; min-width:0; display:flex; align-items:center; justify-content:center; }
+  @media (max-width:900px){ .hero-photos{ height:300px; margin-top:30px; } }
+  .hero-photo-glow{ position:absolute; width:82%; height:82%; background:radial-gradient(circle, rgba(255,122,26,0.35) 0%, transparent 70%); z-index:1; }
+  .hero-main-photo{ position:relative; width:100%; height:100%; border-radius:18px; overflow:hidden; box-shadow:0 30px 60px -16px rgba(0,0,0,0.55); border:4px solid rgba(255,255,255,0.9); z-index:2; }
+  .hero-main-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
 
   /* ---------- HEADER ROAD (compact) ---------- */
   .header-road{ position:relative; height:18px; overflow:hidden; background:var(--paper-2); border-top:1px solid var(--line); }
@@ -234,8 +224,8 @@
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,13 L4,8 L7,6 L13,6 L16,8 L17,13"/><rect x="2" y="13" width="16" height="4" rx="1.5"/><circle cx="6" cy="17" r="1.5"/><circle cx="14" cy="17" r="1.5"/></svg>
       </span>
       <span class="brand-text">
-        <span class="bn">মায়ের দোয়া রেন্ট-এ-কার</span>
-        <span class="en">Sadik Rent A Car</span>
+        <span class="bn" data-en="Sadik Rent A Car">মায়ের দোয়া রেন্ট-এ-কার</span>
+        <span class="en" data-en="">Sadik Rent A Car</span>
       </span>
     </a>
     <div class="nav-right">
@@ -249,21 +239,22 @@
       <a class="nav-cta" href="tel:+8801945730204" data-en="Call Now">এখনই কল করুন</a>
     </div>
   </div>
-  <div class="header-road" aria-hidden="true">
-    <div class="header-road-line"></div>
-    <div class="header-road-car">
-      <svg viewBox="0 0 64 64">
-        <path class="fill1" d="M6,40 L10,26 L18,20 L46,20 L54,26 L58,40 L58,46 L6,46 Z"/>
-        <rect class="fill2" x="16" y="24" width="12" height="10" rx="1.5"/>
-        <rect class="fill2" x="30" y="24" width="16" height="10" rx="1.5"/>
-        <circle class="fill2" cx="18" cy="46" r="6"/>
-        <circle cx="18" cy="46" r="2.4" fill="var(--paper)" stroke="none"/>
-        <circle class="fill2" cx="46" cy="46" r="6"/>
-        <circle cx="46" cy="46" r="2.4" fill="var(--paper)" stroke="none"/>
-      </svg>
-    </div>
-  </div>
 </header>
+
+<div class="header-road" aria-hidden="true">
+  <div class="header-road-line"></div>
+  <div class="header-road-car">
+    <svg viewBox="0 0 64 64">
+      <path class="fill1" d="M6,40 L10,26 L18,20 L46,20 L54,26 L58,40 L58,46 L6,46 Z"/>
+      <rect class="fill2" x="16" y="24" width="12" height="10" rx="1.5"/>
+      <rect class="fill2" x="30" y="24" width="16" height="10" rx="1.5"/>
+      <circle class="fill2" cx="18" cy="46" r="6"/>
+      <circle cx="18" cy="46" r="2.4" fill="var(--paper)" stroke="none"/>
+      <circle class="fill2" cx="46" cy="46" r="6"/>
+      <circle cx="46" cy="46" r="2.4" fill="var(--paper)" stroke="none"/>
+    </svg>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero" id="top">
@@ -283,9 +274,8 @@
       </div>
     </div>
     <div class="hero-photos">
-      <div class="h-photo h1"><img src="img/van-day.jpg" alt="Sadik Rent A Car microbus, daytime"></div>
-      <div class="h-photo h2"><img src="img/sadik-owner.jpg" alt="Md. Taufiqur Rahman (Sadik)"></div>
-      <div class="h-photo h3"><img src="img/van-night.jpg" alt="Sadik Rent A Car microbus, night"></div>
+      <div class="hero-photo-glow" aria-hidden="true"></div>
+      <div class="hero-main-photo"><img src="img/van-day.jpg" alt="Sadik Rent A Car microbus"></div>
     </div>
   </div>
 </section>
@@ -423,7 +413,7 @@
         <div class="about-badge"><span data-en="10+">১০+</span><br><span style="font-size:9px; font-weight:600;" data-en="yrs">বছর</span></div>
       </div>
       <div class="about-text">
-        <h3>মো: তাওফিকুর রহমান (সাদিক)</h3>
+        <h3 data-en="Md. Taufiqur Rahman (Sadik)">মো: তাওফিকুর রহমান (সাদিক)</h3>
         <p class="role" data-en="PROPRIETOR, MAYER DOA RENT-A-CAR">প্রোপ্রাইটর, মায়ের দোয়া রেন্ট-এ-কার</p>
         <p data-en="Known and trusted throughout the Kishoreganj community for over a decade. Fair pricing, honest business, and a personal commitment to every single customer.">এক দশকেরও বেশি সময় ধরে কিশোরগঞ্জের মানুষের কাছে পরিচিত ও বিশ্বস্ত মুখ। ন্যায্য মূল্য, সৎ ব্যবসা, এবং প্রতিটি গ্রাহকের প্রতি ব্যক্তিগত প্রতিশ্রুতি।</p>
         <div class="about-tags">
@@ -481,7 +471,7 @@
 </a>
 
 <footer>
-  <p>মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car</p>
+  <p data-en="Sadik Rent A Car">মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car</p>
   <p class="footer-cause" data-en="🚗 Every rental helps a child in need ❤️">🚗 প্রতিটি ভাড়া একটি শিশুর উপকারে আসে ❤️</p>
 </footer>
 
