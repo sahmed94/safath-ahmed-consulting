@@ -70,11 +70,16 @@
   .lang-btn.is-active{ background:var(--ink); color:var(--paper); }
   .nav-cta{ font-weight:700; font-size:14px; background:var(--accent); color:var(--paper); text-decoration:none; padding:11px 20px; border-radius:var(--radius); transition:background .2s, transform .2s; }
   .nav-cta:hover{ background:var(--accent-dark); transform:translateY(-1px); }
+  .nav-wa{ width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #25D366, #1DA851); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nav-wa svg{ width:20px; height:20px; }
+  .nav-wa svg *{ fill:#fff; stroke:none; }
 
   /* ---------- HERO ---------- */
   .hero{ background:linear-gradient(160deg, var(--deep) 0%, #1A2438 100%); color:var(--paper); padding:56px 0 0; }
   .hero .wrap{ text-align:center; position:relative; z-index:2; }
   .hero-eyebrow{ font-weight:700; font-size:14px; letter-spacing:.04em; color:var(--gold); margin-bottom:14px; }
+  .cause-ribbon{ display:inline-block; font-weight:700; font-size:13.5px; color:#fff; background:linear-gradient(135deg, #E0347A, #C4266A); padding:9px 20px; border-radius:20px; text-decoration:none; margin-bottom:18px; box-shadow:0 8px 20px -6px rgba(224,52,122,0.5); animation:ribbon-pulse 2.6s ease-in-out infinite; }
+  @keyframes ribbon-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
   .hero h1{ font-weight:700; font-size:clamp(30px,5.4vw,52px); line-height:1.2; }
   .hero h1 span{ color:var(--accent); }
   .hero .tagline{ font-size:16px; color:var(--muted-invert); margin-top:12px; }
@@ -146,6 +151,35 @@
   .icard:nth-child(8n+6){ border-top-color:var(--blue); } .icard:nth-child(8n+6) .icon-badge{ background:var(--blue); }
   .icard:nth-child(8n+7){ border-top-color:var(--accent); } .icard:nth-child(8n+7) .icon-badge{ background:var(--accent); }
   .icard:nth-child(8n+8){ border-top-color:var(--green); } .icard:nth-child(8n+8) .icon-badge{ background:var(--green); }
+
+  /* ---------- CAUSE ---------- */
+  .cause{ background:linear-gradient(160deg, #FCE9EF 0%, #FBF3F6 100%); padding:60px 0; }
+  .cause-card{ max-width:680px; margin:0 auto; text-align:center; }
+  .cause-icon{ width:64px; height:64px; border-radius:50%; margin:0 auto 18px; background:linear-gradient(135deg, #E0347A, #C4266A); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 26px -8px rgba(224,52,122,0.5); }
+  .cause-icon svg{ width:30px; height:30px; }
+  .cause-icon svg *{ fill:#fff; stroke:none; }
+  .cause-card h2{ font-family:var(--display); font-weight:800; font-size:clamp(22px,3.2vw,30px); color:var(--ink); }
+  .cause-card p{ margin-top:14px; font-size:15px; line-height:1.7; color:var(--muted); }
+  .cause-badges{ display:flex; gap:10px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+  .cause-badge{ font-size:13px; font-weight:700; background:#fff; border:1px solid rgba(224,52,122,0.25); border-radius:20px; padding:8px 16px; color:#B02163; }
+  .cause-cta{ display:inline-block; margin-top:24px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(135deg, #E0347A, #C4266A); text-decoration:none; padding:14px 28px; border-radius:var(--radius); box-shadow:0 12px 26px -8px rgba(224,52,122,0.5); transition:transform .2s; }
+  .cause-cta:hover{ transform:translateY(-2px); }
+
+  /* ---------- TRIP INTAKE ---------- */
+  .intake{ padding:0 0 60px; }
+  .intake-card{ max-width:640px; margin:0 auto; background:var(--paper); border-radius:var(--radius); padding:28px 30px; box-shadow:0 20px 50px -22px rgba(14,21,32,0.3); border:1px solid var(--line); position:relative; z-index:3; margin-top:-46px; }
+  .intake-label{ font-weight:700; font-size:12.5px; letter-spacing:.04em; color:var(--accent-dark); text-align:center; margin-bottom:18px; }
+  .intake-row{ display:flex; gap:14px; margin-bottom:14px; }
+  @media (max-width:560px){ .intake-row{ flex-direction:column; gap:14px; } }
+  .intake-field{ flex:1; margin-bottom:14px; }
+  .intake-row .intake-field{ margin-bottom:0; }
+  .intake-field label{ display:block; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .intake-field input, .intake-field textarea{ width:100%; padding:11px 13px; border-radius:8px; border:1.5px solid var(--line); background:var(--paper-2); font-family:inherit; font-size:14px; color:var(--ink); }
+  .intake-field input:focus, .intake-field textarea:focus{ outline:none; border-color:var(--accent); }
+  .intake-field textarea{ resize:vertical; }
+  .intake-submit{ display:flex; align-items:center; justify-content:center; gap:9px; width:100%; margin-top:6px; padding:15px; border-radius:var(--radius); background:linear-gradient(135deg, #25D366, #1DA851); color:#fff; font-weight:700; font-size:15px; text-decoration:none; box-shadow:0 10px 24px -8px rgba(37,211,102,0.5); }
+  .intake-submit svg{ width:19px; height:19px; }
+  .intake-submit svg *{ fill:#fff; stroke:none; }
 
   /* ---------- LAYERED PHOTO SHOWCASE ---------- */
   .showreel-stage{ position:relative; max-width:760px; margin:0 auto; height:400px; }
@@ -232,6 +266,13 @@
   .contact-location strong{ color:var(--ink); }
 
   footer{ text-align:center; padding:24px 0; font-size:12.5px; color:var(--muted); border-top:1px solid var(--line); }
+  .footer-cause{ margin-top:6px; color:#B02163; font-weight:600; }
+
+  .sticky-wa{ position:fixed; bottom:20px; right:20px; z-index:60; width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg, #25D366, #1DA851); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 26px -6px rgba(0,0,0,0.4); animation:sticky-pulse 2.4s ease-in-out infinite; }
+  .sticky-wa svg{ width:27px; height:27px; }
+  .sticky-wa svg *{ fill:#fff; stroke:none; }
+  @keyframes sticky-pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
+  .wa-fallback{ display:block; text-align:center; margin-top:18px; font-size:13px; font-weight:600; color:var(--accent-dark); text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -254,6 +295,9 @@
         <button class="lang-btn is-active" data-lang="bn" type="button">বাংলা</button>
         <button class="lang-btn" data-lang="en" type="button">English</button>
       </div>
+      <a class="nav-wa" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+      </a>
       <a class="nav-cta" href="tel:+8801945730204" data-en="Call Now">এখনই কল করুন</a>
     </div>
   </div>
@@ -262,12 +306,13 @@
 <!-- HERO -->
 <section class="hero" id="top">
   <div class="wrap">
+    <a class="cause-ribbon" href="#cause" data-en="🚗 Rent a Car, Change a Child's Life ❤️">🚗 গাড়ি ভাড়া নিন, একটি শিশুর জীবন বদলে দিন ❤️</a>
     <p class="hero-eyebrow" data-en="KISHOREGANJ RENT-A-CAR">কিশোরগঞ্জ রেন্ট-এ-কার</p>
     <h1 data-en-html="10+ Years of <span>Trusted</span> Car Rental">১০+ বছরের <span>বিশ্বস্ত</span> গাড়ি ভাড়া</h1>
     <p class="tagline" data-en="One rider, one satisfaction — every single time.">একজন যাত্রী, একটি সন্তুষ্টি — প্রতিবার।</p>
     <div class="hero-ctas">
-      <a class="btn-primary" href="tel:+8801945730204" data-en="Call Sadik Now">সাদিককে কল করুন</a>
-      <a class="btn-secondary" href="#fleet" data-en="See Our Cars">আমাদের গাড়ি দেখুন</a>
+      <a class="btn-primary" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger data-en="Book on WhatsApp">হোয়াটসঅ্যাপে বুক করুন</a>
+      <a class="btn-secondary" href="tel:+8801945730204" data-en="Call Sadik Now">সাদিককে কল করুন</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="num">১০+</div><div class="lbl" data-en="Years of Service">বছরের সেবা</div></div>
@@ -287,6 +332,68 @@
         <circle class="fill2" cx="46" cy="46" r="6"/>
         <circle cx="46" cy="46" r="2.4" fill="var(--deep)" stroke="none"/>
       </svg>
+    </div>
+  </div>
+</section>
+
+<!-- TRIP INTAKE -->
+<section class="intake">
+  <div class="wrap">
+    <div class="intake-card reveal">
+      <p class="intake-label" data-en="PLAN YOUR TRIP">আপনার যাত্রার পরিকল্পনা</p>
+      <div class="intake-row">
+        <div class="intake-field">
+          <label data-en="From">এখান থেকে</label>
+          <input type="text" id="tripFrom" placeholder="কিশোরগঞ্জ" data-en-placeholder="Kishoreganj">
+        </div>
+        <div class="intake-field">
+          <label data-en="To">কোথায় যাবেন</label>
+          <input type="text" id="tripTo" placeholder="ঢাকা" data-en-placeholder="Dhaka">
+        </div>
+      </div>
+      <div class="intake-row">
+        <div class="intake-field">
+          <label data-en="Passengers">যাত্রীর সংখ্যা</label>
+          <input type="number" id="tripPassengers" min="1" max="12" placeholder="১" data-en-placeholder="1">
+        </div>
+        <div class="intake-field">
+          <label data-en="Trip Date">যাত্রার তারিখ</label>
+          <input type="date" id="tripDate">
+        </div>
+        <div class="intake-field">
+          <label data-en="Return Date">ফেরার তারিখ</label>
+          <input type="date" id="tripReturn">
+        </div>
+      </div>
+      <div class="intake-field">
+        <label data-en="Special Requirements (optional)">বিশেষ প্রয়োজন (ঐচ্ছিক)</label>
+        <textarea id="tripNotes" rows="2" placeholder="যেমন: এসি প্রয়োজন, বয়স্ক যাত্রী, অতিরিক্ত লাগেজ" data-en-placeholder="e.g. need AC, elderly passenger, extra luggage"></textarea>
+      </div>
+      <a class="intake-submit" id="intakeSubmit" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+        <span data-en="Send Trip Details on WhatsApp">হোয়াটসঅ্যাপে যাত্রার বিবরণ পাঠান</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CAUSE -->
+<section class="cause" id="cause">
+  <div class="wrap">
+    <div class="cause-card reveal">
+      <div class="cause-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,21 C12,21 3,14.5 3,8.5 A5,5 0 0 1 12,5.5 A5,5 0 0 1 21,8.5 C21,14.5 12,21 12,21 Z"/></svg>
+      </div>
+      <h2 data-en="Rent a Car, Change a Child's Life">গাড়ি ভাড়া নিন, একটি শিশুর জীবন বদলে দিন</h2>
+      <p data-en="Your next trip, wedding journey, or business travel — now it won't just meet your need, it will also bring hope for an orphaned child.">আপনার পরবর্তী ভ্রমণ, বিয়ের যাত্রা বা ব্যবসায়িক সফর — এখন শুধু আপনার প্রয়োজন মেটাবে না, একটি এতিম শিশুর জন্য আশাও বয়ে আনবে।</p>
+      <p data-en="We're proud to announce — we stand beside the local orphanage. A portion from every car rental goes directly toward children's food, education, and safe shelter.">আমরা গর্বের সাথে জানাচ্ছি — স্থানীয় এতিমখানার পাশে দাঁড়িয়েছি আমরা। প্রতিটি গাড়ি ভাড়া থেকে একটি অংশ সরাসরি যাবে শিশুদের খাবার, শিক্ষা ও নিরাপদ আশ্রয়ের জন্য।</p>
+      <p data-en="Whether it's the 12-seat microbus or a private car — with every trip, you're not just renting a car, you're also joining in a good cause.">১২ সিটের মাইক্রো হোক বা প্রাইভেট কার — প্রতিটি যাত্রায় আপনি শুধু গাড়ি ভাড়া নিচ্ছেন না, একটি ভালো কাজেও শরিক হচ্ছেন।</p>
+      <div class="cause-badges">
+        <span class="cause-badge" data-en="🍽️ Food">🍽️ খাবার</span>
+        <span class="cause-badge" data-en="📚 Education">📚 শিক্ষা</span>
+        <span class="cause-badge" data-en="🏠 Safe Shelter">🏠 নিরাপদ আশ্রয়</span>
+      </div>
+      <a class="cause-cta" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger data-en="📞 Book Today: 01945-730204">📞 আজই বুক করুন: 01945-730204</a>
     </div>
   </div>
 </section>
@@ -549,7 +656,7 @@
         <div class="label" data-en="Phone (Alternate)">ফোন (বিকল্প)</div>
         <div class="value">01715-497385</div>
       </a>
-      <a class="contact-card" href="https://wa.me/8801945730204" target="_blank" rel="noopener">
+      <a class="contact-card" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger>
         <div class="label" data-en="WhatsApp">হোয়াটসঅ্যাপ</div>
         <div class="value" style="font-size:15px;" data-en="Send Message ↗">মেসেজ পাঠান ↗</div>
       </a>
@@ -563,11 +670,17 @@
       </a>
     </div>
     <p class="contact-location reveal" data-en-html="📍 <strong>Address:</strong> Old Stadium, Kishoreganj (near Bachchu Medical Hall)">📍 <strong>ঠিকানা:</strong> পুরাতন স্টেডিয়াম, কিশোরগঞ্জ (বাচ্চু মেডিকেল হলের কাছে)</p>
+    <a class="wa-fallback" id="waFallback" href="#" target="_blank" rel="noopener" style="display:none;" data-en="Didn't open? Tap here to open WhatsApp">খোলেনি? হোয়াটসঅ্যাপ খুলতে এখানে ট্যাপ করুন</a>
   </div>
 </section>
 
+<a class="sticky-wa" href="https://wa.me/8801945730204" target="_blank" rel="noopener" data-wa-trigger aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
+</a>
+
 <footer>
-  মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car
+  <p>মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car</p>
+  <p class="footer-cause" data-en="🚗 Every rental helps a child in need ❤️">🚗 প্রতিটি ভাড়া একটি শিশুর উপকারে আসে ❤️</p>
 </footer>
 
 <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
@@ -639,16 +752,102 @@
     // language toggle
     const textEls = document.querySelectorAll('[data-en]');
     const htmlEls = document.querySelectorAll('[data-en-html]');
+    const placeholderEls = document.querySelectorAll('[data-en-placeholder]');
     const langBtns = document.querySelectorAll('.lang-btn');
     textEls.forEach(el => { el.dataset.bn = el.textContent; });
     htmlEls.forEach(el => { el.dataset.bnHtml = el.innerHTML; });
+    placeholderEls.forEach(el => { el.dataset.bnPlaceholder = el.placeholder; });
     function setLang(lang){
       textEls.forEach(el => { el.textContent = lang === 'en' ? el.dataset.en : el.dataset.bn; });
       htmlEls.forEach(el => { el.innerHTML = lang === 'en' ? el.dataset.enHtml : el.dataset.bnHtml; });
+      placeholderEls.forEach(el => { el.placeholder = lang === 'en' ? el.dataset.enPlaceholder : el.dataset.bnPlaceholder; });
       document.documentElement.lang = lang;
       langBtns.forEach(b => b.classList.toggle('is-active', b.dataset.lang === lang));
     }
     langBtns.forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+
+    // trip intake -> WhatsApp
+    const WA_NUMBER = '8801945730204';
+    function fmtDate(dstr){
+      if(!dstr) return '';
+      const d = new Date(dstr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+    }
+    function buildTripMessage(){
+      const from = document.getElementById('tripFrom').value.trim();
+      const to = document.getElementById('tripTo').value.trim();
+      const passengers = document.getElementById('tripPassengers').value.trim();
+      const date = document.getElementById('tripDate').value;
+      const ret = document.getElementById('tripReturn').value;
+      const notes = document.getElementById('tripNotes').value.trim();
+
+      const lines = ["Hi! I'd like to book a car with Sadik Rent A Car:"];
+      let any = false;
+      if(from || to){
+        lines.push('');
+        if(from) lines.push(`From: ${from}`);
+        if(to) lines.push(`To: ${to}`);
+        any = true;
+      }
+      if(passengers){
+        if(!any) lines.push('');
+        lines.push(`Passengers: ${passengers}`);
+        any = true;
+      }
+      if(date || ret){
+        if(!any) lines.push('');
+        if(date) lines.push(`Trip Date: ${fmtDate(date)}`);
+        if(ret) lines.push(`Return Date: ${fmtDate(ret)}`);
+        any = true;
+      }
+      if(notes){
+        if(!any) lines.push('');
+        lines.push(`Special Requirements: ${notes}`);
+      }
+      lines.push('');
+      lines.push('Please confirm availability and pricing. Thank you!');
+      return encodeURIComponent(lines.join('\n'));
+    }
+    function getWaUrls(){
+      const msg = buildTripMessage();
+      return {
+        appUrl: `whatsapp://send?phone=${WA_NUMBER}&text=${msg}`,
+        webUrl: `https://wa.me/${WA_NUMBER}?text=${msg}`
+      };
+    }
+    function refreshWaLinks(){
+      const { webUrl } = getWaUrls();
+      document.querySelectorAll('[data-wa-trigger]').forEach(el => { el.href = webUrl; });
+      const fb = document.getElementById('waFallback');
+      if(fb) fb.href = webUrl;
+    }
+    function triggerWhatsApp(e){
+      if(e) e.preventDefault();
+      const { appUrl, webUrl } = getWaUrls();
+      const fb = document.getElementById('waFallback');
+      if(fb){ fb.href = webUrl; fb.style.display = 'block'; }
+      const tempLink = document.createElement('a');
+      tempLink.href = appUrl;
+      tempLink.rel = 'noopener';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+    }
+    document.querySelectorAll('[data-wa-trigger]').forEach(el => {
+      el.addEventListener('click', triggerWhatsApp);
+    });
+    ['tripFrom','tripTo','tripPassengers','tripDate','tripReturn','tripNotes'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('input', refreshWaLinks);
+    });
+    (function setDefaultTripDate(){
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const todayStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+      const dEl = document.getElementById('tripDate');
+      if(dEl && !dEl.value) dEl.value = todayStr;
+    })();
+    refreshWaLinks();
   })();
 </script>
 
