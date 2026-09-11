@@ -28,6 +28,7 @@
     --sans:'Inter', sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{ overflow-x:hidden; }
   body{ font-family:var(--sans); color:var(--ink); background:var(--cream); line-height:1.5; overflow-x:hidden; }
   img,svg{ display:block; max-width:100%; }
   .wrap{ max-width:1160px; margin:0 auto; padding:0 24px; }
@@ -174,6 +175,16 @@
   .od-textarea{ width:100%; padding:11px 13px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-size:14px; color:var(--ink); resize:vertical; }
   .od-textarea:focus{ outline:none; border-color:var(--forest); }
   .od-textarea::placeholder, .od-input::placeholder{ color:var(--muted); }
+
+  .fulfillment-toggle{ display:flex; gap:8px; margin-bottom:4px; }
+  .cart-fulfillment{ margin-bottom:14px; }
+  .fulfillment-btn{ flex:1; padding:11px; border-radius:9px; border:1.5px solid var(--line); background:var(--cream-2); font-family:inherit; font-weight:700; font-size:13.5px; color:var(--muted); cursor:pointer; transition:background .2s, border-color .2s, color .2s; }
+  .fulfillment-btn.is-active{ background:var(--forest-deep); border-color:var(--forest-deep); color:#fff; }
+  .od-label.is-required{ color:var(--terracotta); font-weight:800; }
+  .od-textarea.is-required{ border-color:var(--terracotta); }
+  .od-textarea.has-error{ border-color:var(--terracotta); box-shadow:0 0 0 3px rgba(193,81,47,0.15); }
+  .od-error{ display:none; color:var(--terracotta); font-size:12.5px; font-weight:700; margin-top:6px; }
+  .od-error.is-shown{ display:block; }
 
   .about{ background:var(--forest-deep); color:#fff; }
   .about-grid{ display:grid; grid-template-columns:210px 1fr; gap:38px; align-items:center; position:relative; z-index:3; }
@@ -495,13 +506,23 @@
     <p class="menu-note reveal" data-ur="کسی بھی قیمت پر ٹیپ کریں شامل کرنے کے لیے — آپ کا ٹوٹل خود بخود کارٹ میں اپڈیٹ ہو جائے گا۔">Tap any price to add it — your total updates in the cart automatically.</p>
 
     <div class="order-details reveal">
+      <p class="od-label" data-ur="پک اپ یا ڈیلیوری">Pickup or Delivery</p>
+      <div class="fulfillment-toggle">
+        <button type="button" class="fulfillment-btn is-active" data-fulfillment="pickup">
+          <span data-ur="🏪 پک اپ">🏪 Pickup</span>
+        </button>
+        <button type="button" class="fulfillment-btn" data-fulfillment="delivery">
+          <span data-ur="🚚 ڈیلیوری">🚚 Delivery</span>
+        </button>
+      </div>
       <p class="od-label" data-ur="لینے کی تاریخ اور وقت">Pickup Date &amp; Time</p>
       <div class="od-datetime">
         <input type="date" id="pickupDate" class="od-input">
         <input type="time" id="pickupTime" class="od-input">
       </div>
-      <p class="od-label" data-ur="آپ کا نام، الرجی، یا خصوصی ہدایات">Your Name, Allergies, or Special Instructions</p>
+      <p class="od-label" id="notesLabel" data-ur="آپ کا نام، الرجی، یا خصوصی ہدایات">Your Name, Allergies, or Special Instructions</p>
       <textarea id="orderNotes" class="od-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy" data-ur-placeholder="مثال کے طور پر: احمد علی، نٹ الرجی، زیادہ تیز مرچ"></textarea>
+      <p class="od-error" id="notesError" data-ur="براہ کرم اپنا ڈیلیوری کا پتہ شامل کریں">Please include your delivery location above.</p>
     </div>
   </div>
 </section>
@@ -590,6 +611,14 @@
     </div>
   </div>
   <div class="cart-foot">
+    <div class="fulfillment-toggle cart-fulfillment">
+      <button type="button" class="fulfillment-btn is-active" data-fulfillment="pickup">
+        <span data-ur="🏪 پک اپ">🏪 Pickup</span>
+      </button>
+      <button type="button" class="fulfillment-btn" data-fulfillment="delivery">
+        <span data-ur="🚚 ڈیلیوری">🚚 Delivery</span>
+      </button>
+    </div>
     <div class="cart-total"><span data-ur="ٹوٹل">Total</span><span id="cartTotal">$0</span></div>
     <button class="cart-send" id="cartSend" disabled>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
@@ -763,6 +792,49 @@
     document.getElementById('cartClose').addEventListener('click', closeCart);
     overlay.addEventListener('click', closeCart);
 
+    let fulfillmentMode = 'pickup';
+
+    function updateNotesRequirement(){
+      const label = document.getElementById('notesLabel');
+      const textarea = document.getElementById('orderNotes');
+      const error = document.getElementById('notesError');
+      if(fulfillmentMode === 'delivery'){
+        label.classList.add('is-required');
+        label.textContent = currentLang === 'ur' ? 'ڈیلیوری کا پتہ (ضروری)' : 'Delivery Address (required)';
+      } else {
+        label.classList.remove('is-required');
+        label.textContent = currentLang === 'ur' ? 'آپ کا نام، الرجی، یا خصوصی ہدایات' : 'Your Name, Allergies, or Special Instructions';
+        textarea.classList.remove('is-required');
+        textarea.classList.remove('has-error');
+        error.classList.remove('is-shown');
+      }
+      if(fulfillmentMode === 'delivery'){
+        textarea.classList.add('is-required');
+      }
+    }
+
+    function setFulfillmentMode(mode){
+      fulfillmentMode = mode;
+      document.querySelectorAll('.fulfillment-btn').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.fulfillment === mode);
+      });
+      updateNotesRequirement();
+      refreshWhatsAppLinks();
+    }
+
+    document.querySelectorAll('.fulfillment-btn').forEach(btn => {
+      btn.addEventListener('click', () => setFulfillmentMode(btn.dataset.fulfillment));
+    });
+
+    document.getElementById('orderNotes').addEventListener('input', () => {
+      const textarea = document.getElementById('orderNotes');
+      const error = document.getElementById('notesError');
+      if(textarea.value.trim()){
+        textarea.classList.remove('has-error');
+        error.classList.remove('is-shown');
+      }
+    });
+
     function buildOrderMessage(){
       const entries = Object.values(cart);
       const lines = ["Hi! I'd like to place a catering order from Halal Home Taste Food:"];
@@ -780,13 +852,15 @@
         lines.push(`Total: $${total}`);
       }
 
+      lines.push("");
+      lines.push(fulfillmentMode === 'delivery' ? "Fulfillment: Delivery" : "Fulfillment: Pickup");
+
       const pickupDateEl = document.getElementById('pickupDate');
       const pickupTimeEl = document.getElementById('pickupTime');
       const pickupDate = pickupDateEl ? pickupDateEl.value : '';
       const pickupTime = pickupTimeEl ? pickupTimeEl.value : '';
       if(pickupDate || pickupTime){
-        lines.push("");
-        let pickupLine = "Pickup:";
+        let pickupLine = fulfillmentMode === 'delivery' ? "Delivery Date/Time:" : "Pickup Date/Time:";
         if(pickupDate){
           const d = new Date(pickupDate + 'T00:00:00');
           pickupLine += " " + d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
@@ -805,7 +879,7 @@
       const notes = notesEl ? notesEl.value.trim() : '';
       if(notes){
         lines.push("");
-        lines.push(`Name/Notes: ${notes}`);
+        lines.push(fulfillmentMode === 'delivery' ? `Delivery Address / Notes: ${notes}` : `Name/Notes: ${notes}`);
       }
 
       lines.push("");
@@ -829,6 +903,16 @@
     }
 
     function triggerWhatsApp(){
+      if(fulfillmentMode === 'delivery'){
+        const textarea = document.getElementById('orderNotes');
+        if(!textarea.value.trim()){
+          textarea.classList.add('has-error');
+          document.getElementById('notesError').classList.add('is-shown');
+          textarea.scrollIntoView({ behavior:'smooth', block:'center' });
+          textarea.focus();
+          return;
+        }
+      }
       const { appUrl, webUrl } = getWhatsAppUrls();
       const fallback = document.getElementById('cartFallback');
       if(fallback){
@@ -896,7 +980,7 @@
       document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr';
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === lang));
     }
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => { setLang(btn.dataset.lang); updateNotesRequirement(); }));
 
     renderCart();
   })();
