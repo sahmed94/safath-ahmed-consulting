@@ -138,6 +138,17 @@
   .shead h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.4vw,36px); }
   .shead p{ color:var(--muted); margin-top:8px; font-size:15px; }
 
+  /* ---------- VIDEO SHOWCASE ---------- */
+  .showcase{ background:var(--deep); }
+  .showcase .shead .eyebrow{ color:var(--gold) !important; }
+  .showcase .shead h2{ color:var(--paper); }
+  .video-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:960px; margin:0 auto; }
+  @media (max-width:760px){ .video-grid{ grid-template-columns:1fr; } }
+  .video-box{ position:relative; aspect-ratio:16/9; background:#000; border-radius:var(--radius); overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,0.6); border:1px solid var(--line-invert); }
+  .video-box iframe{ width:100%; height:100%; border:none; }
+  .video-box .fb-video{ width:100%; height:100%; }
+  .video-box .fb-video iframe{ width:100% !important; height:100% !important; }
+
   /* ---------- TRIP INTAKE ---------- */
   .intake{ padding:0 0 36px; background:linear-gradient(180deg, var(--deep) 0%, var(--paper) 90px); }
   .intake-card{ max-width:600px; margin:0 auto; background:var(--paper); border-radius:var(--radius); padding:18px 20px; box-shadow:0 20px 50px -22px rgba(14,21,32,0.3); border:1px solid var(--line); position:relative; z-index:3; margin-top:-34px; }
@@ -321,6 +332,24 @@
   </div>
 </section>
 
+<!-- VIDEO SHOWCASE -->
+<section class="showcase" id="showcase">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow" style="color:var(--accent-dark);" data-en="WATCH OUR VIDEOS">ভিডিওতে দেখুন</p>
+      <h2 data-en="See Sadik Rent A Car in Action">সাদিক রেন্ট-এ-কার দেখুন</h2>
+    </div>
+    <div class="video-grid reveal">
+      <div class="video-box">
+        <iframe src="https://www.youtube.com/embed/3xR4dffQoms?rel=0" title="Sadik Rent A Car" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+      <div class="video-box">
+        <div class="fb-video" data-href="https://www.facebook.com/reel/2386095351915075" data-width="auto" data-show-text="false"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- SERVICES AS GALLERY -->
 <section class="services" style="background:var(--paper-2);">
   <div class="wrap">
@@ -474,6 +503,9 @@
   <p data-en="Sadik Rent A Car">মায়ের দোয়া রেন্ট-এ-কার — Sadik Rent A Car</p>
   <p class="footer-cause" data-en="🚗 Every rental helps a child in need ❤️">🚗 প্রতিটি ভাড়া একটি শিশুর উপকারে আসে ❤️</p>
 </footer>
+
+<script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0"></script>
+<div id="fb-root"></div>
 
 <script>
   (function(){
