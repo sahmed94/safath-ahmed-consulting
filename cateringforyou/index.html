@@ -611,15 +611,15 @@
 
     const garnishField = document.getElementById('garnishField');
     const shapes = [
-      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10,2 C6,6 4,10 4,13 a6,5 0 0 0 12,0 C16,10 14,6 10,2 Z" fill="#4F7A47"/></svg>',
-      '<svg viewBox="0 0 20 20" width="100%" height="100%"><circle cx="10" cy="10" r="3" fill="#C1512F"/></svg>',
-      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M6,18 Q6,10 10,10 Q14,10 14,18" fill="none" stroke="#E0B94E" stroke-width="1.6" stroke-linecap="round"/></svg>',
-      '<svg viewBox="0 0 20 20" width="100%" height="100%"><circle cx="10" cy="10" r="2.4" fill="#E0B94E"/></svg>'
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><ellipse cx="13" cy="7.5" rx="5.6" ry="4.6" fill="#C1512F" transform="rotate(35 13 7.5)"/><path d="M9.3,11 L5,16" stroke="#EFDCB8" stroke-width="2.1" stroke-linecap="round"/><circle cx="4.3" cy="16.6" r="1.7" fill="#EFDCB8"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10,3.2 C10.5,3.2 11,3.5 11.3,4.1 L16.4,14.8 C16.7,15.6 16.1,16.4 15.3,16.4 L4.7,16.4 C3.9,16.4 3.3,15.6 3.6,14.8 L8.7,4.1 C9,3.5 9.5,3.2 10,3.2 Z" fill="#E0B94E"/><path d="M10,5 L10,16.4 M6.3,11 L13.7,11" stroke="#B8860B" stroke-width="0.7" opacity="0.45"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><ellipse cx="10" cy="10" rx="8" ry="5.2" fill="#F0DCA8"/><circle cx="6.5" cy="8.5" r="0.65" fill="#8B6914"/><circle cx="10" cy="10.2" r="0.65" fill="#8B6914"/><circle cx="13.2" cy="8" r="0.65" fill="#8B6914"/></svg>',
+      '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M4,10 a6,5.2 0 0 0 12,0 Z" fill="#F3ECD6"/><path d="M2.5,10 h15" stroke="#C9A13B" stroke-width="1.5" stroke-linecap="round"/><path d="M8,6.5 q0.8,-1.8 0,-3.5" fill="none" stroke="#E0B94E" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/><path d="M12,6.5 q0.8,-1.8 0,-3.5" fill="none" stroke="#E0B94E" stroke-width="1.3" stroke-linecap="round" opacity="0.7"/></svg>'
     ];
     for(let i = 0; i < 16; i++){
       const g = document.createElement('div');
       g.className = 'garnish';
-      const size = 10 + Math.random() * 16;
+      const size = 16 + Math.random() * 18;
       g.style.width = size + 'px';
       g.style.height = size + 'px';
       g.style.left = Math.random() * 100 + 'vw';
