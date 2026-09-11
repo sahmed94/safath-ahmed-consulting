@@ -1,0 +1,26 @@
+name: Site directory
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  master-dates:
+    name: Updated dates are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Required. Each card's date comes from the last commit touching the
+          # page it links to, and actions/checkout fetches a single commit by
+          # default. In a shallow clone that commit looks like it introduced
+          # every file, so every page reports the same date and the check fails
+          # on every run. Full history is what makes the dates mean anything.
+          fetch-depth: 0
+
+      - name: Check master/index.html
+        run: scripts/update-master-dates.py --check
