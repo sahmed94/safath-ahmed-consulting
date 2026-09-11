@@ -72,6 +72,7 @@
   @media (max-width:600px){ .card-grid{ grid-template-columns:1fr; } }
 
   .pcard{
+    position:relative; cursor:pointer;
     background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
     padding:34px 28px; text-align:center;
     transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
@@ -92,6 +93,12 @@
     color:var(--card-color); text-decoration:none;
   }
   .pcard .cta:hover{ text-decoration:underline; }
+  /* Stretch the CTA over the whole card so the entire rectangle is the click target.
+     The <a> stays the real link, so focus, middle-click and open-in-new-tab still work. */
+  .pcard .cta::after{ content:""; position:absolute; inset:0; z-index:1; border-radius:var(--radius); }
+  .pcard:hover .cta{ text-decoration:underline; }
+  .pcard .cta:focus-visible{ outline:none; }
+  .pcard .cta:focus-visible::after{ outline:2px solid var(--card-color); outline-offset:3px; }
 
   .note{ text-align:center; font-family:var(--mono); font-size:12px; color:var(--muted); max-width:60ch; margin:0 auto; line-height:1.7; }
   .note strong{ color:var(--teal); }
