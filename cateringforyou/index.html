@@ -58,7 +58,14 @@
   .brand-mark svg *{ fill:none; stroke:var(--forest-deep); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
   .brand-text .main{ font-family:var(--display); font-weight:800; font-size:15.5px; color:var(--forest-deep); display:block; line-height:1.1; }
   .brand-text .sub{ font-size:10px; letter-spacing:.12em; color:var(--terracotta); font-weight:700; }
+  @font-face{ font-family:'Noto Nastaliq Urdu'; src:url('https://raw.githubusercontent.com/google/fonts/main/ofl/notonastaliqurdu/NotoNastaliqUrdu%5Bwght%5D.ttf') format('truetype'); font-weight:400 700; }
   .nav-right{ display:flex; align-items:center; gap:10px; }
+  .lang-toggle{ display:flex; border:1.5px solid var(--line); border-radius:20px; padding:3px; gap:2px; }
+  .lang-btn{ font-weight:600; font-size:12.5px; background:transparent; color:var(--muted); border:none; cursor:pointer; padding:6px 13px; border-radius:16px; transition:background .2s, color .2s; font-family:inherit; }
+  .lang-btn[data-lang="ur"]{ font-family:'Noto Nastaliq Urdu', var(--sans); font-size:14px; }
+  .lang-btn.is-active{ background:var(--forest-deep); color:#fff; }
+  html[dir="rtl"] body{ font-family:'Noto Nastaliq Urdu', var(--sans); }
+  html[dir="rtl"] .cat-tab, html[dir="rtl"] .price-chip .val, html[dir="rtl"] .cart-total, html[dir="rtl"] .od-input, html[dir="rtl"] .cart-line-price{ font-family:var(--sans); }
   .cart-btn{ position:relative; width:42px; height:42px; border-radius:50%; background:#fff; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer; }
   .cart-btn svg{ width:19px; height:19px; }
   .cart-btn svg *{ fill:none; stroke:var(--forest-deep); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
@@ -256,16 +263,20 @@
       <span class="brand-mark">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,8 a6,6 0 0 1 12,0 Z"/><circle cx="10" cy="8" r="1"/><rect x="2" y="14" width="16" height="3" rx="1"/></svg>
       </span>
-      <span class="brand-text"><span class="main">Halal Home Taste Food</span><span class="sub">CATERING FOR YOU</span></span>
+      <span class="brand-text"><span class="main">Halal Home Taste Food</span><span class="sub" data-ur="کیٹرنگ فار یو">CATERING FOR YOU</span></span>
     </a>
     <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="lang-btn is-active" data-lang="en" type="button">English</button>
+        <button class="lang-btn" data-lang="ur" type="button">اردو</button>
+      </div>
       <button class="cart-btn" id="cartBtnHeader" aria-label="View cart">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2,3 h2 l1.5,10 h10 l1.5,-7 H6"/><circle cx="8" cy="16" r="1.3"/><circle cx="14" cy="16" r="1.3"/></svg>
         <span class="cart-badge" id="cartBadgeHeader" style="display:none;">0</span>
       </button>
-      <a class="nav-cta" href="https://wa.me/12405169397" target="_blank" rel="noopener" data-wa-trigger>
+      <a class="nav-cta" href="https://wa.me/12405169397" target="_blank" rel="noopener" data-wa-trigger data-ur="ابھی آرڈر کریں">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
-        Order Now
+        <span data-ur="ابھی آرڈر کریں">Order Now</span>
       </a>
     </div>
   </div>
@@ -277,31 +288,31 @@
     <div class="hero-overlay"></div>
   </div>
   <div class="hero-content">
-    <p class="hero-eyebrow">DELICIOUS · AUTHENTIC · MEMORABLE</p>
-    <h1>Homemade Halal Catering, <span>Done Right</span></h1>
-    <p class="desc">Hand-cut zabiha halal meat. Locally sourced ingredients. Fifteen years of recipes built for real gatherings — not just photos.</p>
+    <p class="hero-eyebrow" data-ur="لذیذ · مستند · یادگار">DELICIOUS · AUTHENTIC · MEMORABLE</p>
+    <h1 data-ur-html="گھریلو حلال کیٹرنگ، <span>بہترین طریقے سے</span>">Homemade Halal Catering, <span>Done Right</span></h1>
+    <p class="desc" data-ur="ہاتھ سے ذبح شدہ حلال گوشت۔ مقامی تازہ اجزاء۔ پندرہ سالہ تجربے سے بنی ترکیبیں، حقیقی تقریبات کے لیے۔">Hand-cut zabiha halal meat. Locally sourced ingredients. Fifteen years of recipes built for real gatherings — not just photos.</p>
     <div class="hero-ctas">
       <a class="btn-whatsapp" href="https://wa.me/12405169397" target="_blank" rel="noopener" data-wa-trigger>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
-        Order on WhatsApp
+        <span data-ur="واٹس ایپ پر آرڈر کریں">Order on WhatsApp</span>
       </a>
-      <a class="btn-outline-light" href="#menu">Build Your Order</a>
+      <a class="btn-outline-light" href="#menu" data-ur="اپنا آرڈر بنائیں">Build Your Order</a>
     </div>
   </div>
 </section>
 <div class="strip">
   <div class="wrap">
-    <span><strong>15+</strong> Years Cooking Experience</span>
-    <span>Made With Care</span>
-    <span>Made for Community</span>
+    <span><strong>15+</strong> <span data-ur="سال کا تجربہ">Years Cooking Experience</span></span>
+    <span data-ur="محبت سے تیار">Made With Care</span>
+    <span data-ur="کمیونٹی کے لیے">Made for Community</span>
   </div>
 </div>
 
 <section class="gallery">
   <div class="wrap">
     <div class="shead reveal">
-      <p class="eyebrow">FROM THE KITCHEN</p>
-      <h2>What Comes to Your Table</h2>
+      <p class="eyebrow" data-ur="ہمارے باورچی خانے سے">FROM THE KITCHEN</p>
+      <h2 data-ur="آپ کی میز پر کیا آتا ہے">What Comes to Your Table</h2>
     </div>
     <div class="gallery-stage reveal">
       <div class="g-photo g1"><img src="img/qabli-palou.jpg" alt="Qabli Palou"></div>
@@ -317,49 +328,49 @@
 <section id="menu">
   <div class="wrap">
     <div class="shead reveal">
-      <p class="eyebrow">CATERING MENU</p>
-      <h2>Build Your Order</h2>
-      <p>Tap a price to add it to your order — send the full list on WhatsApp in one tap.</p>
+      <p class="eyebrow" data-ur="کیٹرنگ مینیو">CATERING MENU</p>
+      <h2 data-ur="اپنا آرڈر بنائیں">Build Your Order</h2>
+      <p data-ur="قیمت پر ٹیپ کریں اپنے آرڈر میں شامل کرنے کے لیے — ایک ٹیپ میں پوری فہرست واٹس ایپ پر بھیجیں۔">Tap a price to add it to your order — send the full list on WhatsApp in one tap.</p>
     </div>
 
     <div class="cat-tabs reveal">
-      <button class="cat-tab is-active" data-cat="mains">Mains</button>
-      <button class="cat-tab" data-cat="curries">Curries &amp; Beans</button>
-      <button class="cat-tab" data-cat="sides">Sides</button>
-      <button class="cat-tab" data-cat="soups">Soups</button>
+      <button class="cat-tab is-active" data-cat="mains" data-ur="مین کورس">Mains</button>
+      <button class="cat-tab" data-cat="curries" data-ur="سالن اور دالیں">Curries &amp; Beans</button>
+      <button class="cat-tab" data-cat="sides" data-ur="سائیڈز">Sides</button>
+      <button class="cat-tab" data-cat="soups" data-ur="سوپس">Soups</button>
     </div>
 
     <div class="menu-grid is-shown" data-panel="mains">
       <div class="dish pop-item">
         <img class="dish-photo" src="img/qabli-palou.jpg" alt="Qabli Palou">
         <div class="dish-body">
-          <h3>Qabli Palou</h3>
-          <p class="note">Lamb, chicken, or beef</p>
+          <h3 data-ur="قابلی پلاؤ">Qabli Palou</h3>
+          <p class="note" data-ur="بکری، مرغی، یا گائے کا گوشت">Lamb, chicken, or beef</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Qabli Palou" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Qabli Palou" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Qabli Palou" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish pop-item">
         <img class="dish-photo" src="img/biryani.jpg" alt="Biryani">
         <div class="dish-body">
-          <h3>Biryani</h3>
-          <p class="note">Chicken, lamb, or beef</p>
+          <h3 data-ur="بریانی">Biryani</h3>
+          <p class="note" data-ur="مرغی، بکری، یا گائے کا گوشت">Chicken, lamb, or beef</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Biryani" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Biryani" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Biryani" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Biryani" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="13" rx="7" ry="3"/><path d="M4,13 V9 a6,4 0 0 1 12,0 v4"/><path d="M8,6 q1,-2 0,-3" stroke-width="1.6"/><path d="M12,6 q1,-2 0,-3" stroke-width="1.6"/></svg></div>
         <div class="dish-body">
-          <h3>White Rice</h3>
-          <p class="note">No meat</p>
+          <h3 data-ur="سفید چاول">White Rice</h3>
+          <p class="note" data-ur="بغیر گوشت">No meat</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="White Rice" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="White Rice" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="White Rice" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="White Rice" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -369,11 +380,11 @@
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--terracotta);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><path d="M7,4 q1,3 0,6 M13,4 q-1,3 0,6" stroke-width="1.6"/></svg></div>
         <div class="dish-body">
-          <h3>Gosht &amp; Daal Falak</h3>
-          <p class="note">Meat &amp; spinach</p>
+          <h3 data-ur="گوشت اور دال پالک">Gosht &amp; Daal Falak</h3>
+          <p class="note" data-ur="گوشت اور پالک">Meat &amp; spinach</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Gosht & Daal Falak" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -389,33 +400,33 @@
           </div>
         </div>
         <div class="dish-body">
-          <h3>Meat Qurma</h3>
-          <p class="note">Lamb, chicken, or beef — no potatoes</p>
+          <h3 data-ur="میٹ قورمہ">Meat Qurma</h3>
+          <p class="note" data-ur="بکری، مرغی، یا گائے کا گوشت — بغیر آلو کے">Lamb, chicken, or beef — no potatoes</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Meat Qurma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Meat Qurma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Meat Qurma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--spice);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><circle cx="7.5" cy="8" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg></div>
         <div class="dish-body">
-          <h3>Nakhod Qourma</h3>
-          <p class="note">Lamb, beef, or chicken with chickpeas</p>
+          <h3 data-ur="نخود قورمہ">Nakhod Qourma</h3>
+          <p class="note" data-ur="چنے کے ساتھ بکری، گائے، یا مرغی کا گوشت">Lamb, beef, or chicken with chickpeas</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Nakhod Qourma" data-size="Half Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3,10 a7,6 0 0 0 14,0 Z"/><ellipse cx="7.5" cy="8" rx="1" ry="1.3"/><ellipse cx="10.5" cy="7.5" rx="1" ry="1.3"/><ellipse cx="13" cy="8.5" rx="1" ry="1.3"/></svg></div>
         <div class="dish-body">
-          <h3>Lobia</h3>
-          <p class="note">Beans</p>
+          <h3 data-ur="لوبیا">Lobia</h3>
+          <p class="note" data-ur="پھلیاں">Beans</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Lobia" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Lobia" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Lobia" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Lobia" data-size="Half Tray" data-price="60"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$60</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -425,21 +436,21 @@
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--gold);"><svg viewBox="0 0 20 20" aria-hidden="true"><line x1="6" y1="15" x2="6" y2="5"/><line x1="9" y1="15" x2="9" y2="4"/><line x1="12" y1="15" x2="12" y2="5"/><line x1="15" y1="15" x2="15" y2="6"/></svg></div>
         <div class="dish-body">
-          <h3>Fries</h3>
+          <h3 data-ur="فرائز">Fries</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Fries" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Fries" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Fries" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Fries" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish single pop-item">
         <img class="dish-photo" src="img/naan.jpg" alt="Naan bread">
         <div class="dish-body">
-          <h3>Naan</h3>
-          <p class="note">1 piece</p>
+          <h3 data-ur="نان">Naan</h3>
+          <p class="note" data-ur="ایک عدد">1 piece</p>
           <div class="dish-price">
             <div class="price-chip single-chip" data-dish="Naan" data-size="Piece" data-price="10">
-              <div class="chip-idle"><div class="val" style="font-size:19px;">$10 / piece</div></div>
+              <div class="chip-idle"><div class="val" style="font-size:19px;" data-ur="$10 / عدد">$10 / piece</div></div>
               <div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div>
             </div>
           </div>
@@ -448,20 +459,20 @@
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--forest);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,9 a6,5 0 0 0 12,0 Z"/><path d="M10,9 v-5"/><circle cx="10" cy="3.5" r="1"/></svg></div>
         <div class="dish-body">
-          <h3>Yogurt</h3>
+          <h3 data-ur="دہی">Yogurt</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Yogurt" data-size="Full Tray" data-price="80"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$80</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Yogurt" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Yogurt" data-size="Full Tray" data-price="80"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$80</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Yogurt" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
       <div class="dish pop-item">
         <img class="dish-photo" src="img/mix-veg.jpg" alt="Mix Vegetable salad">
         <div class="dish-body">
-          <h3>Mix Vegetable</h3>
+          <h3 data-ur="مکس سبزی">Mix Vegetable</h3>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Mix Vegetable" data-size="Full Tray" data-price="120"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$120</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Mix Vegetable" data-size="Half Tray" data-price="90"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$90</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Full Tray" data-price="120"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$120</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Mix Vegetable" data-size="Half Tray" data-price="90"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$90</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
@@ -471,26 +482,26 @@
       <div class="dish pop-item">
         <div class="dish-photo-fallback" style="--dish-color:var(--terracotta);"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,10 a6,5 0 0 0 12,0 Z"/><path d="M7,6 q1,-2 0,-4 M10,6 q1,-2 0,-4 M13,6 q1,-2 0,-4"/></svg></div>
         <div class="dish-body">
-          <h3>Chicken / Vegetable / Mix Soup</h3>
-          <p class="note">Your choice</p>
+          <h3 data-ur="چکن / سبزی / مکس سوپ">Chicken / Vegetable / Mix Soup</h3>
+          <p class="note" data-ur="آپ کی پسند">Your choice</p>
           <div class="dish-price">
-            <div class="price-chip" data-dish="Soup" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
-            <div class="price-chip" data-dish="Soup" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Soup" data-size="Full Tray" data-price="100"><div class="chip-idle"><div class="lbl" data-ur="فل ٹرے">Full Tray</div><div class="val">$100</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
+            <div class="price-chip" data-dish="Soup" data-size="Half Tray" data-price="50"><div class="chip-idle"><div class="lbl" data-ur="ہاف ٹرے">Half Tray</div><div class="val">$50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button">+</button></div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <p class="menu-note reveal">Tap any price to add it — your total updates in the cart automatically.</p>
+    <p class="menu-note reveal" data-ur="کسی بھی قیمت پر ٹیپ کریں شامل کرنے کے لیے — آپ کا ٹوٹل خود بخود کارٹ میں اپڈیٹ ہو جائے گا۔">Tap any price to add it — your total updates in the cart automatically.</p>
 
     <div class="order-details reveal">
-      <p class="od-label">Pickup Date &amp; Time</p>
+      <p class="od-label" data-ur="لینے کی تاریخ اور وقت">Pickup Date &amp; Time</p>
       <div class="od-datetime">
         <input type="date" id="pickupDate" class="od-input">
         <input type="time" id="pickupTime" class="od-input">
       </div>
-      <p class="od-label">Your Name, Allergies, or Special Instructions</p>
-      <textarea id="orderNotes" class="od-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy"></textarea>
+      <p class="od-label" data-ur="آپ کا نام، الرجی، یا خصوصی ہدایات">Your Name, Allergies, or Special Instructions</p>
+      <textarea id="orderNotes" class="od-textarea" rows="3" placeholder="e.g. John Smith, nut allergy, extra spicy" data-ur-placeholder="مثال کے طور پر: احمد علی، نٹ الرجی، زیادہ تیز مرچ"></textarea>
     </div>
   </div>
 </section>
@@ -498,8 +509,8 @@
 <section class="about">
   <div class="wrap">
     <div class="shead reveal">
-      <p class="eyebrow" style="color:var(--gold-bright); background:rgba(224,185,78,0.12);">THE COOK</p>
-      <h2 style="color:#fff;">Meet The Cook</h2>
+      <p class="eyebrow" style="color:var(--gold-bright); background:rgba(224,185,78,0.12);" data-ur="باورچی">THE COOK</p>
+      <h2 style="color:#fff;" data-ur="باورچی سے ملیں">Meet The Cook</h2>
     </div>
     <div class="about-grid reveal">
       <div>
@@ -525,11 +536,11 @@
         </div>
       </div>
       <div class="about-text">
-        <p class="kicker">OWNER</p>
-        <h3>Food Made With the Same Care as Family Dinner</h3>
-        <p>It started at home, cooking for her own family. Today the same standard — care, cleanliness, trusted halal ingredients — goes into every order. Food is how a community stays close.</p>
+        <p class="kicker" data-ur="مالک">OWNER</p>
+        <h3 data-ur="خاندانی کھانے جیسی محبت سے تیار کردہ خوراک">Food Made With the Same Care as Family Dinner</h3>
+        <p data-ur="یہ گھر سے شروع ہوا، اپنے خاندان کے لیے کھانا پکاتے ہوئے۔ آج وہی معیار — احتیاط، صفائی، قابل اعتماد حلال اجزاء — ہر آرڈر میں شامل ہوتا ہے۔ کھانا ہی وہ ذریعہ ہے جو کمیونٹی کو جوڑے رکھتا ہے۔">It started at home, cooking for her own family. Today the same standard — care, cleanliness, trusted halal ingredients — goes into every order. Food is how a community stays close.</p>
         <div class="about-badges">
-          <span class="about-badge">✅ Trusted Halal Ingredients</span>
+          <span class="about-badge" data-ur="✅ قابل اعتماد حلال اجزاء">✅ Trusted Halal Ingredients</span>
         </div>
       </div>
     </div>
@@ -538,13 +549,13 @@
 
 <section class="final" id="contact">
   <div class="wrap">
-    <h2 class="reveal">Plan Your Event — We Cater, You Celebrate</h2>
-    <p class="sub reveal">Place your order on WhatsApp, or pick up at your convenience.</p>
+    <h2 class="reveal" data-ur="اپنی تقریب کی منصوبہ بندی کریں — ہم کیٹر کریں، آپ جشن منائیں">Plan Your Event — We Cater, You Celebrate</h2>
+    <p class="sub reveal" data-ur="اپنا آرڈر واٹس ایپ پر دیں، یا اپنی سہولت سے لے جائیں۔">Place your order on WhatsApp, or pick up at your convenience.</p>
     <div class="events-grid reveal">
-      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="10" r="4"/><circle cx="13" cy="10" r="4"/><path d="M9,4 C9,2.5 11,2.5 11,4 C11,5.5 10,6 10,6 C10,6 9,5.5 9,4 Z" fill="var(--gold-bright)" stroke="none"/></svg></div><span>Weddings</span></div>
-      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,17 V9 a6,6 0 0 1 12,0 V17"/><line x1="10" y1="3" x2="10" y2="5"/><circle cx="10" cy="2" r="0.8"/></svg></div><span>Birthdays</span></div>
-      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="7" width="14" height="10" rx="1.5"/><path d="M7,7 V5 a1.5,1.5 0 0 1 1.5,-1.5 h3 a1.5,1.5 0 0 1 1.5,1.5 V7"/></svg></div><span>Corporate Events</span></div>
-      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="2.6"/><path d="M2,17 v-2 a5,5 0 0 1 10,0 v2"/><circle cx="15" cy="8" r="2.2"/><path d="M12.3,17 v-1.7 a4,4 0 0 0 6.7,-3"/></svg></div><span>Family Gatherings</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="10" r="4"/><circle cx="13" cy="10" r="4"/><path d="M9,4 C9,2.5 11,2.5 11,4 C11,5.5 10,6 10,6 C10,6 9,5.5 9,4 Z" fill="var(--gold-bright)" stroke="none"/></svg></div><span data-ur="شادیاں">Weddings</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4,17 V9 a6,6 0 0 1 12,0 V17"/><line x1="10" y1="3" x2="10" y2="5"/><circle cx="10" cy="2" r="0.8"/></svg></div><span data-ur="سالگرہ">Birthdays</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="7" width="14" height="10" rx="1.5"/><path d="M7,7 V5 a1.5,1.5 0 0 1 1.5,-1.5 h3 a1.5,1.5 0 0 1 1.5,1.5 V7"/></svg></div><span data-ur="کارپوریٹ تقریبات">Corporate Events</span></div>
+      <div class="event"><div class="event-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="2.6"/><path d="M2,17 v-2 a5,5 0 0 1 10,0 v2"/><circle cx="15" cy="8" r="2.2"/><path d="M12.3,17 v-1.7 a4,4 0 0 0 6.7,-3"/></svg></div><span data-ur="خاندانی تقریبات">Family Gatherings</span></div>
     </div>
     <div class="final-cards reveal">
       <a class="fcard primary" href="https://wa.me/12405169397" target="_blank" rel="noopener" data-wa-trigger>
@@ -552,8 +563,8 @@
         240-516-9397
       </a>
     </div>
-    <p class="final-note reveal">Delivery available for an additional fee, or pick up your order at your convenience. Thank you for supporting a local small business — your trust means a lot to us.</p>
-    <p class="final-foot">Halal Home Taste Food — Catering For You</p>
+    <p class="final-note reveal" data-ur="اضافی فیس کے ساتھ ڈیلیوری دستیاب ہے، یا اپنی سہولت سے آرڈر خود لے جائیں۔ مقامی چھوٹے کاروبار کی حمایت کرنے کا شکریہ — آپ کا اعتماد ہمارے لیے بہت اہم ہے۔">Delivery available for an additional fee, or pick up your order at your convenience. Thank you for supporting a local small business — your trust means a lot to us.</p>
+    <p class="final-foot" data-ur="حلال ہوم ٹیسٹ فوڈ — کیٹرنگ فار یو">Halal Home Taste Food — Catering For You</p>
   </div>
 </section>
 
@@ -570,26 +581,27 @@
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-head">
-    <h3>Your Order</h3>
+    <h3 data-ur="آپ کا آرڈر">Your Order</h3>
     <button class="cart-close" id="cartClose" aria-label="Close cart"><svg viewBox="0 0 20 20" aria-hidden="true"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
   </div>
   <div class="cart-scroll">
     <div class="cart-body" id="cartBody">
-      <p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>
+      <p class="cart-empty" data-ur="آپ کا آرڈر خالی ہے۔ مینیو میں قیمت پر ٹیپ کریں شامل کرنے کے لیے۔">Your order is empty. Tap a price on the menu to add it.</p>
     </div>
   </div>
   <div class="cart-foot">
-    <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
+    <div class="cart-total"><span data-ur="ٹوٹل">Total</span><span id="cartTotal">$0</span></div>
     <button class="cart-send" id="cartSend" disabled>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2 C6.5,2 2,6.5 2,12 c0,1.8 0.5,3.6 1.4,5.1 L2,22 l5.1,-1.3 c1.4,0.8 3.1,1.3 4.9,1.3 c5.5,0 10,-4.5 10,-10 S17.5,2 12,2 Z M17.2,15.1 c-0.2,0.6 -1.3,1.2 -1.8,1.2 c-0.5,0.1 -1,0.1 -1.7,-0.1 c-0.4,-0.1 -0.9,-0.3 -1.6,-0.6 c-2.7,-1.2 -4.5,-3.9 -4.6,-4.1 c-0.1,-0.2 -1.1,-1.5 -1.1,-2.8 c0,-1.3 0.7,-2 1,-2.2 c0.3,-0.3 0.6,-0.3 0.8,-0.3 c0.2,0 0.4,0 0.5,0 c0.2,0 0.4,0 0.6,0.5 c0.2,0.5 0.7,1.9 0.8,2 c0.1,0.1 0.1,0.3 0,0.5 c-0.1,0.2 -0.1,0.3 -0.3,0.5 c-0.1,0.2 -0.3,0.4 -0.4,0.5 c-0.1,0.1 -0.3,0.3 -0.1,0.6 c0.2,0.3 0.9,1.5 1.9,2.4 c1.3,1.2 2.4,1.5 2.7,1.7 c0.3,0.1 0.5,0.1 0.6,-0.1 c0.2,-0.2 0.8,-0.9 1,-1.2 c0.2,-0.3 0.4,-0.2 0.7,-0.1 c0.3,0.1 1.7,0.8 2,0.9 c0.3,0.2 0.5,0.2 0.6,0.4 C17.4,13.9 17.4,14.5 17.2,15.1 Z"/></svg>
-      Send Order on WhatsApp
+      <span data-ur="واٹس ایپ پر آرڈر بھیجیں">Send Order on WhatsApp</span>
     </button>
-    <a class="cart-fallback" id="cartFallback" href="#" target="_blank" rel="noopener" style="display:none;">Didn't open? Tap here to open WhatsApp</a>
+    <a class="cart-fallback" id="cartFallback" href="#" target="_blank" rel="noopener" style="display:none;" data-ur="نہیں کھلا؟ واٹس ایپ کھولنے کے لیے یہاں ٹیپ کریں">Didn't open? Tap here to open WhatsApp</a>
   </div>
 </div>
 
 <script>
   (function(){
+    let currentLang = 'en';
     const items = document.querySelectorAll('.reveal');
     if('IntersectionObserver' in window){
       const io = new IntersectionObserver((entries)=>{
@@ -662,7 +674,7 @@
       });
 
       if(entries.length === 0){
-        cartBody.innerHTML = '<p class="cart-empty">Your order is empty. Tap a price on the menu to add it.</p>';
+        cartBody.innerHTML = '<p class="cart-empty" data-ur="آپ کا آرڈر خالی ہے۔ مینیو میں قیمت پر ٹیپ کریں شامل کرنے کے لیے۔">Your order is empty. Tap a price on the menu to add it.</p>';
       } else {
         cartBody.innerHTML = entries.map(([key, item]) => {
           const lineTotal = item.price * item.qty;
@@ -707,6 +719,7 @@
       });
 
       refreshWhatsAppLinks();
+      if(typeof setLang === 'function' && currentLang === 'ur') setLang('ur');
     }
 
     document.querySelectorAll('.price-chip').forEach(chip => {
@@ -864,6 +877,26 @@
       if(pdEl && !pdEl.value) pdEl.value = todayStr;
       if(ptEl && !ptEl.value) ptEl.value = timeStr;
     })();
+
+    function setLang(lang){
+      currentLang = lang;
+      document.querySelectorAll('[data-ur]').forEach(el => {
+        if(el.dataset.en === undefined) el.dataset.en = el.textContent;
+        el.textContent = lang === 'ur' ? el.getAttribute('data-ur') : el.dataset.en;
+      });
+      document.querySelectorAll('[data-ur-html]').forEach(el => {
+        if(el.dataset.enHtml === undefined) el.dataset.enHtml = el.innerHTML;
+        el.innerHTML = lang === 'ur' ? el.getAttribute('data-ur-html') : el.dataset.enHtml;
+      });
+      document.querySelectorAll('[data-ur-placeholder]').forEach(el => {
+        if(el.dataset.enPlaceholder === undefined) el.dataset.enPlaceholder = el.placeholder;
+        el.placeholder = lang === 'ur' ? el.getAttribute('data-ur-placeholder') : el.dataset.enPlaceholder;
+      });
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr';
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === lang));
+    }
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
 
     renderCart();
   })();
