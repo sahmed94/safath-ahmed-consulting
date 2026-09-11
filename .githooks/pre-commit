@@ -1,0 +1,41 @@
+#!/bin/sh
+# Keep master/index.html's "Updated" dates honest on every commit.
+#
+# Enable once per clone:
+#     git config core.hooksPath .githooks
+#
+# Pages with staged changes are dated now rather than by their last commit,
+# since this runs before the commit being made exists.
+
+set -e
+
+PAGE="master/index.html"
+ROOT=$(git rev-parse --show-toplevel)
+SCRIPT="$ROOT/scripts/update-master-dates.py"
+
+[ -f "$SCRIPT" ] || exit 0
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "pre-commit: python3 not found; skipping $PAGE date refresh." >&2
+    exit 0
+fi
+
+# Unstaged edits to the page mean we must not auto-stage: `git add` would sweep
+# up work the author deliberately left out of this commit. Only block if the
+# dates are actually stale -- otherwise there is nothing to do and we get out of
+# the way.
+if ! git diff --quiet -- "$PAGE"; then
+    if ! python3 "$SCRIPT" --check --include-staged >/dev/null 2>&1; then
+        echo "pre-commit: $PAGE needs its Updated dates refreshed, but it has" >&2
+        echo "            unstaged changes, so this hook will not stage it for you." >&2
+        echo "            Run: scripts/update-master-dates.py && git add $PAGE" >&2
+        exit 1
+    fi
+    exit 0
+fi
+
+python3 "$SCRIPT" --include-staged >/dev/null
+if ! git diff --quiet -- "$PAGE"; then
+    git add -- "$PAGE"
+    echo "pre-commit: refreshed Updated dates in $PAGE and staged it."
+fi

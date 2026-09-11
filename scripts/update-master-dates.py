@@ -50,16 +50,28 @@ def repo_root() -> Path:
     return Path(out.stdout.strip())
 
 
-def last_commit_iso(root: Path, target: Path) -> str | None:
+def last_commit_iso(root: Path, target: Path, include_staged: bool = False) -> str | None:
     """Author date of the last commit touching `target`, as strict ISO.
 
     For a page in its own directory we ask about the whole directory, so that
     replacing an image counts as updating the page. For a page sitting at the
     repo root we can only ask about the file itself -- the root directory would
     match every commit in the repo.
+
+    With `include_staged`, a page with staged-but-uncommitted changes is dated
+    now rather than by its last commit. A pre-commit hook runs before the commit
+    it belongs to exists, so without this every date would lag one commit behind
+    the change it is meant to describe.
     """
     rel = target.relative_to(root)
     scope = rel if rel.parent == Path(".") else rel.parent
+
+    if include_staged:
+        staged = subprocess.run(["git", "diff", "--cached", "--quiet", "--", str(scope)],
+                                cwd=root)
+        if staged.returncode == 1:  # 1 == differences; >1 == git itself failed
+            return dt.datetime.now().astimezone().replace(microsecond=0).isoformat()
+
     cmd = ["git", "log", "-1", "--format=%aI"]
     if scope == rel:
         cmd.append("--follow")  # --follow needs a single file path
@@ -88,7 +100,7 @@ def apply_date(card: str, iso: str) -> str:
     return card[:cta.start()] + f'{indent}<div class="meta"><b>Updated:</b> {tag}</div>\n' + card[cta.start():]
 
 
-def rebuild(src: str, page: Path, root: Path) -> tuple[str, list[str]]:
+def rebuild(src: str, page: Path, root: Path, include_staged: bool = False) -> tuple[str, list[str]]:
     grid_starts = [m.start() for m in GRID_RE.finditer(src)]
     cards = list(CARD_RE.finditer(src))
     if not cards:
@@ -102,7 +114,7 @@ def rebuild(src: str, page: Path, root: Path) -> tuple[str, list[str]]:
         if not cta:
             raise SystemExit(f"card {i} in {page} has no 'View Page' link; cannot resolve its date")
         target = (page.parent / cta.group("href")).resolve()
-        iso = last_commit_iso(root, target) if target.is_file() else None
+        iso = last_commit_iso(root, target, include_staged) if target.is_file() else None
         if iso is None:
             notes.append(f"  ! {cta.group('href')}: no committed history; leaving its date alone")
             existing = TIME_RE.search(text)
@@ -135,6 +147,9 @@ def main() -> int:
                     help="exit 1 if the file is out of date; write nothing")
     ap.add_argument("--file", default="master/index.html",
                     help="page to update (default: master/index.html)")
+    ap.add_argument("--include-staged", action="store_true",
+                    help="date a page with staged changes as now, not by its last "
+                         "commit; use this from a pre-commit hook")
     args = ap.parse_args()
 
     root = repo_root()
@@ -143,13 +158,13 @@ def main() -> int:
         raise SystemExit(f"{args.file} not found under {root}")
 
     src = page.read_text(encoding="utf-8")
-    new, notes = rebuild(src, page, root)
+    new, notes = rebuild(src, page, root, args.include_staged)
     for n in notes:
         print(n, file=sys.stderr)
 
     if new == src:
         print(f"{args.file}: up to date")
-        return 1 if notes else 0
+        return 0
 
     if args.check:
         print(f"{args.file}: STALE -- run scripts/update-master-dates.py", file=sys.stderr)
@@ -157,7 +172,7 @@ def main() -> int:
 
     page.write_text(new, encoding="utf-8")
     print(f"{args.file}: updated")
-    return 1 if notes else 0
+    return 0
 
 
 if __name__ == "__main__":
