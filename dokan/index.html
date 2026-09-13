@@ -178,33 +178,77 @@
 
   @media print{
     .topbar,.cta{display:none;}
-    @page{size:letter;margin:8mm 0 6mm;}
-    .wrap{max-width:none;padding:0 11mm;}
-    body{font-size:8.4pt;line-height:1.32;}
-    body[data-lang="bn"]{font-size:8.8pt;line-height:1.44;}
-    section{padding:3.6mm 0;break-inside:avoid;page-break-inside:avoid;}
-    h2.sec{font-size:13pt;} p.sub{font-size:8.6pt;margin-bottom:2mm;}
-    .cap{font-size:8.2pt;margin-top:1.6mm;} .cap small{font-size:7pt;}
-    .hero{padding:5mm 0 4mm;} .hero h1{font-size:19pt;margin-bottom:2mm;}
-    .hero .lede{font-size:9pt;} .heroStat .big{font-size:21pt;} .heroStat .lbl{font-size:8.2pt;}
-    .siren{font-size:7.6pt;padding:.8mm 2.6mm;margin-bottom:2mm;}
-    .two{gap:7mm;} .two.line > div:first-child{padding-right:7mm;}
-    .coins svg{max-height:26mm;} .picto svg{max-height:13mm;}
-    .numline .num{font-size:24pt;} .numline .of{font-size:9pt;}
-    .gap .big{width:24mm;height:24mm;} .gap .small{width:4.8mm;height:4.8mm;}
-    .gap .pad{height:24mm;} .gap .nm{font-size:9.5pt;} .gap .ct{font-size:8.2pt;}
-    .gap .versus{font-size:15pt;} .gap .versus small{font-size:8pt;}
-    .donut svg{width:26mm;height:26mm;} .donut .head{font-size:10.5pt;}
-    .early{margin-top:3mm;padding:3mm 4mm;gap:4mm;border-width:2px;}
-    .early .badge{width:16mm;height:16mm;} .early .badge .b1{font-size:11pt;} .early .badge .b2{font-size:6pt;}
-    .early h3{font-size:10.5pt;} .early p{font-size:8.2pt;}
-    .flow{gap:4mm;} .flow > div{padding:3mm;} .flow svg{max-height:17mm;}
-    .flow .k{font-size:8pt;} .flow .amt{font-size:12.5pt;} .flow .note2{font-size:7.8pt;margin-top:1.4mm;}
-    .ladder{grid-template-columns:1fr 15mm 1fr;margin-top:2mm;}
-    .lhead{font-size:7.4pt;padding-bottom:1.2mm;}
-    .sl,.sr{padding:1.8mm 3mm;font-size:8.2pt;line-height:1.3;}
-    .dot{width:8.5mm;height:8.5mm;font-size:11pt;box-shadow:0 0 0 3px #fff;}
-    footer{padding:3mm 0;font-size:7pt;}
+    @page{size:letter;margin:7mm 0 6mm;}
+    .wrap{max-width:none;padding:0 10mm;}
+    body{font-size:8.4pt;line-height:1.3;}
+    body[data-lang="bn"]{font-size:8.6pt;line-height:1.4;}
+    section{padding:1.8mm 0;break-inside:avoid;page-break-inside:avoid;}
+
+    /* A Letter sheet is 816px wide at 96dpi -- UNDER this page's own 820px
+       mobile breakpoint -- so printing was silently getting the phone layout:
+       columns stacked, hero stat pushed below the headline, the two shop
+       scenes one above the other. That, not the word count, was what pushed
+       it onto three sheets. Put the side-by-side layout back for paper. */
+    .heroGrid{grid-template-columns:1.25fr 1fr;}
+    .two{grid-template-columns:1fr 1fr;gap:7mm;}
+    .flow{grid-template-columns:1fr 1fr;gap:5mm;}
+    .two.line > div:first-child{border-right:1px solid var(--rule);border-bottom:0;
+      padding-right:7mm;padding-bottom:0;}
+    .early{grid-template-columns:auto 1fr;justify-items:start;text-align:left;align-items:center;}
+    .early .badge{margin:0;}
+    .donut{flex-direction:row;text-align:left;gap:4mm;}
+
+    h2.sec{font-size:11.4pt;margin-bottom:.9mm;}
+    p.sub{font-size:8.6pt;margin-bottom:1.5mm;}
+    .cap{font-size:8.4pt;margin-top:1.2mm;line-height:1.35;}
+    .cap small{font-size:7.6pt;}
+    .hr{display:none;}
+
+    .hero{padding:3.2mm 0 2.8mm;}
+    .hero h1{font-size:16pt;margin-bottom:1.3mm;}
+    .hero .lede{font-size:8.8pt;}
+    .siren{font-size:7.6pt;padding:.9mm 2.8mm;margin-bottom:2mm;}
+    .heroStat{padding-left:4mm;}
+    .heroStat .big{font-size:18.5pt;} .heroStat .lbl{font-size:8.6pt;margin-top:1.2mm;}
+
+    .coins svg{max-height:19.5mm;} .picto svg{max-height:10mm;}
+    .numline{margin-top:1.4mm;} .numline .num{font-size:23pt;} .numline .of{font-size:8.6pt;}
+
+    .gap{gap:4mm;}
+    .gap .big{width:19mm;height:19mm;} .gap .small{width:4.8mm;height:4.8mm;}
+    .gap .pad{height:19mm;} .gap .nm{font-size:10pt;} .gap .ct{font-size:8.6pt;}
+    .gap .versus{font-size:15pt;} .gap .versus small{font-size:8.2pt;}
+    .donut svg{width:21mm;height:21mm;} .donut .head{font-size:9.5pt;}
+
+    /* Keep the early-adopter card as a full-width band under its two charts:
+       squeezed into a third column the gap chart wraps and strands "Bangladesh"
+       far below its own circle. */
+    .s-sky .early{margin-top:2mm;}
+    .gap{flex-wrap:nowrap;}
+    .early{padding:2.4mm 3mm;gap:3mm;border-width:2px;border-radius:8px;}
+    .early .badge{width:12.5mm;height:12.5mm;}
+    .early .badge .b1{font-size:10.5pt;} .early .badge .b2{font-size:6pt;}
+    .early h3{font-size:9.5pt;margin-bottom:.8mm;} .early p{font-size:8pt;line-height:1.3;}
+
+    /* Each shop scene sits beside its own caption rather than stacked above. */
+    .flow > div{padding:3mm;display:grid;grid-template-columns:34mm 1fr;
+      column-gap:3mm;align-items:center;}
+    .flow figure{grid-row:1/4;margin:0;} .flow svg{max-height:13.5mm;}
+    .flow .k{font-size:8pt;} .flow .amt{font-size:11pt;} .flow .note2{font-size:7.6pt;margin-top:1mm;}
+
+    /* The ladder is the tallest block on screen -- five rows stacked. On paper
+       it turns on its side: five columns across with the number on top. */
+    .ladder{grid-template-columns:repeat(5,1fr);gap:3mm;margin-top:2mm;}
+    .lhead{display:none;}
+    .step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.2mm;}
+    .sc{order:-1;} .sc::before{display:none;}
+    .dot{width:7mm;height:7mm;font-size:9.5pt;box-shadow:none;}
+    .sl,.sr{padding:0;text-align:center;font-size:8.1pt;line-height:1.3;align-self:auto;}
+    .mtag{display:block;font-size:6.6pt;font-weight:800;letter-spacing:.03em;
+      text-transform:uppercase;color:var(--grey);margin-bottom:.4mm;}
+    .sr .mtag{color:var(--green);opacity:.85;}
+
+    footer{padding:2mm 0;font-size:7pt;}
     .hero,.s-cream,.s-mint,.s-sky,.s-yellow,.flow > div,.flow .win,.early,.early .badge,
     .dot,.gap .big,.gap .small,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
