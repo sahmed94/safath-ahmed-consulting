@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dokan Digital — Your shop, online in one visit</title>
+<meta name="description" content="One-time digital setup for bazaar shops in Bangladesh: catalogue website, WhatsApp ordering, Google Maps listing and digital payment at the counter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --oxblood:#5A1410;--alarm:#E03A22;--yellow:#F7C137;
+    --ink:#141A16;--green:#0A6B3D;--teal:#0D5F7A;
+    --body:#39423C;--grey:#55605A;--rule:#D6D1C4;
+    --sand:#FBF6EA;--mint:#E7F4EA;--sky:#E4F0F6;--cream:#FFF4DC;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#fff;color:var(--body);
+    font-family:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;
+    font-size:17px;font-weight:500;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  body[data-lang="bn"]{font-size:18px;line-height:1.62;}
+  .dp{font-family:"Anek Bangla","Hind Siliguri",system-ui,sans-serif;font-weight:800;line-height:1.06;}
+  [data-lang="en"] .bn{display:none;}
+  [data-lang="bn"] .en{display:none;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+  .wide-only{display:block;} .narrow-only{display:none;}
+  @media (max-width:820px){.wide-only{display:none;}.narrow-only{display:block;}}
+  @media print{.wide-only{display:block !important;}.narrow-only{display:none !important;}}
+
+  .topbar{position:sticky;top:0;z-index:20;background:var(--ink);color:#fff;
+    display:flex;align-items:center;gap:14px;padding:10px 24px;flex-wrap:wrap;}
+  .topbar .brand{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:17px;}
+  .topbar .spacer{flex:1;}
+  .switch{display:flex;border:1.5px solid #46574E;border-radius:4px;overflow:hidden;}
+  .switch button{font:inherit;font-size:14px;font-weight:600;background:transparent;color:#CFE6D8;border:0;padding:6px 14px;cursor:pointer;}
+  .switch button[aria-pressed="true"]{background:var(--yellow);color:var(--ink);}
+  .topbar .print{font:inherit;font-size:14px;font-weight:600;background:transparent;color:#fff;border:1.5px solid #46574E;border-radius:4px;padding:6px 14px;cursor:pointer;}
+  .topbar button:focus-visible{outline:2px solid #fff;outline-offset:2px;}
+
+  /* ---------- hero ---------- */
+  .hero{background:var(--oxblood);color:#fff;padding:30px 0 26px;}
+  .heroGrid{display:grid;grid-template-columns:1.25fr 1fr;gap:34px;align-items:center;}
+  .siren{display:inline-block;background:var(--alarm);color:#fff;font-weight:700;font-size:13px;padding:4px 13px;border-radius:999px;margin-bottom:12px;}
+  .hero h1{margin:0 0 10px;font-size:clamp(26px,4vw,40px);letter-spacing:-.02em;}
+  .hero h1 .hit{color:var(--yellow);}
+  .hero .lede{font-size:clamp(15px,1.6vw,18px);color:#FFE0D6;margin:0;font-weight:500;}
+  .heroStat{border-left:4px solid var(--yellow);padding-left:18px;}
+  .heroStat .big{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,44px);line-height:1;color:var(--yellow);}
+  .heroStat .lbl{font-size:15px;color:#FFD9CF;margin-top:5px;line-height:1.35;}
+
+  section{padding:26px 0;}
+  .s-cream{background:var(--cream);} .s-mint{background:var(--mint);}
+  .s-sky{background:var(--sky);} .s-yellow{background:var(--yellow);}
+  h2.sec{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(20px,2.7vw,27px);margin:0 0 3px;line-height:1.14;}
+  h2.sec.c-red{color:var(--alarm);} h2.sec.c-green{color:var(--green);} h2.sec.c-teal{color:var(--teal);}
+  p.sub{margin:0 0 14px;color:var(--body);font-size:16px;max-width:44em;}
+  .cap{font-size:15.5px;color:var(--body);margin:9px 0 0;line-height:1.5;}
+  .cap small{font-size:13px;color:var(--grey);}
+  figure{margin:0;} figure svg{width:100%;height:auto;display:block;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;}
+  .two.line > div:first-child{border-right:1px solid var(--rule);padding-right:30px;}
+  .hr{height:1px;background:var(--rule);margin:20px 0;}
+
+  /* coins */
+  .coins .disc{fill:var(--yellow);} .coins .disc.last{fill:var(--alarm);}
+  .coins .taka{font:800 21px "Anek Bangla",sans-serif;fill:var(--oxblood);text-anchor:middle;}
+  .coins .taka.lastt{fill:#fff;}
+  .coins .amt{font:800 18px "Anek Bangla",sans-serif;fill:var(--ink);text-anchor:middle;}
+  .coins .yr{font:700 14px "Hind Siliguri",sans-serif;fill:var(--body);text-anchor:middle;}
+  .coins .amtL{font:800 28px "Anek Bangla",sans-serif;fill:var(--ink);}
+  .coins .yrL{font:700 18px "Hind Siliguri",sans-serif;fill:var(--body);}
+  .coins .unit{font:600 16px "Hind Siliguri",sans-serif;fill:var(--grey);}
+
+  /* stalls */
+  .picto .has .awn{fill:var(--alarm);} .picto .has .post{fill:#7A4A2B;}
+  .picto .has .cnt{fill:var(--green);} .picto .has .good{fill:var(--yellow);}
+  .picto .hasnt .awn{fill:#B4AEA0;} .picto .hasnt .post{fill:#A79F90;}
+  .picto .hasnt .cnt{fill:#C4BEB0;} .picto .hasnt .good{fill:#D8D3C6;}
+  .numline{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin-top:10px;}
+  .numline .num{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(34px,5vw,50px);line-height:.95;color:var(--green);}
+  .numline .of{font-size:17px;font-weight:700;color:var(--body);}
+
+  /* gap circles */
+  .gap{display:flex;align-items:center;justify-content:center;gap:clamp(14px,3vw,34px);flex-wrap:wrap;text-align:center;}
+  .gap .ring{display:block;margin:0 auto 8px;border-radius:50%;}
+  .gap .big{width:132px;height:132px;background:var(--green);}
+  .gap .small{width:26px;height:26px;background:var(--alarm);}
+  .gap .pad{display:flex;align-items:center;justify-content:center;height:132px;margin-bottom:8px;}
+  .gap .nm{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:18px;}
+  .gap .ct{font-size:15px;font-weight:600;color:var(--body);}
+  .gap .versus{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);color:var(--alarm);line-height:1.08;}
+  .gap .versus small{display:block;font-size:14px;color:var(--body);font-weight:600;margin-top:3px;}
+
+  /* donut */
+  .donut{display:flex;align-items:center;gap:20px;}
+  .donut svg{width:150px;height:150px;flex:none;}
+  .donut .track{fill:none;stroke:#C6DCE6;stroke-width:30;}
+  .donut .val{fill:none;stroke:var(--teal);stroke-width:30;transform:rotate(-90deg);transform-origin:110px 110px;}
+  .donut .pct{font:800 50px "Anek Bangla",sans-serif;fill:var(--teal);text-anchor:middle;}
+  .donut .pl{font:700 15px "Hind Siliguri",sans-serif;fill:var(--body);text-anchor:middle;}
+  .donut .head{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(18px,2.3vw,23px);line-height:1.2;color:var(--teal);}
+
+  /* early card */
+  .early{margin-top:18px;border:3px solid var(--green);border-radius:12px;background:#fff;
+    padding:16px 20px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;}
+  .early .badge{width:74px;height:74px;border-radius:50%;background:var(--green);color:#fff;flex:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    font-family:"Anek Bangla",sans-serif;font-weight:800;line-height:1.05;}
+  .early .badge .b1{font-size:24px;} .early .badge .b2{font-size:10.5px;font-weight:700;}
+  .early h3{margin:0 0 4px;font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(18px,2.3vw,23px);color:var(--green);}
+  .early p{margin:0;font-size:16px;line-height:1.5;}
+
+  /* money */
+  .flow{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .flow > div{background:#F6D98C;padding:16px 18px;border-radius:10px;}
+  .flow .win{background:var(--ink);color:#fff;}
+  .flow figure{margin:0 0 10px;} .flow svg{max-height:120px;}
+  .flow .k{font-size:15px;font-weight:700;opacity:.9;}
+  .flow .amt{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:clamp(21px,2.8vw,27px);line-height:1.12;}
+  .flow .note2{font-size:15px;margin-top:6px;opacity:.92;line-height:1.4;}
+  .flow .lose .wall{fill:#8C5A3C;} .flow .win .wall{fill:#2E4A3C;}
+
+
+
+  /* ---------- what-we-do / what-you-get ladder ---------- */
+  .ladder{display:grid;grid-template-columns:1fr 74px 1fr;margin-top:12px;}
+  .lhead{font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:13px;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--grey);padding-bottom:8px;}
+  .lhead.l{text-align:right;padding-right:16px;}
+  .lhead.r{text-align:left;padding-left:16px;color:var(--green);}
+  .step{display:contents;}
+  .sl,.sr{padding:11px 16px;font-size:15.5px;line-height:1.35;}
+  .sl{text-align:right;color:var(--body);align-self:center;}
+  .sr{text-align:left;color:var(--green);font-weight:700;align-self:center;}
+  .sc{position:relative;display:flex;align-items:center;justify-content:center;}
+  .sc::before{content:"";position:absolute;left:50%;transform:translateX(-50%);
+    top:0;bottom:0;width:3px;background:#CFE3D6;}
+  .step.first .sc::before{top:50%;}
+  .step.last  .sc::before{bottom:50%;}
+  .dot{position:relative;z-index:1;width:44px;height:44px;border-radius:50%;
+    background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:"Anek Bangla",sans-serif;font-weight:800;font-size:20px;
+    box-shadow:0 0 0 5px #fff;}
+  .step.last .dot{background:var(--yellow);color:var(--ink);}
+  .mtag{display:none;}
+
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:18px;}
+  .cta a{display:inline-block;background:var(--green);color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:12px 26px;border-radius:999px;}
+  .cta a:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;}
+  .cta .ph{font-size:16px;font-weight:600;}
+  footer{background:var(--ink);color:#BFC8C2;padding:16px 0;font-size:13px;}
+  footer b{color:#fff;} footer .src{margin-top:5px;line-height:1.45;}
+
+  @media (max-width:820px){
+    .heroGrid,.two,.flow,.early{grid-template-columns:1fr;}
+    .ladder{grid-template-columns:1fr;}
+    .lhead{display:none;}
+    .step{display:grid;grid-template-columns:52px 1fr;grid-template-areas:"c l" "c r";
+      column-gap:12px;padding:10px 0;}
+    .sl{grid-area:l;text-align:left;padding:0 0 3px;}
+    .sr{grid-area:r;text-align:left;padding:0;}
+    .sc{grid-area:c;align-items:flex-start;}
+    .sc::before{top:0;bottom:-20px;}
+    .step.first .sc::before{top:22px;}
+    .step.last .sc::before{bottom:50%;display:none;}
+    .mtag{display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;
+      text-transform:uppercase;color:var(--grey);margin-bottom:1px;}
+    .sr .mtag{color:var(--green);opacity:.8;}
+    .two.line > div:first-child{border-right:0;border-bottom:1px solid var(--rule);padding-right:0;padding-bottom:20px;}
+    .early{justify-items:center;text-align:center;} .early .badge{margin:0 auto;}
+    .donut{flex-direction:column;text-align:center;}
+    .gap .big{width:104px;height:104px;} .gap .pad{height:104px;}
+  }
+
+  @media print{
+    .topbar,.cta{display:none;}
+    @page{size:letter;margin:8mm 0 6mm;}
+    .wrap{max-width:none;padding:0 11mm;}
+    body{font-size:8.4pt;line-height:1.32;}
+    body[data-lang="bn"]{font-size:8.8pt;line-height:1.44;}
+    section{padding:3.6mm 0;break-inside:avoid;page-break-inside:avoid;}
+    h2.sec{font-size:13pt;} p.sub{font-size:8.6pt;margin-bottom:2mm;}
+    .cap{font-size:8.2pt;margin-top:1.6mm;} .cap small{font-size:7pt;}
+    .hero{padding:5mm 0 4mm;} .hero h1{font-size:19pt;margin-bottom:2mm;}
+    .hero .lede{font-size:9pt;} .heroStat .big{font-size:21pt;} .heroStat .lbl{font-size:8.2pt;}
+    .siren{font-size:7.6pt;padding:.8mm 2.6mm;margin-bottom:2mm;}
+    .two{gap:7mm;} .two.line > div:first-child{padding-right:7mm;}
+    .coins svg{max-height:26mm;} .picto svg{max-height:13mm;}
+    .numline .num{font-size:24pt;} .numline .of{font-size:9pt;}
+    .gap .big{width:24mm;height:24mm;} .gap .small{width:4.8mm;height:4.8mm;}
+    .gap .pad{height:24mm;} .gap .nm{font-size:9.5pt;} .gap .ct{font-size:8.2pt;}
+    .gap .versus{font-size:15pt;} .gap .versus small{font-size:8pt;}
+    .donut svg{width:26mm;height:26mm;} .donut .head{font-size:10.5pt;}
+    .early{margin-top:3mm;padding:3mm 4mm;gap:4mm;border-width:2px;}
+    .early .badge{width:16mm;height:16mm;} .early .badge .b1{font-size:11pt;} .early .badge .b2{font-size:6pt;}
+    .early h3{font-size:10.5pt;} .early p{font-size:8.2pt;}
+    .flow{gap:4mm;} .flow > div{padding:3mm;} .flow svg{max-height:17mm;}
+    .flow .k{font-size:8pt;} .flow .amt{font-size:12.5pt;} .flow .note2{font-size:7.8pt;margin-top:1.4mm;}
+    .ladder{grid-template-columns:1fr 15mm 1fr;margin-top:2mm;}
+    .lhead{font-size:7.4pt;padding-bottom:1.2mm;}
+    .sl,.sr{padding:1.8mm 3mm;font-size:8.2pt;line-height:1.3;}
+    .dot{width:8.5mm;height:8.5mm;font-size:11pt;box-shadow:0 0 0 3px #fff;}
+    footer{padding:3mm 0;font-size:7pt;}
+    .hero,.s-cream,.s-mint,.s-sky,.s-yellow,.flow > div,.flow .win,.early,.early .badge,
+    .dot,.gap .big,.gap .small,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body data-lang="en">
+
+<div class="topbar">
+  <span class="brand"><span class="en">Dokan Digital</span><span class="bn">দোকান ডিজিটাল</span></span>
+  <span class="spacer"></span>
+  <div class="switch" role="group" aria-label="Language">
+    <button type="button" id="btn-en" aria-pressed="true">English</button>
+    <button type="button" id="btn-bn" aria-pressed="false">বাংলা</button>
+  </div>
+  <button class="print" type="button" onclick="window.print()"><span class="en">Print</span><span class="bn">প্রিন্ট</span></button>
+</div>
+
+<!-- HERO -->
+<div class="hero"><div class="wrap"><div class="heroGrid">
+  <div>
+    <span class="siren"><span class="en">It has already started here</span><span class="bn">শুরু হয়ে গেছে — এই দেশেই</span></span>
+    <h1 class="dp">
+      <span class="en">City shops already take payment by phone.<br><span class="hit">Your bazaar is next.</span></span>
+      <span class="bn">শহরের দোকান ফোনে টাকা নিচ্ছে।<br><span class="hit">এবার আপনার বাজারের পালা।</span></span>
+    </h1>
+    <p class="lede">
+      <span class="en">Your shop's website, your products on Google Maps, orders on WhatsApp, mobile payment at the counter — all set up in one visit.</span>
+      <span class="bn">আপনার দোকানের ওয়েবসাইট, গুগল ম্যাপে পণ্য, হোয়াটসঅ্যাপে অর্ডার, কাউন্টারে মোবাইল পেমেন্ট — সব এক ভিজিটেই।</span>
+    </p>
+  </div>
+  <div class="heroStat">
+    <div class="big"><span class="en">৳5,000 koti+</span><span class="bn">৫,০০০ কোটি টাকার বেশি</span></div>
+    <div class="lbl"><span class="en">changes hands by phone in Bangladesh — every single day</span><span class="bn">প্রতিদিন ফোনে হাতবদল হয় — প্রতিদিন</span></div>
+  </div>
+</div></div></div>
+
+<!-- MONEY GREW + STALLS -->
+<section class="s-cream"><div class="wrap">
+  <div class="two line">
+    <div>
+      <h2 class="sec c-red"><span class="en">More money moves by phone every year</span><span class="bn">প্রতি বছর ফোনে আরও বেশি টাকা চলে</span></h2>
+      <p class="sub"><span class="en">Each coin is one year — taka moving by phone every day, in koti.</span><span class="bn">প্রতিটি কয়েন এক বছর — প্রতিদিন ফোনে যত টাকা চলে, কোটিতে।</span></p>
+      <figure class="coins wide-only"><svg viewBox="0 0 690 192" role="img" aria-label="Money moving by mobile payment in Bangladesh grew from about 1,500 koti taka a day in 2020 to over 5,000 koti a day in 2025">
+          <circle class="disc" cx="58" cy="96" r="26.0"/><text class="taka" x="58" y="104">৳</text><text class="amt" x="58" y="166"><tspan class="en">1,500</tspan><tspan class="bn">১,৫০০</tspan></text><text class="yr" x="58" y="184">2020</text>
+          <circle class="disc" cx="162" cy="91" r="32.9"/><text class="taka" x="162" y="99">৳</text><text class="amt" x="162" y="166"><tspan class="en">2,400</tspan><tspan class="bn">২,৪০০</tspan></text><text class="yr" x="162" y="184">2021</text>
+          <circle class="disc" cx="266" cy="86" r="36.2"/><text class="taka" x="266" y="94">৳</text><text class="amt" x="266" y="166"><tspan class="en">2,900</tspan><tspan class="bn">২,৯০০</tspan></text><text class="yr" x="266" y="184">2022</text>
+          <circle class="disc" cx="370" cy="81" r="40.9"/><text class="taka" x="370" y="89">৳</text><text class="amt" x="370" y="166"><tspan class="en">3,700</tspan><tspan class="bn">৩,৭০০</tspan></text><text class="yr" x="370" y="184">2023</text>
+          <circle class="disc" cx="474" cy="76" r="46.6"/><text class="taka" x="474" y="84">৳</text><text class="amt" x="474" y="166"><tspan class="en">4,800</tspan><tspan class="bn">৪,৮০০</tspan></text><text class="yr" x="474" y="184">2024</text>
+          <circle class="disc last" cx="578" cy="71" r="48.0"/><text class="taka lastt" x="578" y="79">৳</text><text class="amt" x="578" y="166"><tspan class="en">5,100</tspan><tspan class="bn">৫,১০০</tspan></text><text class="yr" x="578" y="184">2025</text>
+      </svg></figure>
+      <figure class="coins narrow-only"><svg viewBox="0 0 350 640" role="img" aria-label="Money moving by mobile payment in Bangladesh grew from about 1,500 koti taka a day in 2020 to over 5,000 koti a day in 2025">
+          <circle class="disc" cx="62" cy="56" r="26.0"/><text class="taka" x="62" y="64">৳</text><text class="amtL" x="128" y="54"><tspan class="en">1,500 koti</tspan><tspan class="bn">১,৫০০ কোটি</tspan></text><text class="unit" x="128" y="76"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="62" text-anchor="end">2020</text>
+          <circle class="disc" cx="62" cy="160" r="32.9"/><text class="taka" x="62" y="168">৳</text><text class="amtL" x="128" y="158"><tspan class="en">2,400 koti</tspan><tspan class="bn">২,৪০০ কোটি</tspan></text><text class="unit" x="128" y="180"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="166" text-anchor="end">2021</text>
+          <circle class="disc" cx="62" cy="264" r="36.2"/><text class="taka" x="62" y="272">৳</text><text class="amtL" x="128" y="262"><tspan class="en">2,900 koti</tspan><tspan class="bn">২,৯০০ কোটি</tspan></text><text class="unit" x="128" y="284"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="270" text-anchor="end">2022</text>
+          <circle class="disc" cx="62" cy="368" r="40.9"/><text class="taka" x="62" y="376">৳</text><text class="amtL" x="128" y="366"><tspan class="en">3,700 koti</tspan><tspan class="bn">৩,৭০০ কোটি</tspan></text><text class="unit" x="128" y="388"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="374" text-anchor="end">2023</text>
+          <circle class="disc" cx="62" cy="472" r="46.6"/><text class="taka" x="62" y="480">৳</text><text class="amtL" x="128" y="470"><tspan class="en">4,800 koti</tspan><tspan class="bn">৪,৮০০ কোটি</tspan></text><text class="unit" x="128" y="492"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="478" text-anchor="end">2024</text>
+          <circle class="disc last" cx="62" cy="576" r="48.0"/><text class="taka lastt" x="62" y="584">৳</text><text class="amtL" x="128" y="574"><tspan class="en">5,100 koti</tspan><tspan class="bn">৫,১০০ কোটি</tspan></text><text class="unit" x="128" y="596"><tspan class="en">every day</tspan><tspan class="bn">প্রতিদিন</tspan></text><text class="yrL" x="320" y="582" text-anchor="end">2025</text>
+      </svg></figure>
+      <p class="cap"><span class="en">From <b>৳1,500 koti a day to over ৳5,000 koti a day</b> in five years — and still climbing.</span><span class="bn"><b>দিনে ১,৫০০ কোটি থেকে ৫,০০০ কোটির বেশি</b> — পাঁচ বছরে। এখনো বাড়ছে।</span></p>
+    </div>
+    <div>
+      <h2 class="sec c-green"><span class="en">Next door, almost every small shop takes it</span><span class="bn">পাশের দেশে প্রায় সব ছোট দোকানই এটা নেয়</span></h2>
+      <p class="sub"><span class="en">Take any ten bazaar shops — this many already take payment by phone.</span><span class="bn">যেকোনো বাজারের দশটি দোকান ধরুন — এতগুলোই ফোনে টাকা নেয়।</span></p>
+      <figure class="picto wide-only"><svg viewBox="-3 -3 572 63" role="img" aria-label="Nine and a bit out of ten market stalls are coloured in">
+          <g transform="translate(0,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(57,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(114,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(171,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(228,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(285,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(342,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(399,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(456,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(513,0) scale(1.9)"><clipPath id="pf10_9"><rect x="0" y="0" width="11.2" height="30"/></clipPath><g class="hasnt"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g><g class="has" clip-path="url(#pf10_9)"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+      </svg></figure>
+      <figure class="picto narrow-only"><svg viewBox="-3 -3 287 127" role="img" aria-label="Nine and a bit out of ten market stalls are coloured in">
+          <g transform="translate(0,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(57,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(114,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(171,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(228,0) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(0,64) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(57,64) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(114,64) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(171,64) scale(1.9)"><g class="has"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+          <g transform="translate(228,64) scale(1.9)"><clipPath id="pf5_9"><rect x="0" y="0" width="11.2" height="30"/></clipPath><g class="hasnt"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g><g class="has" clip-path="url(#pf5_9)"><rect class="awn" x="1" y="2.5" width="26" height="6.5" rx="1"/><path class="awn" d="M1 9 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 l2.6 3 l2.6 -3 Z"/><rect class="post" x="2" y="12" width="2.4" height="16"/><rect class="post" x="23.6" y="12" width="2.4" height="16"/><rect class="cnt" x="4" y="19.5" width="20" height="8.5" rx="1"/><circle class="good" cx="9" cy="16.5" r="2.2"/><circle class="good" cx="14" cy="16.5" r="2.2"/><circle class="good" cx="19" cy="16.5" r="2.2"/></g></g>
+      </svg></figure>
+      <div class="numline">
+        <span class="num"><span class="en">9.4</span><span class="bn">৯.৪</span></span>
+        <span class="of"><span class="en">out of every 10 shops</span><span class="bn">— প্রতি ১০ দোকানে</span></span>
+      </div>
+      <p class="cap"><span class="en">Only part of the tenth stall is left — that is the shop still on cash only. <small>Survey of small merchants, India.</small></span><span class="bn">দশ নম্বর দোকানের সামান্য অংশই বাকি — সেটাই শুধু ক্যাশে চলে। <small>ছোট দোকানদারদের সমীক্ষা, ভারত।</small></span></p>
+    </div>
+  </div>
+</div></section>
+
+<!-- GAP + DONUT + EARLY -->
+<section class="s-sky"><div class="wrap">
+  <div class="two line">
+    <div>
+      <h2 class="sec c-red"><span class="en">We are behind our neighbours</span><span class="bn">প্রতিবেশীদের চেয়ে পিছিয়ে</span></h2>
+      <p class="sub"><span class="en">Shops that take scan-and-pay. Circles drawn to real size.</span><span class="bn">স্ক্যান করে টাকা নেয় এমন দোকান। বৃত্ত আসল অনুপাতে।</span></p>
+      <div class="gap">
+        <div class="item">
+          <span class="ring big" aria-hidden="true"></span>
+          <div class="nm"><span class="en">Indonesia</span><span class="bn">ইন্দোনেশিয়া</span></div>
+          <div class="ct"><span class="en">3.8 koti shops</span><span class="bn">৩.৮ কোটি দোকান</span></div>
+        </div>
+        <div class="versus"><span class="en">25×<small>more than us</small></span><span class="bn">২৫ গুণ<small>আমাদের চেয়ে বেশি</small></span></div>
+        <div class="item">
+          <span class="pad"><span class="ring small" aria-hidden="true"></span></span>
+          <div class="nm"><span class="en">Bangladesh</span><span class="bn">বাংলাদেশ</span></div>
+          <div class="ct"><span class="en">15 lakh shops</span><span class="bn">১৫ লাখ দোকান</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h2 class="sec c-teal"><span class="en">And what happened to those shopkeepers?</span><span class="bn">সেই দোকানদারদের কী হলো?</span></h2>
+      <p class="sub"><span class="en">Small shopkeepers surveyed after they started taking digital payment.</span><span class="bn">ডিজিটাল পেমেন্ট নেওয়ার পর ছোট দোকানদারদের ওপর সমীক্ষা।</span></p>
+      <div class="donut">
+        <svg viewBox="0 0 220 220" role="img" aria-label="57 percent of small merchants reported higher sales">
+          <circle class="track" cx="110" cy="110" r="80"/>
+          <circle class="val" cx="110" cy="110" r="80" stroke-dasharray="286.5 502.7"/>
+          <text class="pct" x="110" y="112"><tspan class="en">57%</tspan><tspan class="bn">৫৭%</tspan></text>
+          <text class="pl" x="110" y="136"><tspan class="en">said sales rose</tspan><tspan class="bn">বিক্রি বেড়েছে</tspan></text>
+        </svg>
+        <div>
+          <div class="head"><span class="en">More than half said their sales went up.</span><span class="bn">অর্ধেকের বেশি বলেছে বিক্রি বেড়েছে।</span></div>
+          <p class="cap"><span class="en">Mostly roadside vendors, tea stalls and neighbourhood shops. No shop is too small. <small>Merchant survey and NPCI–BCG, India.</small></span><span class="bn">বেশিরভাগই রাস্তার দোকান, চায়ের দোকান, পাড়ার দোকান। কোনো দোকানই ছোট নয়। <small>দোকানদার সমীক্ষা ও NPCI–BCG, ভারত।</small></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="early">
+    <div class="badge">
+      <span class="b1"><span class="en">1st</span><span class="bn">১ম</span></span>
+      <span class="b2"><span class="en">in your bazaar</span><span class="bn">আপনার বাজারে</span></span>
+    </div>
+    <div>
+      <h3><span class="en">Bangladesh has already started. Your bazaar hasn't.</span><span class="bn">বাংলাদেশে শুরু হয়ে গেছে। আপনার বাজারে হয়নি।</span></h3>
+      <p><span class="en">QR payment is already normal in city shops, restaurants and pharmacies here, and shop payments by mobile crossed <b>৳8,600 koti a month</b> in early 2025. Walk your own row and count the counters with a QR. <b>Whoever puts one up first takes those customers.</b></span><span class="bn">শহরের দোকান, রেস্টুরেন্ট আর ফার্মেসিতে QR পেমেন্ট এখন স্বাভাবিক, আর দোকানে মোবাইল পেমেন্ট ২০২৫-এর শুরুতেই মাসে <b>৮,৬০০ কোটি টাকা</b> ছাড়িয়েছে। নিজের সারিটা দেখুন — কয়টা কাউন্টারে QR আছে? <b>যে আগে লাগাবে, কাস্টমার তার।</b></span></p>
+    </div>
+  </div>
+</div></section>
+
+<!-- MONEY IN / OUT -->
+<section class="s-yellow"><div class="wrap">
+  <h2 class="sec"><span class="en">Count it for your own shop</span><span class="bn">নিজের দোকানের হিসাবটা করুন</span></h2>
+  <p class="sub" style="color:rgba(20,26,22,.75)"><span class="en">You know your shop better than we do. Put your own numbers in.</span><span class="bn">আপনার দোকান আপনি ভালো জানেন। নিজের হিসাবটা বসান।</span></p>
+  <div class="flow">
+    <div class="lose">
+      <figure><svg viewBox="0 0 340 150" role="img" aria-label="A customer walking away from a cash-only shop">
+        <rect x="24" y="42" width="150" height="96" class="wall"/>
+        <path d="M18 42 L34 18 H164 L180 42 Z" fill="#5A1410"/>
+        <path d="M40 18 L28 42 H48 L58 18 Z" fill="#E8D9C0"/><path d="M88 18 L80 42 H100 L106 18 Z" fill="#E8D9C0"/><path d="M136 18 L132 42 H152 L154 18 Z" fill="#E8D9C0"/>
+        <rect x="34" y="98" width="130" height="40" fill="#6E4429"/>
+        <rect x="44" y="82" width="22" height="16" rx="2" fill="#D9B441"/><rect x="74" y="78" width="22" height="20" rx="2" fill="#C46A2E"/><rect x="106" y="84" width="22" height="14" rx="2" fill="#D9B441"/>
+        <circle cx="99" cy="64" r="12" fill="#C98B5E"/><path d="M87 64 a12 12 0 0 1 24 0 Z" fill="#3A2A1E"/>
+        <rect x="196" y="44" width="44" height="32" rx="3" fill="#fff"/>
+        <text x="218" y="68" font-family="Anek Bangla,sans-serif" font-weight="800" font-size="21" fill="#5A1410" text-anchor="middle">৳</text>
+        <path d="M198 46 L238 74" stroke="#E03A22" stroke-width="5" stroke-linecap="round"/>
+        <g opacity=".75"><circle cx="278" cy="60" r="13" fill="#5A1410"/><path d="M264 80 h28 v40 h-28 Z" fill="#5A1410"/><path d="M270 120 l-6 14 M286 120 l6 14" stroke="#5A1410" stroke-width="6" stroke-linecap="round"/></g>
+        <path d="M206 138 H318 M302 127 L320 138 L302 149" stroke="#5A1410" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></figure>
+      <div class="k"><span class="en">Two customers a day walk out — no cash, and you can't take mobile payment</span><span class="bn">দিনে দুইজন কাস্টমার ফিরে যায় — ক্যাশ নেই, মোবাইল পেমেন্টও নিতে পারেন না</span></div>
+      <div class="amt"><span class="en">৳12,000 gone every month</span><span class="bn">মাসে ১২,০০০ টাকা চলে যায়</span></div>
+      <div class="note2"><span class="en">At ৳200 a sale — ৳1,44,000 in a year.</span><span class="bn">প্রতি বিক্রি ২০০ টাকা ধরে — বছরে ১,৪৪,০০০ টাকা।</span></div>
+    </div>
+    <div class="win">
+      <figure><svg viewBox="0 0 340 150" role="img" aria-label="Customers coming into a shop with a QR code at the counter">
+        <rect x="166" y="42" width="150" height="96" class="wall"/>
+        <path d="M160 42 L176 18 H306 L322 42 Z" fill="#0A6B3D"/>
+        <path d="M182 18 L170 42 H190 L200 18 Z" fill="#F7C137"/><path d="M230 18 L222 42 H242 L248 18 Z" fill="#F7C137"/><path d="M278 18 L274 42 H294 L296 18 Z" fill="#F7C137"/>
+        <rect x="176" y="98" width="130" height="40" fill="#22382D"/>
+        <rect x="186" y="82" width="22" height="16" rx="2" fill="#17994F"/><rect x="286" y="78" width="22" height="20" rx="2" fill="#17994F"/>
+        <circle cx="219" cy="64" r="12" fill="#C98B5E"/><path d="M207 64 a12 12 0 0 1 24 0 Z" fill="#241A12"/>
+        <rect x="240" y="74" width="26" height="26" rx="2" fill="#fff"/>
+        <rect x="244" y="78" width="7" height="7" fill="#141A16"/><rect x="255" y="78" width="7" height="7" fill="#141A16"/><rect x="244" y="89" width="7" height="7" fill="#141A16"/><rect x="256" y="90" width="5" height="5" fill="#141A16"/>
+        <path d="M250 100 v8 h6 v-8" fill="#B9B4A6"/>
+        <g><circle cx="52" cy="60" r="13" fill="#F7C137"/><path d="M38 80 h28 v40 h-28 Z" fill="#F7C137"/><path d="M44 120 l-6 14 M60 120 l6 14" stroke="#F7C137" stroke-width="6" stroke-linecap="round"/><rect x="68" y="46" width="15" height="25" rx="3" fill="#fff"/></g>
+        <g opacity=".5"><circle cx="14" cy="66" r="11" fill="#F7C137"/><path d="M3 83 h22 v34 h-22 Z" fill="#F7C137"/></g>
+        <path d="M92 138 H150 M134 127 L152 138 L134 149" stroke="#F7C137" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></figure>
+      <div class="k"><span class="en">We set all of it up, once</span><span class="bn">পুরোটা আমরা একবারেই করে দিই</span></div>
+      <div class="amt"><span class="en">One visit and it's done</span><span class="bn">এক ভিজিটেই সব শেষ</span></div>
+      <div class="note2"><span class="en">One payment. No monthly charge, ever.</span><span class="bn">একবারের খরচ। কোনো মাসিক চার্জ নেই, কখনোই না।</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- RIBBON -->
+<section><div class="wrap">
+  <h2 class="sec c-green"><span class="en">From our first visit to your first order</span><span class="bn">প্রথম ভিজিট থেকে প্রথম অর্ডার</span></h2>
+  <div class="ladder">
+      <div class="lhead l"><span class="en">What we do</span><span class="bn">আমরা যা করি</span></div>
+      <div class="lhead c"></div>
+      <div class="lhead r"><span class="en">What you get</span><span class="bn">আপনি যা পান</span></div>
+      <div class="step first">
+        <div class="sl"><span class="mtag"><span class="en">We do</span><span class="bn">আমরা করি</span></span><span class="en">We visit and photograph every product</span><span class="bn">আমরা এসে সব পণ্যের ছবি তুলি</span></div>
+        <div class="sc"><span class="dot">1</span></div>
+        <div class="sr"><span class="mtag"><span class="en">You get</span><span class="bn">আপনি পান</span></span><span class="en">Your goods look right on a phone screen</span><span class="bn">ফোনের পর্দায় আপনার পণ্য সুন্দর দেখায়</span></div>
+      </div>
+      <div class="step">
+        <div class="sl"><span class="mtag"><span class="en">We do</span><span class="bn">আমরা করি</span></span><span class="en">Google Maps listing and digital payment set up</span><span class="bn">গুগল ম্যাপে দোকান, ডিজিটাল পেমেন্ট চালু</span></div>
+        <div class="sc"><span class="dot">2</span></div>
+        <div class="sr"><span class="mtag"><span class="en">You get</span><span class="bn">আপনি পান</span></span><span class="en">People nearby find you — and can pay by phone</span><span class="bn">আশেপাশের মানুষ আপনাকে খুঁজে পায়, ফোনে টাকাও দেয়</span></div>
+      </div>
+      <div class="step">
+        <div class="sl"><span class="mtag"><span class="en">We do</span><span class="bn">আমরা করি</span></span><span class="en">We build your catalogue website</span><span class="bn">আপনার পণ্যের ওয়েবসাইট বানাই</span></div>
+        <div class="sc"><span class="dot">3</span></div>
+        <div class="sr"><span class="mtag"><span class="en">You get</span><span class="bn">আপনি পান</span></span><span class="en">Your prices reach the whole area</span><span class="bn">আপনার দাম পুরো এলাকায় পৌঁছায়</span></div>
+      </div>
+      <div class="step">
+        <div class="sl"><span class="mtag"><span class="en">We do</span><span class="bn">আমরা করি</span></span><span class="en">Printed QR poster and shutter stickers</span><span class="bn">প্রিন্ট করা QR পোস্টার আর স্টিকার</span></div>
+        <div class="sc"><span class="dot">4</span></div>
+        <div class="sr"><span class="mtag"><span class="en">You get</span><span class="bn">আপনি পান</span></span><span class="en">Customers scan and pay at your counter</span><span class="bn">কাস্টমার কাউন্টারেই স্ক্যান করে টাকা দেয়</span></div>
+      </div>
+      <div class="step last">
+        <div class="sl"><span class="mtag"><span class="en">We do</span><span class="bn">আমরা করি</span></span><span class="en">We train you, then hand it over</span><span class="bn">শিখিয়ে দিয়ে বুঝিয়ে দিই</span></div>
+        <div class="sc"><span class="dot">5</span></div>
+        <div class="sr"><span class="mtag"><span class="en">You get</span><span class="bn">আপনি পান</span></span><span class="en">Orders arrive on WhatsApp while you sell</span><span class="bn">বেচাকেনার ফাঁকেই হোয়াটসঅ্যাপে অর্ডার আসে</span></div>
+      </div>
+    </div>
+  <div class="cta">
+    <a href="https://wa.me/8801945730204"><span class="en">Ask us what it takes for your shop</span><span class="bn">আপনার দোকানের জন্য কী লাগবে, জেনে নিন</span></a>
+    <span class="ph"><span class="en">or call</span><span class="bn">অথবা ফোন করুন</span> <b>01945-730204</b></span>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <b><span class="en">Dokan Digital</span><span class="bn">দোকান ডিজিটাল</span></b>
+  <span class="en"> — a service of Safath Ahmed Consulting · Sadik · 01945-730204</span>
+  <span class="bn"> — সাফাত আহমেদ কনসাল্টিং-এর একটি সেবা · সাদিক · 01945-730204</span>
+  <div class="src">
+    <span class="en">Figures: Bangladesh Bank and IMF Financial Access Survey · merchant survey and NPCI–BCG, India · ASPI, Indonesia.</span>
+    <span class="bn">তথ্যসূত্র: বাংলাদেশ ব্যাংক ও IMF Financial Access Survey · দোকানদার সমীক্ষা ও NPCI–BCG, ভারত · ASPI, ইন্দোনেশিয়া।</span>
+  </div>
+</div></footer>
+
+<script>
+  (function(){
+    var b=document.body,en=document.getElementById('btn-en'),bn=document.getElementById('btn-bn');
+    function set(l){b.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);
+      en.setAttribute('aria-pressed',String(l==='en'));bn.setAttribute('aria-pressed',String(l==='bn'));}
+    en.addEventListener('click',function(){set('en');});
+    bn.addEventListener('click',function(){set('bn');});
+  })();
+</script>
+</body>
+</html>
