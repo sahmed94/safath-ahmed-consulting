@@ -167,6 +167,19 @@
   .cta a{display:inline-block;background:var(--green);color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:12px 26px;border-radius:999px;}
   .cta a:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;}
   .cta .ph{font-size:16px;font-weight:600;}
+  /* ---------- save & share menu ---------- */
+  .sharewrap{position:relative;}
+  .sharemenu{position:absolute;right:0;top:calc(100% + 9px);z-index:40;background:#fff;
+    border-radius:10px;padding:6px;min-width:218px;box-shadow:0 18px 44px -14px rgba(0,0,0,.55);}
+  .sharemenu[hidden]{display:none;}
+  .sharemenu button{display:block;width:100%;text-align:left;font:inherit;font-size:14.5px;
+    font-weight:600;background:transparent;border:0;color:var(--ink);padding:9px 11px;
+    border-radius:7px;cursor:pointer;}
+  .sharemenu button:hover,.sharemenu button:focus-visible{background:var(--mint);outline:none;}
+  .sharemenu .grp{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--grey);padding:9px 11px 3px;}
+  .sharemenu.busy{opacity:.55;pointer-events:none;}
+
   /* ---------- sign-and-send form (page 2) ---------- */
   .signblock{background:#fff;border:2px solid var(--green);border-radius:12px;
     padding:18px 20px;margin-top:22px;}
@@ -313,7 +326,10 @@
        it turns on its side: five columns across with the number on top. */
     .ladder{grid-template-columns:repeat(5,1fr);gap:3mm;margin-top:2mm;}
     .lhead{display:none;}
-    .step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.2mm;}
+    /* padding:0 matters: the 820px mobile rule sets .step{padding:10px 0} and a
+       Letter sheet is 816px, so without this the printed ladder row carries
+       20px of stray padding that the screen layout never shows. */
+    .step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.2mm;padding:0;}
     .sc{order:-1;} .sc::before{display:none;}
     .dot{width:7mm;height:7mm;font-size:9.5pt;box-shadow:none;}
     .sl,.sr{padding:0;text-align:center;font-size:8.1pt;line-height:1.3;align-self:auto;}
@@ -329,7 +345,8 @@
     .p1foot{display:block;background:var(--ink);color:#BFC8C2;padding:1.6mm 0;font-size:7pt;
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     .p1foot b{color:#fff;}
-    .partner{break-before:page;page-break-before:always;padding:3mm 0 2mm;}
+    #sheet2{break-before:page;page-break-before:always;}
+    .partner{padding:3mm 0 2mm;}
     .partner .sec{font-size:11.5pt;margin-bottom:1mm;}
     .psiren{font-size:7.6pt;padding:.9mm 2.8mm;margin-bottom:2mm;}
     .partner p.sub{display:block;font-size:8.2pt;margin-bottom:2.5mm;}
@@ -364,6 +381,11 @@
     .send{margin-top:2.2mm;padding:2mm 2.6mm;font-size:8pt;line-height:1.34;}
     .send a{text-decoration:none;}
     .signblock,.send{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  
+    /* printing one sheet at a time, driven by the Save & share menu */
+    body.only1 #sheet2{display:none;}
+    body.only2 #sheet1{display:none;}
+    body.only2 #sheet2{break-before:auto;page-break-before:auto;}
   }
 </style>
 </head>
@@ -378,7 +400,22 @@
     <button type="button" id="btn-bn" aria-pressed="false">বাংলা</button>
   </div>
   <button class="print" type="button" onclick="window.print()"><span class="en">Print</span><span class="bn">প্রিন্ট</span></button>
+  <div class="sharewrap">
+    <button class="print" type="button" id="btn-share" aria-expanded="false" aria-controls="sharemenu"><span class="en">Save &amp; share</span><span class="bn">সেভ ও শেয়ার</span></button>
+    <div class="sharemenu" id="sharemenu" hidden>
+      <div class="grp"><span class="en">Page 1 — shop pitch</span><span class="bn">পাতা ১ — দোকানের জন্য</span></div>
+      <button type="button" data-sheet="1" data-kind="pdf"><span class="en">PDF</span><span class="bn">পিডিএফ</span></button>
+      <button type="button" data-sheet="1" data-kind="img"><span class="en">Image (PNG)</span><span class="bn">ছবি (PNG)</span></button>
+      <div class="grp"><span class="en">Page 2 — partner form</span><span class="bn">পাতা ২ — পার্টনার ফরম</span></div>
+      <button type="button" data-sheet="2" data-kind="pdf"><span class="en">PDF</span><span class="bn">পিডিএফ</span></button>
+      <button type="button" data-sheet="2" data-kind="img"><span class="en">Image (PNG)</span><span class="bn">ছবি (PNG)</span></button>
+      <div class="grp"><span class="en">Both pages</span><span class="bn">দুই পাতা</span></div>
+      <button type="button" data-sheet="all" data-kind="pdf"><span class="en">PDF</span><span class="bn">পিডিএফ</span></button>
+    </div>
+  </div>
 </div>
+
+<div id="sheet1">
 
 <!-- HERO -->
 <div class="hero"><div class="wrap"><div class="heroGrid">
@@ -609,6 +646,10 @@
   <span class="bn"> — সাফাত আহমেদ কনসাল্টিং-এর একটি সেবা · সাদিক · 01945-730204</span>
 </div></div>
 
+</div><!-- /sheet1 -->
+
+<div id="sheet2">
+
 <!-- PARTNER — prints as page 2 -->
 <section class="partner" id="partner"><div class="wrap">
   <span class="siren psiren"><span class="en">Partner with us</span><span class="bn">আমাদের সঙ্গে কাজ করুন</span></span>
@@ -724,6 +765,8 @@
   </div>
 </div></footer>
 
+</div><!-- /sheet2 -->
+
 <script>
   (function(){
     var b=document.body,en=document.getElementById('btn-en'),bn=document.getElementById('btn-bn');
@@ -731,6 +774,121 @@
       en.setAttribute('aria-pressed',String(l==='en'));bn.setAttribute('aria-pressed',String(l==='bn'));}
     en.addEventListener('click',function(){set('en');});
     bn.addEventListener('click',function(){set('bn');});
+  })();
+
+  /* Save & share: one sheet at a time, as a PDF (the browser's own print-to-PDF)
+     or as a PNG for WhatsApp, which previews images but not documents. */
+  (function(){
+    var body=document.body,
+        toggle=document.getElementById('btn-share'),
+        menu=document.getElementById('sharemenu');
+
+    function close(){menu.hidden=true;toggle.setAttribute('aria-expanded','false');}
+    toggle.addEventListener('click',function(e){
+      e.stopPropagation();
+      menu.hidden=!menu.hidden;
+      toggle.setAttribute('aria-expanded',String(!menu.hidden));
+    });
+    document.addEventListener('click',function(e){if(!menu.contains(e.target))close();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+
+    /* ---- PDF: hide the other sheet and hand off to the print dialog ---- */
+    function toPdf(which){
+      if(which!=='all')body.classList.add('only'+which);
+      var clean=function(){
+        body.classList.remove('only1','only2');
+        window.removeEventListener('afterprint',clean);
+      };
+      window.addEventListener('afterprint',clean);
+      setTimeout(clean,60000);          // in case afterprint never fires
+      window.print();
+    }
+
+    /* ---- PNG: rasterise the sheet ----
+       The print layout lives in @media print, which html2canvas cannot see.
+       Rather than keeping a second copy of ~150 lines of CSS in sync, copy
+       those same rules at run time into a stylesheet scoped under body.sheet.
+       One source of truth; the prefix also outranks the 820px mobile rules. */
+    var sheetStyle=null;
+    function scope(sel){
+      sel=sel.trim();
+      if(sel==='body')return 'body.sheet';
+      if(sel.indexOf('body')===0)return 'body.sheet'+sel.slice(4);
+      if(sel.indexOf('html')===0)return sel;
+      return 'body.sheet '+sel;
+    }
+    function buildSheetStyle(){
+      if(sheetStyle)return;
+      var out=['body.sheet{background:#fff;}','body.sheet .topbar{display:none;}',
+               'body.sheet #sheet1,body.sheet #sheet2{width:816px;margin:0;}'];
+      for(var i=0;i<document.styleSheets.length;i++){
+        var rules;
+        try{rules=document.styleSheets[i].cssRules;}catch(err){continue;}
+        for(var j=0;j<rules.length;j++){
+          var r=rules[j];
+          if(r.type!==4)continue;                                  // CSSMediaRule
+          if(!/print/.test(r.conditionText||r.media.mediaText))continue;
+          for(var k=0;k<r.cssRules.length;k++){
+            var inner=r.cssRules[k];
+            if(!inner.selectorText)continue;                       // skips @page
+            out.push(inner.selectorText.split(',').map(scope).join(',')
+                     +'{'+inner.style.cssText+'}');
+          }
+        }
+      }
+      sheetStyle=document.createElement('style');
+      sheetStyle.textContent=out.join('\n');
+    }
+
+    function loadH2C(cb){
+      if(window.html2canvas)return cb();
+      var sc=document.createElement('script');
+      sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      sc.onload=function(){cb();};
+      sc.onerror=function(){
+        menu.classList.remove('busy');
+        alert(body.dataset.lang==='bn'
+          ?'ছবি বানানো গেল না — ইন্টারনেট সংযোগ দেখুন। পিডিএফ অপশনটি ইন্টারনেট ছাড়াই কাজ করে।'
+          :'Could not build the image — check your connection. The PDF option works offline.');
+      };
+      document.head.appendChild(sc);
+    }
+
+    function toPng(which){
+      menu.classList.add('busy');
+      loadH2C(function(){
+        buildSheetStyle();
+        document.head.appendChild(sheetStyle);
+        body.classList.add('sheet');
+        var el=document.getElementById('sheet'+which);
+        window.html2canvas(el,{scale:2,backgroundColor:'#ffffff',windowWidth:816,useCORS:true})
+          .then(function(canvas){
+            canvas.toBlob(function(blob){
+              var a=document.createElement('a'),url=URL.createObjectURL(blob);
+              a.href=url;
+              a.download='dokan-digital-page'+which+'-'+body.dataset.lang+'.png';
+              document.body.appendChild(a);a.click();a.remove();
+              setTimeout(function(){URL.revokeObjectURL(url);},2000);
+            },'image/png');
+          })
+          .catch(function(){
+            alert(body.dataset.lang==='bn'?'ছবি বানানো গেল না।':'Could not build the image.');
+          })
+          .then(function(){
+            body.classList.remove('sheet');
+            if(sheetStyle.parentNode)sheetStyle.parentNode.removeChild(sheetStyle);
+            menu.classList.remove('busy');
+          });
+      });
+    }
+
+    Array.prototype.forEach.call(menu.querySelectorAll('button[data-sheet]'),function(btn){
+      btn.addEventListener('click',function(){
+        var which=btn.getAttribute('data-sheet');
+        close();
+        if(btn.getAttribute('data-kind')==='pdf')toPdf(which);else toPng(which);
+      });
+    });
   })();
 </script>
 </body>
