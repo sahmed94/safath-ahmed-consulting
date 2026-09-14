@@ -167,6 +167,25 @@
   .cta a{display:inline-block;background:var(--green);color:#fff;text-decoration:none;font-weight:700;font-size:17px;padding:12px 26px;border-radius:999px;}
   .cta a:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;}
   .cta .ph{font-size:16px;font-weight:600;}
+  /* ---------- sign-and-send form (page 2) ---------- */
+  .signblock{background:#fff;border:2px solid var(--green);border-radius:12px;
+    padding:18px 20px;margin-top:22px;}
+  .signblock h3{margin:0 0 4px;font-family:"Anek Bangla",sans-serif;font-weight:800;
+    font-size:clamp(17px,2.2vw,21px);color:var(--green);}
+  .signblock .how{margin:0;font-size:15px;color:var(--body);line-height:1.45;}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:13px 24px;margin-top:15px;}
+  .fld{display:flex;flex-direction:column;gap:3px;}
+  .fld span{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);}
+  .fld input{font:inherit;font-size:16px;border:0;border-bottom:1.5px solid #9DBFA9;
+    background:transparent;padding:5px 2px;color:var(--ink);border-radius:0;}
+  .fld input:focus{outline:none;border-bottom-color:var(--green);border-bottom-width:2px;}
+  .sigs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px;}
+  .sig .line{height:32px;border-bottom:1.5px solid #9DBFA9;}
+  .sig small{display:block;margin-top:5px;font-size:12.5px;color:var(--grey);}
+  .send{margin-top:16px;background:var(--mint);border-radius:9px;padding:12px 15px;font-size:15.5px;line-height:1.5;}
+  .send b{color:var(--ink);} .send a{color:var(--green);font-weight:700;}
+  .send .chan{display:block;margin-top:3px;}
+
   /* ---------- partner section (prints as page 2) ---------- */
   .partner{background:var(--mint);}
   .psiren{background:var(--green);}
@@ -219,7 +238,7 @@
       text-transform:uppercase;color:var(--grey);margin-bottom:1px;}
     .sr .mtag{color:var(--green);opacity:.8;}
     .two.line > div:first-child{border-right:0;border-bottom:1px solid var(--rule);padding-right:0;padding-bottom:20px;}
-    .pgrid,.moneyrow{grid-template-columns:1fr;}
+    .pgrid,.moneyrow,.fields,.sigs{grid-template-columns:1fr;}
     .mop{padding:2px 0;}
     .early{justify-items:center;text-align:center;} .early .badge{margin:0 auto;}
     .donut{flex-direction:column;text-align:center;}
@@ -310,22 +329,41 @@
     .p1foot{display:block;background:var(--ink);color:#BFC8C2;padding:1.6mm 0;font-size:7pt;
       -webkit-print-color-adjust:exact;print-color-adjust:exact;}
     .p1foot b{color:#fff;}
-    .partner{break-before:page;page-break-before:always;padding:5mm 0 3mm;}
-    .partner .sec{font-size:14pt;margin-bottom:1.2mm;}
+    .partner{break-before:page;page-break-before:always;padding:3mm 0 2mm;}
+    .partner .sec{font-size:11.5pt;margin-bottom:1mm;}
     .psiren{font-size:7.6pt;padding:.9mm 2.8mm;margin-bottom:2mm;}
-    .partner p.sub{display:block;font-size:9.4pt;margin-bottom:2.5mm;}
-    .pgrid{grid-template-columns:1fr 1fr;gap:5mm;margin-top:2.5mm;}
-    .pcardx{padding:3.2mm 3.6mm;border-radius:7px;}
-    .pcardx h3{font-size:11.5pt;margin-bottom:1.6mm;}
-    .plist li{font-size:9.2pt;line-height:1.38;margin-bottom:1.6mm;padding-left:4mm;}
-    .plist li::before{width:1.7mm;height:1.7mm;top:1.4mm;}
-    .moneyrow{grid-template-columns:1fr auto 1fr auto 1fr;gap:2.5mm;margin-top:3.5mm;}
-    .mstep{padding:3mm 3.2mm;border-radius:7px;}
-    .mnum{font-size:17pt;} .mlbl{font-size:8.6pt;margin-top:1mm;}
-    .mop{font-size:17pt;}
-    .partner .cap{font-size:9pt;margin-top:2.6mm;}
-    .pnote{font-size:9pt;margin-top:3mm;}
+    .partner p.sub{display:block;font-size:8.2pt;margin-bottom:2.5mm;}
+    .pgrid{grid-template-columns:1fr 1fr;gap:4mm;margin-top:1.6mm;}
+    .pcardx{padding:2mm 2.4mm;border-radius:7px;}
+    .pcardx h3{font-size:9.8pt;margin-bottom:1.2mm;}
+    .plist li{font-size:7.9pt;line-height:1.28;margin-bottom:.7mm;padding-left:3.2mm;}
+    .plist li::before{width:1.4mm;height:1.4mm;top:1.1mm;}
+    .moneyrow{grid-template-columns:1fr auto 1fr auto 1fr;gap:2.2mm;margin-top:2.6mm;}
+    .mstep{padding:2mm 2.2mm;border-radius:7px;}
+    .mnum{font-size:12.5pt;} .mlbl{font-size:7.4pt;margin-top:.7mm;}
+    .mop{font-size:11pt;}
+    .partner .cap{font-size:7.8pt;margin-top:1.8mm;}
+    .pnote{font-size:7.8pt;margin-top:2mm;}
     .mstep.split,.psiren,.pcardx,.partner{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  
+    /* the form has to survive the printer: rules dark enough to write on, and
+       the block kept whole rather than split across a page boundary */
+    .signblock{margin-top:2.2mm;padding:2.2mm 2.6mm;border-width:1.5px;border-radius:7px;
+      break-inside:avoid;page-break-inside:avoid;}
+    .signblock h3{font-size:10.5pt;margin-bottom:.7mm;}
+    .signblock .how{font-size:7.6pt;line-height:1.3;}
+    .fields{grid-template-columns:repeat(3,1fr);gap:1.8mm 4.5mm;margin-top:1.8mm;}
+    .fld span{font-size:6.8pt;}
+    .fld input{font-size:9.2pt;padding:1.1mm .5mm;border-bottom-color:#5F7A68;}
+    /* .sigs would otherwise inherit the 820px mobile rule -- a Letter sheet is
+       816px, so the four signature lines would stack full width. */
+    .sigs{grid-template-columns:1fr 1fr;gap:8mm;margin-top:2.4mm;}
+    .fields{align-items:start;}
+    .sig .line{height:5mm;border-bottom-color:#5F7A68;}
+    .sig small{font-size:6.8pt;margin-top:.8mm;}
+    .send{margin-top:2.2mm;padding:2mm 2.6mm;font-size:8pt;line-height:1.34;}
+    .send a{text-decoration:none;}
+    .signblock,.send{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 </style>
 </head>
@@ -561,7 +599,7 @@
     </div>
   <div class="cta">
     <a href="https://wa.me/8801945730204"><span class="en">Ask us what it takes for your shop</span><span class="bn">আপনার দোকানের জন্য কী লাগবে, জেনে নিন</span></a>
-    <span class="ph"><span class="en">or call</span><span class="bn">অথবা ফোন করুন</span> <b>01945-730204</b></span>
+    <span class="ph"><span class="en">or WhatsApp</span><span class="bn">অথবা হোয়াটসঅ্যাপ করুন</span> <b>+1 571-309-7035</b></span>
   </div>
 </div></section>
 
@@ -574,8 +612,8 @@
 <!-- PARTNER — prints as page 2 -->
 <section class="partner" id="partner"><div class="wrap">
   <span class="siren psiren"><span class="en">Partner with us</span><span class="bn">আমাদের সঙ্গে কাজ করুন</span></span>
-  <h2 class="sec c-green"><span class="en">One person per bazaar. You bring the shops, we build everything behind them.</span><span class="bn">প্রতি বাজারে একজন। দোকান আপনি আনবেন, পেছনের সব আমরা বানাব।</span></h2>
-  <p class="sub"><span class="en">We work together — neither of us employs the other, and each pays his own taxes. Here is the whole arrangement, before you sign anything.</span><span class="bn">আমরা একসঙ্গে কাজ করছি — কেউ কারো চাকরি করছি না, যার যার কর সে নিজে দেবে। সই করার আগেই পুরো ব্যবস্থাটা দেখে নিন।</span></p>
+  <h2 class="sec c-green"><span class="en">Anyone, at any bazaar. You bring the shops, we build everything behind them.</span><span class="bn">যেকোনো বাজারে, যে কেউ। দোকান আপনি আনবেন, পেছনের সব আমরা বানাব।</span></h2>
+  <p class="sub"><span class="en">No area is closed and there is no limit on how many of us there are. We work together — neither employs the other, and each pays his own taxes. Read the whole arrangement below, then sign at the bottom.</span><span class="bn">কোনো এলাকা বন্ধ নয়, কতজন হবে তারও কোনো সীমা নেই। আমরা একসঙ্গে কাজ করছি — কেউ কারো চাকরি করছি না, যার যার কর সে নিজে দেবে। নিচে পুরো ব্যবস্থাটা পড়ুন, তারপর নিচে সই করুন।</span></p>
 
   <div class="pgrid">
     <div class="pcardx">
@@ -642,10 +680,35 @@
     </div>
   </div>
 
-  <p class="pnote"><span class="en"><b>This page is a summary.</b> The working agreement we both sign is the full written document — read it before you sign.</span><span class="bn"><b>এই পাতা সারসংক্ষেপ।</b> আমরা দুজন যে কাগজে সই করব সেটিই পূর্ণ চুক্তি — সই করার আগে পড়ে নিন।</span></p>
+  <p class="pnote"><span class="en"><b>Read all of the above before you sign.</b> Signing and sending this page means you agree to these terms. Keep a copy for yourself — we send one back with our signature on it.</span><span class="bn"><b>সই করার আগে উপরের সবটুকু পড়ুন।</b> এই পাতায় সই করে পাঠানো মানে আপনি এই শর্তগুলোতে রাজি। নিজের কাছে একটি কপি রাখুন — আমরা সই করে একটি কপি ফেরত পাঠাব।</span></p>
+
+  <div class="signblock">
+    <h3><span class="en">Become a partner — sign and send</span><span class="bn">পার্টনার হোন — সই করে পাঠান</span></h3>
+    <p class="how"><span class="en">Fill this in on screen or print it and write by hand. Sign it, then send us a photo of this page. Nothing here is sent over the internet — what you type stays on your own device until you send it yourself.</span><span class="bn">স্ক্রিনেই লিখুন অথবা প্রিন্ট করে হাতে লিখুন। সই করে এই পাতার ছবি আমাদের পাঠান। এখান থেকে কিছুই ইন্টারনেটে যায় না — আপনি নিজে না পাঠানো পর্যন্ত সব আপনার ডিভাইসেই থাকে।</span></p>
+    <div class="fields">
+      <label class="fld"><span><span class="en">Full name</span><span class="bn">পুরো নাম</span></span><input type="text" name="fullname" autocomplete="off"></label>
+      <label class="fld"><span><span class="en">NID number</span><span class="bn">এনআইডি নম্বর</span></span><input type="text" name="nid" autocomplete="off"></label>
+      <label class="fld"><span><span class="en">Phone</span><span class="bn">ফোন</span></span><input type="text" name="phone" autocomplete="off"></label>
+      <label class="fld"><span><span class="en">Bazaar / area</span><span class="bn">বাজার / এলাকা</span></span><input type="text" name="bazaar" autocomplete="off"></label>
+      <label class="fld"><span><span class="en">Starting from</span><span class="bn">শুরুর তারিখ</span></span><input type="text" name="start" autocomplete="off"></label>
+    </div>
+    <div class="sigs">
+      <div class="sig"><div class="line"></div><small><span class="en">Your signature · date</span><span class="bn">আপনার স্বাক্ষর · তারিখ</span></small></div>
+      <div class="sig"><div class="line"></div><small><span class="en">Safath Ahmed · date</span><span class="bn">সাফাত আহমেদ · তারিখ</span></small></div>
+    </div>
+    <div class="sigs">
+      <div class="sig"><div class="line"></div><small><span class="en">Witness 1 · name and signature</span><span class="bn">সাক্ষী ১ · নাম ও স্বাক্ষর</span></small></div>
+      <div class="sig"><div class="line"></div><small><span class="en">Witness 2 · name and signature</span><span class="bn">সাক্ষী ২ · নাম ও স্বাক্ষর</span></small></div>
+    </div>
+    <div class="send">
+      <b><span class="en">Send the signed page to</span><span class="bn">সই করা পাতাটি পাঠান</span></b>
+      <span class="chan"><span class="en">WhatsApp</span><span class="bn">হোয়াটসঅ্যাপ</span> <a href="https://wa.me/15713097035">+1 571-309-7035</a>
+      &nbsp;·&nbsp; <span class="en">Email</span><span class="bn">ইমেইল</span> <a href="mailto:ahmed.safath@gmail.com">ahmed.safath@gmail.com</a></span>
+    </div>
+  </div>
 
   <div class="cta">
-    <a href="https://wa.me/8801945730204"><span class="en">Ask about working a bazaar</span><span class="bn">বাজারের কাজ নিয়ে জেনে নিন</span></a>
+    <a href="https://wa.me/15713097035"><span class="en">Ask about working a bazaar</span><span class="bn">বাজারের কাজ নিয়ে জেনে নিন</span></a>
     <span class="ph"><span class="en">or call</span><span class="bn">অথবা ফোন করুন</span> <b>01945-730204</b></span>
   </div>
 </div></section>
