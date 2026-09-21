@@ -168,6 +168,10 @@
 /* A card with no photograph sizes to its own content instead of stretching to
    match a photo card beside it, which would leave a tall empty panel. */
 .sig.no-photo{ align-self:start; }
+/* An item we have a photograph of but no price for yet. No .chip, so the cart
+   loop skips it entirely and it cannot be added to an order. */
+.mrow-ask{ font-family:var(--ui); font-weight:400; font-size:10px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--muted); white-space:nowrap; }
 .sig.no-photo .sig-body{ padding-top:22px; }
 .sig.no-photo .sig-prices{ margin-top:18px; padding-top:0; }
   .sig-photo{ position:relative; aspect-ratio:4/3; overflow:hidden; }
@@ -497,35 +501,60 @@ window.NAZ_MEDIA = {
   "Beef Samosa": [
     { type:"video", src:"media/chicken-samosa.mp4", poster:"img/chicken-samosa-still.jpg", alt:"Trays of hand-folded samosas, fresh from the oven" }
   ],
-  // "Chicken Shami Kabab": [],
+  "Chicken Shami Kabab": [
+    { type:"image", src:"img/shami.jpg", alt:"Shami kababs, griddled and trayed with curry" }
+  ],
   // "Chicken Patties": [],
+  "Chicken & Cheese Cutlets": [
+    { type:"image", src:"img/cutlets.jpg", alt:"Chicken and cheese cutlets, breaded and boxed" }
+  ],
   // "Beef Shami Kabab": [],
   // "Chicken Karahi": [],
   // "Mutton Palak": [],
-  // "Chicken Pulao": [],   <- the pulao film shows a mutton shank; do not reuse it here
+  // The two spread films pan across a whole table — pulao, daal, karahi, roti —
+  // so their captions name the spread rather than claim to show one dish.
+  "Chicken Pulao": [
+    { type:"video", src:"media/spread-pulao.mp4", poster:"img/spread-pulao-still.jpg", alt:"Chicken pulao in a full tray, part of a spread with daal, karahi and fresh roti" },
+    { type:"video", src:"media/spread-table.mp4", poster:"img/spread-table-still.jpg", alt:"A table laid out — karahi, daal, shami kabab and pulao" }
+  ],
   // "Chicken Korma": [],
   // "Chicken Biryani": [],
   // "Beef Kofta": [],
-  // "Beef Haleem": [],
+  // "Beef Haleem": [],   <- the haleem photograph is chicken haleem; not this dish
+  "Chicken Haleem": [
+    { type:"image", src:"img/haleem.jpg", alt:"Chicken haleem with fried onion, ginger, green chilli and lemon" }
+  ],
   // "Beef Aloo Keema": [],
   "Mutton Pulao": [
     { type:"video", src:"media/mutton-pulao.mp4", poster:"img/mutton-pulao-still.jpg", alt:"A full tray of mutton pulao with a shank and fresh salad" }
   ],
   // "Kari Pakora": [],
   // "Aloo Gobi": [],
-  // "Halwa Puri & Chana": [],
-  // "Beef Nihari": [],
+  "Halwa Puri & Chana": [
+    { type:"video", src:"media/halwa-puri.mp4", poster:"img/halwa-puri-still.jpg", alt:"Halwa puri breakfast — suji halwa, chana and fresh puri" }
+  ],
+  // "Beef Nihari": handled below
+  "Beef Nihari": [
+    { type:"image", src:"img/nihari.jpg", alt:"Beef nihari finished with ginger, lemon and green chilli" }
+  ],
   // "Channa": [],
   // "Puri": [],
   // "Halwa": [],
-  // "Chicken Tikka (Bone)": [],
+  "Chicken Tikka (Bone)": [
+    { type:"image", src:"img/tikka.jpg", alt:"Chicken tikka off the grill with onion and lemon" }
+  ],
   // "Chicken Tikka (Boneless)": [],
-  // "Chicken Full Legs & Thighs": [],
+  "Chicken Full Legs & Thighs": [
+    { type:"image", src:"img/tandoori-legs.jpg", alt:"Tandoori chicken leg quarters with lemon and red onion" },
+    { type:"image", src:"img/tandoori-legs-2.jpg", alt:"Trays of tandoori chicken with green chutney" }
+  ],
   // "Fried Fish": [],
   "Brownies": [
     { type:"image", src:"img/brownie-feathered.jpg", alt:"Chocolate brownie finished with feathered ganache" },
     { type:"video", src:"media/brownies.mp4", poster:"img/brownies-still.jpg", alt:"Cutting into a warm feathered brownie" },
+    { type:"image", src:"img/brownie-piped.jpg", alt:"Brownie finished with piped chocolate" },
     { type:"image", src:"img/brownie-biscoff.jpg", alt:"Biscoff brownie with caramel and chocolate drizzle" },
+    { type:"image", src:"img/brownie-biscoff-2.jpg", alt:"Biscoff brownie bar, boxed to order" },
     { type:"image", src:"img/brownie-lava.jpg", alt:"Chocolate lava brownie cup" },
     { type:"image", src:"img/brownie-drizzle.jpg", alt:"Brownie finished with chocolate drizzle" }
   ],
@@ -593,19 +622,19 @@ window.NAZ_MEDIA = {
       <h2 data-ur-html="آپ کی <span class='hl-gold'>میز</span> پر <span class='hl-spice hl-it'>کیا آتا ہے</span>">What <span class="hl-gold">Reaches</span> Your <span class="hl-spice hl-it">Table</span></h2>
     </div>
     <div class="gal-grid reveal">
-      <figure class="gal gal-a"><img src="img/mutton-pulao-still.jpg" alt="A full tray of mutton pulao" loading="lazy"></figure>
-      <figure class="gal gal-b"><img src="img/brownie-lava.jpg" alt="Chocolate lava brownie cup" loading="lazy"></figure>
+      <figure class="gal gal-a"><img src="img/tandoori-legs.jpg" alt="Tandoori chicken leg quarters" loading="lazy"></figure>
+      <figure class="gal gal-b"><img src="img/nihari.jpg" alt="Beef nihari with ginger and lemon" loading="lazy"></figure>
       <figure class="gal gal-c"><img src="img/chicken-samosa-still.jpg" alt="Trays of hand-folded samosas" loading="lazy"></figure>
-      <figure class="gal gal-d"><img src="img/brownie-biscoff.jpg" alt="Biscoff brownie with caramel and chocolate drizzle" loading="lazy"></figure>
-      <figure class="gal gal-e"><img src="img/brownie-feathered.jpg" alt="Brownie finished with feathered ganache" loading="lazy"></figure>
-      <figure class="gal gal-f"><img src="img/brownie-drizzle.jpg" alt="Brownie finished with chocolate drizzle" loading="lazy"></figure>
+      <figure class="gal gal-d"><img src="img/haleem.jpg" alt="Chicken haleem with fried onion, ginger and chilli" loading="lazy"></figure>
+      <figure class="gal gal-e"><img src="img/tikka.jpg" alt="Chicken tikka off the grill" loading="lazy"></figure>
+      <figure class="gal gal-f"><img src="img/cutlets.jpg" alt="Chicken and cheese cutlets, breaded and boxed" loading="lazy"></figure>
     </div>
   </div>
 </section>
 
 <section class="story">
   <div class="band flip reveal">
-    <div class="band-media"><img src="img/mutton-pulao-still.jpg" alt="A full tray of mutton pulao with a shank and fresh salad" loading="lazy"></div>
+    <div class="band-media"><img src="img/shami.jpg" alt="Shami kababs trayed with curry" loading="lazy"></div>
     <div class="band-text">
       <p class="eyebrow" data-ur="ہمارا طریقہ">How We Cook</p>
       <h2 data-ur-html="<span class='hl-ox'>آرڈر پر تازہ</span> <span class='hl-gold hl-it'>پکایا جاتا ہے</span>"><span class="hl-ox">Cooked to</span> <span class="hl-gold hl-it">Order</span><span class="hl-ink">,</span> <span class="hl-spice">Never in Advance</span></h2>
@@ -651,7 +680,8 @@ window.NAZ_MEDIA = {
             <div class="sig-prices"><div class="chip wide" data-dish="Punjabi Samosa" data-size="Piece" data-price="1.5"><div class="chip-idle"><div class="lbl" data-ur="فی عدد">Per Piece</div><div class="val">$1.50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
           </div>
         </article>
-        <article class="sig no-photo" data-dish="Chicken Shami Kabab">
+        <article class="sig" data-dish="Chicken Shami Kabab">
+          <div class="sig-photo"><img src="img/shami.jpg" alt="Shami kababs, griddled and trayed" loading="lazy"><span class="sig-tag" data-ur="فی عدد">Per Piece</span></div>
           <div class="sig-body">
             <h4 data-ur="چکن شامی کباب">Chicken Shami Kabab</h4><p class="note" data-ur="آرڈر پر توے پر تیار">Griddled to order</p>
             <div class="sig-prices"><div class="chip wide" data-dish="Chicken Shami Kabab" data-size="Piece" data-price="1.5"><div class="chip-idle"><div class="lbl" data-ur="فی عدد">Per Piece</div><div class="val">$1.50</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
@@ -676,6 +706,12 @@ window.NAZ_MEDIA = {
             <div class="mrow-line"><h4 data-ur="چکن پیٹیز">Chicken Patties</h4><span class="leader" aria-hidden="true"></span></div>
           </div>
           <div class="mrow-prices"><div class="chip wide" data-dish="Chicken Patties" data-size="Piece" data-price="3.0"><div class="chip-idle"><div class="lbl" data-ur="فی عدد">Per Piece</div><div class="val">$3.00</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
+        </div>
+        <div class="mrow" data-dish="Chicken &amp; Cheese Cutlets">
+          <div class="mrow-text">
+            <div class="mrow-line"><h4 data-ur="چکن اینڈ چیز کٹلٹس">Chicken &amp; Cheese Cutlets</h4><span class="leader" aria-hidden="true"></span></div>
+          </div>
+          <div class="mrow-prices"><span class="mrow-ask" data-ur="قیمت کے لیے پوچھیں">Price on request</span></div>
         </div>
         <div class="mrow" data-dish="Beef Shami Kabab">
           <div class="mrow-text">
@@ -707,7 +743,8 @@ window.NAZ_MEDIA = {
             <div class="sig-prices"><div class="chip" data-dish="Mutton Palak" data-size="Half Tray" data-price="70"><div class="chip-idle"><div class="lbl" data-ur="آدھی">Half</div><div class="val">$70</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div><div class="chip" data-dish="Mutton Palak" data-size="Full Tray" data-price="140"><div class="chip-idle"><div class="lbl" data-ur="پوری">Full</div><div class="val">$140</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
           </div>
         </article>
-        <article class="sig no-photo" data-dish="Chicken Pulao">
+        <article class="sig" data-dish="Chicken Pulao">
+          <div class="sig-photo"><img src="img/spread-pulao-still.jpg" alt="Chicken pulao in a full tray" loading="lazy"><span class="sig-tag" data-ur="آدھی اور پوری ٹرے">Half &amp; Full Tray</span></div>
           <div class="sig-body">
             <h4 data-ur="چکن پلاؤ">Chicken Pulao</h4><p class="note" data-ur="لمبے چاول، ثابت مصالحے">Long-grain rice, whole spices</p>
             <div class="sig-prices"><div class="chip" data-dish="Chicken Pulao" data-size="Half Tray" data-price="65"><div class="chip-idle"><div class="lbl" data-ur="آدھی">Half</div><div class="val">$65</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div><div class="chip" data-dish="Chicken Pulao" data-size="Full Tray" data-price="120"><div class="chip-idle"><div class="lbl" data-ur="پوری">Full</div><div class="val">$120</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
@@ -738,6 +775,12 @@ window.NAZ_MEDIA = {
             <div class="mrow-line"><h4 data-ur="بیف حلیم">Beef Haleem</h4><span class="leader" aria-hidden="true"></span></div>
           </div>
           <div class="mrow-prices"><div class="chip" data-dish="Beef Haleem" data-size="Half Tray" data-price="70"><div class="chip-idle"><div class="lbl" data-ur="آدھی">Half</div><div class="val">$70</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div><div class="chip" data-dish="Beef Haleem" data-size="Full Tray" data-price="150"><div class="chip-idle"><div class="lbl" data-ur="پوری">Full</div><div class="val">$150</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
+        </div>
+        <div class="mrow" data-dish="Chicken Haleem">
+          <div class="mrow-text">
+            <div class="mrow-line"><h4 data-ur="چکن حلیم">Chicken Haleem</h4><span class="leader" aria-hidden="true"></span></div>
+          </div>
+          <div class="mrow-prices"><span class="mrow-ask" data-ur="قیمت کے لیے پوچھیں">Price on request</span></div>
         </div>
         <div class="mrow" data-dish="Beef Aloo Keema">
           <div class="mrow-text">
@@ -775,13 +818,15 @@ window.NAZ_MEDIA = {
         <div class="col-heads"><span data-ur="آدھی ٹرے">Half Tray</span><span data-ur="پوری ٹرے">Full Tray</span></div>
       </div>
       <div class="signatures">
-        <article class="sig no-photo" data-dish="Halwa Puri & Chana">
+        <article class="sig" data-dish="Halwa Puri & Chana">
+          <div class="sig-photo"><img src="img/halwa-puri-still.jpg" alt="Halwa puri breakfast with chana" loading="lazy"><span class="sig-tag" data-ur="ناشتہ">Breakfast</span></div>
           <div class="sig-body">
             <h4 data-ur="حلوہ پوری اور چنا">Halwa Puri & Chana</h4><p class="note" data-ur="سوجی حلوہ · چنا · تازہ پوری · اچار">Suji halwa · chana · fresh puri · achar</p>
             <div class="sig-prices"><span class="chip-spacer" aria-hidden="true"></span><div class="chip" data-dish="Halwa Puri & Chana" data-size="Order" data-price="12"><div class="chip-idle"><div class="lbl" data-ur="فی آرڈر">Per Order</div><div class="val">$12</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
           </div>
         </article>
-        <article class="sig no-photo" data-dish="Beef Nihari">
+        <article class="sig" data-dish="Beef Nihari">
+          <div class="sig-photo"><img src="img/nihari.jpg" alt="Beef nihari with ginger, lemon and green chilli" loading="lazy"><span class="sig-tag" data-ur="آدھی اور پوری ٹرے">Half &amp; Full Tray</span></div>
           <div class="sig-body">
             <h4 data-ur="بیف نہاری">Beef Nihari</h4><p class="note" data-ur="رات بھر دھیمی آنچ پر">Slow-cooked overnight</p>
             <div class="sig-prices"><div class="chip" data-dish="Beef Nihari" data-size="Half Tray" data-price="90"><div class="chip-idle"><div class="lbl" data-ur="آدھی">Half</div><div class="val">$90</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div><div class="chip" data-dish="Beef Nihari" data-size="Full Tray" data-price="180"><div class="chip-idle"><div class="lbl" data-ur="پوری">Full</div><div class="val">$180</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
@@ -819,7 +864,8 @@ window.NAZ_MEDIA = {
         
       </div>
       <div class="signatures">
-        <article class="sig no-photo" data-dish="Chicken Tikka (Bone)">
+        <article class="sig" data-dish="Chicken Tikka (Bone)">
+          <div class="sig-photo"><img src="img/tikka.jpg" alt="Chicken tikka off the grill" loading="lazy"></div>
           <div class="sig-body">
             <h4 data-ur="چکن تکہ (ہڈی کے ساتھ)">Chicken Tikka (Bone)</h4>
             <div class="sig-prices"><div class="chip wide" data-dish="Chicken Tikka (Bone)" data-size="Tray" data-price="65"><div class="chip-idle"><div class="val">$65</div></div><div class="chip-stepper"><button class="chip-btn" data-act="minus" type="button" aria-label="Remove one">&minus;</button><span class="chip-qty">0</span><button class="chip-btn" data-act="plus" type="button" aria-label="Add one">+</button></div></div></div>
