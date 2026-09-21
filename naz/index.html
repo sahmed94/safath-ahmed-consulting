@@ -367,15 +367,12 @@
   .v-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-top:8px; }
   @media (max-width:900px){ .v-grid{ grid-template-columns:1fr; } }
   .v-card{ border:1px solid var(--rule-gold); padding:36px 30px 30px; display:flex; flex-direction:column; background:rgba(255,255,255,0.03); }
-  .v-stars{ display:flex; gap:5px; margin-bottom:20px; }
-  .v-stars svg{ width:14px; height:14px; }
-  .v-stars svg *{ fill:var(--gold-light); stroke:none; }
+  .v-mark{ font-family:var(--display); font-weight:400; font-size:46px; line-height:.6;
+    color:var(--gold-light); margin-bottom:16px; }
   .v-quote{ font-family:var(--display); font-weight:300; font-style:italic; font-size:clamp(19px,2.1vw,23px); line-height:1.62; color:#fff; flex:1; }
   .v-attr{ margin-top:26px; padding-top:20px; border-top:1px solid rgba(210,172,104,0.22); }
   .v-attr .who{ font-family:var(--ui); font-weight:500; font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-light); }
   .v-attr .where{ font-family:var(--ui); font-weight:300; font-size:11px; letter-spacing:.1em; color:rgba(255,255,255,0.5); margin-top:6px; }
-  .v-placeholder{ outline:1px dashed rgba(210,172,104,0.55); outline-offset:-1px; }
-  .v-badge{ align-self:flex-start; font-family:var(--ui); font-weight:500; font-size:8.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--oxblood-deep); background:var(--gold-light); padding:5px 10px; margin-bottom:18px; }
 
   /* ================= numbers band ================= */
   .tallies{ display:flex; justify-content:center; flex-wrap:wrap; gap:clamp(30px,7vw,90px); margin-top:56px; }
@@ -384,8 +381,8 @@
   .tally .l{ font-family:var(--ui); font-weight:300; font-size:9.5px; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-top:12px; }
 
   html[dir="rtl"] .v-quote, html[dir="rtl"] .band-text h2{ font-family:var(--urdu); line-height:2; }
-  html[dir="rtl"] .v-attr .who, html[dir="rtl"] .v-attr .where, html[dir="rtl"] .tally .l,
-  html[dir="rtl"] .v-badge{ font-family:var(--urdu); letter-spacing:0; text-transform:none; font-size:12px; line-height:2.1; }
+  html[dir="rtl"] .v-attr .who, html[dir="rtl"] .v-attr .where,
+  html[dir="rtl"] .tally .l{ font-family:var(--urdu); letter-spacing:0; text-transform:none; font-size:12px; line-height:2.1; }
   html[dir="rtl"] .tally .n{ font-family:var(--display); }
   /* ================= media affordance ================= */
   .has-media{ cursor:pointer; }
@@ -1027,50 +1024,46 @@ window.NAZ_MEDIA = {
   </div>
 </section>
 
-<!-- REVIEWS — hidden until real ones exist.
-     The page shipped with three cards badged "Placeholder" and its own note:
-     "swap in real reviews from Naz's customers before this page goes live."
-     Nothing is deleted. To turn the section back on, delete the hidden attribute
-     on the <section> below and replace the three cards with real quotes. -->
-<section class="voices vh" hidden>
+<!-- Real customer messages, quoted with names removed. Each one is a message a
+     customer actually sent; the wording is theirs, tidied only for typos. No card
+     shows a star rating, because none of these people gave one -- five gold stars
+     beside a message that was never a rating would be a number we made up. -->
+<section class="voices vh">
   <div class="wrap">
     <div class="shead on-dark reveal">
       <p class="eyebrow" data-ur="تبصرے">Reviews</p>
       <span class="rule-orn on-dark"><i></i></span>
       <h2 data-ur-html="<span class='hl-cream'>مہمان کیا</span> <span class='hl-goldl hl-it'>کہتے ہیں</span>"><span class="hl-cream">What Guests</span> <span class="hl-goldl hl-it">Say</span></h2>
-      <p data-ur="نیچے کے تین کارڈ جگہ محفوظ کرنے کے لیے ہیں — ان میں ناز کے اصل گاہکوں کے تبصرے لگائیں۔">The three cards below are placeholders — swap in real reviews from Naz's customers before this page goes live.</p>
+      <p data-ur="اصل پیغامات جو گاہکوں نے بھیجے۔ نام رازداری کے لیے ظاہر نہیں کیے گئے۔">Messages customers sent us. Names are withheld &mdash; their privacy comes first.</p>
     </div>
     <div class="v-grid reveal">
-      <article class="v-card v-placeholder">
-        <span class="v-badge" data-ur="جگہ محفوظ">Placeholder</span>
-        <div class="v-stars" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg></div>
-        <p class="v-quote" data-ur="یہاں ناز کے کسی اصل گاہک کا تبصرہ لگائیں۔">Replace this with a real review from one of Naz's customers.</p>
+      <article class="v-card">
+        <div class="v-mark" aria-hidden="true">&ldquo;</div>
+        <p class="v-quote" data-ur="کباب بہت اچھے تھے۔ ہمیں پسند آئے۔">Kababs are very good. We liked it.</p>
         <div class="v-attr">
-          <div class="who" data-ur="گاہک کا نام">Customer Name</div>
-          <div class="where" data-ur="تقریب · تاریخ">Event · Date</div>
+          <div class="who" data-ur="ایک کمیونٹی ممبر">A Community Member</div>
+          <div class="where" data-ur="کباب">Kababs</div>
         </div>
       </article>
-      <article class="v-card v-placeholder">
-        <span class="v-badge" data-ur="جگہ محفوظ">Placeholder</span>
-        <div class="v-stars" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg></div>
-        <p class="v-quote" data-ur="یہاں ناز کے کسی اصل گاہک کا تبصرہ لگائیں۔">Replace this with a real review from one of Naz's customers.</p>
+      <article class="v-card">
+        <div class="v-mark" aria-hidden="true">&ldquo;</div>
+        <p class="v-quote" data-ur="آپ کی بریانی بہت ہی لذیذ ہے۔ میں ابھی کھا رہی ہوں — بہت اچھی، مجھے بہت پسند آئی۔">Your biryani is soooooo delicious. I&rsquo;m eating it now &mdash; very good, I love it.</p>
         <div class="v-attr">
-          <div class="who" data-ur="گاہک کا نام">Customer Name</div>
-          <div class="where" data-ur="تقریب · تاریخ">Event · Date</div>
+          <div class="who" data-ur="ایک کمیونٹی ممبر · بہن">A Community Member &middot; Sister</div>
+          <div class="where" data-ur="چکن بریانی">Chicken Biryani</div>
         </div>
       </article>
-      <article class="v-card v-placeholder">
-        <span class="v-badge" data-ur="جگہ محفوظ">Placeholder</span>
-        <div class="v-stars" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12,2.4 L14.9,8.7 L21.8,9.5 L16.7,14.2 L18.1,21 L12,17.5 L5.9,21 L7.3,14.2 L2.2,9.5 L9.1,8.7 Z"/></svg></div>
-        <p class="v-quote" data-ur="یہاں ناز کے کسی اصل گاہک کا تبصرہ لگائیں۔">Replace this with a real review from one of Naz's customers.</p>
+      <article class="v-card">
+        <div class="v-mark" aria-hidden="true">&ldquo;</div>
+        <p class="v-quote" data-ur="الحمدللہ، سب کچھ بہت اچھا تھا۔ خاص طور پر آپ کے چکن پف نے تو کمال کر دیا۔ اتنے کم وقت میں تیار کرنے کے لیے جزاک اللہ خیر۔">Alhamdulillah, everything was great. Specially your chicken puff was show stopper. JazakAllah khair for preparing it in such short notice.</p>
         <div class="v-attr">
-          <div class="who" data-ur="گاہک کا نام">Customer Name</div>
-          <div class="where" data-ur="تقریب · تاریخ">Event · Date</div>
+          <div class="who" data-ur="ایک کمیونٹی ممبر">A Community Member</div>
+          <div class="where" data-ur="چکن پیٹیز · کم وقت کا آرڈر">Chicken Patties &middot; Short-notice order</div>
         </div>
       </article>
     </div>
     <div class="tallies reveal">
-      <div class="tally"><div class="n">30</div><div class="l" data-ur="مینیو میں ڈشز">Dishes on the Menu</div></div>
+      <div class="tally"><div class="n">34</div><div class="l" data-ur="مینیو میں ڈشز">Dishes on the Menu</div></div>
       <div class="tally"><div class="n">2</div><div class="l" data-ur="ٹرے کے سائز">Tray Sizes</div></div>
       <div class="tally"><div class="n">1</div><div class="l" data-ur="ایک ٹیپ میں آرڈر">Tap to Order</div></div>
     </div>
