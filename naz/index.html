@@ -371,9 +371,14 @@
     align-items:center; height:210px; }
   .v-shot img{ max-width:100%; max-height:100%; width:auto; height:auto;
     object-fit:contain; display:block; }
-  .v-quote{ font-family:var(--display); font-weight:300; font-style:italic;
-    font-size:clamp(16px,1.55vw,18.5px); line-height:1.55; color:rgba(255,255,255,0.88);
-    flex:1; margin-top:20px; }
+  /* In English the screenshot already says it, and printing the same words
+     underneath just reads twice. The transcript exists for Urdu, where the
+     image cannot follow the language toggle -- so it only shows there. The
+     English page is not left without it: the same text is the image alt. */
+  .v-quote{ display:none; }
+  html[dir="rtl"] .v-quote{ display:block; font-family:var(--display); font-weight:300;
+    font-style:italic; font-size:clamp(16px,1.55vw,18.5px); line-height:1.55;
+    color:rgba(255,255,255,0.88); flex:1; margin-top:20px; }
   .v-attr{ margin-top:20px; padding-top:16px; border-top:1px solid rgba(210,172,104,0.22); }
   .v-attr .who{ font-family:var(--ui); font-weight:500; font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-light); }
   .v-attr .where{ font-family:var(--ui); font-weight:300; font-size:11px; letter-spacing:.1em; color:rgba(255,255,255,0.5); margin-top:6px; }
@@ -384,7 +389,8 @@
   .tally .n{ font-family:var(--display); font-weight:400; font-size:clamp(38px,5.4vw,58px); line-height:1; color:var(--gold-light); }
   .tally .l{ font-family:var(--ui); font-weight:300; font-size:9.5px; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-top:12px; }
 
-  html[dir="rtl"] .v-quote, html[dir="rtl"] .band-text h2{ font-family:var(--urdu); line-height:2; }
+  html[dir="rtl"] .v-quote{ font-family:var(--urdu); line-height:2; }
+  html[dir="rtl"] .band-text h2{ font-family:var(--urdu); line-height:2; }
   html[dir="rtl"] .v-attr .who, html[dir="rtl"] .v-attr .where,
   html[dir="rtl"] .tally .l{ font-family:var(--urdu); letter-spacing:0; text-transform:none; font-size:12px; line-height:2.1; }
   html[dir="rtl"] .tally .n{ font-family:var(--display); }
