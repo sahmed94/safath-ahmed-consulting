@@ -606,13 +606,46 @@
     503: "The AI settings are not live yet. In Netlify: Deploys \u2192 Trigger deploy \u2192 Deploy site.",
     502: "Anthropic refused the request. Check the API key is valid and the account has billing set up.",
     500: "The server hit an error. Its log is in Netlify under Functions \u2192 ask-claude.",
-    405: "The server rejected the request method."
+    405: "The server rejected the request method.",
+    413: "That photo was too big to send even after shrinking. Try a smaller one."
   };
   function fail(msg) {
     askClaude.lastError = msg;
     console.error("[ask-claude] " + msg);
     return null;
   }
+  // Netlify caps a function request body at 6MB. A phone photo base64-encodes to
+  // more than that, so the request was bounced with a 413 before the function ever
+  // ran -- which looked exactly like a configuration fault. The model only needs
+  // enough pixels to recognise food, so what gets sent is a downscaled copy. The
+  // full-resolution original is untouched: that is what goes to storage and what
+  // you see on the card.
+  function shrinkImage(dataUrl, maxDim, quality) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        try {
+          var out = c.toDataURL("image/jpeg", quality);
+          // A very large or very noisy photo can still land above the cap after one
+          // pass, so take a harder second pass rather than send something doomed.
+          if (out.length > 3000000) {
+            c.width = Math.round(c.width * 0.6); c.height = Math.round(c.height * 0.6);
+            c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+            out = c.toDataURL("image/jpeg", 0.65);
+          }
+          resolve(out);
+        } catch (e) { resolve(dataUrl); }
+      };
+      img.onerror = function () { resolve(dataUrl); };
+      img.src = dataUrl;
+    });
+  }
+
   function showProblem(msg) {
     var wrap = document.getElementById("feedbackWrap");
     if (!wrap) return;
@@ -701,7 +734,8 @@
   async function estimateMeal(imageDataUrl, userNote) {
     var promptText = ESTIMATE_GUARDRAILS;
     if (userNote && userNote.trim()) promptText += "\n\nThe user also described this meal: \"" + userNote.trim() + "\". Use these details (ingredients, portion, preparation) alongside the photo to make your estimate more accurate — trust the description over guesswork where the photo is ambiguous.";
-    var text = await askClaude([{ role: "user", content: [{ type: "text", text: promptText }, { type: "image", url: imageDataUrl }] }], 300);
+    var small = await shrinkImage(imageDataUrl, 1024, 0.8);
+    var text = await askClaude([{ role: "user", content: [{ type: "text", text: promptText }, { type: "image", url: small }] }], 300);
     if (!text) return null;
     try {
       var cleaned = text.replace(/^```json/i, "").replace(/```$/, "").trim();
@@ -1120,7 +1154,11 @@
     wrap.innerHTML = ""; wrap.appendChild(toast);
     requestAnimationFrame(function(){ toast.classList.add("show"); });
     var msg = fallbackFeedback(kind);
-    var content = imageDataUrl ? [{ type: "text", text: contextText }, { type: "image", url: imageDataUrl }] : contextText;
+    var content = contextText;
+    if (imageDataUrl) {
+      content = [{ type: "text", text: contextText },
+                 { type: "image", url: await shrinkImage(imageDataUrl, 768, 0.75) }];
+    }
     var text = await askClaude([{ role: "user", content: content }], 150);
     if (text) msg = text.trim();
     toast.querySelector(".fb-text").textContent = msg;
