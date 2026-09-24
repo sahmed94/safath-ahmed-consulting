@@ -199,6 +199,10 @@
   .fb-icon { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--magenta)); display: flex; align-items: center; justify-content: center; margin-top: 1px; }
   .fb-icon svg { width: 14px; height: 14px; stroke: #fff; }
   .fb-text { font-size: 13px; line-height: 1.45; color: #fff; }
+  .ghost-btn { background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue);
+    border-radius: 10px; padding: 11px 14px; font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; }
+  .ghost-btn:disabled { opacity: .55; cursor: default; }
   .fb-toast.warn .fb-icon { background: linear-gradient(135deg, var(--coral), #C4342A); }
   .fb-text .fb-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #8A8FA8; margin-right: 3px; animation: bounceDot 1.1s infinite; }
   .fb-text .fb-dots span:nth-child(2) { animation-delay: .15s; } .fb-text .fb-dots span:nth-child(3) { animation-delay: .3s; }
@@ -494,6 +498,7 @@
       <div class="field"><label>Carbs (g)</label><input type="number" id="mealEditCarb"></div>
       <div class="field"><label>Fat (g)</label><input type="number" id="mealEditFat"></div>
     </div>
+    <button class="ghost-btn" id="mealRerunBtn" style="width:100%; margin-top:12px;">Estimate with AI</button>
     <div class="modal-actions">
       <button class="danger-btn" id="mealDeleteBtn">Delete</button>
       <button class="close-btn" id="mealCancelBtn">Cancel</button>
@@ -1434,6 +1439,37 @@
       document.getElementById("modalOverlay").classList.remove("open");
       renderFood();
     };
+    // A photo already in storage has only a public URL, but the function needs the
+    // bytes inline, so fetch it back and re-encode before asking for an estimate.
+    // This is how a meal logged while the AI was misconfigured gets its numbers.
+    document.getElementById("mealRerunBtn").onclick = async function () {
+      if (!editingMeal) return;
+      var btn = this, label = btn.textContent;
+      btn.disabled = true; btn.textContent = "Estimating\u2026";
+      try {
+        var blob = await (await fetch(editingMeal.url)).blob();
+        var dataUrl = await new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(fr.result); };
+          fr.onerror = function () { reject(new Error("could not read the photo back")); };
+          fr.readAsDataURL(blob);
+        });
+        var est = await estimateMeal(dataUrl, document.getElementById("mealEditDesc").value || "");
+        if (!est) {
+          showProblem("No estimate came back. " + (askClaude.lastError || "The AI reply could not be read."));
+        } else {
+          document.getElementById("mealEditDesc").value = est.food || "";
+          document.getElementById("mealEditCal").value  = est.calories;
+          document.getElementById("mealEditProt").value = est.protein_g;
+          document.getElementById("mealEditCarb").value = est.carbs_g;
+          document.getElementById("mealEditFat").value  = est.fat_g;
+        }
+      } catch (err) {
+        showProblem("Could not load that photo back from storage: " + err.message);
+      }
+      btn.disabled = false; btn.textContent = label;
+    };
+
     document.getElementById("mealDeleteBtn").onclick = async function () {
       if (!editingMeal) return;
       await deleteFoodEntry(editingMeal);
