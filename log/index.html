@@ -241,7 +241,7 @@
   <div class="lock-card">
     <div class="lock-mark">ACCOUNTABILITYAAS</div>
     <h1 class="lock-title" id="authHeading">Sign in</h1>
-    <div class="field" style="margin-bottom:10px; text-align:left;"><label>Name</label><input type="text" id="authName" class="lock-input" style="font-size:15px; letter-spacing:normal; text-align:left;" placeholder="Only needed the first time"></div>
+    <div class="field" id="authNameField" style="margin-bottom:10px; text-align:left;"><label>Name</label><input type="text" id="authName" class="lock-input" style="font-size:15px; letter-spacing:normal; text-align:left;" placeholder="Only needed the first time"></div>
     <div class="field" style="margin-bottom:10px; text-align:left;"><label>Email</label><input type="email" id="authEmail" class="lock-input" style="font-size:15px; letter-spacing:normal; text-align:left;" placeholder="you@example.com" autocomplete="username"></div>
     <div class="field" style="text-align:left;"><label>Password</label><input type="password" id="authPassword" class="lock-input" style="font-size:15px; letter-spacing:normal; text-align:left;" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="lock-btn" id="authBtn">Continue</button>
@@ -526,6 +526,15 @@
   var SEED_WEIGHTS = [ { date: "2026-09-04", weight: 211.4 }, { date: "2026-09-06", weight: 209.2 } ];
   var DEFAULT_PROFILE_NAME = "Safath Ahmed";
 
+  // Accounts are created by hand in the Supabase dashboard, so the page offers
+  // sign-in only. This flag is the cosmetic half: it hides the name field and the
+  // "we'll create your account" copy. The half that actually enforces anything is
+  // in Supabase -- Authentication -> Sign In / Providers -> "Allow new users to
+  // sign up" turned OFF. Without that, anyone can call supabase.auth.signUp()
+  // straight from the console with the anon key and this flag stops nothing.
+  // Flip both together if you ever open sign-ups back up.
+  var SIGNUP_OPEN = false;
+
   // ====== FILL THESE IN before deploying ======
   var SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"; // e.g. https://xxxx.supabase.co
   var SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // Project Settings -> API -> anon public key
@@ -567,8 +576,14 @@
   // Calls our Netlify function, which calls Claude's API server-side (see netlify/functions/ask-claude.js)
   async function askClaude(messages, maxTokens) {
     try {
+      // The function bills a paid API, so it only answers signed-in callers.
+      // Send the Supabase access token; without it the function returns 401.
+      var sess = await supabase.auth.getSession();
+      var token = sess && sess.data && sess.data.session && sess.data.session.access_token;
+      if (!token) return null;
       var res = await fetch("/.netlify/functions/ask-claude", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify({ messages: messages, maxTokens: maxTokens })
       });
       if (!res.ok) return null;
@@ -693,6 +708,12 @@
   function wireAuth() {
     var btn = document.getElementById("authBtn");
     var err = document.getElementById("authError");
+
+    if (!SIGNUP_OPEN) {
+      document.getElementById("authNameField").style.display = "none";
+      document.getElementById("authNote").textContent =
+        "Sign in with the email and password you were given. Accounts are created by the site owner.";
+    }
     btn.onclick = async function () {
       err.textContent = "";
       var name = document.getElementById("authName").value.trim();
@@ -710,8 +731,10 @@
         var dispName = await loadProfileName(uid, signInRes.data.user.user_metadata && signInRes.data.user.user_metadata.name);
         await selectProfile(uid, dispName);
       } else {
-        // Not an existing account (or wrong password) -- if a name was given, try creating one.
-        if (!name) {
+        // Not an existing account (or wrong password).
+        if (!SIGNUP_OPEN) {
+          err.textContent = "Incorrect email or password.";
+        } else if (!name) {
           err.textContent = "Incorrect email/password, or if you're new, add your name too so we can create your account.";
         } else if (password.length < 6) {
           err.textContent = "Use a password of at least 6 characters.";
