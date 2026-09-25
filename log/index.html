@@ -1794,124 +1794,118 @@
     dayFood.forEach(function (f) {
       if (f.estimate && f.estimate.calories) { calAny = true; calTotal += f.estimate.calories; }
     });
-
     var wStreak = await metricStreak("weight");
     var cStreak = await metricStreak("cardio");
 
-    /* The card used to be a fixed 1080x1350 whatever was on it, so a day with two
-       meals left a third of the image empty. Work out how tall the meal grid will be
-       first and cut the card to fit. */
-    var W = 1080, pad = 56, GRID_TOP = 764, COLS = 4, GAP = 12;
-    var CELL = (W - pad * 2 - GAP * (COLS - 1)) / COLS;
-    var shown = dayFood.slice(0, COLS * 2);
-    var gridRows = Math.max(1, Math.ceil(shown.length / COLS));
-    var H = Math.round(GRID_TOP + gridRows * (CELL + GAP) - GAP + 108);
+    /* The card is mostly photographs, so it is laid out for them: the numbers are a
+       thin strip at the top and the rest is picture. Everything below is in layout
+       pixels; the canvas is SCALE times that in each direction and the context is
+       scaled to match, so a phone photo lands on roughly a thousand real pixels per
+       tile instead of a few hundred and survives being opened full-screen. */
+    var SCALE = 2;
+    var W = 1080, pad = 52, gap = 14;
+    var full = W - pad * 2;
+    var half = (full - gap) / 2;
 
-    var canvas = document.getElementById("summaryCanvas"); canvas.width = W; canvas.height = H;
+    var shown = dayFood.slice(0, 6);
+    var PHOTOS_TOP = 262;
+    var gridH;
+    if (shown.length === 0)      gridH = 300;
+    else if (shown.length === 1) gridH = 620;                               // one photo runs wide
+    else gridH = Math.ceil(shown.length / 2) * (half + gap) - gap;          // otherwise two per row
+    var H = Math.round(PHOTOS_TOP + gridH + 62);
+
+    var canvas = document.getElementById("summaryCanvas");
+    canvas.width = W * SCALE; canvas.height = H * SCALE;
     var ctx = canvas.getContext("2d");
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+
     var grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, "#2E6BFF"); grad.addColorStop(0.55, "#6B3FFF"); grad.addColorStop(1, "#E0417C");
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
     function panel(x, yy, w, h, r) {
-      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.14; roundRect(ctx, x, yy, w, h, r || 18); ctx.fill(); ctx.globalAlpha = 1;
-    }
-    function label(t, x, yy) {
-      ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 18px Inter, sans-serif"; ctx.fillText(t, x, yy);
+      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.15; roundRect(ctx, x, yy, w, h, r || 16); ctx.fill(); ctx.globalAlpha = 1;
     }
 
-    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 24px Oswald, sans-serif";
-    ctx.fillText("ACCOUNTABILITYAAS", pad, 84);
-    ctx.fillStyle = "#fff"; ctx.font = "600 50px Oswald, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }), pad, 144);
+    /* ---- header ---- */
+    ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "600 16px Oswald, sans-serif";
+    ctx.fillText("ACCOUNTABILITYAAS", pad, 52);
+    ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
+    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }), pad, 92);
 
-    /* ---- bodyweight, masked by default ---- */
-    var y = 200;
-    panel(pad, y, W - pad * 2, 196, 20);
-    label("BODYWEIGHT", pad + 30, y + 44);
-    ctx.fillStyle = "#fff"; ctx.font = "700 82px Oswald, sans-serif";
-    if (!summaryShowWeight) {
-      ctx.fillText("••• lb", pad + 30, y + 128);
-      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 24px Inter, sans-serif";
-      ctx.fillText("hidden", pad + 30, y + 168);
-    } else {
-      ctx.fillText(doc.weight != null ? doc.weight + " lb" : "— not logged", pad + 30, y + 128);
-      if (doc.weight != null && prevWeight != null) {
-        var delta = (doc.weight - prevWeight).toFixed(1);
-        ctx.fillStyle = delta > 0 ? "rgba(255,220,210,0.95)" : "rgba(210,255,235,0.95)";
-        ctx.font = "600 26px Inter, sans-serif";
-        ctx.fillText((delta > 0 ? "+" : "") + delta + " lb vs last log", pad + 30, y + 168);
-      }
-    }
-
-    /* ---- session + cardio ---- */
-    y = 424;
-    var colW = (W - pad * 2 - 24) / 2;
-    panel(pad, y, colW, 150); panel(pad + colW + 24, y, colW, 150);
-    label("SESSION", pad + 24, y + 34);
-    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif"; ctx.fillText(prog.name, pad + 24, y + 74);
+    /* ---- one strip of small facts, four across ---- */
+    var stripY = 116, stripH = 86;
+    panel(pad, stripY, full, stripH, 16);
     var totalSets = 0, doneSets = 0;
     prog.ex.forEach(function (exx) {
       totalSets += exx.sets;
       ((doc.sets && doc.sets[exx.name]) || []).forEach(function (r) { if (r && r.done) doneSets++; });
     });
-    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif";
-    var sessLine = prog.type === "cardio" ? "Cardio-only day" : (doneSets + " / " + totalSets + " sets");
-    if (prog.type !== "cardio" && doc.sessionSeconds) sessLine += "  ·  " + fmtTime(doc.sessionSeconds);
-    ctx.fillText(sessLine, pad + 24, y + 112);
-
-    var cx = pad + colW + 48;
-    label("CARDIO", cx, y + 34);
-    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif";
-    ctx.fillText((doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—", cx, y + 74);
-    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif";
-    ctx.fillText((doc.cardio && doc.cardio.incline != null)
-      ? doc.cardio.incline + "% · " + (doc.cardio.speed || "") + " mph" : "not logged", cx, y + 112);
-
-    /* ---- the two streaks, one pill each ---- */
-    y = 600;
-    var pillW = (W - pad * 2 - 24) / 2, pillH = 92;
-    [[pad, "WEIGHT STREAK", wStreak], [pad + pillW + 24, "CARDIO STREAK", cStreak]].forEach(function (p) {
-      panel(p[0], y, pillW, pillH, 46);
-      label(p[1], p[0] + 34, y + 36);
-      ctx.fillStyle = "#fff"; ctx.font = "700 38px Oswald, sans-serif";
-      ctx.fillText(p[2] + (p[2] === 1 ? " day" : " days"), p[0] + 34, y + 74);
+    var facts = [
+      ["BODYWEIGHT", summaryShowWeight ? (doc.weight != null ? doc.weight + " lb" : "—") : "•••",
+        summaryShowWeight && doc.weight != null && prevWeight != null
+          ? ((doc.weight - prevWeight) > 0 ? "+" : "") + (doc.weight - prevWeight).toFixed(1) + " lb"
+          : (summaryShowWeight ? "" : "hidden")],
+      ["SESSION", prog.type === "cardio" ? "Cardio" : doneSets + "/" + totalSets,
+        prog.type === "cardio" ? "no lifting" : (doc.sessionSeconds ? fmtTime(doc.sessionSeconds) : "sets")],
+      ["CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—",
+        (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline + "% · " + (doc.cardio.speed || "") + " mph" : "not logged"],
+      ["CALORIES", calAny ? fmtInt(calTotal) : "—",
+        calAny ? "to " + fmtInt(calTotal + 150) + " est." : "none logged"]
+    ];
+    var colW = full / 4;
+    facts.forEach(function (f, idx) {
+      var x = pad + idx * colW + 18;
+      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "600 11px Inter, sans-serif";
+      ctx.fillText(f[0], x, stripY + 26);
+      ctx.fillStyle = "#fff"; ctx.font = "600 27px Oswald, sans-serif";
+      ctx.fillText(f[1], x, stripY + 57);
+      ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "500 12px Inter, sans-serif";
+      ctx.fillText(f[2], x, stripY + 75);
+      if (idx > 0) {
+        ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad + idx * colW, stripY + 18); ctx.lineTo(pad + idx * colW, stripY + stripH - 18); ctx.stroke();
+      }
     });
 
-    /* ---- meals, with the day's calories on the same line ---- */
-    y = 738;
-    label("MEALS", pad, y);
-    if (calAny) {
-      ctx.fillStyle = "#fff"; ctx.font = "600 22px Oswald, sans-serif";
-      var calTxt = fmtInt(calTotal) + "–" + fmtInt(calTotal + 150) + " KCAL";
-      ctx.fillText(calTxt, pad + 110, y);
-      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 16px Inter, sans-serif";
-      ctx.fillText("estimate, +150 margin", pad + 110 + ctx.measureText(calTxt).width + 74, y);
-    }
+    /* ---- streaks, one quiet line ---- */
+    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 13px Inter, sans-serif";
+    ctx.fillText("WEIGHT STREAK " + wStreak + "d     CARDIO STREAK " + cStreak + "d", pad, stripY + stripH + 30);
 
-    var gridTop = GRID_TOP, cols = COLS, gap = GAP, cell = CELL;
+    /* ---- the photographs ---- */
+    function drawPhoto(img, x, yy, w, h) {
+      ctx.save(); roundRect(ctx, x, yy, w, h, 18); ctx.clip();
+      if (img) {
+        var sc = Math.max(w / img.width, h / img.height);
+        var iw = img.width * sc, ih = img.height * sc;
+        ctx.drawImage(img, x + (w - iw) / 2, yy + (h - ih) / 2, iw, ih);
+      } else { ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, yy, w, h); }
+      ctx.restore();
+    }
     if (shown.length === 0) {
-      panel(pad, gridTop, W - pad * 2, cell, 16);
-      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "italic 500 24px Inter, sans-serif";
-      ctx.fillText("No meals logged today", pad + 24, gridTop + cell / 2 + 8);
+      panel(pad, PHOTOS_TOP, full, gridH, 18);
+      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "italic 500 22px Inter, sans-serif";
+      ctx.fillText("No meals logged today", pad + 26, PHOTOS_TOP + gridH / 2 + 8);
     } else {
       var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
-      imgs.forEach(function (img, idx) {
-        var col = idx % cols, row = Math.floor(idx / cols);
-        var x = pad + col * (cell + gap), yy = gridTop + row * (cell + gap);
-        ctx.save(); roundRect(ctx, x, yy, cell, cell, 14); ctx.clip();
-        if (img) {
-          var sc = Math.max(cell / img.width, cell / img.height);
-          var iw = img.width * sc, ih = img.height * sc;
-          ctx.drawImage(img, x + (cell - iw) / 2, yy + (cell - ih) / 2, iw, ih);
-        } else { ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, yy, cell, cell); }
-        ctx.restore();
-      });
+      if (imgs.length === 1) {
+        drawPhoto(imgs[0], pad, PHOTOS_TOP, full, gridH);
+      } else {
+        imgs.forEach(function (img, idx) {
+          var col = idx % 2, row = Math.floor(idx / 2);
+          drawPhoto(img, pad + col * (half + gap), PHOTOS_TOP + row * (half + gap), half, half);
+        });
+      }
     }
 
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 22px Inter, sans-serif";
-    ctx.fillText("accountabilityaas.com", pad, H - 48);
-    return canvas.toDataURL("image/png");
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 15px Inter, sans-serif";
+    ctx.fillText("accountabilityaas.com", pad, H - 24);
+
+    /* JPEG, not PNG: this is a card made of photographs, and lossless would ship a
+       ten-megabyte file that messaging apps re-compress anyway. */
+    return canvas.toDataURL("image/jpeg", 0.93);
   }
 
   function wireShare() {
@@ -1947,7 +1941,7 @@
     };
     document.getElementById("closeShareBtn").onclick = function () { document.getElementById("shareModal").classList.remove("open"); };
     document.getElementById("saveImgBtn").onclick = async function () {
-      var img = document.getElementById("summaryImg"); var filename = "aas-log-" + dateKey(selectedDate) + ".png";
+      var img = document.getElementById("summaryImg"); var filename = "aas-log-" + dateKey(selectedDate) + ".jpg";
       var a = document.createElement("a"); a.href = img.src; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
     };
   }
