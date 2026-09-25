@@ -110,6 +110,29 @@
   .timer-btn { font-family: var(--font-head); font-size: 12px; padding: 9px 16px; border-radius: 9px; border: none; cursor: pointer; letter-spacing: .03em; }
   .timer-btn.start { background: var(--teal); color: #fff; }
   .timer-btn.stop { background: var(--coral); color: #fff; }
+  .timer-btn.pause { background: var(--amber); color: #fff; }
+  .timer-state { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-faint); }
+  .timer-state.running { color: var(--teal); }
+  .timer-state.paused { color: var(--amber); }
+  .timer-state.done { color: var(--ink-faint); }
+  .privacy-row { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 2px 0 9px; font-size: 11.5px; color: var(--ink-faint); }
+  .eye-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+    font-family: inherit; font-size: 11.5px; font-weight: 600; color: var(--ink-dim); }
+  .eye-btn svg { width: 15px; height: 15px; }
+  .eye-btn[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
+  .eye-btn[aria-pressed="true"] #summaryEyeSlash { display: none; }
+  .meal-status { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 2px 0 10px; }
+  .ms-chip { min-width: 0; display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 6px 2px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2);
+    cursor: pointer; font-size: 9.5px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; line-height: 1.2; }
+  .ms-chip .ms-mark { font-size: 13px; line-height: 1; }
+  .ms-chip.done { background: var(--teal-soft); border-color: var(--teal); color: #0B7A56; }
+  .ms-chip.skipped { background: var(--surface-2); border-color: var(--ink-faint); color: var(--ink-faint); }
+  .ms-chip.skipped .ms-name { text-decoration: line-through; }
 
   .ex-block { padding: 13px 0; border-top: 1px solid var(--line); }
   .ex-block:first-child { border-top: none; padding-top: 0; }
@@ -204,6 +227,7 @@
     cursor: pointer; }
   .ghost-btn:disabled { opacity: .55; cursor: default; }
   .fb-toast.warn .fb-icon { background: linear-gradient(135deg, var(--coral), #C4342A); }
+  .fb-toast.ok .fb-icon { background: linear-gradient(135deg, var(--teal), #0B7A56); }
   .fb-text .fb-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #8A8FA8; margin-right: 3px; animation: bounceDot 1.1s infinite; }
   .fb-text .fb-dots span:nth-child(2) { animation-delay: .15s; } .fb-text .fb-dots span:nth-child(3) { animation-delay: .3s; }
   @keyframes bounceDot { 0%,60%,100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-3px); opacity: 1; } }
@@ -305,7 +329,9 @@
         </div>
         <div class="timer-row" id="sessionTimerRow">
           <div class="timer-display" id="sessionTimerDisplay">0:00</div>
+          <span class="timer-state" id="sessionTimerState"></span>
           <button class="timer-btn start" id="sessionTimerBtn">Start session</button>
+          <button class="timer-btn stop" id="sessionFinishBtn" style="display:none;">Finish</button>
         </div>
       </div>
 
@@ -368,6 +394,7 @@
               <button class="meal-type-btn dinner" data-meal="dinner">Dinner</button>
               <button class="meal-type-btn snack" data-meal="snack">Snack</button>
             </div>
+            <div class="meal-status" id="mealStatusRow"></div>
             <div class="field" style="margin-bottom:8px;">
               <label>Details (ingredients, portion, how it was cooked)</label>
               <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
@@ -467,6 +494,15 @@
       <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:.05em; color:var(--ink-faint); text-transform:uppercase; margin-bottom:6px;">Coach's take</div>
       <div id="scoreNarrative" style="font-size:13.5px; line-height:1.5; color:var(--ink);"><span class="fb-dots" style="display:inline-block;"><span></span><span></span><span></span></span></div>
     </div>
+    <div class="privacy-row">
+      <span id="summaryEyeNote">Bodyweight hidden on the card</span>
+      <button class="eye-btn" id="summaryEyeBtn" type="button" aria-pressed="false">
+        <svg id="summaryEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+          <path id="summaryEyeSlash" d="M3 3l18 18"/>
+        </svg><span id="summaryEyeLabel">Show</span>
+      </button>
+    </div>
     <canvas id="summaryCanvas" width="1080" height="1350" style="display:none;"></canvas>
     <img id="summaryImg" style="width:100%; height:auto; border-radius:12px; border:1px solid var(--line); display:block;" alt="Day summary card">
     <div style="font-size:11px; color:var(--ink-faint); margin-top:8px; text-align:center;">Tip: press and hold the image to save it, or use the button below.</div>
@@ -518,13 +554,13 @@
     6: { name: "Upper A", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
       ex: [ ex("Flat DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 90), ex("Standing DB OHP", 4, 8, 12, 35, "lb/hand", false, 90), ex("DB Row", 4, 8, 12, 65, "lb", true, 90), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60), ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 60), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
     0: { name: "Lower A", type: "lift", cardio: { min: 80, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60) ]},
+      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 85, "lb", false, 60) ]},
     1: { name: "Cardio only", type: "cardio", cardio: { min: 40, incline: 10, speed: 3.0 }, ex: [] },
     2: { name: "Upper B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
       ex: [ ex("Incline DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Face Pull", 4, 12, 20, 59, "lb", true, 60), ex("DB Fly", 3, 10, 15, 17.5, "lb/hand", false, 60), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", true, 60), ex("Dips", 3, 10, 15, null, "bodyweight", false, 90), ex("Zottman Curl", 3, 10, 15, 20, "lb/hand", false, 60) ]},
     3: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] },
     4: { name: "Lower B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
+      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 85, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
     5: { name: "Cardio only", type: "cardio", cardio: { min: 45, incline: 10, speed: 3.0 }, ex: [] }
   };
   var DAY_ABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -646,14 +682,17 @@
     });
   }
 
-  function showProblem(msg) {
+  function showProblem(msg) { showToast(msg, true); }
+  function showToast(msg, isWarning) {
     var wrap = document.getElementById("feedbackWrap");
     if (!wrap) return;
     var toast = document.createElement("div");
-    toast.className = "fb-toast warn";
+    toast.className = "fb-toast" + (isWarning ? " warn" : " ok");
+    var icon = isWarning
+      ? '<path d="M12 8v5"/><path d="M12 16.5v.01"/><path d="M12 3 2.5 20h19L12 3z"/>'
+      : '<path d="M20 6 9 17l-5-5"/>';
     toast.innerHTML = '<div class="fb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-      'stroke-width="2.2"><path d="M12 8v5"/><path d="M12 16.5v.01"/>' +
-      '<path d="M12 3 2.5 20h19L12 3z"/></svg></div><div class="fb-text"></div>';
+      'stroke-width="2.2">' + icon + '</svg></div><div class="fb-text"></div>';
     toast.querySelector(".fb-text").textContent = msg;
     wrap.innerHTML = ""; wrap.appendChild(toast);
     requestAnimationFrame(function () { toast.classList.add("show"); });
@@ -682,6 +721,39 @@
       }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
+  /* computeStreak, the previous-weight lookup and the summary card all walk backwards
+     through dates, and each was doing a round trip per day -- sixty queries to draw one
+     card. Pull the lot once and fill the same cache they already read through. */
+  async function primeDayCache() {
+    try {
+      var { data } = await supabase.from("days").select("*").eq("user_id", currentProfileId);
+      (data || []).forEach(function (r) {
+        if (cache[r.date]) return;   // never clobber an edit that has not been saved yet
+        cache[r.date] = {
+          weight: r.weight, cardio: r.cardio, sets: r.sets || {},
+          sessionSeconds: r.session_seconds,
+          cardioPhoto: r.cardio_photo_url ? { url: r.cardio_photo_url } : null
+        };
+      });
+    } catch (e) {}
+  }
+
+  /* A streak in one thing only. Counts back from the card's own date, and a day that
+     simply has not been logged yet does not break the run -- otherwise every streak
+     would read zero each morning until you stepped on the scale. */
+  async function metricStreak(kind) {
+    var has = kind === "weight"
+      ? function (d) { return d && d.weight != null; }
+      : function (d) { return !!(d && d.cardio && d.cardio.min != null); };
+    var d = new Date(selectedDate), n = 0;
+    if (!has(await getDayDoc(dateKey(d)))) d.setDate(d.getDate() - 1);
+    for (var i = 0; i < 400; i++) {
+      if (!has(await getDayDoc(dateKey(d)))) break;
+      n++; d.setDate(d.getDate() - 1);
+    }
+    return n;
+  }
+
   async function getAllDayKeys() {
     try {
       var { data } = await supabase.from("days").select("date").eq("user_id", currentProfileId);
@@ -894,48 +966,175 @@
   }
 
   /* ===================== SESSION TIMER ===================== */
+  /* The timer used to live entirely in memory: one start timestamp, and the elapsed
+     time only became real when you pressed Finish. Closing the tab mid-session threw
+     the whole thing away.
+
+     It now keeps {acc, startedAt, finished} per day. `acc` is the seconds banked by
+     completed run segments and is flushed to the database every few seconds, so a
+     browser that dies loses at most FLUSH_MS of work. `startedAt` marks the segment
+     currently running and lives only in localStorage, because a session that is
+     running is a fact about this device, not about the account.
+
+     Closing or backgrounding the page pauses rather than keeps counting: time spent
+     with the tab shut is not time spent training. On the way back in, a session found
+     with a startedAt is treated as paused at its last flush -- we cannot know when the
+     browser actually died, and banking time that may never have been trained would
+     make the number a lie. */
+  var FLUSH_MS = 5000;
+  var sessionFlushTimer = null;
+
   function fmtTime(sec) { var m = Math.floor(sec/60), s = sec%60; return m + ":" + String(s).padStart(2,"0"); }
+
+  function sessionKeyFor(dayKey) { return "aaslog:session:" + (currentProfileId || "anon") + ":" + dayKey; }
+  function readSession(dayKey) {
+    try {
+      var raw = localStorage.getItem(sessionKeyFor(dayKey));
+      if (raw) {
+        var st = JSON.parse(raw);
+        if (st && typeof st.acc === "number") return st;
+      }
+    } catch (e) {}
+    return { acc: 0, startedAt: null, finished: false };
+  }
+  function writeSession(dayKey, st) {
+    try { localStorage.setItem(sessionKeyFor(dayKey), JSON.stringify(st)); } catch (e) {}
+  }
+  /* Seconds to show right now: what is banked, plus whatever the running segment has
+     added since it started. */
+  function sessionTotal(st) {
+    return st.acc + (st.startedAt ? Math.floor((Date.now() - st.startedAt) / 1000) : 0);
+  }
+  /* Fold the running segment into acc and restart it, so acc is always safe to persist
+     without the clock appearing to jump. */
+  function bankSession(st) {
+    if (st.startedAt) {
+      st.acc = sessionTotal(st);
+      st.startedAt = Date.now();
+    }
+    return st;
+  }
+  async function persistSessionSeconds(dayKey, seconds) {
+    try {
+      var doc = await getDayDoc(dayKey);
+      if (doc.sessionSeconds === seconds) return;
+      doc.sessionSeconds = seconds;
+      await saveDayDoc(dayKey, doc);
+    } catch (e) {}
+  }
+
   function renderSessionTimerUI(doc) {
     var row = document.getElementById("sessionTimerRow");
     var display = document.getElementById("sessionTimerDisplay");
+    var state = document.getElementById("sessionTimerState");
     var btn = document.getElementById("sessionTimerBtn");
+    var finishBtn = document.getElementById("sessionFinishBtn");
     clearInterval(sessionTimerInterval); sessionTimerInterval = null;
-    var dow = selectedDate.getDay();
-    if (PROGRAM[dow].type === "cardio") { row.style.display = "none"; return; }
+    clearInterval(sessionFlushTimer); sessionFlushTimer = null;
+
+    if (PROGRAM[selectedDate.getDay()].type === "cardio") { row.style.display = "none"; return; }
     row.style.display = "flex";
-    if (doc.sessionSeconds != null && !sessionTimerStart) {
-      display.textContent = fmtTime(doc.sessionSeconds);
-      btn.textContent = "Restart"; btn.className = "timer-btn start";
-    } else if (sessionTimerStart) {
-      btn.textContent = "Finish session"; btn.className = "timer-btn stop";
-      tickSessionTimer();
+
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    /* A day whose time was recorded on another device, or before this rewrite, still
+       has its seconds in the database and nothing in localStorage. Adopt them. */
+    if (st.acc === 0 && !st.startedAt && doc && doc.sessionSeconds) {
+      st.acc = doc.sessionSeconds; st.finished = true; writeSession(key, st);
+    }
+
+    display.textContent = fmtTime(sessionTotal(st));
+
+    if (st.finished) {
+      state.textContent = "Done"; state.className = "timer-state done";
+      btn.textContent = "Restart"; btn.className = "timer-btn start"; btn.style.display = "";
+      finishBtn.style.display = "none";
+    } else if (st.startedAt) {
+      state.textContent = "Running"; state.className = "timer-state running";
+      btn.textContent = "Pause"; btn.className = "timer-btn pause"; btn.style.display = "";
+      finishBtn.style.display = "";
       sessionTimerInterval = setInterval(tickSessionTimer, 1000);
+      sessionFlushTimer = setInterval(flushSession, FLUSH_MS);
+    } else if (st.acc > 0) {
+      state.textContent = "Paused"; state.className = "timer-state paused";
+      btn.textContent = "Resume"; btn.className = "timer-btn start"; btn.style.display = "";
+      finishBtn.style.display = "";
     } else {
-      display.textContent = "0:00"; btn.textContent = "Start session"; btn.className = "timer-btn start";
+      state.textContent = ""; state.className = "timer-state";
+      btn.textContent = "Start session"; btn.className = "timer-btn start"; btn.style.display = "";
+      finishBtn.style.display = "none";
     }
   }
+
   function tickSessionTimer() {
-    if (!sessionTimerStart) return;
-    var elapsed = Math.floor((Date.now() - sessionTimerStart) / 1000);
-    document.getElementById("sessionTimerDisplay").textContent = fmtTime(elapsed);
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    if (!st.startedAt) { clearInterval(sessionTimerInterval); sessionTimerInterval = null; return; }
+    document.getElementById("sessionTimerDisplay").textContent = fmtTime(sessionTotal(st));
   }
-  function stopSessionTimerUI() { clearInterval(sessionTimerInterval); sessionTimerInterval = null; sessionTimerStart = null; }
+
+  function flushSession() {
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    if (!st.startedAt) return;
+    bankSession(st); writeSession(key, st);
+    persistSessionSeconds(key, st.acc);
+  }
+
+  /* Pause without touching the UI, for the page going away. */
+  function pauseSessionQuietly() {
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    if (!st.startedAt || st.finished) return;
+    st.acc = sessionTotal(st); st.startedAt = null;
+    writeSession(key, st);
+    persistSessionSeconds(key, st.acc);
+  }
+
+  async function finishSession(auto) {
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    if (st.finished) return;
+    st.acc = sessionTotal(st); st.startedAt = null; st.finished = true;
+    writeSession(key, st);
+    await persistSessionSeconds(key, st.acc);
+    clearInterval(sessionTimerInterval); sessionTimerInterval = null;
+    clearInterval(sessionFlushTimer); sessionFlushTimer = null;
+    vibrate([20,40,20]);
+    renderSessionTimerUI(await getDayDoc(key));
+    if (auto) showToast("Every set is done — session stopped at " + fmtTime(st.acc) + ".", false);
+  }
+
+  function stopSessionTimerUI() {
+    clearInterval(sessionTimerInterval); sessionTimerInterval = null;
+    clearInterval(sessionFlushTimer); sessionFlushTimer = null;
+    sessionTimerStart = null;
+  }
+
   function wireSessionTimer() {
     document.getElementById("sessionTimerBtn").onclick = async function () {
       var key = dateKey(selectedDate);
-      if (sessionTimerStart) {
-        var elapsed = Math.floor((Date.now() - sessionTimerStart) / 1000);
-        sessionTimerStart = null; clearInterval(sessionTimerInterval); sessionTimerInterval = null;
-        var doc = await getDayDoc(key); doc.sessionSeconds = elapsed; await saveDayDoc(key, doc);
-        vibrate([20,40,20]);
-        this.textContent = "Restart"; this.className = "timer-btn start";
-      } else {
-        sessionTimerStart = Date.now();
-        this.textContent = "Finish session"; this.className = "timer-btn stop";
-        tickSessionTimer();
-        sessionTimerInterval = setInterval(tickSessionTimer, 1000);
+      var st = readSession(key);
+      if (st.finished) {                       // Restart
+        st = { acc: 0, startedAt: Date.now(), finished: false };
+      } else if (st.startedAt) {               // Pause
+        st.acc = sessionTotal(st); st.startedAt = null;
+      } else {                                 // Start or Resume
+        st.startedAt = Date.now();
       }
+      writeSession(key, st);
+      await persistSessionSeconds(key, st.acc);
+      renderSessionTimerUI(await getDayDoc(key));
     };
+    document.getElementById("sessionFinishBtn").onclick = function () { finishSession(false); };
+
+    /* A closed or backgrounded tab pauses. pagehide is the one that fires reliably on
+       mobile Safari, where beforeunload often does not. */
+    window.addEventListener("pagehide", pauseSessionQuietly);
+    window.addEventListener("beforeunload", pauseSessionQuietly);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") pauseSessionQuietly();
+    });
   }
 
   /* ===================== REST TIMER ===================== */
@@ -1128,7 +1327,12 @@
       var dow = selectedDate.getDay(); var prog = PROGRAM[dow];
       var totalSets = 0, doneSets = 0;
       prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (r) { if (r && r.done) doneSets++; }); });
-      if (totalSets > 0 && doneSets === totalSets) fireFeedback("workout", "Just completed the final set of " + prog.name + " (" + totalSets + " total sets across " + prog.ex.length + " exercises). Give a brief, energetic, encouraging reaction to finishing the whole session.");
+      if (totalSets > 0 && doneSets === totalSets) {
+        fireFeedback("workout", "Just completed the final set of " + prog.name + " (" + totalSets + " total sets across " + prog.ex.length + " exercises). Give a brief, energetic, encouraging reaction to finishing the whole session.");
+        // The last set is the end of the session, so stop the clock rather than
+        // leaving it running until someone remembers to press Finish.
+        await finishSession(true);
+      }
     }
   }
 
@@ -1387,6 +1591,49 @@
       container.appendChild(grid);
     });
   }
+  /* Which meals are done comes from the photos themselves, so it is real and follows
+     the account. "Skipped" is a note to yourself with nowhere to live in the schema, so
+     it sits in localStorage on this device -- worth knowing if you ever log from two
+     phones. Tap a meal to mark it skipped, tap again to clear it. */
+  var MEALS = ["breakfast", "lunch", "dinner", "snack"];
+  function skipKeyFor(dayKey) { return "aaslog:skipped:" + (currentProfileId || "anon") + ":" + dayKey; }
+  function readSkipped(dayKey) {
+    try { return JSON.parse(localStorage.getItem(skipKeyFor(dayKey)) || "[]") || []; }
+    catch (e) { return []; }
+  }
+  function writeSkipped(dayKey, arr) {
+    try { localStorage.setItem(skipKeyFor(dayKey), JSON.stringify(arr)); } catch (e) {}
+  }
+  function renderMealStatus(todayItems) {
+    var row = document.getElementById("mealStatusRow");
+    if (!row) return;
+    var dayKey = dateKey(new Date());
+    var skipped = readSkipped(dayKey);
+    var logged = {};
+    (todayItems || []).forEach(function (it) { logged[it.meal || "snack"] = true; });
+    row.innerHTML = "";
+    MEALS.forEach(function (m) {
+      var isDone = !!logged[m], isSkipped = !isDone && skipped.indexOf(m) !== -1;
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "ms-chip" + (isDone ? " done" : isSkipped ? " skipped" : "");
+      chip.innerHTML = '<span class="ms-mark">' +
+        (isDone ? "\u2713" : isSkipped ? "\u2014" : "\u00b7") +
+        '</span><span class="ms-name">' + m.charAt(0).toUpperCase() + m.slice(1) + '</span>';
+      chip.title = isDone ? "Logged \u2014 tap a photo below to edit it"
+                 : isSkipped ? "Marked skipped. Tap to clear." : "Tap to mark skipped";
+      chip.onclick = function () {
+        if (isDone) return;   // a logged meal is a fact; do not let a tap contradict it
+        var next = readSkipped(dayKey);
+        var at = next.indexOf(m);
+        if (at === -1) next.push(m); else next.splice(at, 1);
+        writeSkipped(dayKey, next);
+        renderMealStatus(todayItems);
+      };
+      row.appendChild(chip);
+    });
+  }
+
   async function renderFood() {
     var items = await loadFoodLog();
     var todayKey = dateKey(new Date());
@@ -1396,7 +1643,12 @@
     var cal = 0, prot = 0, any = false;
     todayItems.forEach(function(it){ if (it.estimate) { any = true; cal += it.estimate.calories || 0; prot += it.estimate.protein_g || 0; } });
     var totalsEl = document.getElementById("todayEstTotals");
-    if (totalsEl) totalsEl.textContent = any ? (cal + " kcal · " + prot + "g protein") : "—";
+    // Shown as a range: the estimates read a photo, so the top of the range carries
+    // the same +150 margin the summary card uses rather than implying false precision.
+    if (totalsEl) totalsEl.textContent = any
+      ? (cal.toLocaleString() + "\u2013" + (cal + 150).toLocaleString() + " kcal \u00b7 " + prot + "g protein")
+      : "\u2014";
+    renderMealStatus(todayItems);
   }
   function wireFoodUpload() {
     function handleFoodFile(e) {
@@ -1518,72 +1770,161 @@
 
   function loadImg(src) { return new Promise(function (resolve) { var img = new Image(); img.crossOrigin = "anonymous"; img.onload = function () { resolve(img); }; img.onerror = function () { resolve(null); }; img.src = src; }); }
   function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  /* The card is made to be shared, so bodyweight is masked unless the eye is pressed.
+     Everything else on it is fine to send to someone; a number on a scale is not. */
+  var summaryShowWeight = false;
+
+  function fmtInt(n) { return Math.round(n).toLocaleString(); }
+
   async function buildSummaryImage() {
-    var key = dateKey(selectedDate); var doc = await getDayDoc(key); var prog = PROGRAM[selectedDate.getDay()];
+    var key = dateKey(selectedDate);
+    await primeDayCache();
+    var doc = await getDayDoc(key); var prog = PROGRAM[selectedDate.getDay()];
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
     var dayFood = foodCache.filter(function (f) { return f.date === key; });
+
     var keys = await getAllDayKeys(); var prevWeight = null;
     var sortedKeys = keys.filter(function(k){ return k < key; }).sort().reverse();
-    for (var i = 0; i < sortedKeys.length; i++) { var pd = await getDayDoc(sortedKeys[i]); if (pd.weight != null) { prevWeight = pd.weight; break; } }
-    var W = 1080, H = 1350;
+    for (var i = 0; i < sortedKeys.length; i++) {
+      var pd = await getDayDoc(sortedKeys[i]);
+      if (pd.weight != null) { prevWeight = pd.weight; break; }
+    }
+
+    var calTotal = 0, calAny = false;
+    dayFood.forEach(function (f) {
+      if (f.estimate && f.estimate.calories) { calAny = true; calTotal += f.estimate.calories; }
+    });
+
+    var wStreak = await metricStreak("weight");
+    var cStreak = await metricStreak("cardio");
+
+    /* The card used to be a fixed 1080x1350 whatever was on it, so a day with two
+       meals left a third of the image empty. Work out how tall the meal grid will be
+       first and cut the card to fit. */
+    var W = 1080, pad = 56, GRID_TOP = 764, COLS = 4, GAP = 12;
+    var CELL = (W - pad * 2 - GAP * (COLS - 1)) / COLS;
+    var shown = dayFood.slice(0, COLS * 2);
+    var gridRows = Math.max(1, Math.ceil(shown.length / COLS));
+    var H = Math.round(GRID_TOP + gridRows * (CELL + GAP) - GAP + 108);
+
     var canvas = document.getElementById("summaryCanvas"); canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext("2d");
     var grad = ctx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, "#2E6BFF"); grad.addColorStop(0.55, "#6B3FFF"); grad.addColorStop(1, "#E0417C");
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-    var pad = 56;
-    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 24px Oswald, sans-serif"; ctx.fillText("ACCOUNTABILITYAAS", pad, 84);
+
+    function panel(x, yy, w, h, r) {
+      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.14; roundRect(ctx, x, yy, w, h, r || 18); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    function label(t, x, yy) {
+      ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 18px Inter, sans-serif"; ctx.fillText(t, x, yy);
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 24px Oswald, sans-serif";
+    ctx.fillText("ACCOUNTABILITYAAS", pad, 84);
     ctx.fillStyle = "#fff"; ctx.font = "600 50px Oswald, sans-serif";
     ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }), pad, 144);
-    var y = 210;
-    ctx.fillStyle = "#fff"; roundRect(ctx, pad, y, W - pad*2, 210, 20); ctx.globalAlpha = 0.14; ctx.fill(); ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 20px Inter, sans-serif"; ctx.fillText("BODYWEIGHT", pad + 30, y + 46);
-    ctx.fillStyle = "#fff"; ctx.font = "700 84px Oswald, sans-serif"; ctx.fillText(doc.weight != null ? doc.weight + " lb" : "— not logged", pad + 30, y + 132);
-    if (doc.weight != null && prevWeight != null) {
-      var delta = (doc.weight - prevWeight).toFixed(1);
-      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "500 26px Inter, sans-serif";
-      ctx.fillText((delta > 0 ? "+" : "") + delta + " lb vs last log", pad + 30, y + 174);
+
+    /* ---- bodyweight, masked by default ---- */
+    var y = 200;
+    panel(pad, y, W - pad * 2, 196, 20);
+    label("BODYWEIGHT", pad + 30, y + 44);
+    ctx.fillStyle = "#fff"; ctx.font = "700 82px Oswald, sans-serif";
+    if (!summaryShowWeight) {
+      ctx.fillText("••• lb", pad + 30, y + 128);
+      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 24px Inter, sans-serif";
+      ctx.fillText("hidden", pad + 30, y + 168);
+    } else {
+      ctx.fillText(doc.weight != null ? doc.weight + " lb" : "— not logged", pad + 30, y + 128);
+      if (doc.weight != null && prevWeight != null) {
+        var delta = (doc.weight - prevWeight).toFixed(1);
+        ctx.fillStyle = delta > 0 ? "rgba(255,220,210,0.95)" : "rgba(210,255,235,0.95)";
+        ctx.font = "600 26px Inter, sans-serif";
+        ctx.fillText((delta > 0 ? "+" : "") + delta + " lb vs last log", pad + 30, y + 168);
+      }
     }
-    y += 250;
+
+    /* ---- session + cardio ---- */
+    y = 424;
     var colW = (W - pad * 2 - 24) / 2;
-    ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.14; roundRect(ctx, pad, y, colW, 160, 18); ctx.fill(); roundRect(ctx, pad + colW + 24, y, colW, 160, 18); ctx.fill(); ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 18px Inter, sans-serif"; ctx.fillText("SESSION", pad + 24, y + 36);
-    ctx.fillStyle = "#fff"; ctx.font = "600 32px Oswald, sans-serif"; ctx.fillText(prog.name, pad + 24, y + 76);
+    panel(pad, y, colW, 150); panel(pad + colW + 24, y, colW, 150);
+    label("SESSION", pad + 24, y + 34);
+    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif"; ctx.fillText(prog.name, pad + 24, y + 74);
     var totalSets = 0, doneSets = 0;
-    prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (r) { if (r && r.done) doneSets++; }); });
-    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif"; ctx.fillText(prog.type === "cardio" ? "Cardio-only day" : (doneSets + " / " + totalSets + " sets"), pad + 24, y + 114);
-    var cx = pad + colW + 24 + 24;
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 18px Inter, sans-serif"; ctx.fillText("CARDIO", cx, y + 36);
-    ctx.fillStyle = "#fff"; ctx.font = "600 32px Oswald, sans-serif"; ctx.fillText((doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—", cx, y + 76);
-    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif"; ctx.fillText((doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline + "% · " + (doc.cardio.speed || "") + " mph" : "not logged", cx, y + 114);
-    y += 200;
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 20px Inter, sans-serif"; ctx.fillText("MEALS", pad, y);
-    y += 24;
-    var gridTop = y, cols = 3, gap = 14; var cell = (W - pad * 2 - gap * (cols - 1)) / cols; var maxRows = 2;
-    var shown = dayFood.slice(0, cols * maxRows);
+    prog.ex.forEach(function (exx) {
+      totalSets += exx.sets;
+      ((doc.sets && doc.sets[exx.name]) || []).forEach(function (r) { if (r && r.done) doneSets++; });
+    });
+    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif";
+    var sessLine = prog.type === "cardio" ? "Cardio-only day" : (doneSets + " / " + totalSets + " sets");
+    if (prog.type !== "cardio" && doc.sessionSeconds) sessLine += "  ·  " + fmtTime(doc.sessionSeconds);
+    ctx.fillText(sessLine, pad + 24, y + 112);
+
+    var cx = pad + colW + 48;
+    label("CARDIO", cx, y + 34);
+    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif";
+    ctx.fillText((doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—", cx, y + 74);
+    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "500 22px Inter, sans-serif";
+    ctx.fillText((doc.cardio && doc.cardio.incline != null)
+      ? doc.cardio.incline + "% · " + (doc.cardio.speed || "") + " mph" : "not logged", cx, y + 112);
+
+    /* ---- the two streaks, one pill each ---- */
+    y = 600;
+    var pillW = (W - pad * 2 - 24) / 2, pillH = 92;
+    [[pad, "WEIGHT STREAK", wStreak], [pad + pillW + 24, "CARDIO STREAK", cStreak]].forEach(function (p) {
+      panel(p[0], y, pillW, pillH, 46);
+      label(p[1], p[0] + 34, y + 36);
+      ctx.fillStyle = "#fff"; ctx.font = "700 38px Oswald, sans-serif";
+      ctx.fillText(p[2] + (p[2] === 1 ? " day" : " days"), p[0] + 34, y + 74);
+    });
+
+    /* ---- meals, with the day's calories on the same line ---- */
+    y = 738;
+    label("MEALS", pad, y);
+    if (calAny) {
+      ctx.fillStyle = "#fff"; ctx.font = "600 22px Oswald, sans-serif";
+      var calTxt = fmtInt(calTotal) + "–" + fmtInt(calTotal + 150) + " KCAL";
+      ctx.fillText(calTxt, pad + 110, y);
+      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 16px Inter, sans-serif";
+      ctx.fillText("estimate, +150 margin", pad + 110 + ctx.measureText(calTxt).width + 74, y);
+    }
+
+    var gridTop = GRID_TOP, cols = COLS, gap = GAP, cell = CELL;
     if (shown.length === 0) {
-      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.14; roundRect(ctx, pad, gridTop, W - pad * 2, cell, 16); ctx.fill(); ctx.globalAlpha = 1;
-      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "italic 500 24px Inter, sans-serif"; ctx.fillText("No meals logged today", pad + 24, gridTop + cell / 2 + 8);
-      y = gridTop + cell;
+      panel(pad, gridTop, W - pad * 2, cell, 16);
+      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "italic 500 24px Inter, sans-serif";
+      ctx.fillText("No meals logged today", pad + 24, gridTop + cell / 2 + 8);
     } else {
       var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
       imgs.forEach(function (img, idx) {
         var col = idx % cols, row = Math.floor(idx / cols);
         var x = pad + col * (cell + gap), yy = gridTop + row * (cell + gap);
         ctx.save(); roundRect(ctx, x, yy, cell, cell, 14); ctx.clip();
-        if (img) { var s = Math.max(cell / img.width, cell / img.height); var iw = img.width * s, ih = img.height * s; ctx.drawImage(img, x + (cell - iw) / 2, yy + (cell - ih) / 2, iw, ih); }
-        else { ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, yy, cell, cell); }
+        if (img) {
+          var sc = Math.max(cell / img.width, cell / img.height);
+          var iw = img.width * sc, ih = img.height * sc;
+          ctx.drawImage(img, x + (cell - iw) / 2, yy + (cell - ih) / 2, iw, ih);
+        } else { ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, yy, cell, cell); }
         ctx.restore();
       });
-      y = gridTop + Math.ceil(shown.length / cols) * (cell + gap);
     }
-    y = H - 60;
-    var streak = await computeStreak();
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 22px Inter, sans-serif"; ctx.fillText(streak + "-day streak · accountabilityaas.com", pad, y);
+
+    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 22px Inter, sans-serif";
+    ctx.fillText("accountabilityaas.com", pad, H - 48);
     return canvas.toDataURL("image/png");
   }
 
   function wireShare() {
+    document.getElementById("summaryEyeBtn").onclick = async function () {
+      summaryShowWeight = !summaryShowWeight;
+      this.setAttribute("aria-pressed", summaryShowWeight ? "true" : "false");
+      document.getElementById("summaryEyeLabel").textContent = summaryShowWeight ? "Hide" : "Show";
+      document.getElementById("summaryEyeNote").textContent = summaryShowWeight
+        ? "Bodyweight visible \u2014 it will be in the saved image"
+        : "Bodyweight hidden on the card";
+      document.getElementById("summaryImg").src = await buildSummaryImage();
+    };
+
     document.getElementById("scoreDayBtn").onclick = async function () {
       var btn = this; var origHtml = btn.innerHTML;
       btn.innerHTML = "Scoring…"; btn.disabled = true;
@@ -1594,6 +1935,11 @@
         document.getElementById("shareModalTitle").textContent = selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + " score";
         document.getElementById("shareModal").classList.add("open");
         fetchScoreNarrative(scoreData);
+        summaryShowWeight = false;
+        var eye = document.getElementById("summaryEyeBtn");
+        eye.setAttribute("aria-pressed", "false");
+        document.getElementById("summaryEyeLabel").textContent = "Show";
+        document.getElementById("summaryEyeNote").textContent = "Bodyweight hidden on the card";
         var dataUrl = await buildSummaryImage();
         document.getElementById("summaryImg").src = dataUrl;
       } catch (e) { alert("Couldn't build today's score — try again once some data is saved."); }
