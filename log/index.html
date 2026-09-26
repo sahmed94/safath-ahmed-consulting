@@ -2055,53 +2055,56 @@
       streakChip(c[0] + 28, y + 178, c[4]);
     });
 
-    /* ---- 4. calories against maintenance ---- */
-    y = 638; h = 168;
+    /* ---- 4. nutrition: calories and the three rings in one band ---- */
+    /* Calories used to have a band of its own above the rings, which cost about 200px
+       of card for one number and a bar. They measure the same thing -- what was eaten --
+       so they share a card now, and the photos get the height back. */
+    y = 638; h = 440;
     card(pad, y, W - pad * 2, h);
-    cap("CALORIES", pad + 34, y + 42, 15);
-    big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 104, 54);
-    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 21px Inter, sans-serif";
-    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  maintenance " + fmtInt(TARGETS.calories)
-                        : "nothing logged", pad + 34, y + 138);
+    cap("NUTRITION", pad + 34, y + 42, 15);
     var underCap = anyEst && cal <= TARGETS.calories;
     ctx.textAlign = "right";
-    cap(underCap ? "UNDER MAINTENANCE" : (anyEst ? "OVER MAINTENANCE" : "STREAK"), W - pad - 34, y + 42, 15);
+    cap(underCap ? "UNDER MAINTENANCE" : (anyEst ? "OVER MAINTENANCE" : "NOTHING LOGGED"),
+        W - pad - 130, y + 42, 15);
     ctx.textAlign = "left";
-    streakChip(W - pad - 120, y + 104, st.calories);
-    // a bar showing where the day sits against the cap
-    var barW = W - pad * 2 - 68, barY = y + h - 26;
+    streakChip(W - pad - 112, y + 48, st.calories);
+
+    big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 108, 54);
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 21px Inter, sans-serif";
+    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  maintenance " + fmtInt(TARGETS.calories)
+                        : "no meals logged today",
+      pad + 34 + ctx.measureText("0").width + (anyEst ? 170 : 130), y + 104);
+
+    var barW = W - pad * 2 - 68, barY = y + 130;
     ctx.fillStyle = "rgba(255,255,255,0.18)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
     if (anyEst) {
       ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
       roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / TARGETS.calories)), 10, 5); ctx.fill();
     }
 
-    /* ---- 5. the rings ---- */
-    y = 838; h = 430;
-    card(pad, y, W - pad * 2, h);
-    cap("PROTEIN · FAT · FIBRE", pad + 34, y + 44, 15);
-    var cx = pad + 34 + 150, cy = y + 232;
+    var cx = pad + 34 + 132, cy = y + 292;
     var rings = [
-      { r: 132, w: 30, val: pro, target: TARGETS.protein, color: "#5BE1A8", name: "PROTEIN", unit: "g" },
-      { r: 94,  w: 30, val: fat, target: TARGETS.fat,     color: "#FFD666", name: "FAT",     unit: "g" },
-      { r: 56,  w: 30, val: fib, target: TARGETS.fiber,   color: "#6FD0FF", name: "FIBRE",   unit: "g" }
+      { r: 118, w: 27, val: pro, target: TARGETS.protein, color: "#5BE1A8", name: "PROTEIN", unit: "g" },
+      { r: 84,  w: 27, val: fat, target: TARGETS.fat,     color: "#FFD666", name: "FAT",     unit: "g" },
+      { r: 50,  w: 27, val: fib, target: TARGETS.fiber,   color: "#6FD0FF", name: "FIBRE",   unit: "g" }
     ];
     rings.forEach(function (rg) {
       ringArc(ctx, cx, cy, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.16)");
     });
-    var lx = cx + 190;
+    var lx = cx + 172;
     rings.forEach(function (rg, i) {
-      var ly = cy - 88 + i * 88;
-      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 9, ly - 9, 9, 0, Math.PI * 2); ctx.fill();
-      cap(rg.name, lx + 30, ly - 3, 16, 0.75);
-      ctx.fillStyle = "#fff"; ctx.font = "600 38px Oswald, sans-serif";
-      ctx.fillText(rg.val + rg.unit, lx + 30, ly + 40);
-      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 19px Inter, sans-serif";
-      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target + rg.unit, lx + 30 + ctx.measureText(rg.val + rg.unit).width + 78, ly + 38);
+      var ly = cy - 74 + i * 78;
+      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 8, ly - 8, 8, 0, Math.PI * 2); ctx.fill();
+      cap(rg.name, lx + 26, ly - 2, 15, 0.75);
+      ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
+      ctx.fillText(rg.val + rg.unit, lx + 26, ly + 36);
+      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 18px Inter, sans-serif";
+      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target + rg.unit,
+        lx + 26 + ctx.measureText(rg.val + rg.unit).width + 66, ly + 34);
     });
 
-    /* ---- 6. the coach ---- */
-    y = 1300;
+    /* ---- 5. the coach ---- */
+    y = 1110;
     if (summaryShowCoach && coachText) {
       var words = coachText.split(/\s+/), lines = [], line = "";
       ctx.font = "500 27px Inter, sans-serif";
@@ -2131,8 +2134,11 @@
     var avail = footY - 34 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
     var rows = Math.floor((avail + gap) / (cellW + gap));
-    var cellH = rows >= 1 ? cellW : avail;
-    if (rows < 1) rows = 1;
+    var cellH;
+    if (rows >= 2) { rows = 2; cellH = cellW; }               // two square rows
+    else if (rows === 1) { cellH = Math.min(avail, cellW * 1.3); }  // one row, grown to fill
+    else { rows = 1; cellH = avail; }                          // whatever is left
+
     if (cellH >= 150 && dayFood.length) {
       var shown = dayFood.slice(0, rows * 2);
       var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
