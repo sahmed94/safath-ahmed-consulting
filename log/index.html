@@ -60,6 +60,14 @@
 
   .quest-card { background: linear-gradient(135deg, #EAF0FF 0%, #FDE9F1 100%); border: none; }
   .power-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .card-split { height: 1px; background: rgba(27,30,43,0.09); margin: 16px 0 14px; }
+  .streak-row { display: flex; gap: 6px; }
+  .sr-pill { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,30,43,0.08); border-radius: 999px; padding: 3px 9px;
+    font-family: var(--font-head); font-size: 11.5px; font-weight: 600; color: var(--ink-dim); }
+  .sr-pill b { color: var(--ink); font-size: 12.5px; }
+  .sr-pill.on { color: var(--amber); }
+  .sr-pill.on b { color: var(--amber); }
   .power-title { font-family: var(--font-head); font-size: 13px; letter-spacing: .04em; color: var(--ink-dim); text-transform: uppercase; }
   .streak { display: flex; align-items: center; gap: 5px; font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--amber); }
   .streak svg { width: 17px; height: 17px; }
@@ -116,15 +124,34 @@
   .timer-state.running { color: var(--teal); }
   .timer-state.paused { color: var(--amber); }
   .timer-state.done { color: var(--ink-faint); }
-  .privacy-row { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  .privacy-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
     margin: 2px 0 9px; font-size: 11.5px; color: var(--ink-faint); }
   .eye-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2);
     border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer;
     font-family: inherit; font-size: 11.5px; font-weight: 600; color: var(--ink-dim); }
   .eye-btn svg { width: 15px; height: 15px; }
+  #summaryEyeNote { flex: 1 1 100%; }
   .eye-btn[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
   .eye-btn[aria-pressed="true"] #summaryEyeSlash { display: none; }
-  .meal-status { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 2px 0 10px; }
+  .meal-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 2px 0 11px; }
+  .mp-chip { position: relative; display: flex; align-items: center; gap: 6px; min-width: 0;
+    padding: 10px 26px 10px 11px; border-radius: 11px; border: 1.5px solid var(--line);
+    background: var(--surface-2); color: var(--ink-dim); cursor: pointer; text-align: left;
+    font-family: var(--font-head); font-size: 12px; letter-spacing: .02em; }
+  .mp-chip .mp-mark { font-size: 12px; width: 13px; flex: 0 0 auto; text-align: center; }
+  .mp-chip .mp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mp-chip.sel.breakfast { background: var(--amber-soft); border-color: var(--amber); color: #A66600; }
+  .mp-chip.sel.lunch     { background: var(--teal-soft); border-color: var(--teal); color: #0B7A56; }
+  .mp-chip.sel.dinner    { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
+  .mp-chip.sel.snack     { background: var(--magenta-soft); border-color: var(--magenta); color: var(--magenta); }
+  .mp-chip.done { border-color: var(--teal); color: #0B7A56; }
+  .mp-chip.done .mp-mark { color: var(--teal); }
+  .mp-chip.skip { opacity: .62; }
+  .mp-chip.skip .mp-name { text-decoration: line-through; }
+  .mp-x { position: absolute; top: 0; right: 0; bottom: 0; width: 24px; display: flex;
+    align-items: center; justify-content: center; font-size: 13px; line-height: 1;
+    color: var(--ink-faint); border-radius: 0 10px 10px 0; }
+  .mp-x:hover { color: var(--coral); background: rgba(0,0,0,0.04); }
   .ms-chip { min-width: 0; display: flex; align-items: center; justify-content: center; gap: 5px;
     padding: 6px 2px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2);
     cursor: pointer; font-size: 9.5px; letter-spacing: .04em; text-transform: uppercase;
@@ -294,16 +321,13 @@
     <div class="card quest-card">
       <div class="power-head">
         <div class="power-title">Today's power</div>
-        <div class="streak" id="streakBadge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c1 4-3 5-3 9a3 3 0 006 0c0-1.5-.5-2-1-3 2 1 3 3 3 5a5 5 0 01-10 0c0-4 3-6 5-11z"/></svg>
-          <span id="streakCount">0</span>
-        </div>
+        <div class="streak-row" id="streakRow"></div>
       </div>
       <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
       <div class="quest-list" id="questList"></div>
-    </div>
 
-    <div class="card">
+      <div class="card-split"></div>
+
       <div class="stat-grid">
         <div class="stat-tile blue"><div class="stat-label">Bodyweight</div><div class="stat-value" id="statWeight">—</div><div class="stat-sub" id="statWeightSub">not logged</div></div>
         <div class="stat-tile coral"><div class="stat-label">Total loss</div><div class="stat-value" id="statTotalLoss">—</div><div class="stat-sub" id="statTotalLossSub">since 218 lb start</div></div>
@@ -386,15 +410,7 @@
           </div>
           <div class="split-col col-right">
             <div class="split-col-label input">Your input</div>
-            <div class="meal-type-row" id="mealTypeRow">
-              <button class="meal-type-btn breakfast" data-meal="breakfast">Breakfast</button>
-              <button class="meal-type-btn lunch" data-meal="lunch">Lunch</button>
-            </div>
-            <div class="meal-type-row">
-              <button class="meal-type-btn dinner" data-meal="dinner">Dinner</button>
-              <button class="meal-type-btn snack" data-meal="snack">Snack</button>
-            </div>
-            <div class="meal-status" id="mealStatusRow"></div>
+            <div class="meal-picker" id="mealPicker"></div>
             <div class="field" style="margin-bottom:8px;">
               <label>Details (ingredients, portion, how it was cooked)</label>
               <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
@@ -496,6 +512,11 @@
     </div>
     <div class="privacy-row">
       <span id="summaryEyeNote">Bodyweight hidden on the card</span>
+      <button class="eye-btn" id="summaryCoachBtn" type="button" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg><span id="summaryCoachLabel">Coach on</span>
+      </button>
       <button class="eye-btn" id="summaryEyeBtn" type="button" aria-pressed="false">
         <svg id="summaryEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
@@ -534,6 +555,10 @@
       <div class="field"><label>Carbs (g)</label><input type="number" id="mealEditCarb"></div>
       <div class="field"><label>Fat (g)</label><input type="number" id="mealEditFat"></div>
     </div>
+    <div class="field-row" style="margin-top:8px;">
+      <div class="field"><label>Fibre (g)</label><input type="number" id="mealEditFiber"></div>
+      <div class="field"></div>
+    </div>
     <button class="ghost-btn" id="mealRerunBtn" style="width:100%; margin-top:12px;">Estimate with AI</button>
     <div class="modal-actions">
       <button class="danger-btn" id="mealDeleteBtn">Delete</button>
@@ -567,6 +592,12 @@
   var LABS = [ { date: "2024-11-26", a1c: 6.2, ldl: 107, hdl: 38, trig: 87 }, { date: "2025-08-26", a1c: 5.5, ldl: 72, hdl: 48, trig: 61 }, { date: "2026-09-04", a1c: 5.1, ldl: 72, hdl: 46, trig: 65 } ];
   var SEED_WEIGHTS = [ { date: "2026-09-04", weight: 211.4 }, { date: "2026-09-06", weight: 209.2 } ];
   var DEFAULT_PROFILE_NAME = "Safath Ahmed";
+
+  /* The numbers every ring, streak and score is measured against. Maintenance is the
+     top of the 2,350-2,450 band the meals panel already quotes, so "under maintenance"
+     means under 2,450. Fat is a ceiling to stay under, protein and fibre are floors to
+     reach -- change any of these here and the card, the rings and the streaks follow. */
+  var TARGETS = { calories: 2450, protein: 170, fat: 80, fiber: 30 };
 
   // Accounts are created by hand in the Supabase dashboard, so the page offers
   // sign-in only. This flag is the cosmetic half: it hides the name field and the
@@ -741,6 +772,68 @@
   /* A streak in one thing only. Counts back from the card's own date, and a day that
      simply has not been logged yet does not break the run -- otherwise every streak
      would read zero each morning until you stepped on the scale. */
+  /* Four different questions, so four different rules rather than one "did you log
+     anything" count:
+       weight  - today's weigh-in is the same as or below the one before it. A streak
+                 of stepping on the scale is not the thing worth tracking; a streak of
+                 the number not going up is.
+       cardio  - cardio was logged that day.
+       lifting - every set of a lifting day was ticked. Rest days are skipped, not
+                 broken: the programme says not to lift, so not lifting is compliance.
+       calories- the day's estimate came in at or under maintenance. A day with no
+                 estimate at all cannot count as under, so it ends the run. */
+  async function streakOf(kind) {
+    var d = new Date(selectedDate), n = 0, guard = 0;
+    var prevWeight = null;
+
+    async function verdict(dk) {
+      var doc = await getDayDoc(dk);
+      if (kind === "weight") {
+        if (doc.weight == null) return "no";
+        var before = await previousWeightBefore(dk);
+        if (before == null) return "yes";          // first ever weigh-in starts the run
+        return doc.weight <= before + 0.001 ? "yes" : "no";
+      }
+      if (kind === "cardio") return (doc.cardio && doc.cardio.min != null) ? "yes" : "no";
+      if (kind === "lifting") {
+        var prog = PROGRAM[new Date(dk + "T12:00:00").getDay()];
+        if (!prog || prog.type !== "lift") return "skip";
+        var total = 0, done = 0;
+        prog.ex.forEach(function (exx) {
+          total += exx.sets;
+          ((doc.sets && doc.sets[exx.name]) || []).forEach(function (r) { if (r && r.done) done++; });
+        });
+        return (total > 0 && done >= total) ? "yes" : "no";
+      }
+      // calories
+      var cal = 0, any = false;
+      foodCache.forEach(function (f) {
+        if (f.date === dk && f.estimate && f.estimate.calories) { any = true; cal += f.estimate.calories; }
+      });
+      return (any && cal <= TARGETS.calories) ? "yes" : "no";
+    }
+
+    // A day that has not happened yet should not end a run that is still alive.
+    if (await verdict(dateKey(d)) === "no") d.setDate(d.getDate() - 1);
+    while (guard++ < 400) {
+      var v = await verdict(dateKey(d));
+      if (v === "no") break;
+      if (v === "yes") n++;
+      d.setDate(d.getDate() - 1);
+    }
+    return n;
+  }
+
+  async function previousWeightBefore(dk) {
+    var d = new Date(dk + "T12:00:00");
+    for (var i = 0; i < 60; i++) {
+      d.setDate(d.getDate() - 1);
+      var doc = await getDayDoc(dateKey(d));
+      if (doc.weight != null) return doc.weight;
+    }
+    return null;
+  }
+
   async function metricStreak(kind) {
     var has = kind === "weight"
       ? function (d) { return d && d.weight != null; }
@@ -797,11 +890,39 @@
     foodCache = foodCache.filter(function (f) { return f.id !== item.id; });
   }
 
+  /* Photos are the only thing in here that grows without bound, and a free Supabase
+     project has a storage cap. Anything older than PHOTO_RETENTION_DAYS goes: the file
+     out of the bucket, then the row. The row is deleted second on purpose -- if the
+     storage call fails we would rather leave an orphaned file and try again tomorrow
+     than lose the row and never be able to find the file to delete.
+
+     The estimate is not lost with the photo. Calories and macros live on the row, so a
+     purged day still reports its totals; it just no longer shows the picture. */
+  var PHOTO_RETENTION_DAYS = 30;
+  async function purgeOldPhotos() {
+    try {
+      var cut = new Date(); cut.setDate(cut.getDate() - PHOTO_RETENTION_DAYS);
+      var cutKey = dateKey(cut);
+      var { data } = await supabase.from("food").select("id,date,photo_url")
+        .eq("user_id", currentProfileId).lt("date", cutKey).limit(200);
+      if (!data || !data.length) return 0;
+      var paths = data.map(function (r) {
+        var m = /\/meal-photos\/(.+)$/.exec(r.photo_url || "");
+        return m ? decodeURIComponent(m[1]) : null;
+      }).filter(Boolean);
+      if (paths.length) { try { await supabase.storage.from("meal-photos").remove(paths); } catch (e) {} }
+      await supabase.from("food").delete().eq("user_id", currentProfileId).lt("date", cutKey);
+      foodCache = foodCache.filter(function (f) { return f.date >= cutKey; });
+      return data.length;
+    } catch (e) { return 0; }
+  }
+
   var ESTIMATE_GUARDRAILS = "You are estimating calories and macros from a photo of a meal for a personal food log. " +
     "This is a rough visual approximation only, not a precise measurement. " +
+    "Estimate fibre from the visible vegetables, pulses, fruit and whole grains; a plate with none of those has close to zero. " +
     "When the true amount is uncertain, deliberately estimate toward the HIGHER end of the plausible range for calories, protein, carbs, and fat — it is better for this user to overestimate than underestimate, since they are tracking against a daily calorie target and underestimating would let them silently overeat. Do not lowball portion sizes or ingredient amounts. " +
     "Respond with ONLY a JSON object, no other text, in this exact shape: " +
-    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "confidence": "low"|"medium"|"high"}. ' +
+    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "confidence": "low"|"medium"|"high"}. ' +
     "Never comment on whether the meal is healthy or unhealthy, never mention body weight or appearance, just estimate.";
   async function estimateMeal(imageDataUrl, userNote) {
     var promptText = ESTIMATE_GUARDRAILS;
@@ -959,6 +1080,9 @@
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
     document.getElementById("weightSaved").textContent = doc.weight != null ? "Logged" : "";
+
+    // Once per load, quietly drop photos past the retention window.
+    if (!renderAll._purged) { renderAll._purged = true; purgeOldPhotos(); }
 
     renderLiftingPanel(prog, doc, key);
     await renderCardioPanel(prog, doc);
@@ -1381,8 +1505,14 @@
   function questsForDay(prog, doc) {
     var quests = [];
     quests.push({ key: "weight", label: "Log your weight", done: doc.weight != null, icon: '<path d="M12 2v2M12 20v2M2 12h2M20 12h2"/><circle cx="12" cy="12" r="7"/>' });
-    if (prog.type === "cardio") quests.push({ key: "cardio", label: "Log today's cardio", done: !!(doc.cardio && doc.cardio.min != null), icon: '<path d="M4 12h4l2-6 4 12 2-6h4"/>' });
-    else {
+    // Every day in the programme has cardio, including the lifting days. It used to be
+    // listed only on cardio-only days, so on a lift day the bar could read 100% with
+    // the cardio never done.
+    if (prog.cardio && prog.cardio.min) {
+      quests.push({ key: "cardio", label: "Log today's cardio (" + prog.cardio.min + " min)",
+        done: !!(doc.cardio && doc.cardio.min != null), icon: '<path d="M4 12h4l2-6 4 12 2-6h4"/>' });
+    }
+    if (prog.type !== "cardio") {
       var totalSets = 0, doneSets = 0;
       prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (row) { if (row && row.done) doneSets++; }); });
       quests.push({ key: "workout", label: "Complete the session (" + doneSets + "/" + totalSets + " sets)", done: totalSets > 0 && doneSets >= totalSets, icon: '<path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/>' });
@@ -1408,8 +1538,22 @@
     });
     var pct = quests.length ? Math.round((doneCount / quests.length) * 100) : 0;
     var fill = document.getElementById("powerFill"); fill.style.width = pct + "%"; fill.classList.toggle("full", pct === 100);
-    document.getElementById("streakCount").textContent = await computeStreak();
+    renderStreakPills();
   }
+  /* The four runs the programme actually cares about, drawn small enough to sit in the
+     card header. They are computed in parallel because each one walks its own way back
+     through the day cache. */
+  async function renderStreakPills() {
+    var row = document.getElementById("streakRow");
+    if (!row) return;
+    var kinds = [["weight", "WT"], ["cardio", "CD"], ["lifting", "LF"], ["calories", "KC"]];
+    var vals = await Promise.all(kinds.map(function (k) { return streakOf(k[0]); }));
+    row.innerHTML = kinds.map(function (k, i) {
+      return '<span class="sr-pill' + (vals[i] > 0 ? " on" : "") + '" title="' +
+        k[0] + ' streak">' + k[1] + ' <b>' + vals[i] + '</b></span>';
+    }).join("");
+  }
+
   async function computeStreak() {
     var d = new Date(); var streak = 0;
     for (var i = 0; i < 60; i++) {
@@ -1562,15 +1706,9 @@
     });
   }
 
-  function wireMealTypes() {
-    Array.from(document.querySelectorAll(".meal-type-btn")).forEach(function (btn) {
-      if (btn.getAttribute("data-meal") === selectedMeal) btn.classList.add("selected");
-      btn.onclick = function () {
-        Array.from(document.querySelectorAll(".meal-type-btn")).forEach(function(b){ b.classList.remove("selected"); });
-        selectedMeal = btn.getAttribute("data-meal"); btn.classList.add("selected");
-      };
-    });
-  }
+  // Nothing static left to wire; the chips carry their own state. Draw one row up
+  // front so the picker is there before the food log has loaded.
+  function wireMealTypes() { renderMealPicker([]); }
   function renderFoodGrid(container, items) {
     container.innerHTML = "";
     if (items.length === 0) { container.innerHTML = '<div class="empty">No photos yet.</div>'; return; }
@@ -1604,8 +1742,13 @@
   function writeSkipped(dayKey, arr) {
     try { localStorage.setItem(skipKeyFor(dayKey), JSON.stringify(arr)); } catch (e) {}
   }
-  function renderMealStatus(todayItems) {
-    var row = document.getElementById("mealStatusRow");
+  /* One row, not two. The four meal names used to appear twice: once as the "which
+     meal is this photo" selector and again as a done/skipped strip below it. Each meal
+     is now a single chip doing both jobs -- tapping the body picks it for the next
+     photo, tapping the x crosses it out as not eaten. A meal that already has a photo
+     is answered, so it loses its x rather than letting a tap contradict the record. */
+  function renderMealPicker(todayItems) {
+    var row = document.getElementById("mealPicker");
     if (!row) return;
     var dayKey = dateKey(new Date());
     var skipped = readSkipped(dayKey);
@@ -1614,21 +1757,22 @@
     row.innerHTML = "";
     MEALS.forEach(function (m) {
       var isDone = !!logged[m], isSkipped = !isDone && skipped.indexOf(m) !== -1;
-      var chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "ms-chip" + (isDone ? " done" : isSkipped ? " skipped" : "");
-      chip.innerHTML = '<span class="ms-mark">' +
-        (isDone ? "\u2713" : isSkipped ? "\u2014" : "\u00b7") +
-        '</span><span class="ms-name">' + m.charAt(0).toUpperCase() + m.slice(1) + '</span>';
-      chip.title = isDone ? "Logged \u2014 tap a photo below to edit it"
-                 : isSkipped ? "Marked skipped. Tap to clear." : "Tap to mark skipped";
-      chip.onclick = function () {
-        if (isDone) return;   // a logged meal is a fact; do not let a tap contradict it
-        var next = readSkipped(dayKey);
-        var at = next.indexOf(m);
-        if (at === -1) next.push(m); else next.splice(at, 1);
-        writeSkipped(dayKey, next);
-        renderMealStatus(todayItems);
+      var chip = document.createElement("div");
+      chip.className = "mp-chip " + m + (selectedMeal === m ? " sel" : "") +
+        (isDone ? " done" : "") + (isSkipped ? " skip" : "");
+      chip.innerHTML = '<span class="mp-mark">' +
+        (isDone ? "\u2713" : isSkipped ? "\u2715" : "\u00b7") + '</span>' +
+        '<span class="mp-name">' + m.charAt(0).toUpperCase() + m.slice(1) + '</span>' +
+        (isDone ? "" : '<span class="mp-x" title="Mark as not eaten">\u2715</span>');
+      chip.onclick = function (e) {
+        if (e.target.classList.contains("mp-x")) {
+          var next = readSkipped(dayKey), at = next.indexOf(m);
+          if (at === -1) next.push(m); else next.splice(at, 1);
+          writeSkipped(dayKey, next);
+        } else {
+          selectedMeal = m;
+        }
+        renderMealPicker(todayItems);
       };
       row.appendChild(chip);
     });
@@ -1648,7 +1792,7 @@
     if (totalsEl) totalsEl.textContent = any
       ? (cal.toLocaleString() + "\u2013" + (cal + 150).toLocaleString() + " kcal \u00b7 " + prot + "g protein")
       : "\u2014";
-    renderMealStatus(todayItems);
+    renderMealPicker(todayItems);
   }
   function wireFoodUpload() {
     function handleFoodFile(e) {
@@ -1723,6 +1867,7 @@
         protein_g: numOrNull(document.getElementById("mealEditProt").value) || 0,
         carbs_g: numOrNull(document.getElementById("mealEditCarb").value) || 0,
         fat_g: numOrNull(document.getElementById("mealEditFat").value) || 0,
+        fiber_g: numOrNull(document.getElementById("mealEditFiber").value) || 0,
         confidence: "manual"
       };
       await setFoodEstimate(editingMeal.url, est);
@@ -1753,6 +1898,7 @@
           document.getElementById("mealEditProt").value = est.protein_g;
           document.getElementById("mealEditCarb").value = est.carbs_g;
           document.getElementById("mealEditFat").value  = est.fat_g;
+          document.getElementById("mealEditFiber").value = est.fiber_g != null ? est.fiber_g : "";
         }
       } catch (err) {
         showProblem("Could not load that photo back from storage: " + err.message);
@@ -1776,135 +1922,235 @@
 
   function fmtInt(n) { return Math.round(n).toLocaleString(); }
 
+  /* The card is a 9:16 story frame: 1080x1920 of layout, drawn at 2x so it is a real
+     2160x3840 image. Everything the day contains is on it, stacked in bands with
+     generous type -- it is meant to be read at a glance on a phone, not studied. */
+  var summaryShowCoach = true;
+
+  function ringArc(ctx, cx, cy, r, w, frac, color, track) {
+    ctx.lineWidth = w; ctx.lineCap = "round";
+    ctx.strokeStyle = track; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    if (frac <= 0) return;
+    ctx.strokeStyle = color; ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, frac));
+    ctx.stroke();
+    if (frac > 1) {   // overshoot gets a second, brighter lap so it reads as "over"
+      ctx.strokeStyle = "#fff"; ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, frac - 1));
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+  }
+
   async function buildSummaryImage() {
     var key = dateKey(selectedDate);
     await primeDayCache();
-    var doc = await getDayDoc(key); var prog = PROGRAM[selectedDate.getDay()];
+    var doc = await getDayDoc(key);
+    var prog = PROGRAM[selectedDate.getDay()];
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
     var dayFood = foodCache.filter(function (f) { return f.date === key; });
+    var prevWeight = await previousWeightBefore(key);
 
-    var keys = await getAllDayKeys(); var prevWeight = null;
-    var sortedKeys = keys.filter(function(k){ return k < key; }).sort().reverse();
-    for (var i = 0; i < sortedKeys.length; i++) {
-      var pd = await getDayDoc(sortedKeys[i]);
-      if (pd.weight != null) { prevWeight = pd.weight; break; }
-    }
-
-    var calTotal = 0, calAny = false;
+    var cal = 0, pro = 0, fat = 0, fib = 0, anyEst = false;
     dayFood.forEach(function (f) {
-      if (f.estimate && f.estimate.calories) { calAny = true; calTotal += f.estimate.calories; }
+      var e = f.estimate; if (!e) return;
+      anyEst = true;
+      cal += e.calories || 0; pro += e.protein_g || 0;
+      fat += e.fat_g || 0; fib += e.fiber_g || 0;
     });
-    var wStreak = await metricStreak("weight");
-    var cStreak = await metricStreak("cardio");
 
-    /* The card is mostly photographs, so it is laid out for them: the numbers are a
-       thin strip at the top and the rest is picture. Everything below is in layout
-       pixels; the canvas is SCALE times that in each direction and the context is
-       scaled to match, so a phone photo lands on roughly a thousand real pixels per
-       tile instead of a few hundred and survives being opened full-screen. */
-    var SCALE = 2;
-    var W = 1080, pad = 52, gap = 14;
-    var full = W - pad * 2;
-    var half = (full - gap) / 2;
+    var st = {
+      weight:   await streakOf("weight"),
+      cardio:   await streakOf("cardio"),
+      lifting:  await streakOf("lifting"),
+      calories: await streakOf("calories")
+    };
 
-    var shown = dayFood.slice(0, 6);
-    var PHOTOS_TOP = 262;
-    var gridH;
-    if (shown.length === 0)      gridH = 300;
-    else if (shown.length === 1) gridH = 620;                               // one photo runs wide
-    else gridH = Math.ceil(shown.length / 2) * (half + gap) - gap;          // otherwise two per row
-    var H = Math.round(PHOTOS_TOP + gridH + 62);
-
-    var canvas = document.getElementById("summaryCanvas");
-    canvas.width = W * SCALE; canvas.height = H * SCALE;
-    var ctx = canvas.getContext("2d");
-    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
-    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
-
-    var grad = ctx.createLinearGradient(0, 0, W, H);
-    grad.addColorStop(0, "#2E6BFF"); grad.addColorStop(0.55, "#6B3FFF"); grad.addColorStop(1, "#E0417C");
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-
-    function panel(x, yy, w, h, r) {
-      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.15; roundRect(ctx, x, yy, w, h, r || 16); ctx.fill(); ctx.globalAlpha = 1;
-    }
-
-    /* ---- header ---- */
-    ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "600 16px Oswald, sans-serif";
-    ctx.fillText("ACCOUNTABILITYAAS", pad, 52);
-    ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }), pad, 92);
-
-    /* ---- one strip of small facts, four across ---- */
-    var stripY = 116, stripH = 86;
-    panel(pad, stripY, full, stripH, 16);
     var totalSets = 0, doneSets = 0;
     prog.ex.forEach(function (exx) {
       totalSets += exx.sets;
       ((doc.sets && doc.sets[exx.name]) || []).forEach(function (r) { if (r && r.done) doneSets++; });
     });
-    var facts = [
-      ["BODYWEIGHT", summaryShowWeight ? (doc.weight != null ? doc.weight + " lb" : "—") : "•••",
-        summaryShowWeight && doc.weight != null && prevWeight != null
-          ? ((doc.weight - prevWeight) > 0 ? "+" : "") + (doc.weight - prevWeight).toFixed(1) + " lb"
-          : (summaryShowWeight ? "" : "hidden")],
-      ["SESSION", prog.type === "cardio" ? "Cardio" : doneSets + "/" + totalSets,
-        prog.type === "cardio" ? "no lifting" : (doc.sessionSeconds ? fmtTime(doc.sessionSeconds) : "sets")],
-      ["CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—",
-        (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline + "% · " + (doc.cardio.speed || "") + " mph" : "not logged"],
-      ["CALORIES", calAny ? fmtInt(calTotal) : "—",
-        calAny ? "to " + fmtInt(calTotal + 150) + " est." : "none logged"]
-    ];
-    var colW = full / 4;
-    facts.forEach(function (f, idx) {
-      var x = pad + idx * colW + 18;
-      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "600 11px Inter, sans-serif";
-      ctx.fillText(f[0], x, stripY + 26);
-      ctx.fillStyle = "#fff"; ctx.font = "600 27px Oswald, sans-serif";
-      ctx.fillText(f[1], x, stripY + 57);
-      ctx.fillStyle = "rgba(255,255,255,0.65)"; ctx.font = "500 12px Inter, sans-serif";
-      ctx.fillText(f[2], x, stripY + 75);
-      if (idx > 0) {
-        ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(pad + idx * colW, stripY + 18); ctx.lineTo(pad + idx * colW, stripY + stripH - 18); ctx.stroke();
+
+    var coachText = (document.getElementById("scoreNarrative") || {}).textContent || "";
+    if (/^\s*$/.test(coachText)) coachText = "";
+
+    var SCALE = 2, W = 1080, H = 1920, pad = 64;
+    var canvas = document.getElementById("summaryCanvas");
+    canvas.width = W * SCALE; canvas.height = H * SCALE;
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+    ctx.textBaseline = "alphabetic";
+
+    var g = ctx.createLinearGradient(0, 0, W * 0.4, H);
+    g.addColorStop(0, "#1B2FCC"); g.addColorStop(0.5, "#6B3FFF"); g.addColorStop(1, "#E0417C");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    function card(x, y, w, h, r) {
+      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.13;
+      roundRect(ctx, x, y, w, h, r || 26); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    function cap(t, x, y, size, alpha) {
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.66) + ")";
+      ctx.font = "600 " + (size || 16) + "px Inter, sans-serif"; ctx.fillText(t, x, y);
+    }
+    function big(t, x, y, size) {
+      ctx.fillStyle = "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, y);
+    }
+    function streakChip(x, y, days) {
+      var label = days + "d";
+      ctx.font = "600 20px Oswald, sans-serif";
+      var w = ctx.measureText(label).width + 40;
+      ctx.fillStyle = days > 0 ? "rgba(255,214,102,0.22)" : "rgba(255,255,255,0.12)";
+      roundRect(ctx, x, y - 22, w, 32, 16); ctx.fill();
+      ctx.fillStyle = days > 0 ? "#FFD666" : "rgba(255,255,255,0.6)";
+      ctx.font = "600 13px Inter, sans-serif"; ctx.fillText("▲", x + 12, y);
+      ctx.font = "600 20px Oswald, sans-serif"; ctx.fillText(label, x + 28, y);
+      return w;
+    }
+
+    /* ---- 1. date ---- */
+    cap("ACCOUNTABILITYAAS", pad, 92, 18, 0.7);
+    ctx.fillStyle = "#fff"; ctx.font = "600 62px Oswald, sans-serif";
+    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long" }), pad, 158);
+    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 30px Inter, sans-serif";
+    ctx.fillText(selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), pad, 200);
+
+    /* ---- 2. bodyweight ---- */
+    var y = 240, h = 150;
+    card(pad, y, W - pad * 2, h);
+    cap("BODYWEIGHT", pad + 34, y + 44, 17);
+    if (summaryShowWeight) {
+      big(doc.weight != null ? doc.weight + " lb" : "—", pad + 34, y + 108, 62);
+      if (doc.weight != null && prevWeight != null) {
+        var dlt = doc.weight - prevWeight;
+        ctx.fillStyle = dlt > 0 ? "#FFC4B4" : "#B8F5DC";
+        ctx.font = "600 26px Inter, sans-serif";
+        ctx.fillText((dlt > 0 ? "+" : "") + dlt.toFixed(1) + " lb vs last", pad + 300, y + 104);
       }
+    } else {
+      big("•••", pad + 34, y + 104, 62);
+      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 24px Inter, sans-serif";
+      ctx.fillText("hidden", pad + 190, y + 100);
+    }
+    ctx.textAlign = "right";
+    cap("STREAK · SAME OR DOWN", W - pad - 34, y + 44, 15);
+    ctx.textAlign = "left";
+    streakChip(W - pad - 120, y + 104, st.weight);
+
+    /* ---- 3. training: cardio + weights side by side ---- */
+    y = 414; h = 200;
+    var colW = (W - pad * 2 - 20) / 2;
+    [[pad, "CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—",
+      (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + " mph" : "not logged", st.cardio],
+     [pad + colW + 20, "WEIGHT TRAINING", prog.type === "cardio" ? "Rest" : doneSets + "/" + totalSets,
+      prog.type === "cardio" ? "no lifting today" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting]
+    ].forEach(function (c) {
+      card(c[0], y, colW, h);
+      cap(c[1], c[0] + 28, y + 42, 15);
+      big(c[2], c[0] + 28, y + 106, 50);
+      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 20px Inter, sans-serif";
+      ctx.fillText(c[3], c[0] + 28, y + 140);
+      streakChip(c[0] + 28, y + 178, c[4]);
     });
 
-    /* ---- streaks, one quiet line ---- */
-    ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.font = "600 13px Inter, sans-serif";
-    ctx.fillText("WEIGHT STREAK " + wStreak + "d     CARDIO STREAK " + cStreak + "d", pad, stripY + stripH + 30);
-
-    /* ---- the photographs ---- */
-    function drawPhoto(img, x, yy, w, h) {
-      ctx.save(); roundRect(ctx, x, yy, w, h, 18); ctx.clip();
-      if (img) {
-        var sc = Math.max(w / img.width, h / img.height);
-        var iw = img.width * sc, ih = img.height * sc;
-        ctx.drawImage(img, x + (w - iw) / 2, yy + (h - ih) / 2, iw, ih);
-      } else { ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(x, yy, w, h); }
-      ctx.restore();
+    /* ---- 4. calories against maintenance ---- */
+    y = 638; h = 168;
+    card(pad, y, W - pad * 2, h);
+    cap("CALORIES", pad + 34, y + 42, 15);
+    big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 104, 54);
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 21px Inter, sans-serif";
+    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  maintenance " + fmtInt(TARGETS.calories)
+                        : "nothing logged", pad + 34, y + 138);
+    var underCap = anyEst && cal <= TARGETS.calories;
+    ctx.textAlign = "right";
+    cap(underCap ? "UNDER MAINTENANCE" : (anyEst ? "OVER MAINTENANCE" : "STREAK"), W - pad - 34, y + 42, 15);
+    ctx.textAlign = "left";
+    streakChip(W - pad - 120, y + 104, st.calories);
+    // a bar showing where the day sits against the cap
+    var barW = W - pad * 2 - 68, barY = y + h - 26;
+    ctx.fillStyle = "rgba(255,255,255,0.18)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
+    if (anyEst) {
+      ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
+      roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / TARGETS.calories)), 10, 5); ctx.fill();
     }
-    if (shown.length === 0) {
-      panel(pad, PHOTOS_TOP, full, gridH, 18);
-      ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.font = "italic 500 22px Inter, sans-serif";
-      ctx.fillText("No meals logged today", pad + 26, PHOTOS_TOP + gridH / 2 + 8);
-    } else {
+
+    /* ---- 5. the rings ---- */
+    y = 838; h = 430;
+    card(pad, y, W - pad * 2, h);
+    cap("PROTEIN · FAT · FIBRE", pad + 34, y + 44, 15);
+    var cx = pad + 34 + 150, cy = y + 232;
+    var rings = [
+      { r: 132, w: 30, val: pro, target: TARGETS.protein, color: "#5BE1A8", name: "PROTEIN", unit: "g" },
+      { r: 94,  w: 30, val: fat, target: TARGETS.fat,     color: "#FFD666", name: "FAT",     unit: "g" },
+      { r: 56,  w: 30, val: fib, target: TARGETS.fiber,   color: "#6FD0FF", name: "FIBRE",   unit: "g" }
+    ];
+    rings.forEach(function (rg) {
+      ringArc(ctx, cx, cy, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.16)");
+    });
+    var lx = cx + 190;
+    rings.forEach(function (rg, i) {
+      var ly = cy - 88 + i * 88;
+      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 9, ly - 9, 9, 0, Math.PI * 2); ctx.fill();
+      cap(rg.name, lx + 30, ly - 3, 16, 0.75);
+      ctx.fillStyle = "#fff"; ctx.font = "600 38px Oswald, sans-serif";
+      ctx.fillText(rg.val + rg.unit, lx + 30, ly + 40);
+      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 19px Inter, sans-serif";
+      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target + rg.unit, lx + 30 + ctx.measureText(rg.val + rg.unit).width + 78, ly + 38);
+    });
+
+    /* ---- 6. the coach ---- */
+    y = 1300;
+    if (summaryShowCoach && coachText) {
+      var words = coachText.split(/\s+/), lines = [], line = "";
+      ctx.font = "500 27px Inter, sans-serif";
+      var maxW = W - pad * 2 - 68;
+      words.forEach(function (wd) {
+        var t = line ? line + " " + wd : wd;
+        if (ctx.measureText(t).width > maxW) { lines.push(line); line = wd; } else { line = t; }
+      });
+      if (line) lines.push(line);
+      lines = lines.slice(0, 7);
+      var ch = 92 + lines.length * 38;
+      card(pad, y, W - pad * 2, ch);
+      cap("COACH'S TAKE", pad + 34, y + 46, 15);
+      ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.font = "500 27px Inter, sans-serif";
+      lines.forEach(function (ln, i) { ctx.fillText(ln, pad + 34, y + 92 + i * 38); });
+      y += ch;
+    }
+
+    /* ---- 7. photos fill whatever is left ---- */
+    /* Whatever height is left after the coach band, and no more. The previous version
+       forced at least one full-width-square row even when it did not fit, so on a day
+       with a long coach note the photos ran off the bottom edge and through the footer.
+       Square tiles when there is room for them, a shorter landscape band when there is
+       not, and nothing at all below 150px. */
+    var footY = H - 52;
+    var gTop = y + 24, gap = 16;
+    var avail = footY - 34 - gTop;
+    var cellW = (W - pad * 2 - gap) / 2;
+    var rows = Math.floor((avail + gap) / (cellW + gap));
+    var cellH = rows >= 1 ? cellW : avail;
+    if (rows < 1) rows = 1;
+    if (cellH >= 150 && dayFood.length) {
+      var shown = dayFood.slice(0, rows * 2);
       var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
-      if (imgs.length === 1) {
-        drawPhoto(imgs[0], pad, PHOTOS_TOP, full, gridH);
-      } else {
-        imgs.forEach(function (img, idx) {
-          var col = idx % 2, row = Math.floor(idx / 2);
-          drawPhoto(img, pad + col * (half + gap), PHOTOS_TOP + row * (half + gap), half, half);
-        });
-      }
+      imgs.forEach(function (img, idx) {
+        var col = idx % 2, row = Math.floor(idx / 2);
+        var x = pad + col * (cellW + gap), yy = gTop + row * (cellH + gap);
+        ctx.save(); roundRect(ctx, x, yy, cellW, cellH, 22); ctx.clip();
+        if (img) {
+          var sc = Math.max(cellW / img.width, cellH / img.height);
+          ctx.drawImage(img, x + (cellW - img.width * sc) / 2, yy + (cellH - img.height * sc) / 2,
+            img.width * sc, img.height * sc);
+        } else { ctx.fillStyle = "rgba(255,255,255,0.18)"; ctx.fillRect(x, yy, cellW, cellH); }
+        ctx.restore();
+      });
     }
 
-    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 15px Inter, sans-serif";
-    ctx.fillText("accountabilityaas.com", pad, H - 24);
-
-    /* JPEG, not PNG: this is a card made of photographs, and lossless would ship a
-       ten-megabyte file that messaging apps re-compress anyway. */
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 22px Inter, sans-serif";
+    ctx.fillText("accountabilityaas.com", pad, footY);
     return canvas.toDataURL("image/jpeg", 0.93);
   }
 
@@ -1919,6 +2165,13 @@
       document.getElementById("summaryImg").src = await buildSummaryImage();
     };
 
+    document.getElementById("summaryCoachBtn").onclick = async function () {
+      summaryShowCoach = !summaryShowCoach;
+      this.setAttribute("aria-pressed", summaryShowCoach ? "true" : "false");
+      document.getElementById("summaryCoachLabel").textContent = summaryShowCoach ? "Coach on" : "Coach off";
+      document.getElementById("summaryImg").src = await buildSummaryImage();
+    };
+
     document.getElementById("scoreDayBtn").onclick = async function () {
       var btn = this; var origHtml = btn.innerHTML;
       btn.innerHTML = "Scoring…"; btn.disabled = true;
@@ -1930,6 +2183,10 @@
         document.getElementById("shareModal").classList.add("open");
         fetchScoreNarrative(scoreData);
         summaryShowWeight = false;
+        summaryShowCoach = true;
+        var coachBtn = document.getElementById("summaryCoachBtn");
+        coachBtn.setAttribute("aria-pressed", "true");
+        document.getElementById("summaryCoachLabel").textContent = "Coach on";
         var eye = document.getElementById("summaryEyeBtn");
         eye.setAttribute("aria-pressed", "false");
         document.getElementById("summaryEyeLabel").textContent = "Show";
@@ -1967,7 +2224,11 @@
     var actualMin = (doc.cardio && doc.cardio.min) || 0;
     var cardioPct = Math.round(Math.min(1, actualMin / prog.cardio.min) * 100);
     var cardioDetail = actualMin + " / " + prog.cardio.min + " min";
+    var skipped = readSkipped(key);
     var mealsPct = 0, mealsDetail = "no meals logged";
+    if (todayFood.length === 0 && skipped.length) {
+      mealsDetail = "no meals logged; " + skipped.join(", ") + " deliberately skipped";
+    }
     if (todayFood.length > 0) {
       var calTotal = 0, hasEstimate = false;
       todayFood.forEach(function (f) { if (f.estimate) { hasEstimate = true; calTotal += f.estimate.calories || 0; } });
@@ -1978,7 +2239,7 @@
     var overall;
     if (prog.type === "lift") overall = Math.round(weightsPct * 0.40 + cardioPct * 0.35 + mealsPct * 0.25);
     else overall = Math.round(cardioPct * 0.55 + mealsPct * 0.45);
-    return { overall: overall, dayType: prog.type, weightLogged: doc.weight != null,
+    return { overall: overall, dayType: prog.type, weightLogged: doc.weight != null, skipped: skipped,
       weights: { pct: weightsPct, detail: weightsDetail }, cardio: { pct: cardioPct, detail: cardioDetail }, meals: { pct: mealsPct, detail: mealsDetail } };
   }
   function scoreBarColor(pct) { if (pct >= 80) return "var(--teal)"; if (pct >= 50) return "var(--amber)"; return "var(--coral)"; }
@@ -1997,7 +2258,8 @@
   var SCORE_GUARDRAILS = "You are a warm, direct fitness accountability coach reviewing someone's day against their own program. " +
     "You're given their actual scored breakdown for today (weight training / cardio / meals) as real numbers — use them, don't invent anything. " +
     "Write 2-3 short sentences: (1) what went well, (2) the ONE area they slipped most, named plainly and specifically using the numbers given, (3) one encouraging, concrete nudge to get back on track — not generic cheerleading. " +
-    "Never comment on body size, shape, or appearance. Never moralize about food. Keep it warm but honest — this is meant to hold them accountable, not just flatter them. Plain text, no markdown.";
+    "Never comment on body size, shape, or appearance. Never moralize about food. Keep it warm but honest — this is meant to hold them accountable, not just flatter them. Plain text, no markdown. " +
+    "If a meal is listed as deliberately skipped, that is a choice they made and recorded, not a lapse in logging. Do not tell them they forgot to log it, do not ask them to log it, and do not count it against them.";
   async function fetchScoreNarrative(sd) {
     var el = document.getElementById("scoreNarrative");
     el.innerHTML = '<span class="fb-dots" style="display:inline-block;"><span></span><span></span><span></span></span>';
@@ -2005,11 +2267,20 @@
       (sd.weights.pct != null ? "Weight training: " + sd.weights.pct + "% (" + sd.weights.detail + "). " : "Rest day, no lifting scheduled. ") +
       "Cardio: " + sd.cardio.pct + "% (" + sd.cardio.detail + "). " +
       "Meals: " + sd.meals.pct + "% (" + sd.meals.detail + "). " +
-      "Bodyweight logged today: " + (sd.weightLogged ? "yes" : "no") + ".";
+      "Bodyweight logged today: " + (sd.weightLogged ? "yes" : "no") + ". " +
+      (sd.skipped && sd.skipped.length
+        ? "Meals they deliberately skipped and marked as skipped today: " + sd.skipped.join(", ") +
+          ". Treat these as an intentional choice, not a missed log."
+        : "No meals were marked as skipped.");
     var msg = fallbackNarrative(sd);
     var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + context }], 250);
     if (text) msg = text.trim();
     el.textContent = msg;
+    // The card is drawn before this returns, so redraw now that there is something to
+    // put in the coach band rather than shipping a card with an empty one.
+    if (document.getElementById("shareModal").classList.contains("open")) {
+      try { document.getElementById("summaryImg").src = await buildSummaryImage(); } catch (e) {}
+    }
   }
   function fallbackNarrative(sd) {
     var lowest = sd.meals.pct <= sd.cardio.pct && (sd.weights.pct == null || sd.meals.pct <= sd.weights.pct) ? "meals" : (sd.cardio.pct <= (sd.weights.pct == null ? 101 : sd.weights.pct) ? "cardio" : "weight training");
