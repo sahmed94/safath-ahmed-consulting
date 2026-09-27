@@ -167,8 +167,46 @@
   .ex-block { padding: 13px 0; border-top: 1px solid var(--line); }
   .ex-block:first-child { border-top: none; padding-top: 0; }
   .ex-divider { height: 1px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); margin: 14px 0; }
-  .ex-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .ex-name { font-size: 15px; font-weight: 700; color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  .ex-head { display: flex; align-items: center; gap: 12px; }
+  .ex-meta { flex: 1; min-width: 0; }
+  .ex-name { font-size: 16px; font-weight: 700; color: var(--ink); cursor: pointer; line-height: 1.2; }
+  .ex-target { font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; }
+  .ex-meter { height: 6px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 9px; }
+  .ex-meter-fill { height: 100%; border-radius: 4px; background: var(--tier); width: 0; transition: width .45s cubic-bezier(.22,1,.36,1); }
+  .ex-count { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; color: var(--ink-dim); margin-top: 5px; }
+
+  /* the crest: hexagon, equipment inside, one node per set around the rim */
+  .ex-crest { position: relative; flex: 0 0 148px; width: 148px; height: 148px; }
+  .crest-art { position: absolute; left: 50%; top: 50%; width: 104px; height: 104px; margin: -52px 0 0 -52px; overflow: visible; }
+  .crest-hex-bg { fill: var(--surface-2); }
+  .crest-hex-line { fill: none; stroke: var(--line); stroke-width: 2.5; }
+  .ex-crest.complete .crest-hex-line { stroke: var(--tier); }
+  .crest-flood { transition: y .55s cubic-bezier(.22,1,.36,1); }
+  .crest-glyph { fill: none; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+  .crest-glyph.dim { stroke: var(--ink-faint); opacity: .42; }
+  .crest-glyph.lit { stroke: #fff; }
+  .ex-crest.complete .crest-art { filter: drop-shadow(0 0 10px var(--tier-glow)); }
+  .ex-node { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; padding: 0; border-radius: 50%;
+    border: 2px solid var(--line); background: var(--surface); color: var(--ink-faint); font-family: var(--font-head);
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .18s; }
+  .ex-node.on { background: var(--tier); border-color: var(--tier); color: #fff;
+    box-shadow: 0 0 0 4px var(--tier-soft), 0 0 12px var(--tier-glow); transform: scale(1.08); }
+  .ex-node:active { transform: scale(.9); }
+  .crest-stamp { position: absolute; left: 50%; top: 74%; transform: translate(-50%,-50%) rotate(-8deg) scale(.7);
+    font-family: var(--font-head); font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--tier); background: #fff; padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 2px 10px var(--tier-glow); }
+  .ex-crest.complete .crest-stamp { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
+  @media (max-width: 400px) {
+    .ex-crest { flex-basis: 128px; width: 128px; height: 128px; }
+    .crest-art { width: 88px; height: 88px; margin: -44px 0 0 -44px; }
+    .ex-node { width: 28px; height: 28px; margin: -14px 0 0 -14px; font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .crest-flood, .ex-meter-fill, .ex-node, .crest-stamp { transition: none; }
+  }
   .same-last-btn { flex: 0 0 auto; font-family: var(--font-head); font-size: 10.5px; letter-spacing: .02em; padding: 6px 10px; border-radius: 20px; border: 1.5px solid var(--blue); background: var(--blue-soft); color: var(--blue); cursor: pointer; white-space: nowrap; }
   .set-grid { margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
 
@@ -184,6 +222,8 @@
   .ssr-expected .ghost { display: block; color: var(--blue); font-weight: 600; margin-top: 2px; }
   .ssr-input { border-left: 1px solid var(--line); padding-left: 14px; display: grid; grid-template-columns: 1fr 1fr 40px; gap: 5px; align-items: center; }
   .mini-field { background: var(--surface-2); border: 1.5px solid var(--line); color: var(--ink); padding: 9px 6px; border-radius: 7px; font-size: 13px; width: 100%; font-family: var(--font-body); min-width: 0; min-height: 40px; }
+  .mini-field::-webkit-outer-spin-button, .mini-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .mini-field { -moz-appearance: textfield; appearance: textfield; }
   .mini-field:focus { outline: none; border-color: var(--blue); }
   .set-split-row.done-row .mini-field { background: var(--teal-soft); border-color: var(--teal); }
   .mini-done { width: 40px; height: 40px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink-faint); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
@@ -400,10 +440,6 @@
       </div>
 
       <div class="card" id="liftInputCard">
-        <div class="split-card" style="margin-bottom:2px;">
-          <div class="split-col"><div class="split-col-label expected">Expected</div></div>
-          <div class="split-col col-right"><div class="split-col-label input">Your input</div></div>
-        </div>
         <div id="exerciseList"></div>
       </div>
     </section>
@@ -1458,6 +1494,130 @@
     return hist.length ? hist[0] : null;
   }
 
+  /* ===================== EXERCISE CRESTS ===================== */
+  /* Every exercise is drawn as a crest: a hexagon with the movement's equipment inside
+     it, and one node per set arranged around the rim. Ticking a set lights its node and
+     floods the hexagon a little further up; the last one fills it, lights the whole
+     drawing and stamps it cleared. The reps and weight rows underneath are unchanged --
+     the crest is a second way to tick a set, not a replacement for typing what you did.
+
+     The drawings are equipment and motion, never a figure: a dumbbell, a pulley, a pad,
+     an arrow showing which way the thing moves. */
+
+  function gDB(cx, cy, half) {            // dumbbell lying flat
+    var l = cx - half, r = cx + half;
+    return "M" + l + " " + cy + "H" + r +
+      "M" + l + " " + (cy-8) + "V" + (cy+8) + "M" + (l-5.5) + " " + (cy-5) + "V" + (cy+5) +
+      "M" + r + " " + (cy-8) + "V" + (cy+8) + "M" + (r+5.5) + " " + (cy-5) + "V" + (cy+5);
+  }
+  function gArrowV(x, y1, y2) {           // arrow along the vertical
+    var d = y2 > y1 ? 1 : -1;
+    return "M" + x + " " + y1 + "V" + y2 +
+      "M" + (x-5) + " " + (y2 - 6*d) + "L" + x + " " + y2 + "L" + (x+5) + " " + (y2 - 6*d);
+  }
+  function gArrowH(y, x1, x2) {           // arrow along the horizontal
+    var d = x2 > x1 ? 1 : -1;
+    return "M" + x1 + " " + y + "H" + x2 +
+      "M" + (x2 - 6*d) + " " + (y-5) + "L" + x2 + " " + y + "L" + (x2 - 6*d) + " " + (y+5);
+  }
+  function gStack(x, y, n) {              // pin-loaded weight stack
+    var s = ""; for (var i = 0; i < n; i++) s += "M" + (x-10) + " " + (y + i*7) + "h20";
+    return s;
+  }
+  function gPulley(x, y) { return "M" + x + " " + y + "m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"; }
+
+  /* group decides the crest colour: push, pull, legs, arms, posterior. */
+  var EX_ART = {
+    "Flat DB Bench":       { g: "push",  d: ["M20 66H80", "M32 66V80 M68 66V80", gDB(34,34,12), gDB(66,34,12), gArrowV(50,54,26)] },
+    "Incline DB Bench":    { g: "push",  d: ["M20 72L76 44", "M30 72V82 M68 56V66", gDB(34,30,12), gDB(70,22,12), gArrowV(52,50,24)] },
+    "Standing DB OHP":     { g: "push",  d: ["M22 76H78", gDB(50,24,14), gArrowV(50,58,32), "M34 60H66"] },
+    "DB Fly":              { g: "push",  d: ["M20 72H80", gDB(26,40,10), gDB(74,40,10), "M32 30Q50 14 68 30", gArrowH(30,40,60)] },
+    "Dips":                { g: "push",  d: ["M22 28V78 M78 28V78", "M22 34H40 M60 34H78", gArrowV(50,34,70), "M40 70H60"] },
+    "Lat Pulldown":        { g: "pull",  d: ["M18 22H82", "M30 22V44 M70 22V44", "M26 44H74", gArrowV(50,30,74), "M34 82H66"] },
+    "DB Row":              { g: "pull",  d: ["M18 74H82", "M30 74V84", gDB(52,52,12), gArrowV(52,66,32)] },
+    "Face Pull":           { g: "pull",  d: [gPulley(24,26), "M24 33V50", "M24 50L48 56 M24 50L48 44", gArrowH(50,54,80), gStack(24,68,3)] },
+    "Belt Squat":          { g: "legs",  d: ["M34 26h32a6 6 0 0 1 0 12H34a6 6 0 0 1 0-12z", "M50 38V54", gStack(50,58,4), gArrowV(24,34,72)] },
+    "Leg Curl":            { g: "legs",  d: ["M18 40H58", "M24 40V62", "M58 40Q76 40 76 58", "M76 58m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0",
+                                              "M88 58A12 12 0 0 1 76 70", "M82 68L76 70L78 64", gStack(34,74,2)] },
+    "Back Extension":      { g: "post",  d: ["M22 78L62 38", "M28 78V86", "M62 38m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0", "M34 72Q54 74 66 62", gArrowV(80,66,36)] },
+    "Bent-Knee Calf Raise":{ g: "legs",  d: ["M18 74H56 M56 74V86H82", gArrowV(36,66,30), "M26 66H46", gStack(72,40,3)] },
+    "DB Lateral Raise":    { g: "arms",  d: ["M50 34V72", "M36 84H64", gDB(22,44,9), gDB(78,44,9), "M30 60Q22 52 22 44", "M70 60Q78 52 78 44"] },
+    "Skull Crushers":      { g: "arms",  d: ["M20 72H80", "M30 72V82", "M34 34H66", "M34 27V41 M66 27V41", gArrowV(50,46,26), "M34 54Q50 60 66 54"] },
+    "Cable Curl":          { g: "arms",  d: [gPulley(24,74), "M24 67V40", gStack(24,78,2), "M46 40H70", "M70 40Q80 40 80 30", gArrowV(58,50,28)] },
+    "Zottman Curl":        { g: "arms",  d: [gDB(50,30,13), "M50 44V72", "M34 82H66", "M30 58Q24 44 34 34", "M70 58Q76 44 66 34", gArrowH(58,38,62)] }
+  };
+  var EX_GROUP_COLOR = {
+    push: { c: "#FF6B4A", soft: "rgba(255,107,74,0.16)", glow: "rgba(255,107,74,0.55)" },
+    pull: { c: "#2E6BFF", soft: "rgba(46,107,255,0.16)", glow: "rgba(46,107,255,0.55)" },
+    legs: { c: "#E0417C", soft: "rgba(224,65,124,0.16)", glow: "rgba(224,65,124,0.55)" },
+    arms: { c: "#FFAB1F", soft: "rgba(255,171,31,0.18)", glow: "rgba(255,171,31,0.55)" },
+    post: { c: "#12B886", soft: "rgba(18,184,134,0.16)", glow: "rgba(18,184,134,0.55)" }
+  };
+  var HEX_PATH = "M50 4 92 27 92 73 50 96 8 73 8 27Z";
+  function exArt(name) { return EX_ART[name] || { g: "arms", d: [gDB(50,50,16), gArrowV(50,74,30)] }; }
+
+  /* Node k sits on the rim, starting at the top and going clockwise. Positions are a
+     percentage of the crest box, and the ring sits just outside the hexagon: the box is
+     148px, the hexagon 104px of it, so 42% of the box clears the points. */
+  var NODE_RING_PCT = 42;
+  function nodePos(i, n) {
+    var a = (-90 + (360 / n) * i) * Math.PI / 180;
+    return { x: 50 + Math.cos(a) * NODE_RING_PCT, y: 50 + Math.sin(a) * NODE_RING_PCT };
+  }
+
+  function crestHTML(exx, idx, doneFlags) {
+    var art = exArt(exx.name), col = EX_GROUP_COLOR[art.g];
+    var uid = "cr" + idx;
+    var glyph = art.d.map(function (d) { return '<path d="' + d + '"/>'; }).join("");
+    var svg =
+      '<svg class="crest-art" viewBox="-8 -8 116 116" aria-hidden="true">' +
+        '<defs>' +
+          '<clipPath id="' + uid + 'clip"><rect class="crest-flood" x="-8" y="108" width="116" height="116"/></clipPath>' +
+          '<linearGradient id="' + uid + 'grad" x1="0" y1="1" x2="0.4" y2="0">' +
+            '<stop offset="0" stop-color="' + col.c + '" stop-opacity="0.95"/>' +
+            '<stop offset="1" stop-color="' + col.c + '" stop-opacity="0.45"/>' +
+          '</linearGradient>' +
+        '</defs>' +
+        '<path class="crest-hex-bg" d="' + HEX_PATH + '"/>' +
+        '<g clip-path="url(#' + uid + 'clip)"><path d="' + HEX_PATH + '" fill="url(#' + uid + 'grad)"/></g>' +
+        '<path class="crest-hex-line" d="' + HEX_PATH + '"/>' +
+        '<g class="crest-glyph dim">' + glyph + '</g>' +
+        '<g class="crest-glyph lit" clip-path="url(#' + uid + 'clip)">' + glyph + '</g>' +
+      '</svg>';
+    var nodes = "";
+    for (var i = 0; i < exx.sets; i++) {
+      var pos = nodePos(i, exx.sets);
+      nodes += '<button type="button" class="ex-node' + (doneFlags[i] ? " on" : "") + '" data-node="' + i + '"' +
+        ' style="left:' + pos.x + '%; top:' + pos.y + '%;"' +
+        ' aria-label="Set ' + (i+1) + '" aria-pressed="' + (doneFlags[i] ? "true" : "false") + '">' + (i+1) + '</button>';
+    }
+    return '<div class="ex-crest" style="--tier:' + col.c + '; --tier-soft:' + col.soft + '; --tier-glow:' + col.glow + ';">' +
+      svg + nodes + '<div class="crest-stamp">Cleared</div></div>';
+  }
+
+  /* Repaint a block's crest from whatever its rows currently say. */
+  function paintCrest(block) {
+    var rows = Array.from(block.querySelectorAll(".set-split-row"));
+    var total = rows.length || 1;
+    var done = rows.filter(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; }).length;
+    var pct = done / total;
+    var crest = block.querySelector(".ex-crest");
+    var flood = crest.querySelector(".crest-flood");
+    flood.setAttribute("y", (108 - 116 * pct).toFixed(2));
+    crest.classList.toggle("complete", done === total && total > 0);
+    rows.forEach(function (r, i) {
+      var on = r.querySelector(".mini-done").getAttribute("data-done") === "1";
+      var node = crest.querySelector('[data-node="' + i + '"]');
+      if (!node) return;
+      node.classList.toggle("on", on);
+      node.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var meter = block.querySelector(".ex-meter-fill");
+    if (meter) meter.style.width = (pct * 100) + "%";
+    var count = block.querySelector(".ex-count");
+    if (count) count.textContent = done + " / " + total;
+  }
+
   function renderLiftingPanel(prog, doc, key) {
     document.getElementById("liftSessionName").textContent = prog.name;
     document.getElementById("liftSessionSub").textContent = prog.type === "cardio" ? "Rest from lifting — cardio only" : prog.ex.reduce(function(a,e){return a+e.sets;},0) + " total sets across " + prog.ex.length + " exercises";
@@ -1475,13 +1635,15 @@
       block.className = "ex-block";
       var savedSets = (doc.sets && doc.sets[exx.name]) || [];
       var wUnit = exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
+      var doneFlags = [];
+      for (var i = 0; i < exx.sets; i++) doneFlags.push(!!(savedSets[i] && savedSets[i].done));
 
       var setsHtml = "";
       for (var s = 0; s < exx.sets; s++) {
         var sv = savedSets[s];
         var repsVal = sv && sv.reps != null ? sv.reps : exx.repDefault;
         var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : (exx.weightDefault == null ? "" : exx.weightDefault);
-        var done = sv ? !!sv.done : false;
+        var done = doneFlags[s];
         setsHtml += '<div class="set-split-row' + (done ? " done-row" : "") + '" data-set="' + s + '">' +
           '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + ' · Rest ' + exx.restSec + 's<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
           '<div class="ssr-input">' +
@@ -1490,25 +1652,46 @@
             '<div class="mini-done ' + (done ? "on" : "") + '" data-done="' + (done ? "1" : "0") + '">&#10003;</div>' +
           '</div></div>';
       }
+      var art = exArt(exx.name);
       block.innerHTML =
-        '<div class="ex-name-row"><div class="ex-name" data-exname="' + exx.name + '">' + exx.name + '</div><button class="same-last-btn" data-exname="' + exx.name + '">Same as last time</button></div>' +
+        '<div class="ex-head" style="--tier:' + EX_GROUP_COLOR[art.g].c + '">' +
+          crestHTML(exx, exIdx, doneFlags) +
+          '<div class="ex-meta">' +
+            '<div class="ex-name" data-exname="' + exx.name + '">' + exx.name + '</div>' +
+            '<div class="ex-target">' + exx.repLo + '–' + exx.repHi + ' reps @ ' + wUnit + '</div>' +
+            '<div class="ex-meter"><div class="ex-meter-fill"></div></div>' +
+            '<div class="ex-count"></div>' +
+            '<button class="same-last-btn" data-exname="' + exx.name + '">Same as last time</button>' +
+          '</div>' +
+        '</div>' +
         '<div class="set-grid">' + setsHtml + '</div>';
       list.appendChild(block);
 
       block.querySelector(".ex-name").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
       block.querySelector(".same-last-btn").onclick = function () { fillFromLastTime(this.getAttribute("data-exname"), block, key); };
 
-      Array.from(block.querySelectorAll(".set-split-row")).forEach(function (row) {
+      var rows = Array.from(block.querySelectorAll(".set-split-row"));
+      /* One place that flips a set, whichever control was tapped. */
+      function toggleSet(idx) {
+        var row = rows[idx]; if (!row) return;
         var doneBtn = row.querySelector(".mini-done");
-        doneBtn.onclick = function () {
-          var on = doneBtn.getAttribute("data-done") === "1";
-          doneBtn.setAttribute("data-done", on ? "0" : "1"); doneBtn.classList.toggle("on", !on); row.classList.toggle("done-row", !on);
-          if (!on) { vibrate(18); startRestTimer(exx.restSec); }
-          persistSet(key, exx.name, row);
-        };
+        var on = doneBtn.getAttribute("data-done") === "1";
+        doneBtn.setAttribute("data-done", on ? "0" : "1");
+        doneBtn.classList.toggle("on", !on);
+        row.classList.toggle("done-row", !on);
+        if (!on) { vibrate(18); startRestTimer(exx.restSec); }
+        paintCrest(block);
+        persistSet(key, exx.name, row);
+      }
+      rows.forEach(function (row, idx) {
+        row.querySelector(".mini-done").onclick = function () { toggleSet(idx); };
         row.querySelector(".reps-input").addEventListener("change", function () { persistSet(key, exx.name, row); });
         row.querySelector(".wt-input").addEventListener("change", function () { persistSet(key, exx.name, row); });
       });
+      Array.from(block.querySelectorAll(".ex-node")).forEach(function (node) {
+        node.onclick = function () { toggleSet(parseInt(node.getAttribute("data-node"), 10)); };
+      });
+      paintCrest(block);
 
       // fill in ghost "last time" values asynchronously
       getLastPerformance(exx.name).then(function (last) {
@@ -2127,6 +2310,11 @@
     var coachText = (document.getElementById("scoreNarrative") || {}).textContent || "";
     if (/^\s*$/.test(coachText)) coachText = "";
 
+    var scoreData = lastScoreData;
+    if (!scoreData) { try { scoreData = await computeDailyScore(); lastScoreData = scoreData; } catch (e) { scoreData = null; } }
+    var overall = scoreData ? scoreData.overall : 0;
+    var rank = rankFor(overall);
+
     var SCALE = 2, W = 1080, H = 1920, pad = 64;
     var canvas = document.getElementById("summaryCanvas");
     canvas.width = W * SCALE; canvas.height = H * SCALE;
@@ -2135,17 +2323,60 @@
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.textBaseline = "alphabetic";
 
-    var g = ctx.createLinearGradient(0, 0, W * 0.4, H);
-    g.addColorStop(0, "#1B2FCC"); g.addColorStop(0.5, "#6B3FFF"); g.addColorStop(1, "#E0417C");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    function hexPath(cx, cy, r) {
+      ctx.beginPath();
+      for (var i = 0; i < 6; i++) {
+        var a = (-90 + i * 60) * Math.PI / 180;
+        var x = cx + Math.cos(a) * r, yy = cy + Math.sin(a) * r;
+        if (i) ctx.lineTo(x, yy); else ctx.moveTo(x, yy);
+      }
+      ctx.closePath();
+    }
 
-    function card(x, y, w, h, r) {
-      ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.13;
-      roundRect(ctx, x, y, w, h, r || 26); ctx.fill(); ctx.globalAlpha = 1;
+    /* ---- background: dark plate, a glow in the day's rank colour, a hex lattice ---- */
+    ctx.fillStyle = "#0B0D18"; ctx.fillRect(0, 0, W, H);
+    var g1 = ctx.createRadialGradient(W * 0.86, 140, 40, W * 0.86, 140, 900);
+    g1.addColorStop(0, rank.color + "AA"); g1.addColorStop(1, "rgba(11,13,24,0)");
+    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+    var g2 = ctx.createRadialGradient(-80, H * 0.72, 60, -80, H * 0.72, 1050);
+    g2.addColorStop(0, "rgba(46,107,255,0.55)"); g2.addColorStop(1, "rgba(11,13,24,0)");
+    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+    var g3 = ctx.createRadialGradient(W * 0.6, H, 80, W * 0.6, H, 760);
+    g3.addColorStop(0, "rgba(224,65,124,0.45)"); g3.addColorStop(1, "rgba(11,13,24,0)");
+    ctx.fillStyle = g3; ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.045)"; ctx.lineWidth = 1.6;
+    var hr = 62, hdx = hr * 1.5, hdy = hr * Math.sqrt(3);
+    for (var hc = -1; hc * hdx < W + hr; hc++) {
+      for (var hrw = -1; hrw * hdy < H + hr; hrw++) {
+        hexPath(hc * hdx, hrw * hdy + (Math.abs(hc % 2) ? hdy / 2 : 0), hr * 0.92);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    /* A game panel: square top-right and bottom-left, cut corners on the other two. */
+    function panelPath(x, y, w, h, n) {
+      n = n || 26;
+      ctx.beginPath();
+      ctx.moveTo(x + n, y); ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w, y + h - n); ctx.lineTo(x + w - n, y + h);
+      ctx.lineTo(x, y + h); ctx.lineTo(x, y + n);
+      ctx.closePath();
+    }
+    function card(x, y, w, h, accent) {
+      panelPath(x, y, w, h);
+      ctx.fillStyle = "rgba(255,255,255,0.055)"; ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.save(); panelPath(x, y, w, h); ctx.clip();
+      ctx.fillStyle = accent || rank.color; ctx.fillRect(x, y, 5, h);
+      ctx.restore();
     }
     function cap(t, x, y, size, alpha) {
-      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.66) + ")";
-      ctx.font = "600 " + (size || 16) + "px Inter, sans-serif"; ctx.fillText(t, x, y);
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.62) + ")";
+      ctx.font = "600 " + (size || 16) + "px Oswald, sans-serif";
+      ctx.fillText(String(t).toUpperCase(), x, y);
     }
     function big(t, x, y, size) {
       ctx.fillStyle = "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, y);
@@ -2153,66 +2384,99 @@
     function streakChip(x, y, days) {
       var label = days + "d";
       ctx.font = "600 20px Oswald, sans-serif";
-      var w = ctx.measureText(label).width + 40;
-      ctx.fillStyle = days > 0 ? "rgba(255,214,102,0.22)" : "rgba(255,255,255,0.12)";
-      roundRect(ctx, x, y - 22, w, 32, 16); ctx.fill();
-      ctx.fillStyle = days > 0 ? "#FFD666" : "rgba(255,255,255,0.6)";
-      ctx.font = "600 13px Inter, sans-serif"; ctx.fillText("▲", x + 12, y);
-      ctx.font = "600 20px Oswald, sans-serif"; ctx.fillText(label, x + 28, y);
+      var w = ctx.measureText(label).width + 44;
+      ctx.fillStyle = days > 0 ? "rgba(255,209,102,0.2)" : "rgba(255,255,255,0.1)";
+      roundRect(ctx, x, y - 22, w, 33, 16); ctx.fill();
+      ctx.strokeStyle = days > 0 ? "rgba(255,209,102,0.5)" : "rgba(255,255,255,0.14)";
+      ctx.lineWidth = 1.5; roundRect(ctx, x, y - 22, w, 33, 16); ctx.stroke();
+      ctx.fillStyle = days > 0 ? "#FFD166" : "rgba(255,255,255,0.55)";
+      ctx.font = "600 15px Inter, sans-serif"; ctx.fillText("▲", x + 13, y);
+      ctx.font = "600 21px Oswald, sans-serif"; ctx.fillText(label, x + 32, y);
       return w;
     }
 
-    /* ---- 1. date ---- */
-    cap("ACCOUNTABILITYAAS", pad, 92, 18, 0.7);
-    ctx.fillStyle = "#fff"; ctx.font = "600 62px Oswald, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long" }), pad, 158);
-    ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 30px Inter, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), pad, 200);
+    /* ---- 1. header: who, when, and the rank earned ---- */
+    cap("ACCOUNTABILITYAAS", pad, 86, 19, 0.55);
+    ctx.fillStyle = "#fff"; ctx.font = "600 68px Oswald, sans-serif";
+    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase(), pad, 162);
+    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 29px Inter, sans-serif";
+    ctx.fillText(selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), pad, 208);
 
-    /* ---- 2. bodyweight ---- */
-    var y = 240, h = 150;
+    var bx = W - pad - 92, by = 150;
+    ctx.save();
+    ctx.shadowColor = rank.color; ctx.shadowBlur = 44;
+    hexPath(bx, by, 88); ctx.fillStyle = rank.color; ctx.fill();
+    ctx.restore();
+    hexPath(bx, by, 88); ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.lineWidth = 3; ctx.stroke();
+    hexPath(bx, by, 72); ctx.strokeStyle = "rgba(255,255,255,0.3)"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#0B0D18"; ctx.font = "600 84px Oswald, sans-serif";
+    ctx.fillText(rank.letter, bx, by + 30);
+    ctx.textAlign = "left";
+
+    /* ---- 2. the day's score as an XP bar ---- */
+    var xpY = 290, xpW = W - pad * 2;
+    cap("DAY SCORE", pad, xpY - 16, 17, 0.6);
+    ctx.textAlign = "right";
+    ctx.fillStyle = rank.color; ctx.font = "600 21px Oswald, sans-serif";
+    var wordW = ctx.measureText(rank.word.toUpperCase()).width;
+    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif";
+    ctx.fillText(overall + " / 100", W - pad, xpY - 14);
+    var numW = ctx.measureText(overall + " / 100").width;
+    ctx.fillStyle = rank.color; ctx.font = "600 21px Oswald, sans-serif";
+    ctx.fillText(rank.word.toUpperCase() + "  \u00b7", W - pad - numW - 14, xpY - 14);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(255,255,255,0.12)"; roundRect(ctx, pad, xpY, xpW, 16, 8); ctx.fill();
+    ctx.save();
+    ctx.shadowColor = rank.color; ctx.shadowBlur = 26;
+    ctx.fillStyle = rank.color;
+    roundRect(ctx, pad, xpY, Math.max(16, xpW * Math.min(1, overall / 100)), 16, 8); ctx.fill();
+    ctx.restore();
+
+    /* ---- 3. bodyweight ---- */
+    var y = 346, h = 146;
     card(pad, y, W - pad * 2, h);
     cap("BODYWEIGHT", pad + 34, y + 44, 17);
     if (summaryShowWeight) {
-      big(doc.weight != null ? doc.weight + " lb" : "—", pad + 34, y + 108, 62);
+      big(doc.weight != null ? doc.weight + " lb" : "—", pad + 34, y + 110, 60);
       if (doc.weight != null && prevWeight != null) {
         var dlt = doc.weight - prevWeight;
-        ctx.fillStyle = dlt > 0 ? "#FFC4B4" : "#B8F5DC";
+        ctx.fillStyle = dlt > 0 ? "#FFC4B4" : "#8BF0C4";
         ctx.font = "600 26px Inter, sans-serif";
-        ctx.fillText((dlt > 0 ? "+" : "") + dlt.toFixed(1) + " lb vs last", pad + 300, y + 104);
+        ctx.fillText((dlt > 0 ? "+" : "") + dlt.toFixed(1) + " lb vs last", pad + 300, y + 106);
       }
     } else {
-      big("•••", pad + 34, y + 104, 62);
-      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 24px Inter, sans-serif";
-      ctx.fillText("hidden", pad + 190, y + 100);
+      big("•••", pad + 34, y + 106, 60);
+      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 24px Inter, sans-serif";
+      ctx.fillText("hidden", pad + 190, y + 102);
     }
     ctx.textAlign = "right";
     cap("STREAK · SAME OR DOWN", W - pad - 34, y + 44, 15);
     ctx.textAlign = "left";
-    streakChip(W - pad - 120, y + 104, st.weight);
+    streakChip(W - pad - 120, y + 106, st.weight);
 
-    /* ---- 3. training: cardio + weights side by side ---- */
-    y = 414; h = 200;
+    /* ---- 4. training: cardio + weights side by side ---- */
+    y = 516; h = 196;
     var colW = (W - pad * 2 - 20) / 2;
     [[pad, "CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—",
-      (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + " mph" : "not logged", st.cardio],
+      (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + " mph" : "not logged", st.cardio, "#6FD0FF"],
      [pad + colW + 20, "WEIGHT TRAINING", prog.type === "cardio" ? "Rest" : doneSets + "/" + totalSets,
-      prog.type === "cardio" ? "no lifting today" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting]
+      prog.type === "cardio" ? "no lifting today" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting, "#FF8F6B"]
     ].forEach(function (c) {
-      card(c[0], y, colW, h);
+      card(c[0], y, colW, h, c[5]);
       cap(c[1], c[0] + 28, y + 42, 15);
       big(c[2], c[0] + 28, y + 106, 50);
-      ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 20px Inter, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.68)"; ctx.font = "500 20px Inter, sans-serif";
       ctx.fillText(c[3], c[0] + 28, y + 140);
-      streakChip(c[0] + 28, y + 178, c[4]);
+      streakChip(c[0] + 28, y + 176, c[4]);
     });
 
-    /* ---- 4. nutrition: calories and the three rings in one band ---- */
+    /* ---- 5. nutrition: calories and the three rings in one band ---- */
     /* Calories used to have a band of its own above the rings, which cost about 200px
        of card for one number and a bar. They measure the same thing -- what was eaten --
        so they share a card now, and the photos get the height back. */
-    y = 638; h = 440;
-    card(pad, y, W - pad * 2, h);
+    y = 732; h = 436;
+    card(pad, y, W - pad * 2, h, "#8BF0C4");
     cap("NUTRITION", pad + 34, y + 42, 15);
     var underCap = anyEst && cal <= TARGETS.calories;
     ctx.textAlign = "right";
@@ -2222,41 +2486,41 @@
     streakChip(W - pad - 112, y + 48, st.calories);
 
     big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 108, 54);
-    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 21px Inter, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.68)"; ctx.font = "500 21px Inter, sans-serif";
     ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  maintenance " + fmtInt(TARGETS.calories)
                         : "no meals logged today",
       pad + 34 + ctx.measureText("0").width + (anyEst ? 170 : 130), y + 104);
 
     var barW = W - pad * 2 - 68, barY = y + 130;
-    ctx.fillStyle = "rgba(255,255,255,0.18)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.14)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
     if (anyEst) {
       ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
       roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / TARGETS.calories)), 10, 5); ctx.fill();
     }
 
-    var cx = pad + 34 + 132, cy = y + 292;
+    var cx = pad + 34 + 132, cy = y + 290;
     var rings = [
       { r: 118, w: 27, val: pro, target: TARGETS.protein, color: "#5BE1A8", name: "PROTEIN", unit: "g" },
       { r: 84,  w: 27, val: fat, target: TARGETS.fat,     color: "#FFD666", name: "FAT",     unit: "g" },
       { r: 50,  w: 27, val: fib, target: TARGETS.fiber,   color: "#6FD0FF", name: "FIBRE",   unit: "g" }
     ];
     rings.forEach(function (rg) {
-      ringArc(ctx, cx, cy, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.16)");
+      ringArc(ctx, cx, cy, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.14)");
     });
     var lx = cx + 172;
     rings.forEach(function (rg, i) {
       var ly = cy - 74 + i * 78;
       ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 8, ly - 8, 8, 0, Math.PI * 2); ctx.fill();
-      cap(rg.name, lx + 26, ly - 2, 15, 0.75);
+      cap(rg.name, lx + 26, ly - 2, 15, 0.7);
       ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
       ctx.fillText(rg.val + rg.unit, lx + 26, ly + 36);
-      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 18px Inter, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 18px Inter, sans-serif";
       ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target + rg.unit,
         lx + 26 + ctx.measureText(rg.val + rg.unit).width + 66, ly + 34);
     });
 
-    /* ---- 5. the coach ---- */
-    y = 1110;
+    /* ---- 6. the coach ---- */
+    y = 1194;
     if (summaryShowCoach && coachText) {
       var words = coachText.split(/\s+/), lines = [], line = "";
       ctx.font = "500 27px Inter, sans-serif";
