@@ -238,6 +238,12 @@
 
   #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:80;max-width:calc(100% - 32px);text-align:center}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#sendToast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(14px);display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--bg);padding:10px 10px 10px 16px;border-radius:16px;opacity:0;transition:opacity .25s,transform .25s;z-index:81;width:calc(100% - 24px);max-width:420px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+#sendToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#sendToast .st-txt{font-family:var(--font-head);font-weight:500;font-size:14px;flex:1 1 auto;min-width:0}
+#sendToast .btn.wa{padding:7px 12px;font-size:13px;box-shadow:none;flex:0 0 auto}
+#sendToast .st-x{background:none;border:0;color:var(--bg);opacity:.6;font-size:15px;cursor:pointer;padding:4px 6px;flex:0 0 auto}
+#sendToast .st-x:hover{opacity:1}
   .onboard ol{margin:0 0 14px;padding-left:18px;display:grid;gap:6px;color:var(--ink-dim)}
   .onboard ol b{color:var(--ink)}
   @media (max-width:380px){.watch-grid{grid-template-columns:1fr;justify-items:center}.ring-legend{grid-template-columns:repeat(3,1fr);text-align:center;width:100%}.juz-grid{grid-template-columns:repeat(5,1fr)}}
@@ -630,6 +636,19 @@ nav.tabbar button.active{background:var(--blue-soft)}
    the name field and stops inviting people to register. The Supabase setting is what
    actually enforces it. Flip both together if self-service sign-up is ever wanted. */
 window.HIFZ_SIGNUP_OPEN = false;
+
+/* How the other person gets told.
+     "manual" - the app writes the message and hands it to WhatsApp with everything
+                filled in; you press send. Free, works today, no accounts to open and
+                no approvals to wait for. The catch is that a message only goes when a
+                person taps it, so there is no unattended end-of-day summary.
+     "auto"   - a Netlify function sends it through Twilio with nobody watching. Needs
+                a paid Twilio account, and to message anyone outside a 24-hour window
+                needs a WhatsApp sender and templates approved by Meta, which is days
+                of waiting.
+   Manual is the default because it is the one that works without any of that.
+   Switching to "auto" is this line plus the variables in SETUP.md. */
+window.HIFZ_SEND_MODE = "manual";
 window.HIFZ_CONFIG={supabaseUrl:"https://awtaswsjtzorwqknymtj.supabase.co",supabaseAnonKey:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3dGFzd3NqdHpvcndxa255bXRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyNzM4NTksImV4cCI6MjEwNTg0OTg1OX0.8JsMq44f6rn6wOhq5tQkipgFRzzXF7vpJ3onEoSfIng",appUrl:"https://accountabilityaas.com/hifz/",notifyUrl:"/.netlify/functions/hifz-notify"};
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
@@ -1221,22 +1240,44 @@ function mergeDocs(R0,L){var M=JSON.parse(JSON.stringify(R0));
 /* ---------- notifications ---------- */
 function recipientOf(role){var r=CLOUD&&ROWS[P.cur],c=D.contact||{};if(role==="student")return{name:(r&&r.teacher_name)||(c.teacherName)||(D.teacher&&D.teacher.name)||"Teacher",phone:(r&&r.teacher_phone)||c.teacherPhone||(D.teacher&&D.teacher.phone)||"",who:"teacher"};
   return{name:studentName(),phone:(r&&r.phone)||c.studentPhone||"",who:"student"}}
+/* The point of manual mode: right after you log something, the finished message is one
+   tap away instead of waiting on the Messages tab for you to find it. Its own element
+   rather than the shared #toast, because that one is a single line of text that fades
+   after 2.4s and this has a link in it that needs to stay put long enough to press. */
+function offerSend(ev){
+  var rc=recipientOf(ev.role),n=digitsOnly(rc.phone);
+  if(!n){toast("Saved. Add "+(rc.who==="teacher"?"the teacher's":"the student's")+" WhatsApp number to send updates.");return}
+  var old=document.getElementById("sendToast"); if(old)old.remove();
+  var t=document.createElement("div"); t.id="sendToast"; t.setAttribute("role","status");
+  t.innerHTML='<span class="st-txt">Tell '+esc(greetName(rc.name))+'?</span>'+
+    '<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+n+'?text='+
+      encodeURIComponent(messageText(ev)).replace(/'/g,"%27")+'">Send on WhatsApp</a>'+
+    '<button type="button" class="st-x" aria-label="Not now">\u2715</button>';
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add("show")});
+  var kill=function(){t.classList.remove("show");setTimeout(function(){t.remove()},260)};
+  t.querySelector(".st-x").onclick=kill;
+  t.querySelector("a").addEventListener("click",function(){setTimeout(kill,400)});
+  setTimeout(kill,22000);
+}
 function messageText(ev){var rc=recipientOf(ev.role),who=ev.role==="teacher"?(ev.name||"Teacher")+" (teacher)":ev.name||studentName();
   return"Assalamu alaikum "+greetName(rc.name)+". Hifz update for "+studentName()+":\n"+who+": "+ev.summary+"\n"+(CFG.appUrl||"https://accountabilityaas.com/hifz/")}
-function emit(kind,summary,payload,bits){var role=actorRole(bits),ev={id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),kind:kind,summary:summary,role:role,name:actorName(bits),at:new Date().toISOString(),status:CLOUD?"pending":"preview"};
-  if(!CLOUD){D.outbox=(D.outbox||[]).concat([ev]).slice(-80);save();renderMessages();return}
+function MANUAL(){return window.HIFZ_SEND_MODE!=="auto"}
+function emit(kind,summary,payload,bits){var role=actorRole(bits),ev={id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),kind:kind,summary:summary,role:role,name:actorName(bits),at:new Date().toISOString(),status:CLOUD?(MANUAL()?"manual":"pending"):"preview"};
+  if(!CLOUD){D.outbox=(D.outbox||[]).concat([ev]).slice(-80);save();renderMessages();offerSend(ev);return}
   (async function(){try{var r=await SBC.from("hifz_events").insert({student_id:P.cur,actor_role:role,actor_name:ev.name,kind:kind,summary:summary,payload:payload||{}}).select("id").single();if(r.error)throw r.error;
+    if(MANUAL()){offerSend(ev);loadEvents();return}
     var ses=(await SBC.auth.getSession()).data.session;
     await fetch(CFG.notifyUrl||"/.netlify/functions/hifz-notify",{method:"POST",headers:{"content-type":"application/json",Authorization:"Bearer "+(ses?ses.access_token:"")},body:JSON.stringify({event_id:r.data.id})}).catch(function(){});
     loadEvents()}catch(e){console.warn(e);toast("Saved, but the message couldn't be queued: "+(e.message||e))}})()}
 async function loadEvents(){if(!CLOUD||!P.cur)return;var r=await SBC.from("hifz_events").select("id,actor_role,actor_name,kind,summary,created_at,notify_status,notify_detail,hash").eq("student_id",P.cur).order("id",{ascending:false}).limit(40);if(!r.error){EVENTS=r.data;renderMessages()}}
 function renderMessages(){var el=$("msgCard");if(!el)return;var list=CLOUD?EVENTS.map(function(e){return{id:e.id,role:e.actor_role,name:e.actor_name,summary:e.summary,at:e.created_at,status:e.notify_status,detail:e.notify_detail,hash:e.hash}}):(D.outbox||[]).slice().reverse();
   var st=recipientOf("student"),ts=recipientOf("teacher");
-  var h='<h2>Messages <small>'+(CLOUD?"sent automatically":"preview · sending needs the live version")+'</small></h2><div class="q-def" style="margin:-6px 0 12px">Every update goes to the other person: student updates go to '+esc(st.name)+(st.phone?" ("+esc(prettyPhone(st.phone))+")":"")+", teacher updates go to "+esc(ts.name)+(ts.phone?" ("+esc(prettyPhone(ts.phone))+")":"")+". Both get a summary at the end of the day.</div>";
+  var h='<h2>Messages <small>'+(!CLOUD?"preview · sending needs the live version":MANUAL()?"tap to send":"sent automatically")+'</small></h2><div class="q-def" style="margin:-6px 0 12px">'+(MANUAL()?"Each update is written out ready to go — open one and tap Send on WhatsApp. ":"Every update goes to the other person: ")+'Student updates go to '+esc(st.name)+(st.phone?" ("+esc(prettyPhone(st.phone))+")":"")+", teacher updates go to "+esc(ts.name)+(ts.phone?" ("+esc(prettyPhone(ts.phone))+")":"")+". "+(MANUAL()?"":"Both get a summary at the end of the day.")+"</div>";
   if(!list.length)h+='<div class="faint">No messages yet. Log something and it appears here.</div>';
-  var SL={sent:["pin","Sent"],dry_run:["wa","Test mode"],pending:["none","Queued"],sending:["none","Sending"],failed:["bad","Failed"],skipped:["none","Skipped"],preview:["none","Preview"]};
+  var SL={sent:["pin","Sent"],dry_run:["wa","Test mode"],manual:["wa","Ready to send"],pending:["none","Queued"],sending:["none","Sending"],failed:["bad","Failed"],skipped:["none","Skipped"],preview:["none","Preview"]};
   list.slice(0,25).forEach(function(e){var to=e.role==="teacher"?"student":"teacher",s2=SL[e.status]||["none",e.status],txt=e.detail&&e.detail.text?e.detail.text:messageText(e),rc=recipientOf(e.role);
-    h+='<details class="msg-row"><summary><span class="msg-dir '+e.role+'">'+(e.role==="teacher"?"Teacher → Student":"Student → Teacher")+'</span><span class="msg-sum">'+esc(e.summary)+'</span><span class="msg-meta">'+new Date(e.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})+' <span class="sig-chip '+s2[0]+'">'+s2[1]+"</span></span></summary><pre class=\"msg-pre\">"+esc(txt)+"</pre>"+(e.detail&&e.detail.error?'<div class="warn-note">'+esc(e.detail.error)+"</div>":"")+(rc.phone&&(!CLOUD||e.status==="failed")?'<a class="btn wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/'+digitsOnly(rc.phone)+"?text="+encodeURIComponent(txt)+'">Send this on WhatsApp</a>':"")+"</details>"});
+    h+='<details class="msg-row"><summary><span class="msg-dir '+e.role+'">'+(e.role==="teacher"?"Teacher → Student":"Student → Teacher")+'</span><span class="msg-sum">'+esc(e.summary)+'</span><span class="msg-meta">'+new Date(e.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})+' <span class="sig-chip '+s2[0]+'">'+s2[1]+"</span></span></summary><pre class=\"msg-pre\">"+esc(txt)+"</pre>"+(e.detail&&e.detail.error?'<div class="warn-note">'+esc(e.detail.error)+"</div>":"")+(rc.phone&&(!CLOUD||MANUAL()||e.status==="failed")?'<a class="btn wa" style="margin-top:8px" target="_blank" rel="noopener" href="https://wa.me/'+digitsOnly(rc.phone)+"?text="+encodeURIComponent(txt)+'">Send this on WhatsApp</a>':"")+"</details>"});
   el.innerHTML=h}
 /* ---------- people card (student + teacher details, notification settings) ---------- */
 function renderPeople(){var el=$("peopleCard");if(!el)return;var r=CLOUD&&ROWS[P.cur],c=D.contact||{};
