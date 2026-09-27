@@ -187,6 +187,15 @@
   .verify-banner.ok{background:var(--teal-soft);color:var(--teal)}
   .verify-banner.bad{background:var(--coral-soft);color:var(--coral)}
   .explain{font-size:12.5px;color:var(--ink-dim);display:grid;gap:8px}
+  .g-step{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line)}
+  .g-step:first-of-type{border-top:none;padding-top:0}
+  .g-num{flex:0 0 25px;height:25px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-family:var(--font-head);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .g-body{flex:1;font-size:13px;line-height:1.5;color:var(--ink-dim)}
+  .g-body b{color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px}
+  .g-body em{font-style:normal;background:var(--surface-2);border-radius:5px;padding:1px 5px;color:var(--ink);white-space:nowrap}
+  .g-word{display:flex;gap:10px;align-items:baseline;padding:8px 0;font-size:13px;line-height:1.5;color:var(--ink-dim)}
+  .g-word .dot{flex:0 0 9px;height:9px;border-radius:50%;margin-top:6px}
+  .g-word b{color:var(--ink)}
   .explain b{color:var(--ink)}
   details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--blue)}
 
@@ -610,6 +619,51 @@ nav.tabbar button.active{background:var(--blue-soft)}
         </div>
       </div>
     </section>
+
+    <!-- GUIDE -->
+    <section class="panel" id="panel-guide">
+      <div class="card">
+        <h2>Setup instructions</h2>
+        <div class="explain" style="margin-bottom:14px"><p>This is your hifz notebook, shared between one student and one teacher. Everything happens right here &mdash; there is nothing else to sign up for and nothing to install.</p><p>Anyone can be a student and anyone can be a teacher. You set up your own pages.</p></div>
+        <div class="g-step"><span class="g-num">1</span><span class="g-body"><b>Make a page</b>Tap your name at the top right, then <em>Add a hifz page</em>. Fill in the student's name, email and WhatsApp number, and the teacher's name, email and WhatsApp number. Put your own email on whichever side you are. The other person sees the same page the moment they sign in with the email you typed.</span></div>
+        <div class="g-step"><span class="g-num">2</span><span class="g-body"><b>One page per person you follow</b>Studying yourself and teaching three students? That's four pages, all under the one login. Parents add a page for each child from their own account. Switch between them by tapping your name at the top right.</span></div>
+        <div class="g-step"><span class="g-num">3</span><span class="g-body"><b>Set the teacher's PIN</b>Open the <em>Teacher</em> tab and add the teacher. They choose a 4&ndash;8 digit PIN and only they should know it. The PIN itself is never stored &mdash; it's what they use to sign off a recitation in person.</span></div>
+        <div class="g-step"><span class="g-num">4</span><span class="g-body"><b>Set today's sabaq</b>On the <em>Today</em> tab, set the new portion. Sabqi and manzil then fill in on their own from what's already been memorised.</span></div>
+        <div class="g-step"><span class="g-num">5</span><span class="g-body"><b>Log each recitation</b>After reciting, tap the lesson on <em>Today</em> and enter how many ayat, how many mistakes, how many times you got stuck, tajweed slips, and how it felt (Again, Hard, Good, Easy). The three rings close as you go.</span></div>
+        <div class="g-step"><span class="g-num">6</span><span class="g-body"><b>Get it signed</b>Hand the phone to the teacher and they enter their PIN &mdash; that signs the day. If they approved over WhatsApp instead, use <em>Log the teacher's reply</em>, which records it as your own word rather than their signature.</span></div>
+        <div class="g-step"><span class="g-num">7</span><span class="g-body"><b>Send the update on WhatsApp</b>Every update writes the message for you and shows a <em>Send on WhatsApp</em> bar at the bottom. Tap it, WhatsApp opens with the text already typed to the right person, and you press send. Nothing is sent without you pressing send.</span></div>
+        <div class="g-step"><span class="g-num">8</span><span class="g-body"><b>Keep it on your phone</b>In Safari tap Share then <em>Add to Home Screen</em>; in Chrome tap the menu then <em>Install app</em>. It opens like an app and works offline &mdash; anything you log while offline syncs the next time you have signal.</span></div>
+        <div class="btn-row" style="margin-top:16px"><button class="btn primary block" type="button" id="guideDone">Got it &mdash; go to Today</button></div>
+        <div class="hint">You can come back here any time: the <b>Guide</b> tab at the bottom, or your name at the top right then <i>Setup instructions</i>.</div>
+      </div>
+
+      <div class="card">
+        <h2>The three words</h2>
+        <div class="g-word"><span class="dot" style="background:#FF2E63"></span><span><b>Sabaq</b> &mdash; the new lesson. The fresh portion being memorised today.</span></div>
+        <div class="g-word"><span class="dot" style="background:#8FD420"></span><span><b>Sabqi</b> &mdash; the recent past. Roughly the last month of sabaq, revised daily while it's still new.</span></div>
+        <div class="g-word"><span class="dot" style="background:#12C2E9"></span><span><b>Manzil</b> &mdash; the long-term store. Everything older, cycled through so it doesn't slip.</span></div>
+        <div class="hint">A day counts as complete when all three rings close. Miss one and the streak resets, so the rings are the whole scoreboard.</div>
+      </div>
+
+      <div class="card">
+        <h2>What each tab does</h2>
+        <div class="explain">
+          <p><b>Today.</b> The rings, today's lesson, logging a recitation, and the sign-off.</p>
+          <p><b>Map.</b> All 30 juz at a glance &mdash; what's held, what's weak, what's untouched. Tap a juz to look inside.</p>
+          <p><b>Trends.</b> Weekly and monthly view of ayat, accuracy and time spent.</p>
+          <p><b>Teacher.</b> Teacher tools, flags and assignments, the signature ledger, and how the signing works.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Who can see what</h2>
+        <div class="explain">
+          <p>A page is visible to exactly two logins: the email in the student box and the email in the teacher box. Nobody else can open it, not even other people using this app.</p>
+          <p>Accounts are created by hand &mdash; there is no public sign-up. If someone needs a login, ask for one to be made for them.</p>
+          <p>Forgot your password? On the sign-in screen tap <em>Forgot password</em> and a reset link is emailed to you.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <div id="timerBar" hidden></div>
@@ -618,6 +672,7 @@ nav.tabbar button.active{background:var(--blue-soft)}
     <button class="tab-btn" data-panel="map" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Map</button>
     <button class="tab-btn" data-panel="trends" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Trends</button>
     <button class="tab-btn" data-panel="teacher" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Teacher</button>
+    <button class="tab-btn" data-panel="guide" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 114.3 1.7c-.9.9-1.9 1.3-1.9 2.6"/><path d="M12 17.2h.01"/></svg>Guide</button>
   </nav>
 </div>
 
@@ -1325,7 +1380,7 @@ async function afterLogin(){var u=(await SBC.auth.getUser()).data.user;if(!u){sh
   ROWS={};P.list=[];r.data.forEach(function(row,i){row.role=row.student_email===ME.email?"student":"teacher";ROWS[row.id]=row;P.list.push({id:row.id,name:row.full_name,color:row.color||AV_COLORS[i%AV_COLORS.length],role:row.role})});
   P.list.sort(function(a,b){return(a.role===b.role?0:a.role==="student"?-1:1)||a.name.localeCompare(b.name)});
   if(!P.list.length){onboarding(true);return}
-  var keep=sget("aashifz_cloud_cur");P.cur=ROWS[keep]?keep:P.list[0].id;openRow(P.cur);subscribe()}
+  var keep=sget("aashifz_cloud_cur");P.cur=ROWS[keep]?keep:P.list[0].id;openRow(P.cur);subscribe();maybeShowGuide()}
 function openRow(id){P.cur=id;sset("aashifz_cloud_cur",id);var row=ROWS[id];var cached=null;try{cached=JSON.parse(sget("aashifz_cloud_"+id)||"null")}catch(e){}
   D=upgrade(row.data&&row.data.v?row.data:blank());if(cached&&cached.data&&cached.data.timer)D.timer=cached.data.timer;
   selJuz=null;selDate=today();wkOffset=0;normalize();renderAll();setSync("saved");loadEvents()}
@@ -1333,18 +1388,23 @@ function subscribe(){SBC.channel("hifz-live").on("postgres_changes",{event:"*",s
     SBC.from("hifz_students").select("*").eq("id",n.id).single().then(function(f){if(f.error)return;var row=ROWS[n.id];Object.assign(row,f.data,{role:row.role});if(n.id===P.cur){var m=mergeDocs(upgrade(f.data.data),D);m.timer=D.timer;D=m;renderAll();toast((f.data.updated_by_role==="teacher"?"Teacher":"Student")+" updated just now")}})})
   .on("postgres_changes",{event:"*",schema:"public",table:"hifz_events"},function(){loadEvents()}).subscribe();
   document.addEventListener("visibilitychange",function(){if(!document.hidden&&P.cur)SBC.from("hifz_students").select("version").eq("id",P.cur).single().then(function(f){if(!f.error&&f.data.version>ROWS[P.cur].version)SBC.from("hifz_students").select("*").eq("id",P.cur).single().then(function(g){if(g.error)return;var m=mergeDocs(upgrade(g.data.data),D);m.timer=D.timer;D=m;ROWS[P.cur].version=g.data.version;renderAll()})})})}
-function onboarding(first,startRole){var role=startRole||"student";function draw(){var h='<h3>'+(first?"Welcome"+(ME.name?", "+esc(ME.name.split(" ")[0]):"")+"! Let's set up":role==="student"?"Add my own hifz":"Add a student I teach")+'</h3><div class="sub">Signed in as '+esc(ME.email)+". One account can be a student and a teacher at the same time.</div>"+(first?'<div class="seg"><button type="button" data-r="student"'+(role==="student"?' class="on"':"")+'>I\'m a student or parent</button><button type="button" data-r="teacher"'+(role==="teacher"?' class="on"':"")+">I'm a teacher</button></div>":"");
-    if(role==="student")h+='<div class="fields"><div class="field"><label for="oSn">Student full name</label><input id="oSn" value="'+esc(first?ME.name:"")+'" placeholder="Abdullah Ahmed"></div><div class="field"><label for="oSp">Student (or parent) WhatsApp</label><input id="oSp" type="tel" value="'+esc(ME.phone)+'" placeholder="+1 240 555 0100"></div><div class="field"><label for="oTn">Teacher full name</label><input id="oTn" placeholder="Ustadh Bilal Hassan"></div><div class="field"><label for="oTe">Teacher email (their login)</label><input id="oTe" type="email" placeholder="teacher@example.com"></div><div class="field"><label for="oTp">Teacher WhatsApp</label><input id="oTp" type="tel" placeholder="+880 1712 345678"></div></div><div class="hint">Parents: add each child from your own account. When the teacher signs in with that email, this student appears for them automatically.</div>';
-    else h+='<div class="fields"><div class="field"><label for="oTn">Your full name (as teacher)</label><input id="oTn" value="'+esc(ME.name)+'" placeholder="Ustadh Bilal Hassan"></div><div class="field"><label for="oTp">Your WhatsApp</label><input id="oTp" type="tel" value="'+esc(ME.phone)+'" placeholder="+880 1712 345678"></div><div class="field"><label for="oSn">Student full name</label><input id="oSn" placeholder="Abdullah Ahmed"></div><div class="field"><label for="oSe">Student (or parent) email</label><input id="oSe" type="email" placeholder="parent@example.com"></div><div class="field"><label for="oSp">Student (or parent) WhatsApp</label><input id="oSp" type="tel" placeholder="+1 240 555 0100"></div></div><div class="hint">Students who put your email as their teacher show up on their own. Add them here if they haven\'t signed up yet; they see it as soon as they sign in with that email.</div>';
+function onboarding(first){function draw(){var h='<h3>'+(first?"Welcome"+(ME.name?", "+esc(ME.name.split(" ")[0]):"")+"! Set up your first page":"Add a hifz page")+'</h3><div class="sub">Signed in as '+esc(ME.email)+". Fill in both sides, the student and the teacher. Anyone can be either one.</div>";
+    h+='<div class="fields"><div class="field"><label for="oSn">Student full name</label><input id="oSn" value="'+esc(first?ME.name:"")+'" placeholder="Abdullah Ahmed"></div><div class="field"><label for="oSe">Student (or parent) email &mdash; their login</label><input id="oSe" type="email" value="'+esc(ME.email)+'" placeholder="student@example.com"></div><div class="field"><label for="oSp">Student (or parent) WhatsApp</label><input id="oSp" type="tel" value="'+esc(ME.phone)+'" placeholder="+1 240 555 0100"></div><div class="field"><label for="oTn">Teacher full name</label><input id="oTn" placeholder="Ustadh Bilal Hassan"></div><div class="field"><label for="oTe">Teacher email &mdash; their login</label><input id="oTe" type="email" placeholder="teacher@example.com"></div><div class="field"><label for="oTp">Teacher WhatsApp</label><input id="oTp" type="tel" placeholder="+880 1712 345678"></div></div>';
+    h+='<div class="hint">Leave your own email on whichever side you are &mdash; that\'s how this page shows up for you. Teaching someone? Put your email in the teacher box and theirs in the student box. Parents: one page per child, all from your own account.</div>';
     h+='<div id="oErr" class="auth-err"></div><div class="btn-row" style="margin-top:12px">'+(first?"":'<button type="button" class="btn" id="oCancel">Cancel</button>')+'<button type="button" class="btn primary" id="oGo">Create</button></div>';
-    openSheet(h);$("sheet").querySelectorAll("[data-r]").forEach(function(b){b.onclick=function(){role=b.dataset.r;draw()}});if($("oCancel"))$("oCancel").onclick=closeSheet;
-    $("oGo").onclick=async function(){var row={full_name:$("oSn").value.trim(),teacher_name:$("oTn").value.trim(),phone:digitsOnly($("oSp").value),teacher_phone:digitsOnly($("oTp").value),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,data:blank()};
-      if(role==="student"){row.student_email=ME.email;row.teacher_email=$("oTe").value.trim().toLowerCase()||null}else{row.teacher_email=ME.email;row.student_email=$("oSe").value.trim().toLowerCase()}
-      if(!row.full_name){$("oErr").textContent="Add the student's full name.";return}if(!row.student_email){$("oErr").textContent="Add the student's email.";return}
+    openSheet(h);if($("oCancel"))$("oCancel").onclick=closeSheet;
+    $("oGo").onclick=async function(){var se=$("oSe").value.trim().toLowerCase(),te=$("oTe").value.trim().toLowerCase();
+      var row={full_name:$("oSn").value.trim(),student_email:se,teacher_name:$("oTn").value.trim(),teacher_email:te||null,phone:digitsOnly($("oSp").value),teacher_phone:digitsOnly($("oTp").value),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,data:blank()};
+      if(!row.full_name){$("oErr").textContent="Add the student's full name.";return}
+      if(!se){$("oErr").textContent="Add the student's email — that's their login.";return}
+      if(se!==ME.email&&te!==ME.email){$("oErr").textContent="Put your own email ("+ME.email+") in the student box or the teacher box, otherwise this page won't show up for you.";return}
+      var role=se===ME.email?"student":"teacher";
       var myPhone=role==="student"?row.phone:row.teacher_phone;if(myPhone&&myPhone!==digitsOnly(ME.phone)){ME.phone="+"+myPhone;SBC.auth.updateUser({data:{phone:ME.phone,name:ME.name||(role==="teacher"?row.teacher_name:row.full_name)}})}
       var r=await SBC.from("hifz_students").insert(row).select("*").single();if(r.error){$("oErr").textContent=r.error.message;return}
-      r.data.role=role;ROWS[r.data.id]=r.data;P.list.push({id:r.data.id,name:r.data.full_name,color:AV_COLORS[P.list.length%AV_COLORS.length],role:role});P.list.sort(function(a,b){return(a.role===b.role?0:a.role==="student"?-1:1)||a.name.localeCompare(b.name)});SHEET_LOCK=false;closeSheet();openRow(r.data.id);if(first)subscribe();toast("Bismillah. "+r.data.full_name+" is set up")}}
+      r.data.role=role;ROWS[r.data.id]=r.data;P.list.push({id:r.data.id,name:r.data.full_name,color:AV_COLORS[P.list.length%AV_COLORS.length],role:role});P.list.sort(function(a,b){return(a.role===b.role?0:a.role==="student"?-1:1)||a.name.localeCompare(b.name)});SHEET_LOCK=false;closeSheet();openRow(r.data.id);if(first){subscribe();maybeShowGuide()}toast("Bismillah. "+r.data.full_name+" is set up")}}
   SHEET_LOCK=!!first;draw()}
+function guideKey(){return "aashifz_guide_seen_"+(CLOUD&&ME&&ME.email?ME.email:"local")}
+function maybeShowGuide(){if(sget(guideKey()))return false;sset(guideKey(),"1");switchTab("guide");return true}
 /* ================= sign-off sheets ================= */
 function openPinSign(k){if(!cryptoOk()){toast("This browser can't sign here (needs a secure page)");return}
   if(!D.teacher){openSheet('<h3>No teacher added</h3><div class="sub">Add your teacher and their PIN on the Teacher tab first.</div><div class="btn-row"><button class="btn" type="button" id="x1">Close</button><button class="btn primary" type="button" id="x2">Go to Teacher tab</button></div>');$("x1").onclick=closeSheet;$("x2").onclick=function(){closeSheet();switchTab("teacher")};return}
@@ -1523,7 +1583,7 @@ function openProfiles(){var t=today(),keep=D,keepId=P.cur,h='<h3>'+(CLOUD?"Stude
   h+='<details style="margin-top:14px"><summary>Rename'+(P.list.length>1?" or delete ":" ")+esc(curProfile().name)+'</summary><div class="field" style="margin-top:10px"><label for="rnName">Name</label><input id="rnName" value="'+esc(curProfile().name)+'"></div><div class="btn-row" style="margin-top:8px"><button class="btn" type="button" id="rnSave">Rename</button>'+(P.list.length>1?'<button class="btn danger" type="button" id="rnDel">Delete profile</button>':"")+"</div></details>";
   openSheet(h);
   $("sheet").querySelectorAll(".profile-item").forEach(function(b){b.onclick=function(){switchProfile(b.dataset.id);closeSheet()}});$("npClose").onclick=closeSheet;
-  if(CLOUD){var ex=$("sheet").querySelector(".fields");if(ex)ex.remove();$("npAdd").textContent="Add my own hifz";$("npAdd").onclick=function(){onboarding(false,"student")};var dd=$("sheet").querySelector("details");if(dd)dd.outerHTML='<div class="btn-row" style="margin-top:10px"><button type="button" class="btn" id="addTeach">Add a student I teach</button></div><button type="button" class="btn block" id="signOut" style="margin-top:12px">Sign out ('+esc(ME.email)+')</button>';$("addTeach").onclick=function(){onboarding(false,"teacher")};$("signOut").onclick=async function(){await SBC.auth.signOut();location.reload()};return}
+  if(CLOUD){var ex=$("sheet").querySelector(".fields");if(ex)ex.remove();$("npAdd").textContent="Add a hifz page";$("npAdd").onclick=function(){onboarding(false)};var dd=$("sheet").querySelector("details");if(dd)dd.outerHTML='<div class="btn-row" style="margin-top:10px"><button type="button" class="btn" id="openGuide">Setup instructions</button></div><button type="button" class="btn block" id="signOut" style="margin-top:12px">Sign out ('+esc(ME.email)+')</button>';$("openGuide").onclick=function(){closeSheet();switchTab("guide")};$("signOut").onclick=async function(){await SBC.auth.signOut();location.reload()};return}
   $("npAdd").onclick=function(){var n=$("npName").value.trim();if(!n){$("npName").focus();return}var id="p"+Date.now().toString(36);P.list.push({id:id,name:n,color:AV_COLORS[P.list.length%AV_COLORS.length]});saveProfiles();switchProfile(id);closeSheet();toast(n+" added")};
   $("rnSave").onclick=function(){var n=$("rnName").value.trim();if(!n)return;curProfile().name=n;saveProfiles();closeSheet();renderAll()};
   if($("rnDel"))$("rnDel").onclick=function(){var b=$("rnDel");if(!b.dataset.sure){b.dataset.sure=1;b.textContent="Tap again. This erases "+curProfile().name+"'s data";return}
@@ -1556,6 +1616,7 @@ function loadSample(){var t=today(),rnd=(function(s){return function(){s=(s*9301
 function switchTab(name){document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.dataset.panel===name)});document.querySelectorAll("section.panel").forEach(function(s){s.classList.toggle("active",s.id==="panel-"+name)});window.scrollTo(0,0);
   if(name==="map")renderMap();if(name==="trends")renderTrends();if(name==="teacher")renderTeacher();if(name==="today")renderToday()}
 document.querySelectorAll(".tab-btn").forEach(function(b){b.onclick=function(){switchTab(b.dataset.panel)}});
+$("guideDone").onclick=function(){switchTab("today")};
 function renderAll(){renderHeader();renderToday();renderMap();renderTrends();renderTeacher()}
 if(CLOUD){SBC=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey);D=blank();P.list=[{id:"_",name:"…",color:AV_COLORS[0]}];P.cur="_";SBC.auth.getSession().then(function(r){if(r.data.session)afterLogin();else showAuth("in")});return}
 loadProfiles();D=loadData(P.cur);setTimeout(function(){setSync("local")},0);$("demoBanner").innerHTML='<div class="demo-banner">Test mode: everything is saved on this device only, and messages show as previews on the Teacher tab. Add the Supabase keys to go live.</div>';if(D.upgraded){delete D.upgraded;save();setTimeout(function(){toast("Upgraded to ayah-level tracking")},400)}normalize();renderAll();
