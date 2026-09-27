@@ -42,6 +42,15 @@
   .topbar button:focus-visible{outline:2px solid #fff;outline-offset:2px;}
 
   /* ---------- hero ---------- */
+  .film{background:var(--ink);padding:22px 0 18px;}
+  .film-frame{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;
+    background:#000;box-shadow:0 10px 34px rgba(0,0,0,.34);}
+  .film-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .film-cap{margin:11px 0 0;color:#C9D2CC;font-size:14px;text-align:center;}
+  @supports not (aspect-ratio:16/9){
+    .film-frame{height:0;padding-bottom:56.25%;}
+  }
+
   .hero{background:var(--oxblood);color:#fff;padding:30px 0 26px;}
   .heroGrid{display:grid;grid-template-columns:1.25fr 1fr;gap:34px;align-items:center;}
   .siren{display:inline-block;background:var(--alarm);color:#fff;font-weight:700;font-size:13px;padding:4px 13px;border-radius:999px;margin-bottom:12px;}
@@ -259,7 +268,7 @@
   }
 
   @media print{
-    .topbar,.cta{display:none;}
+    .topbar,.cta,.film{display:none;}
     @page{size:letter;margin:7mm 0 6mm;}
     .wrap{max-width:none;padding:0 10mm;}
     body{font-size:8.4pt;line-height:1.3;}
@@ -414,6 +423,23 @@
     </div>
   </div>
 </div>
+
+<!-- FILM -->
+<!-- Deliberately outside #sheet1: the PNG export rasterises that element and the
+     PDF export prints the page, so a block that lives out here cannot reach either.
+     The print rule below is belt and braces for a plain Ctrl-P. -->
+<div class="film"><div class="wrap">
+  <div class="film-frame">
+    <iframe src="https://www.youtube-nocookie.com/embed/EJ_1zoF3IqE?rel=0"
+            title="Dokan Digital" loading="lazy" allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  </div>
+  <p class="film-cap">
+    <span class="en">Watch first — two minutes on what this looks like in a real shop.</span>
+    <span class="bn">আগে দেখুন — সত্যিকারের দোকানে এটা কেমন দেখায়, দুই মিনিটে।</span>
+  </p>
+</div></div>
 
 <div id="sheet1">
 
