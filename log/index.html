@@ -114,7 +114,10 @@
   .plan-hero-text .pht-2 { font-size: 12px; color: var(--ink-faint); }
 
   .timer-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .timer-display { font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; flex: 1; }
+  .timer-display { font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; flex: 1; cursor: text; border-bottom: 1.5px dashed var(--line); }
+  .timer-display.editing { border-bottom-color: transparent; }
+  .timer-edit { font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; width: 100%; background: var(--surface-2); border: 1.5px solid var(--blue); border-radius: 8px; padding: 1px 7px; }
+  .timer-edit:focus { outline: none; }
   .timer-btn { font-family: var(--font-head); font-size: 12px; padding: 9px 16px; border-radius: 9px; border: none; cursor: pointer; letter-spacing: .03em; }
   .timer-btn.start { background: var(--teal); color: #fff; }
   .timer-btn.stop { background: var(--coral); color: #fff; }
@@ -259,6 +262,29 @@
   .fb-text .fb-dots span:nth-child(2) { animation-delay: .15s; } .fb-text .fb-dots span:nth-child(3) { animation-delay: .3s; }
   @keyframes bounceDot { 0%,60%,100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-3px); opacity: 1; } }
 
+  .score-card { background: linear-gradient(160deg, #1B1E2B 0%, #2A2140 55%, #3A1E4D 100%); border: none; color: #fff; }
+  .sc-head { display: flex; align-items: center; gap: 12px; }
+  .sc-rank { flex: 0 0 auto; width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center;
+    justify-content: center; font-family: var(--font-head); font-size: 21px; font-weight: 700; letter-spacing: .02em;
+    color: #fff; background: rgba(255,255,255,0.12); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.25); }
+  .sc-headtext { flex: 1; min-width: 0; }
+  .sc-title { font-family: var(--font-head); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+  .sc-sub { font-size: 12.5px; color: rgba(255,255,255,0.86); margin-top: 2px; }
+  .sc-num { font-family: var(--font-head); font-size: 38px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .sc-bars { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+  .sc-bar-top { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; }
+  .sc-bar-label { color: rgba(255,255,255,0.88); font-weight: 600; }
+  .sc-bar-pct { color: rgba(255,255,255,0.58); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sc-bar-track { height: 8px; background: rgba(255,255,255,0.13); border-radius: 6px; overflow: hidden; }
+  .sc-bar-fill { height: 100%; border-radius: 6px; transition: width .6s cubic-bezier(.22,1,.36,1); }
+  .sc-bar-detail { font-size: 10.5px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+  .sc-coach { margin-top: 13px; background: rgba(255,255,255,0.09); border-radius: 11px; padding: 11px 12px;
+    font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.92); }
+  .sc-open { margin-top: 13px; width: 100%; font-family: var(--font-head); font-size: 12px; letter-spacing: .05em;
+    text-transform: uppercase; padding: 11px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
+  .sc-open:active { background: rgba(255,255,255,0.16); }
+
   #scoreBarWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 9; padding: 0 16px; display: flex; justify-content: center; }
   #scoreDayBtn { width: 100%; max-width: 608px; background: linear-gradient(90deg, var(--blue), var(--magenta)); border: none; color: #fff; font-family: var(--font-head); font-size: 13px; letter-spacing: .03em; padding: 13px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 -4px 14px rgba(30,34,60,0.12); }
   #scoreDayBtn svg { width: 16px; height: 16px; stroke: #fff; }
@@ -337,6 +363,20 @@
         <div class="field" style="flex: 0 0 auto;"><label>&nbsp;</label><button class="save-chip primary" id="saveWeightBtn">Log</button></div>
       </div>
       <div class="saved-tick" id="weightSaved"></div>
+    </div>
+
+    <div class="card score-card" id="scoreCard">
+      <div class="sc-head">
+        <div class="sc-rank" id="scRank">&mdash;</div>
+        <div class="sc-headtext">
+          <div class="sc-title" id="scTitle">Day score</div>
+          <div class="sc-sub" id="scSub">Nothing logged yet</div>
+        </div>
+        <div class="sc-num" id="scNum">&mdash;</div>
+      </div>
+      <div class="sc-bars" id="scBars"></div>
+      <div class="sc-coach" id="scCoach" hidden></div>
+      <button class="sc-open" id="scOpenBtn" type="button">Open the share card</button>
     </div>
 
     <!-- WEIGHT TRAINING -->
@@ -483,7 +523,7 @@
   <div id="scoreBarWrap">
     <button id="scoreDayBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-      See today's score
+      Share the day's card
     </button>
   </div>
 
@@ -579,13 +619,13 @@
     6: { name: "Upper A", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
       ex: [ ex("Flat DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 90), ex("Standing DB OHP", 4, 8, 12, 35, "lb/hand", false, 90), ex("DB Row", 4, 8, 12, 65, "lb", true, 90), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60), ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 60), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
     0: { name: "Lower A", type: "lift", cardio: { min: 80, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 85, "lb", false, 60) ]},
+      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 90, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60) ]},
     1: { name: "Cardio only", type: "cardio", cardio: { min: 40, incline: 10, speed: 3.0 }, ex: [] },
     2: { name: "Upper B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
       ex: [ ex("Incline DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Face Pull", 4, 12, 20, 59, "lb", true, 60), ex("DB Fly", 3, 10, 15, 17.5, "lb/hand", false, 60), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", true, 60), ex("Dips", 3, 10, 15, null, "bodyweight", false, 90), ex("Zottman Curl", 3, 10, 15, 20, "lb/hand", false, 60) ]},
     3: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] },
     4: { name: "Lower B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 80, "lb", true, 60), ex("Back Extension", 4, 12, 15, 85, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
+      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 90, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
     5: { name: "Cardio only", type: "cardio", cardio: { min: 45, incline: 10, speed: 3.0 }, ex: [] }
   };
   var DAY_ABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -644,6 +684,8 @@
 
   function dateKey(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
   function fmtLabel(d) { return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); }
+  function isToday(d) { return dateKey(d) === dateKey(new Date()); }
+  var lastScoreData = null;
   function vibrate(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch(e) {} }
 
   // Calls our Netlify function, which calls Claude's API server-side (see netlify/functions/ask-claude.js)
@@ -1087,42 +1129,85 @@
     renderLiftingPanel(prog, doc, key);
     await renderCardioPanel(prog, doc);
     renderSessionTimerUI(doc);
+    renderInlineScore();
   }
 
   /* ===================== SESSION TIMER ===================== */
-  /* The timer used to live entirely in memory: one start timestamp, and the elapsed
-     time only became real when you pressed Finish. Closing the tab mid-session threw
-     the whole thing away.
+  /* The timer keeps {acc, startedAt, finished, at} per day. `acc` is the seconds banked
+     by completed run segments; `startedAt` is the wall-clock moment the current segment
+     began; `at` stamps the last write so two devices can tell whose copy is newer.
 
-     It now keeps {acc, startedAt, finished} per day. `acc` is the seconds banked by
-     completed run segments and is flushed to the database every few seconds, so a
-     browser that dies loses at most FLUSH_MS of work. `startedAt` marks the segment
-     currently running and lives only in localStorage, because a session that is
-     running is a fact about this device, not about the account.
+     All four live in the database as well as in localStorage, which is what makes the
+     clock follow you: start a session on the laptop, pick up the phone, and the phone
+     reads the same `startedAt` and shows the same running number. The earlier version
+     deliberately kept `startedAt` on one device and paused whenever the page went away,
+     on the reasoning that time with the tab shut is not time trained. Switching phone
+     to laptop mid-workout is the commoner case, so a page going away now banks what it
+     has and leaves the clock running. Pausing is a thing you do on purpose.
 
-     Closing or backgrounding the page pauses rather than keeps counting: time spent
-     with the tab shut is not time spent training. On the way back in, a session found
-     with a startedAt is treated as paused at its last flush -- we cannot know when the
-     browser actually died, and banking time that may never have been trained would
-     make the number a lie. */
+     localStorage stays as the crash cache: a browser that dies loses at most FLUSH_MS
+     of work, and whichever copy carries the later `at` wins on the way back in. */
   var FLUSH_MS = 5000;
+  var SESSION_SLOT = "__session";   // reserved key inside the day's `sets` blob
   var sessionFlushTimer = null;
+  var sessionPullCount = 0;
 
   function fmtTime(sec) { var m = Math.floor(sec/60), s = sec%60; return m + ":" + String(s).padStart(2,"0"); }
+  /* Accepts "12:34", "12 34", "754" (seconds) or "12" (minutes). Returns null if it
+     cannot make sense of the text, so a typo leaves the clock alone. */
+  function parseTime(txt) {
+    var t = String(txt || "").trim();
+    if (!t) return null;
+    var parts = t.split(/[^0-9]+/).filter(function (x) { return x !== ""; });
+    if (!parts.length) return null;
+    if (parts.length === 1) {
+      var n = Number(parts[0]);
+      if (!isFinite(n) || n < 0) return null;
+      return /[:.\s]/.test(t) ? n * 60 : (n > 180 ? n : n * 60);
+    }
+    var m = Number(parts[0]), s = Number(parts[1]);
+    if (!isFinite(m) || !isFinite(s) || m < 0 || s < 0) return null;
+    return m * 60 + Math.min(s, 59);
+  }
 
   function sessionKeyFor(dayKey) { return "aaslog:session:" + (currentProfileId || "anon") + ":" + dayKey; }
+  function blankSession() { return { acc: 0, startedAt: null, finished: false, at: 0 }; }
   function readSession(dayKey) {
     try {
       var raw = localStorage.getItem(sessionKeyFor(dayKey));
       if (raw) {
         var st = JSON.parse(raw);
-        if (st && typeof st.acc === "number") return st;
+        if (st && typeof st.acc === "number") return { acc: st.acc, startedAt: st.startedAt || null, finished: !!st.finished, at: st.at || 0 };
       }
     } catch (e) {}
-    return { acc: 0, startedAt: null, finished: false };
+    return blankSession();
   }
   function writeSession(dayKey, st) {
     try { localStorage.setItem(sessionKeyFor(dayKey), JSON.stringify(st)); } catch (e) {}
+  }
+  /* The session state as the database holds it. It rides inside the `sets` blob under a
+     key no exercise can have, which keeps it out of a schema migration. */
+  function docSession(doc) {
+    var v = doc && doc.sets && doc.sets[SESSION_SLOT];
+    if (v && typeof v === "object" && !Array.isArray(v) && typeof v.acc === "number") {
+      return { acc: v.acc, startedAt: v.startedAt || null, finished: !!v.finished, at: v.at || 0 };
+    }
+    return null;
+  }
+  /* Later write wins; on a tie the bigger number does, which is what picks up a day
+     whose seconds were recorded before any of this existed. */
+  function newerSession(a, b) {
+    if (!a) return b; if (!b) return a;
+    if ((b.at || 0) !== (a.at || 0)) return (b.at || 0) > (a.at || 0) ? b : a;
+    return (b.acc || 0) > (a.acc || 0) ? b : a;
+  }
+  function syncSession(dayKey, doc) {
+    var local = readSession(dayKey);
+    var cloud = docSession(doc);
+    if (!cloud && doc && doc.sessionSeconds) cloud = { acc: doc.sessionSeconds, startedAt: null, finished: true, at: 0 };
+    var win = newerSession(local, cloud);
+    writeSession(dayKey, win);
+    return win;
   }
   /* Seconds to show right now: what is banked, plus whatever the running segment has
      added since it started. */
@@ -1138,13 +1223,30 @@
     }
     return st;
   }
-  async function persistSessionSeconds(dayKey, seconds) {
+  async function persistSession(dayKey, st) {
     try {
       var doc = await getDayDoc(dayKey);
-      if (doc.sessionSeconds === seconds) return;
-      doc.sessionSeconds = seconds;
+      doc.sets = doc.sets || {};
+      doc.sets[SESSION_SLOT] = { acc: st.acc, startedAt: st.startedAt, finished: st.finished, at: st.at };
+      doc.sessionSeconds = st.acc;
       await saveDayDoc(dayKey, doc);
     } catch (e) {}
+  }
+  /* Read past the day cache for the session slot alone, so the other device's clock
+     lands without trampling an edit that has not been saved here yet. */
+  async function pullSession(dayKey) {
+    try {
+      var res = await supabase.from("days").select("sets,session_seconds").eq("user_id", currentProfileId).eq("date", dayKey).maybeSingle();
+      var data = res && res.data;
+      if (!data) return null;
+      var doc = cache[dayKey];
+      if (doc) {
+        var rs = data.sets && data.sets[SESSION_SLOT];
+        if (rs) { doc.sets = doc.sets || {}; doc.sets[SESSION_SLOT] = rs; }
+        if (data.session_seconds != null) doc.sessionSeconds = data.session_seconds;
+      }
+      return data;
+    } catch (e) { return null; }
   }
 
   function renderSessionTimerUI(doc) {
@@ -1160,14 +1262,9 @@
     row.style.display = "flex";
 
     var key = dateKey(selectedDate);
-    var st = readSession(key);
-    /* A day whose time was recorded on another device, or before this rewrite, still
-       has its seconds in the database and nothing in localStorage. Adopt them. */
-    if (st.acc === 0 && !st.startedAt && doc && doc.sessionSeconds) {
-      st.acc = doc.sessionSeconds; st.finished = true; writeSession(key, st);
-    }
+    var st = syncSession(key, doc);
 
-    display.textContent = fmtTime(sessionTotal(st));
+    if (!display.classList.contains("editing")) display.textContent = fmtTime(sessionTotal(st));
 
     if (st.finished) {
       state.textContent = "Done"; state.className = "timer-state done";
@@ -1193,35 +1290,52 @@
   function tickSessionTimer() {
     var key = dateKey(selectedDate);
     var st = readSession(key);
+    var display = document.getElementById("sessionTimerDisplay");
     if (!st.startedAt) { clearInterval(sessionTimerInterval); sessionTimerInterval = null; return; }
-    document.getElementById("sessionTimerDisplay").textContent = fmtTime(sessionTotal(st));
+    if (!display.classList.contains("editing")) display.textContent = fmtTime(sessionTotal(st));
   }
 
-  function flushSession() {
+  /* Bank what has run, push it up, and every fourth pass also look at what the other
+     device has been doing. */
+  async function flushSession() {
     var key = dateKey(selectedDate);
     var st = readSession(key);
     if (!st.startedAt) return;
-    bankSession(st); writeSession(key, st);
-    persistSessionSeconds(key, st.acc);
+    bankSession(st); st.at = Date.now(); writeSession(key, st);
+    await persistSession(key, st);
+    if (++sessionPullCount % 4 === 0) adoptRemoteSession(key);
   }
 
-  /* Pause without touching the UI, for the page going away. */
-  function pauseSessionQuietly() {
+  /* Take the other device's copy if it is newer than ours. */
+  async function adoptRemoteSession(key) {
+    var data = await pullSession(key);
+    if (!data) return;
+    var remote = docSession({ sets: data.sets, sessionSeconds: data.session_seconds });
+    if (!remote) return;
+    var local = readSession(key);
+    if (newerSession(local, remote) === local) return;
+    writeSession(key, remote);
+    renderSessionTimerUI(await getDayDoc(key));
+  }
+
+  /* The page going away banks the seconds but leaves the clock running, so picking up
+     the other device carries on from the same place. */
+  function bankSessionQuietly() {
     var key = dateKey(selectedDate);
     var st = readSession(key);
     if (!st.startedAt || st.finished) return;
-    st.acc = sessionTotal(st); st.startedAt = null;
+    bankSession(st); st.at = Date.now();
     writeSession(key, st);
-    persistSessionSeconds(key, st.acc);
+    persistSession(key, st);
   }
 
   async function finishSession(auto) {
     var key = dateKey(selectedDate);
     var st = readSession(key);
     if (st.finished) return;
-    st.acc = sessionTotal(st); st.startedAt = null; st.finished = true;
+    st.acc = sessionTotal(st); st.startedAt = null; st.finished = true; st.at = Date.now();
     writeSession(key, st);
-    await persistSessionSeconds(key, st.acc);
+    await persistSession(key, st);
     clearInterval(sessionTimerInterval); sessionTimerInterval = null;
     clearInterval(sessionFlushTimer); sessionFlushTimer = null;
     vibrate([20,40,20]);
@@ -1235,29 +1349,67 @@
     sessionTimerStart = null;
   }
 
+  /* Tap the clock to type over it. The typed number becomes the banked total; if the
+     session was running it keeps running from there. */
+  function beginTimerEdit() {
+    var display = document.getElementById("sessionTimerDisplay");
+    if (display.classList.contains("editing")) return;
+    var key = dateKey(selectedDate);
+    var st = readSession(key);
+    var before = fmtTime(sessionTotal(st));
+    display.classList.add("editing");
+    display.innerHTML = '<input class="timer-edit" inputmode="numeric" value="' + before + '" aria-label="Session time">';
+    var input = display.querySelector(".timer-edit");
+    input.focus(); input.select();
+    var closed = false;
+    async function commit(save) {
+      if (closed) return; closed = true;
+      var secs = save ? parseTime(input.value) : null;
+      display.classList.remove("editing");
+      if (secs != null) {
+        var cur = readSession(key);
+        cur.acc = secs;
+        if (cur.startedAt) cur.startedAt = Date.now();   // keep running, from the new number
+        cur.at = Date.now();
+        writeSession(key, cur);
+        await persistSession(key, cur);
+        vibrate(12);
+      }
+      renderSessionTimerUI(await getDayDoc(key));
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); commit(true); }
+      if (e.key === "Escape") { e.preventDefault(); commit(false); }
+    });
+    input.addEventListener("blur", function () { commit(true); });
+  }
+
   function wireSessionTimer() {
     document.getElementById("sessionTimerBtn").onclick = async function () {
       var key = dateKey(selectedDate);
       var st = readSession(key);
       if (st.finished) {                       // Restart
-        st = { acc: 0, startedAt: Date.now(), finished: false };
+        st = { acc: 0, startedAt: Date.now(), finished: false, at: Date.now() };
       } else if (st.startedAt) {               // Pause
-        st.acc = sessionTotal(st); st.startedAt = null;
+        st.acc = sessionTotal(st); st.startedAt = null; st.at = Date.now();
       } else {                                 // Start or Resume
-        st.startedAt = Date.now();
+        st.startedAt = Date.now(); st.at = Date.now();
       }
       writeSession(key, st);
-      await persistSessionSeconds(key, st.acc);
+      await persistSession(key, st);
       renderSessionTimerUI(await getDayDoc(key));
     };
     document.getElementById("sessionFinishBtn").onclick = function () { finishSession(false); };
+    document.getElementById("sessionTimerDisplay").onclick = beginTimerEdit;
 
-    /* A closed or backgrounded tab pauses. pagehide is the one that fires reliably on
-       mobile Safari, where beforeunload often does not. */
-    window.addEventListener("pagehide", pauseSessionQuietly);
-    window.addEventListener("beforeunload", pauseSessionQuietly);
+    /* pagehide is the one that fires reliably on mobile Safari, where beforeunload
+       often does not. */
+    window.addEventListener("pagehide", bankSessionQuietly);
+    window.addEventListener("beforeunload", bankSessionQuietly);
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "hidden") pauseSessionQuietly();
+      var key = dateKey(selectedDate);
+      if (document.visibilityState === "hidden") { bankSessionQuietly(); return; }
+      adoptRemoteSession(key);
     });
   }
 
@@ -1560,7 +1712,7 @@
       var k = dateKey(d);
       var doc = cache[k] || await getDayDoc(k);
       var hasAny = (doc.weight != null) || (doc.cardio && doc.cardio.min != null) ||
-        (doc.sets && Object.keys(doc.sets).some(function (en) { return (doc.sets[en] || []).some(function (s) { return s && s.done; }); })) ||
+        (doc.sets && Object.keys(doc.sets).some(function (en) { return Array.isArray(doc.sets[en]) && doc.sets[en].some(function (s) { return s && s.done; }); })) ||
         foodCache.some(function (f) { return f.date === k; });
       if (hasAny) { streak++; d.setDate(d.getDate() - 1); } else break;
     }
@@ -1607,7 +1759,7 @@
       var metaParts = [];
       if (doc.cardio && doc.cardio.min != null) metaParts.push(doc.cardio.min + " min cardio");
       var setCount = 0;
-      if (doc.sets) Object.keys(doc.sets).forEach(function(en){ (doc.sets[en]||[]).forEach(function(s){ if (s && s.done) setCount++; }); });
+      if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
       if (setCount > 0) metaParts.push(setCount + " sets logged");
       row.innerHTML = '<div><div class="hist-date">' + k + '</div><div class="hist-meta">' + (metaParts.join(" · ") || "—") + '</div></div><div class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</div>';
       histList.appendChild(row);
@@ -1645,7 +1797,7 @@
     var setsVals = [], cardioVals = [], volVals = [], labels = []; var totalCardio = 0, totalSets = 0;
     for (var j = 0; j < days.length; j++) {
       var k = dateKey(days[j]); var doc = await getDayDoc(k); var prog = PROGRAM[days[j].getDay()];
-      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ (doc.sets[en]||[]).forEach(function(s){ if (s && s.done) setCount++; }); });
+      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
       var cMin = (doc.cardio && doc.cardio.min) || 0;
       var vol = computeSessionVolume(doc, prog);
       setsVals.push(setCount); cardioVals.push(cMin); volVals.push(vol); labels.push(DAY_ABBR[days[j].getDay()]);
@@ -1670,7 +1822,7 @@
       var prog = PROGRAM[d.getDay()];
       var hasWeight = doc.weight != null;
       var cMin = (doc.cardio && doc.cardio.min) || 0;
-      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ (doc.sets[en]||[]).forEach(function(s){ if (s && s.done) setCount++; }); });
+      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
       var hasFood = foodCache.some(function(f){ return f.date === k; });
       var score = (hasWeight?1:0) + (cMin>0?1:0) + (setCount>0?1:0) + (hasFood?1:0);
       if (hasWeight) { weightSum += doc.weight; weightCount++; }
@@ -2178,16 +2330,23 @@
       document.getElementById("summaryImg").src = await buildSummaryImage();
     };
 
-    document.getElementById("scoreDayBtn").onclick = async function () {
-      var btn = this; var origHtml = btn.innerHTML;
-      btn.innerHTML = "Scoring…"; btn.disabled = true;
+    /* The numbers are already on screen by the time you get here, so opening the card
+       is about the picture, not about scoring the day again. A coach line already
+       written for this day is reused rather than paid for twice. */
+    async function openScoreCard(btn) {
+      var origHtml = btn.innerHTML;
+      btn.innerHTML = "Building…"; btn.disabled = true;
       try {
-        var scoreData = await computeDailyScore();
+        var key = dateKey(selectedDate);
+        var scoreData = lastScoreData || await computeDailyScore();
+        lastScoreData = scoreData;
         renderScoreBreakdown(scoreData);
         document.getElementById("scoreNumber").textContent = scoreData.overall;
         document.getElementById("shareModalTitle").textContent = selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + " score";
         document.getElementById("shareModal").classList.add("open");
-        fetchScoreNarrative(scoreData);
+        var cached = readCoach(key);
+        if (cached) document.getElementById("scoreNarrative").textContent = cached.text;
+        else fetchScoreNarrative(scoreData);
         summaryShowWeight = false;
         summaryShowCoach = true;
         var coachBtn = document.getElementById("summaryCoachBtn");
@@ -2199,9 +2358,11 @@
         document.getElementById("summaryEyeNote").textContent = "Bodyweight hidden on the card";
         var dataUrl = await buildSummaryImage();
         document.getElementById("summaryImg").src = dataUrl;
-      } catch (e) { alert("Couldn't build today's score — try again once some data is saved."); }
+      } catch (e) { alert("Couldn't build the card — try again once some data is saved."); }
       btn.innerHTML = origHtml; btn.disabled = false;
-    };
+    }
+    document.getElementById("scoreDayBtn").onclick = function () { openScoreCard(this); };
+    document.getElementById("scOpenBtn").onclick = function () { openScoreCard(this); };
     document.getElementById("closeShareBtn").onclick = function () { document.getElementById("shareModal").classList.remove("open"); };
     document.getElementById("saveImgBtn").onclick = async function () {
       var img = document.getElementById("summaryImg"); var filename = "aas-log-" + dateKey(selectedDate) + ".jpg";
@@ -2261,6 +2422,96 @@
       wrap.appendChild(row);
     });
   }
+  /* The score used to exist only behind a button and only for whichever day you were
+     on when you pressed it, so walking back through the week meant pressing it again on
+     every single day and waiting for the coach each time. It is now part of the day: it
+     redraws with everything else whenever the date changes, and the coach line is kept
+     per day so a day you have already read costs nothing to read again. */
+  var RANKS = [
+    { min: 90, letter: "S", color: "#FFD166", glow: "rgba(255,209,102,0.55)", word: "Flawless" },
+    { min: 80, letter: "A", color: "#12B886", glow: "rgba(18,184,134,0.5)",  word: "Strong" },
+    { min: 70, letter: "B", color: "#3DD6D0", glow: "rgba(61,214,208,0.45)", word: "Solid" },
+    { min: 58, letter: "C", color: "#2E6BFF", glow: "rgba(46,107,255,0.45)", word: "Holding" },
+    { min: 42, letter: "D", color: "#E0417C", glow: "rgba(224,65,124,0.4)",  word: "Slipping" },
+    { min: 20, letter: "E", color: "#FF6B4A", glow: "rgba(255,107,74,0.4)",  word: "Thin" },
+    { min: -1, letter: "F", color: "#9599AC", glow: "rgba(149,153,172,0.3)", word: "Empty" }
+  ];
+  function rankFor(score) {
+    for (var i = 0; i < RANKS.length; i++) if (score >= RANKS[i].min) return RANKS[i];
+    return RANKS[RANKS.length - 1];
+  }
+  function coachKeyFor(dayKey) { return "aaslog:coach:" + (currentProfileId || "anon") + ":" + dayKey; }
+  function readCoach(dayKey) {
+    try {
+      var raw = localStorage.getItem(coachKeyFor(dayKey));
+      if (!raw) return null;
+      var v = JSON.parse(raw);
+      return (v && v.text) ? v : null;
+    } catch (e) { return null; }
+  }
+  function writeCoach(dayKey, text, overall) {
+    try { localStorage.setItem(coachKeyFor(dayKey), JSON.stringify({ text: text, overall: overall, at: Date.now() })); } catch (e) {}
+  }
+
+  var inlineScoreToken = 0;
+  var inlineCoachTimer = null;
+  async function renderInlineScore() {
+    var token = ++inlineScoreToken;
+    var key = dateKey(selectedDate);
+    var sd;
+    try { sd = await computeDailyScore(); } catch (e) { return; }
+    if (token !== inlineScoreToken) return;      // the date moved on while we were working
+    lastScoreData = sd;
+
+    var rank = rankFor(sd.overall);
+    var rankEl = document.getElementById("scRank");
+    rankEl.textContent = rank.letter;
+    rankEl.style.background = rank.color;
+    rankEl.style.boxShadow = "0 0 0 1.5px rgba(255,255,255,0.3), 0 0 18px " + rank.glow;
+    document.getElementById("scNum").textContent = sd.overall;
+    document.getElementById("scTitle").textContent = isToday(selectedDate) ? "Today's score" : fmtLabel(selectedDate) + " score";
+    document.getElementById("scSub").textContent = rank.word + " · " +
+      (sd.dayType === "lift" ? sd.weights.detail : "rest from lifting") + " · " + sd.cardio.detail;
+
+    var bars = document.getElementById("scBars"); bars.innerHTML = "";
+    var rows = [];
+    if (sd.weights.pct != null) rows.push({ label: "Weight training", pct: sd.weights.pct, detail: sd.weights.detail });
+    rows.push({ label: "Cardio", pct: sd.cardio.pct, detail: sd.cardio.detail });
+    rows.push({ label: "Meals", pct: sd.meals.pct, detail: sd.meals.detail });
+    rows.forEach(function (r) {
+      var row = document.createElement("div");
+      row.innerHTML = '<div class="sc-bar-top"><span class="sc-bar-label"></span><span class="sc-bar-pct"></span></div>' +
+        '<div class="sc-bar-track"><div class="sc-bar-fill"></div></div><div class="sc-bar-detail"></div>';
+      row.querySelector(".sc-bar-label").textContent = r.label;
+      row.querySelector(".sc-bar-pct").textContent = r.pct + "%";
+      row.querySelector(".sc-bar-detail").textContent = r.detail;
+      var fill = row.querySelector(".sc-bar-fill");
+      fill.style.width = r.pct + "%";
+      fill.style.background = rankFor(r.pct).color;
+      bars.appendChild(row);
+    });
+
+    var coachEl = document.getElementById("scCoach");
+    var cached = readCoach(key);
+    if (cached) { coachEl.textContent = cached.text; coachEl.hidden = false; }
+    else { coachEl.hidden = true; coachEl.textContent = ""; }
+
+    /* Fetch the coach line for a day worth talking about, once, after the date has
+       settled -- flicking through the week should not fire a request per chip. */
+    clearTimeout(inlineCoachTimer);
+    var worthAsking = !cached && (sd.overall > 0);
+    if (worthAsking) {
+      inlineCoachTimer = setTimeout(async function () {
+        if (token !== inlineScoreToken) return;
+        var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
+        if (token !== inlineScoreToken) return;
+        var msg = (text && text.trim()) || fallbackNarrative(sd);
+        writeCoach(key, msg, sd.overall);
+        coachEl.textContent = msg; coachEl.hidden = false;
+      }, 900);
+    }
+  }
+
   var SCORE_GUARDRAILS = "You are a warm, direct fitness accountability coach reviewing someone's day against their own program. " +
     "You're given their actual scored breakdown for today (weight training / cardio / meals) as real numbers — use them, don't invent anything. " +
     "Write 2-3 short sentences: (1) what went well, (2) the ONE area they slipped most, named plainly and specifically using the numbers given, (3) one encouraging, concrete nudge to get back on track — not generic cheerleading. " +
@@ -2269,7 +2520,22 @@
   async function fetchScoreNarrative(sd) {
     var el = document.getElementById("scoreNarrative");
     el.innerHTML = '<span class="fb-dots" style="display:inline-block;"><span></span><span></span><span></span></span>';
-    var context = "Overall score: " + sd.overall + "/100. " +
+    var context = scoreContext(sd);
+    var msg = fallbackNarrative(sd);
+    var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + context }], 250);
+    if (text) msg = text.trim();
+    writeCoach(dateKey(selectedDate), msg, sd.overall);
+    el.textContent = msg;
+    var inline = document.getElementById("scCoach");
+    if (inline) { inline.textContent = msg; inline.hidden = false; }
+    // The card is drawn before this returns, so redraw now that there is something to
+    // put in the coach band rather than shipping a card with an empty one.
+    if (document.getElementById("shareModal").classList.contains("open")) {
+      try { document.getElementById("summaryImg").src = await buildSummaryImage(); } catch (e) {}
+    }
+  }
+  function scoreContext(sd) {
+    return "Overall score: " + sd.overall + "/100. " +
       (sd.weights.pct != null ? "Weight training: " + sd.weights.pct + "% (" + sd.weights.detail + "). " : "Rest day, no lifting scheduled. ") +
       "Cardio: " + sd.cardio.pct + "% (" + sd.cardio.detail + "). " +
       "Meals: " + sd.meals.pct + "% (" + sd.meals.detail + "). " +
@@ -2278,15 +2544,6 @@
         ? "Meals they deliberately skipped and marked as skipped today: " + sd.skipped.join(", ") +
           ". Treat these as an intentional choice, not a missed log."
         : "No meals were marked as skipped.");
-    var msg = fallbackNarrative(sd);
-    var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + context }], 250);
-    if (text) msg = text.trim();
-    el.textContent = msg;
-    // The card is drawn before this returns, so redraw now that there is something to
-    // put in the coach band rather than shipping a card with an empty one.
-    if (document.getElementById("shareModal").classList.contains("open")) {
-      try { document.getElementById("summaryImg").src = await buildSummaryImage(); } catch (e) {}
-    }
   }
   function fallbackNarrative(sd) {
     var lowest = sd.meals.pct <= sd.cardio.pct && (sd.weights.pct == null || sd.meals.pct <= sd.weights.pct) ? "meals" : (sd.cardio.pct <= (sd.weights.pct == null ? 101 : sd.weights.pct) ? "cardio" : "weight training");
