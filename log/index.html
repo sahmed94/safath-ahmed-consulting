@@ -64,9 +64,10 @@
   /* TODAY */
   .today9 { background: linear-gradient(160deg, #130C24 0%, #1B1035 48%, #2A0F3A 100%);
     border-color: rgba(255,255,255,0.1); color: #fff; gap: 8px; }
-  .t9-top { text-align: center; }
+  .t9-top { flex: 0 0 auto; text-align: center; }
   .t9-verdict { font-family: var(--font-head); font-size: 30px; font-weight: 700; letter-spacing: .02em; line-height: 1.05; }
-  .t9-verdict.win { color: #7DF0B8; } .t9-verdict.near { color: #FFD166; } .t9-verdict.lose { color: #FF8F6B; }
+  .t9-verdict.win { color: #7DF0B8; } .t9-verdict.near { color: #FFD166; }
+  .t9-verdict.lose { color: #FF8F6B; } .t9-verdict.blank { color: rgba(255,255,255,0.5); }
   .t9-score { font-size: 12.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
   .t9-bar { position: relative; height: 10px; border-radius: 6px; background: rgba(255,255,255,0.12); margin: 8px 0 7px; overflow: hidden; }
   .t9-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: #7DF0B8; transition: width .45s cubic-bezier(.2,.8,.3,1); }
@@ -97,15 +98,16 @@
      same words and none of the same thing -- where on you the work lands. Each row is
      a grid of three so the spine stays dead centre whatever the labels do. */
   .t9-fig { flex: 1 1 auto; min-height: 0; position: relative; display: flex;
-    flex-direction: column; justify-content: space-between; padding: 2px 0; }
+    flex-direction: column; justify-content: space-between; gap: 3px; padding: 1px 0;
+    overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .fg-spine { position: absolute; left: 50%; top: 26px; bottom: 26px; width: 2px;
     margin-left: -1px; background: rgba(255,255,255,0.12); }
-  .fg-row { position: relative; display: grid; grid-template-columns: 1fr 44px 1fr;
+  .fg-row { position: relative; display: grid; grid-template-columns: 1fr 40px 1fr;
     align-items: center; gap: 8px; border: 0; background: transparent; color: #fff;
     padding: 0; cursor: pointer; text-align: left; width: 100%; }
   .fg-row:active { opacity: .7; }
   .fg-row .fg-l { text-align: right; }
-  .fg-node { width: 44px; height: 44px; border-radius: 12px; display: flex; flex-direction: column;
+  .fg-node { width: 40px; height: 40px; border-radius: 11px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 1px; background: rgba(7,8,14,0.55);
     box-shadow: inset 0 0 0 1.5px currentColor; }
   .fg-node svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8;
@@ -124,24 +126,24 @@
      middle of the rings and the connector runs through all three. */
   .fg-core { position: relative; display: grid; grid-template-columns: 1fr auto 1fr;
     align-items: start; gap: 6px; }
-  .fg-core::before { content: ""; position: absolute; left: 14%; right: 14%; top: 56px;
+  .fg-core::before { content: ""; position: absolute; left: 14%; right: 14%; top: 50px;
     height: 2px; margin-top: -1px; background: rgba(255,255,255,0.12); }
   .fg-arm { position: relative; display: flex; flex-direction: column; align-items: center;
     gap: 3px; border: 0; background: transparent; color: #fff; cursor: pointer; padding: 0; }
-  .fg-core > .fg-arm { padding-top: 34px; }
+  .fg-core > .fg-arm { padding-top: 30px; }
   .fg-core > .fg-arm:nth-child(2) { padding-top: 0; }
   .fg-arm .fg-n, .fg-arm .fg-d { text-align: center; }
   .fg-arm .fg-d { max-width: 108px; }
-  .fg-rings { position: relative; width: 112px; height: 112px; }
-  .fg-rings svg { width: 112px; height: 112px; transform: rotate(-90deg); }
+  .fg-rings { position: relative; width: 100px; height: 100px; }
+  .fg-rings svg { width: 100px; height: 100px; transform: rotate(-90deg); }
   .fg-kcal { position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; pointer-events: none; }
-  .fg-kcal b { font-family: var(--font-head); font-size: 20px; line-height: 1; }
+  .fg-kcal b { font-family: var(--font-head); font-size: 18px; line-height: 1; }
   .fg-kcal span { font-size: 8px; letter-spacing: .1em; color: rgba(255,255,255,0.45); }
-  .fg-macros { display: flex; justify-content: center; gap: 9px; font-size: 9px;
+  .fg-macros { display: flex; justify-content: center; gap: 9px; font-size: 8.5px;
     color: rgba(255,255,255,0.5); }
   .fg-macros i { font-style: normal; font-weight: 700; }
-  .t9-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .t9-week { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
   .t9-wd { border-radius: 9px; padding: 5px 0 4px; text-align: center; box-shadow: inset 0 0 0 1.2px rgba(255,255,255,0.16); }
   .t9-wd.won { background: rgba(125,240,184,0.18); box-shadow: inset 0 0 0 1.4px rgba(125,240,184,0.6); }
   .t9-wd.near { box-shadow: inset 0 0 0 1.3px rgba(255,209,102,0.55); }
@@ -149,18 +151,49 @@
   .t9-wd.won b { color: #7DF0B8; } .t9-wd.near b { color: #FFD166; } .t9-wd b { color: rgba(255,255,255,0.35); }
   .t9-wd span { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: .06em; }
 
-  .t9-chips { display: flex; gap: 5px; flex-wrap: nowrap; overflow: hidden; }
+  .t9-chips { flex: 0 0 auto; display: flex; gap: 5px; flex-wrap: nowrap; overflow: hidden; cursor: pointer; }
   .t9-chip { font-family: var(--font-head); font-size: 10.5px; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
   .t9-chip.up { background: rgba(125,240,184,0.16); color: #7DF0B8; }
   .t9-chip.down { background: rgba(255,107,74,0.18); color: #FF8F6B; }
   .t9-chip.mult { background: rgba(255,209,102,0.18); color: #FFD166; }
-  .t9-note, .t9-coach { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,0.72);
+  .t9-chip.more { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+  .t9-note, .t9-coach { flex: 0 0 auto; font-size: 11px; line-height: 1.45; color: rgba(255,255,255,0.72);
     background: rgba(255,255,255,0.07); border-radius: 10px; padding: 7px 9px; }
-  .t9-actions { display: flex; gap: 8px; }
-  .t9-btn { flex: 1 1 0; font-family: var(--font-head); font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+  .t9-actions { flex: 0 0 auto; display: flex; gap: 8px; }
+  .t9-btn { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: var(--font-head); font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
     padding: 11px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .t9-btn.drop { border: 0; background: linear-gradient(90deg, #E0417C, #7A3FF2); animation: dropPulse 1.9s ease-in-out infinite; }
   .t9-btn.drop:disabled { animation: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); }
+
+  /* a short phone: same card, tighter type, and the body keeps the room */
+  .c9-compact .card9 { padding: 11px; gap: 7px; }
+  .c9-compact .t9-verdict { font-size: 23px; }
+  .c9-compact .t9-score { font-size: 11px; }
+  .c9-compact .t9-record { font-size: 10px; }
+  .c9-compact .t9-record b { font-size: 12px; }
+  .c9-compact .t9-bar { height: 8px; margin: 6px 0 5px; }
+  .c9-compact .t9-coach { display: none; }
+  .c9-compact .t9-note { font-size: 10px; padding: 5px 8px; }
+  .c9-compact .t9-wd { padding: 3px 0 2px; }
+  .c9-compact .t9-wd b { font-size: 12px; }
+  .c9-compact .t9-btn { padding: 9px; font-size: 11px; }
+  .c9-compact .fg-node { width: 38px; height: 38px; border-radius: 10px; }
+  .c9-compact .fg-node svg { width: 15px; height: 15px; }
+  .c9-compact .fg-row { grid-template-columns: 1fr 38px 1fr; }
+  .c9-compact .fg-rings, .c9-compact .fg-rings svg { width: 92px; height: 92px; }
+  .c9-compact .fg-kcal b { font-size: 17px; }
+  .c9-compact .fg-core::before { top: 46px; }
+  .c9-compact .fg-core > .fg-arm { padding-top: 27px; }
+  .c9-compact .t9-chip { font-size: 9.5px; padding: 2px 6px; }
+  .c9-compact .weight9 .weight-chart { height: 74px; }
+  .c9-compact .w9-big { font-size: 34px; }
+  .c9-compact .w9-tile > b, .c9-compact .w9-tile .rate-main b { font-size: 17px; }
+  .c9-compact .plan-btn { padding: 8px 10px; font-size: 11px; }
+  .c9-compact .f9-targets > div { padding: 5px 4px; }
+  .c9-compact .f9-targets b { font-size: 11.5px; }
+  .c9-compact .food-upload-btn { padding: 11px 10px; font-size: 12px; }
+  .c9-compact .f9-note { display: none; }
 
   /* TRAIN */
   .train9 { gap: 8px; }
@@ -819,7 +852,7 @@
         <div class="t9-coach" id="scCoach" hidden></div>
         <div class="t9-actions">
           <button class="t9-btn drop" id="rkDropBtn" type="button" hidden></button>
-          <button class="t9-btn share" id="scOpenBtn" type="button">Share the day</button>
+          <button class="t9-btn share" id="scOpenBtn" type="button">Share</button>
         </div>
       </div>
     </section>
@@ -876,7 +909,7 @@
         <div class="f9-targets">
           <div><b id="planIntakeLabel">&mdash;</b><span>eat today</span></div>
           <div><b id="todayEstTotals">&mdash;</b><span>so far</span></div>
-          <div><b id="todayProtein">&mdash;</b><span>protein g</span></div>
+          <div><b id="todayProtein">&mdash;</b><span>protein</span></div>
           <div><b id="planMaintLabel">&mdash;</b><span>maintenance</span></div>
         </div>
         <div class="meal-picker" id="mealPicker"></div>
@@ -1428,18 +1461,6 @@
     return null;
   }
 
-  async function metricStreak(kind) {
-    var has = kind === "weight"
-      ? function (d) { return d && d.weight != null; }
-      : function (d) { return !!(d && d.cardio && d.cardio.min != null); };
-    var d = new Date(selectedDate), n = 0;
-    if (!has(await getDayDoc(dateKey(d)))) d.setDate(d.getDate() - 1);
-    for (var i = 0; i < 400; i++) {
-      if (!has(await getDayDoc(dateKey(d)))) break;
-      n++; d.setDate(d.getDate() - 1);
-    }
-    return n;
-  }
 
   async function getAllDayKeys() {
     try {
@@ -2542,14 +2563,6 @@
     }
   }
 
-  function computeSessionVolume(doc, prog) {
-    var vol = 0;
-    prog.ex.forEach(function (exx) {
-      var s = (doc.sets && doc.sets[exx.name]) || [];
-      s.forEach(function (r) { if (r && r.done && r.reps != null && r.weight != null) vol += r.reps * r.weight; });
-    });
-    return Math.round(vol);
-  }
 
   var FEEDBACK_GUARDRAILS = "You are a warm, upbeat fitness accountability coach inside a personal tracking app for a hypertrophy + cardio + weight-loss program. " +
     "Write ONE short message, 1-2 sentences max, casual and specific to what was just logged (reference the actual number/exercise/meal type, not generic praise). " +
@@ -2869,17 +2882,20 @@
      Forged. A name you have to look up is a name that explains nothing, so each one
      is now the plain fact about you that turned it on. Read as a sentence it says
      what it does: "Not logging, -20%". */
+  /* Nothing here fires before there is a single logged day behind it. A first open
+     that greets you with two penalties and everything counting 0.75x is an argument
+     for closing the app, which is the one thing this is built to prevent. */
   var DEBUFFS = [
     { id: "adrift",    name: "Not logging",    cost: 0.20,
       test: function (g) { return g.everLogged && g.sinceLog >= 2; },
       why:  function (g) { return g.sinceLog + " days without logging anything"; },
       fix:  "Log anything at all" },
     { id: "detrained", name: "No sessions",  cost: 0.15,
-      test: function (g) { return g.sinceLift >= 8; },
+      test: function (g) { return g.everLogged && g.sinceLift >= 8; },
       why:  function (g) { return (g.sinceLift > 90 ? "no" : g.sinceLift + " days since a") + " finished session"; },
       fix:  "Finish every set of one session" },
     { id: "sedentary", name: "No cardio",    cost: 0.10,
-      test: function (g) { return g.sinceCardio >= 4; },
+      test: function (g) { return g.everLogged && g.sinceCardio >= 4; },
       why:  function (g) { return (g.sinceCardio > 90 ? "no" : g.sinceCardio + " days since") + " cardio"; },
       fix:  "Log any cardio" },
     { id: "overfed",   name: "Eating over",  cost: 0.10,
@@ -3267,8 +3283,8 @@
   /* ===================== WHAT YOU BUILD ===================== */
   /* Seven parts of one body, and each part is fed by exactly one thing you do:
 
-       Head   what you give away      Core   meals inside the eating window
-       Arms   the streak you are on, and every day you have ever logged
+       Head    what you give away     Core    meals inside the eating window
+       Weapon  the streak you are on  Shield  every day you have ever logged
        Waist  sets you finish         Legs   cardio minutes       Feet   weigh-ins
 
      Behind each part is one raw measure, scaled so all seven sit on the same ladder
@@ -3279,8 +3295,8 @@
   var SLOTS = [
     { key: "helmet", name: "Giving",     part: "Head",  fed: "giving away what you earned", icon: "helm" },
     { key: "chest",  name: "Food",       part: "Core",  fed: "meals inside your window", icon: "chest" },
-    { key: "weapon", name: "Showing up", part: "Arm",   fed: "days in a row",            icon: "weapon" },
-    { key: "shield", name: "History",    part: "Arm",   fed: "every day you logged",     icon: "shield" },
+    { key: "weapon", name: "Showing up", part: "Weapon", fed: "days in a row",           icon: "weapon" },
+    { key: "shield", name: "History",    part: "Shield", fed: "every day you logged",    icon: "shield" },
     { key: "belt",   name: "Lifting",    part: "Waist", fed: "sets you finish",          icon: "belt" },
     { key: "legs",   name: "Walking",    part: "Legs",  fed: "cardio minutes",           icon: "legs" },
     { key: "boots",  name: "Weighing",   part: "Feet",  fed: "times on the scale",       icon: "boots" }
@@ -3388,7 +3404,7 @@
                 detail: onPlan + " of the last 30 days inside the window" },
       weapon: { built: Math.round(run * 4), face: run + "d", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " unbroken"; },
-                detail: run ? run + " days without a gap" : "no streak — log today to start one" },
+                detail: run ? run + " days without a gap" : "no streak yet" },
       shield: { built: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
                 detail: everLogged + " days logged, all time" },
@@ -3577,14 +3593,23 @@
        where the tab bar begins already has the header, the date row and the safe
        areas taken out of it. When the app is still hidden those rects are zero, so
        fall back to the window and let the next call correct it. */
-    var avail = tr.top - pr.top - 8;
+    var avail = tr.top - pr.top - 12;
     var maxW = panel.clientWidth;
     if (!(maxW > 120)) maxW = Math.min(612, (window.innerWidth || 390) - 28);
     if (!(avail > 200)) avail = (window.innerHeight || 700) - 210;
-    var h = Math.max(380, Math.min(avail, maxW * 16 / 9));
-    var w = Math.min(maxW, Math.round(h * 9 / 16));
-    document.documentElement.style.setProperty("--c9h", Math.round(h) + "px");
+    /* Nine by sixteen is the shape to aim at, not a rule to obey into absurdity. On a
+       short phone a true 9:16 card can only be as wide as the height allows, which on
+       a 375x667 screen meant a 269px stamp adrift in the middle of the screen with its
+       contents piled on top of each other. The width is the screen's; the height is
+       whatever is left, capped at 9:16 so a tall screen does not stretch it. */
+    var w = Math.round(maxW);
+    var h = Math.round(Math.min(avail, maxW * 16 / 9));
+    document.documentElement.style.setProperty("--c9h", h + "px");
     document.documentElement.style.setProperty("--c9w", w + "px");
+    /* On a short phone the fixed blocks eat the figure. Below this height the card
+       drops to a tighter set of type sizes and lets the coach line go -- it is in the
+       share sheet too -- so the body still gets most of the card. */
+    document.documentElement.classList.toggle("c9-compact", h < 560);
   }
 
   /* ---- where you are in the session ----
@@ -3653,19 +3678,29 @@
     renderTodayCard._won = bl.won;
 
     var v = document.getElementById("t9Verdict");
-    v.textContent = bl.won ? "DAY WON" : near ? "ALMOST" : "NOT YET";
-    v.className = "t9-verdict " + (bl.won ? "win" : near ? "near" : "lose");
+    /* "NOT YET" in red is a verdict on a day you have done something in. A day with
+       nothing in it yet has not been lost, and saying so on a first open is the
+       quickest way to make somebody close the app. */
+    var blank = bl.score === 0;
+    v.textContent = bl.won ? "DAY WON" : near ? "ALMOST" : blank ? "NOTHING YET" : "NOT YET";
+    v.className = "t9-verdict " + (bl.won ? "win" : near ? "near" : blank ? "blank" : "lose");
     document.getElementById("t9Score").textContent =
       (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " · ") +
       bl.score + " of 100  ·  " + WIN_AT + " wins the day";
     var fill = document.getElementById("t9Fill");
     fill.style.width = Math.min(100, bl.score) + "%";
-    fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : "#FF8F6B";
+    fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : blank ? "rgba(255,255,255,0.3)" : "#FF8F6B";
     document.getElementById("t9Mark").style.left = WIN_AT + "%";
-    document.getElementById("t9Record").innerHTML =
-      "<b>" + fmtInt(pr.daysWon) + "</b> days won" +
-      (pr.winRun > 1 ? "  ·  " + pr.winRun + " in a row" : "") +
-      "  ·  level " + pr.level + "  ·  " + fmtInt(pr.total) + " points";
+    var rec = document.getElementById("t9Record");
+    rec.innerHTML =
+      "<b id=\"t9Won\">" + fmtInt(pr.daysWon) + "</b> days won" +
+      (pr.winRun > 1 ? "  \u00b7  " + pr.winRun + " in a row" : "") +
+      "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points";
+    /* a number that lands rather than appears: on the day you win it, you watch it go */
+    if (renderTodayCard._shownWon != null && pr.daysWon > renderTodayCard._shownWon) {
+      countTo(document.getElementById("t9Won"), pr.daysWon);
+    }
+    renderTodayCard._shownWon = pr.daysWon;
 
     /* the body: one row per part, each carrying what today put into it */
     var DMG = {}; bl.blows.forEach(function (b) { DMG[b.k] = b; });
@@ -3721,7 +3756,9 @@
     var ringSvg = RINGS.map(function (g) {
       var circ = 2 * Math.PI * g.r;
       var frac = g.t ? Math.min(1, g.v / g.t) : 0;
-      return '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>' +
+      var track = '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>';
+      if (frac <= 0) return track;      // a round cap on a zero-length dash still paints a dot
+      return track +
         '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="' + g.c + '" stroke-width="8" stroke-linecap="round"' +
         ' stroke-dasharray="' + (circ * frac).toFixed(1) + ' ' + circ.toFixed(1) + '"/>';
     }).join("");
@@ -3769,15 +3806,25 @@
     }).join("");
 
     /* what is helping and what is costing, in one line of chips */
+    /* One line, and a chip cut in half by the card edge looks like a fault rather
+       than a hint. Two states fit beside the multiplier; the rest are counted, and
+       the count opens the sheet that lists them all. */
     var eff = effectiveMult(pr);
-    var chips = ['<span class="t9-chip mult">everything counts ' + eff + '×</span>'];
-    activeDebuffs(pr).forEach(function (d) {
-      chips.push('<span class="t9-chip down">' + d.name + " −" + Math.round(d.cost * 100) + '%</span>');
+    var states = activeDebuffs(pr).map(function (d) {
+      return { cls: "down", t: d.name + " \u2212" + Math.round(d.cost * 100) + "%" };
+    }).concat(activeBuffs(pr).map(function (b) {
+      return { cls: "up", t: b.name + " +" + Math.round(b.gain * 100) + "%" };
+    }));
+    var room = document.documentElement.classList.contains("c9-compact") &&
+               (document.querySelector(".card9") || {}).clientWidth < 330 ? 0 : 1;
+    var chips = ['<span class="t9-chip mult">everything counts ' + eff + '\u00d7</span>'];
+    states.slice(0, room).forEach(function (st) {
+      chips.push('<span class="t9-chip ' + st.cls + '">' + st.t + '</span>');
     });
-    activeBuffs(pr).forEach(function (b) {
-      chips.push('<span class="t9-chip up">' + b.name + " +" + Math.round(b.gain * 100) + '%</span>');
-    });
-    document.getElementById("t9Chips").innerHTML = chips.join("");
+    if (states.length > room) chips.push('<span class="t9-chip more">+' + (states.length - room) + ' more</span>');
+    var chipWrap = document.getElementById("t9Chips");
+    chipWrap.innerHTML = chips.join("");
+    chipWrap.onclick = openCharacter;
 
     /* the reward */
     var btn = document.getElementById("rkDropBtn");
@@ -3791,10 +3838,10 @@
         btn.textContent = "Reward: " + GAME.opened[tKey].rarity;
       } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
         btn.disabled = false;
-        btn.textContent = "✦ Open today's reward";
+        btn.textContent = "✦ Open reward";
       } else {
         btn.disabled = true;
-        btn.textContent = fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " more points to a reward";
+        btn.textContent = "Reward at +" + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " pts";
       }
     }
 
@@ -3972,20 +4019,6 @@
     var area = path + " L" + pts[pts.length-1].x.toFixed(1) + "," + (H-pad) + " L" + pts[0].x.toFixed(1) + "," + (H-pad) + " Z";
     var dots = pts.map(function(p){ return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="'+color+'"/>'; }).join("");
     svg.innerHTML = '<defs><linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.25"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#grad1)"/><path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round"/>' + dots + '<text x="'+pad+'" y="'+(H-1)+'" fill="#9599AC" font-size="10" font-family="Inter">'+values[0]+'</text><text x="'+(W-pad)+'" y="'+(H-1)+'" fill="#9599AC" font-size="10" font-family="Inter" text-anchor="end">'+values[values.length-1]+'</text>';
-  }
-  function drawBarChart(svg, values, labels, color) {
-    var W = 600, H = 130, pad = 10, gap = 8;
-    var max = Math.max.apply(null, values.concat([1]));
-    var barW = (W - pad*2 - gap*(values.length-1)) / values.length;
-    var bars = "", labs = "";
-    values.forEach(function(v, i) {
-      var h = max > 0 ? (v / max) * (H - 34) : 0;
-      var x = pad + i * (barW + gap); var y = H - 20 - h;
-      bars += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="5" fill="'+color+'"/>';
-      bars += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" fill="#1B1E2B" font-size="11" font-weight="600" text-anchor="middle" font-family="Inter">'+(v||"")+'</text>';
-      labs += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(H-4)+'" fill="#9599AC" font-size="10" text-anchor="middle" font-family="Inter">'+labels[i]+'</text>';
-    });
-    svg.innerHTML = bars + labs;
   }
 
   // Nothing static left to wire; the chips carry their own state. Draw one row up
@@ -4502,9 +4535,9 @@
       ctx.textAlign = "left";
     }
     node(midX - FLANK, Y_CORE, rowFor("weapon"));
-    leaf(rowFor("weapon"), midX - FLANK, Y_CORE + 40, "center");
+    leaf(rowFor("weapon"), midX - FLANK, Y_CORE + 56, "center");
     node(midX + FLANK, Y_CORE, rowFor("shield"));
-    leaf(rowFor("shield"), midX + FLANK, Y_CORE + 40, "center");
+    leaf(rowFor("shield"), midX + FLANK, Y_CORE + 56, "center");
     node(midX, Y_WAIST, rowFor("belt"));    leaf(rowFor("belt"),   midX + 52, Y_WAIST - 14, "left");
     node(midX, Y_LEGS, rowFor("legs"));     leaf(rowFor("legs"),   midX + 52, Y_LEGS - 14, "left");
     node(midX, Y_FEET, rowFor("boots"));    leaf(rowFor("boots"),  midX + 52, Y_FEET - 14, "left");
@@ -4539,7 +4572,7 @@
     ctx.textAlign = "left";
 
     /* the three rings named, so nobody has to guess which colour is which */
-    var macroY = Y_CORE + 150;
+    var macroY = Y_CORE + 162;
     var mParts = rings.map(function (rg) {
       ctx.font = "600 19px Oswald, sans-serif";
       var a1 = rg.val + "g", w1 = ctx.measureText(a1).width;
@@ -4757,11 +4790,6 @@
     return Math.max(0, 1 - (PLAN.floor - cal) / 400);
   }
 
-  function softFalloff(val, lo, hi, span) {
-    if (val >= lo && val <= hi) return 1;
-    var d = val < lo ? lo - val : val - hi;
-    return Math.max(0, 1 - d / span);
-  }
   async function computeDailyScore() {
     var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
