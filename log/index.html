@@ -325,6 +325,37 @@
     background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .sc-open:active { background: rgba(255,255,255,0.16); }
 
+  .good-card { background: linear-gradient(155deg, #1A1206 0%, #3A2608 52%, #5A3A0A 100%); border: none; color: #fff; }
+  .gd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .gd-title { font-family: var(--font-head); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+  .gd-total { font-family: var(--font-head); font-size: 34px; font-weight: 700; line-height: 1.05; margin-top: 3px; color: #FFD166; }
+  .gd-give { flex: 0 0 auto; border: none; border-radius: 10px; padding: 9px 13px; cursor: pointer;
+    font-family: var(--font-head); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase;
+    background: rgba(255,209,102,0.2); color: #FFD166; box-shadow: inset 0 0 0 1px rgba(255,209,102,0.45); }
+  .gd-give:active { background: rgba(255,209,102,0.32); }
+  .gd-lines { margin-top: 14px; }
+  .gd-line { display: flex; align-items: baseline; gap: 9px; padding: 7px 0; font-size: 12.5px;
+    border-top: 1px solid rgba(255,255,255,0.11); }
+  .gd-line:first-child { border-top: none; }
+  .gd-n { font-family: var(--font-head); color: #fff; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .gd-w { flex: 1; color: rgba(255,255,255,0.6); }
+  .gd-a { font-family: var(--font-head); color: rgba(255,255,255,0.92); font-variant-numeric: tabular-nums; }
+  .gd-owed { margin-top: 13px; background: rgba(255,255,255,0.09); border-radius: 11px; padding: 11px 13px; }
+  .gd-owed-v { font-family: var(--font-head); font-size: 22px; color: #fff; line-height: 1; }
+  .gd-owed-n { font-size: 11.5px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+  .gd-ded { margin-top: 13px; }
+  .gd-ded label { display: block; font-size: 11px; letter-spacing: .04em; color: rgba(255,255,255,0.62); margin-bottom: 5px; }
+  .gd-ded input { width: 100%; background: rgba(255,255,255,0.09); border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 10px; padding: 10px 12px; color: #fff; font-family: var(--font-body); font-size: 13.5px; }
+  .gd-ded input::placeholder { color: rgba(255,255,255,0.38); }
+  .gd-ded input:focus { outline: none; border-color: #FFD166; }
+  .give-sec { font-family: var(--font-head); font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 4px 0 9px; }
+  .gv-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--ink-dim);
+    padding: 7px 0; border-top: 1px solid var(--line); }
+  .gv-row:first-child { border-top: none; }
+  .gv-row b { color: var(--ink); }
+
   .rank-card { background: linear-gradient(150deg, #120A2E 0%, #241046 48%, #3A1255 100%); border: none; color: #fff; overflow: hidden; position: relative; }
   .rank-card::after { content: ""; position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(520px 200px at 88% -10%, rgba(224,65,124,0.42), transparent 70%); }
@@ -594,6 +625,25 @@
       <div class="wins-foot" id="winsFoot"></div>
     </div>
 
+    <div class="card good-card" id="goodCard" hidden>
+      <div class="gd-head">
+        <div>
+          <div class="gd-title">Given to <span id="gdCause">Sadaqah</span></div>
+          <div class="gd-total" id="gdGiven">—</div>
+        </div>
+        <button class="gd-give" id="gdGiveBtn" type="button">Record a gift</button>
+      </div>
+      <div class="gd-lines" id="gdLines"></div>
+      <div class="gd-owed">
+        <div class="gd-owed-v" id="gdOwed">—</div>
+        <div class="gd-owed-n" id="gdOwedNote"></div>
+      </div>
+      <div class="gd-ded">
+        <label for="gdDedication" id="gdDedLabel">Who is today for?</label>
+        <input type="text" id="gdDedication" placeholder="a name, or an intention">
+      </div>
+    </div>
+
     <!-- WEIGHT TRAINING -->
     <section class="panel active" id="panel-lifting">
       <div class="card">
@@ -788,6 +838,29 @@
 
 <!-- Exercise history modal -->
 <div id="modalOverlay">
+  <!-- Record a gift -->
+  <div class="modal-inner" id="giveModal" style="display:none;">
+    <h3>Record a gift</h3>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field" style="flex:0 0 76px;"><label>Currency</label><input type="text" id="giveCurrency" maxlength="3"></div>
+      <div class="field"><label>Amount given</label><input type="number" step="0.01" id="giveAmount"></div>
+    </div>
+    <div class="field" style="margin-bottom:8px;"><label>Note (optional)</label><input type="text" id="giveNote" placeholder="where it went"></div>
+    <div class="field" style="margin-bottom:14px;"><label>Cause</label><input type="text" id="giveCause"></div>
+    <div class="give-sec">What each thing is worth</div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Per session</label><input type="number" step="0.5" id="giveSession"></div>
+      <div class="field"><label>Per day on plan</label><input type="number" step="0.5" id="giveOnPlan"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;"><label>Per week the streak survives</label><input type="number" step="1" id="giveWeek"></div>
+    <div class="give-sec">Already given</div>
+    <div id="giveHistory"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="giveCloseBtn">Cancel</button>
+      <button class="primary-btn" id="giveSaveBtn">Save</button>
+    </div>
+  </div>
+
   <!-- Character sheet -->
   <div class="modal-inner char-sheet" id="charModal" style="display:none;">
     <div class="char-head">
@@ -931,13 +1004,14 @@
       var v = sets && sets[PLAN_SLOT];
       if (v && typeof v === "object") PLAN = Object.assign({}, DEFAULT_PLAN, v);
       GAME = gameFromPlanRow(sets);
+      GOOD = goodFromPlanRow(sets);
     } catch (e) {}
     applyPlan();
   }
   async function savePlan() {
     applyPlan();
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -2115,6 +2189,7 @@
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("dropModal").style.display = "none";
     document.getElementById("charModal").style.display = "none";
+    document.getElementById("giveModal").style.display = "none";
     document.getElementById("planModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -2351,7 +2426,7 @@
   }
   async function saveGame() {
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -2390,7 +2465,8 @@
     var perfect = doc.weight != null && meals > 0 &&
       !!(doc.cardio && doc.cardio.min != null) && (!anyLift || allSets);
     if (perfect) xp += XP.perfect;
-    return { xp: Math.round(xp), perfect: perfect, meals: meals, onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake() };
+    return { xp: Math.round(xp), perfect: perfect, meals: meals, sessionDone: anyLift && allSets,
+             onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake() };
   }
 
   function addDaysKey(key, n) {
@@ -2435,6 +2511,7 @@
 
     var total = 0, run = 0, prevKey = null, todayXP = 0, todayRaw = 0, perfectDays = 0;
     var totalSets = 0, totalCardioMin = 0, onPlanDays = 0, loggedDays = 0;
+    var sessions = 0, streakWeeks = 0;
     var tKey = dateKey(new Date());
 
     for (var i = 0; i < keys.length; i++) {
@@ -2455,6 +2532,8 @@
       total += earned;
       if (d.perfect) perfectDays++;
       if (d.onPlan) onPlanDays++;
+      if (d.sessionDone) sessions++;
+      if (run > 0 && run % 7 === 0) streakWeeks++;
       if (doc.cardio && doc.cardio.min) totalCardioMin += doc.cardio.min;
       if (doc.sets) Object.keys(doc.sets).forEach(function (en) {
         if (!Array.isArray(doc.sets[en])) return;
@@ -2484,7 +2563,8 @@
       next: nextTier(liveRun), loggedToday: keys.indexOf(tKey) >= 0 && todayRaw > 0,
       brokenRun: liveRun ? 0 : run, missedYesterday: missedYesterday,
       stats: { sets: totalSets, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
-               perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run }
+               perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
+               sessions: sessions, streakWeeks: streakWeeks }
     };
   }
 
@@ -2557,6 +2637,143 @@
     { id: "lvl10",   name: "Level 10",     test: function (p) { return p.level >= 10; } },
     { id: "lvl25",   name: "Level 25",     test: function (p) { return p.level >= 25; } }
   ];
+
+  /* ===================== THE LEDGER ===================== */
+  /* Discipline that only ever points back at yourself runs out. This turns it
+     outward: a rate you set, accrued on every session finished, every day inside the
+     eating window, every week the streak survives -- and the total is real money owed
+     to a real cause, not a game token.
+
+     It accrues on success and never on failure. A sum charged for a missed day is a
+     punishment, and punishment breeds the kind of avoidance that ends programmes. A
+     sum owed for a day done well makes the discipline somebody else's benefit, which
+     is the whole point of doing it this way.
+
+     The app never moves money and never asks for a card. It keeps the count; giving
+     is something you do, and then record. */
+
+  var GOOD_SLOT = "__good";
+  var DEFAULT_GOOD = {
+    cause: "Sadaqah", currency: "$",
+    rates: { session: 2, onPlan: 1, streakWeek: 10 },
+    given: [], dedications: {}
+  };
+  var GOOD = JSON.parse(JSON.stringify(DEFAULT_GOOD));
+
+  function goodFromPlanRow(sets) {
+    var v = sets && sets[GOOD_SLOT];
+    if (v && typeof v === "object") {
+      return { cause: v.cause || DEFAULT_GOOD.cause, currency: v.currency || DEFAULT_GOOD.currency,
+               rates: Object.assign({}, DEFAULT_GOOD.rates, v.rates || {}),
+               given: Array.isArray(v.given) ? v.given : [],
+               dedications: v.dedications || {} };
+    }
+    return JSON.parse(JSON.stringify(DEFAULT_GOOD));
+  }
+  async function saveGood() {
+    try {
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
+    } catch (e) {}
+  }
+  function money(n) {
+    return GOOD.currency + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, "");
+  }
+  function accrued(pr) {
+    var r = GOOD.rates;
+    return pr.stats.sessions * (r.session || 0) +
+           pr.stats.onPlanDays * (r.onPlan || 0) +
+           pr.stats.streakWeeks * (r.streakWeek || 0);
+  }
+  function givenTotal() {
+    return GOOD.given.reduce(function (a, g) { return a + (Number(g.amount) || 0); }, 0);
+  }
+
+  function renderLedger(pr) {
+    var card = document.getElementById("goodCard");
+    if (!card || !pr) return;
+    card.hidden = false;
+    var acc = accrued(pr), gave = givenTotal(), out = Math.max(0, acc - gave);
+    var r = GOOD.rates;
+
+    document.getElementById("gdCause").textContent = GOOD.cause;
+    document.getElementById("gdGiven").textContent = money(gave);
+    document.getElementById("gdLines").innerHTML = [
+      { n: pr.stats.sessions,    rate: r.session,    what: "sessions finished" },
+      { n: pr.stats.onPlanDays,  rate: r.onPlan,     what: "days inside the eating window" },
+      { n: pr.stats.streakWeeks, rate: r.streakWeek, what: "weeks the streak survived" }
+    ].filter(function (l) { return l.rate > 0; }).map(function (l) {
+      return '<div class="gd-line"><span class="gd-n">' + l.n + ' × ' + money(l.rate) + '</span>' +
+             '<span class="gd-w">' + l.what + '</span>' +
+             '<span class="gd-a">' + money(l.n * l.rate) + '</span></div>';
+    }).join("");
+
+    document.getElementById("gdOwed").textContent = money(out);
+    document.getElementById("gdOwedNote").textContent = out > 0
+      ? "earned by work already done, and not yet given"
+      : (acc > 0 ? "all settled — keep going" : "nothing earned yet");
+
+    /* today's intention */
+    var key = dateKey(selectedDate);
+    var ded = GOOD.dedications[key] || "";
+    var dedEl = document.getElementById("gdDedication");
+    dedEl.value = ded;
+    document.getElementById("gdDedLabel").textContent = isToday(selectedDate)
+      ? "Who is today for?" : "Who was " + fmtLabel(selectedDate) + " for?";
+  }
+
+  function openGiveSheet(pr) {
+    var acc = accrued(pr), out = Math.max(0, acc - givenTotal());
+    document.getElementById("giveAmount").value = out > 0 ? (Math.round(out * 100) / 100) : "";
+    document.getElementById("giveNote").value = "";
+    document.getElementById("giveCause").value = GOOD.cause;
+    document.getElementById("giveCurrency").value = GOOD.currency;
+    document.getElementById("giveSession").value = GOOD.rates.session;
+    document.getElementById("giveOnPlan").value = GOOD.rates.onPlan;
+    document.getElementById("giveWeek").value = GOOD.rates.streakWeek;
+    renderGivenList();
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal"].forEach(function (id) {
+      document.getElementById(id).style.display = "none";
+    });
+    document.getElementById("giveModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  function renderGivenList() {
+    var el = document.getElementById("giveHistory");
+    if (!GOOD.given.length) { el.innerHTML = '<div class="empty">Nothing recorded yet.</div>'; return; }
+    el.innerHTML = GOOD.given.slice().reverse().slice(0, 12).map(function (g, i) {
+      return '<div class="gv-row"><span>' + g.date + (g.note ? ' · ' + esc(g.note) : "") + '</span>' +
+             '<span><b>' + money(Number(g.amount) || 0) + '</b></span></div>';
+    }).join("");
+  }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+
+  function wireLedger() {
+    document.getElementById("gdGiveBtn").onclick = function () { openGiveSheet(lastProg || { stats: { sessions: 0, onPlanDays: 0, streakWeeks: 0 } }); };
+    document.getElementById("giveCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    document.getElementById("giveSaveBtn").onclick = async function () {
+      var amt = Number(document.getElementById("giveAmount").value);
+      GOOD.cause = document.getElementById("giveCause").value.trim() || DEFAULT_GOOD.cause;
+      GOOD.currency = document.getElementById("giveCurrency").value.trim().slice(0, 3) || "$";
+      var n = function (id, d) { var v = Number(document.getElementById(id).value); return isFinite(v) && v >= 0 ? v : d; };
+      GOOD.rates.session = n("giveSession", DEFAULT_GOOD.rates.session);
+      GOOD.rates.onPlan = n("giveOnPlan", DEFAULT_GOOD.rates.onPlan);
+      GOOD.rates.streakWeek = n("giveWeek", DEFAULT_GOOD.rates.streakWeek);
+      if (isFinite(amt) && amt > 0) {
+        GOOD.given.push({ date: dateKey(new Date()), amount: amt, note: document.getElementById("giveNote").value.trim() });
+      }
+      await saveGood();
+      document.getElementById("modalOverlay").classList.remove("open");
+      renderLedger(lastProg);
+      if (isFinite(amt) && amt > 0) { vibrate([15, 35, 15]); showToast(money(amt) + " recorded to " + GOOD.cause + ". Total given: " + money(givenTotal()) + ".", false); }
+    };
+    var ded = document.getElementById("gdDedication");
+    ded.addEventListener("change", async function () {
+      var key = dateKey(selectedDate), v = ded.value.trim();
+      if (v) GOOD.dedications[key] = v; else delete GOOD.dedications[key];
+      await saveGood();
+    });
+  }
 
   /* ===================== GEAR ===================== */
   /* The conceit is not a conceit: in a lifting programme your gear really is your
@@ -2707,7 +2924,7 @@
       lo.equipped + " of " + lo.slots + " slots filled. An item level is the heaviest set you have " +
       "ever finished on that lift; rarity is how far past the starting weight you have taken it.";
 
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal"].forEach(function (id) {
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal"].forEach(function (id) {
       document.getElementById(id).style.display = "none";
     });
     document.getElementById("charModal").style.display = "block";
@@ -2810,6 +3027,8 @@
       return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "✓ " : "") + b.name + '</span>';
     }).join("");
 
+    renderLedger(pr);
+
     /* the headline numbers for the character sheet, so the way in shows its worth */
     loadout().then(function (lo) {
       lastLoadout = lo;
@@ -2900,6 +3119,7 @@
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("planModal").style.display = "none";
     document.getElementById("charModal").style.display = "none";
+    document.getElementById("giveModal").style.display = "none";
     m.style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -3624,8 +3844,17 @@
       });
     }
 
+    var ded = GOOD.dedications[key];
     ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 22px Inter, sans-serif";
     ctx.fillText("accountabilityaas.com", pad, footY);
+    if (ded) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(255,255,255,0.78)"; ctx.font = "500 22px Inter, sans-serif";
+      var line = "for " + ded;
+      while (ctx.measureText(line).width > W - pad * 2 - 340 && line.length > 8) line = line.slice(0, -2);
+      ctx.fillText(line, W - pad, footY);
+      ctx.textAlign = "left";
+    }
     return canvas.toDataURL("image/jpeg", 0.93);
   }
 
@@ -3907,6 +4136,7 @@
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    wireLedger();
     document.getElementById("rkCharBtn").onclick = openCharacter;
     document.getElementById("charCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
 
