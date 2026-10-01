@@ -4326,86 +4326,120 @@
     pill(px, y + 160, "▲ " + pr.run + "d  " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
 
     /* ---- 3. equipment: the worn-items panel ---- */
-    /* Laid out as a paperdoll rather than a list, the way an equipment screen has
-       always been: the helm on top, the weapon and shield flanking the body, the rest
-       in a row along the bottom, with the whole thing strung together by the lines
-       between the slots. You can read what is missing at a glance, which a list of
-       seven rows never let you do. */
-    y = 344; h = 424;
-    plate(pad, y, W - pad * 2, h);
-    sectionLabel("Worn equipment", pad + 26, y + 40, 300);
-    ctx.textAlign = "right";
-    cap(lo.equipped + " of " + lo.slots + " filled" + (lo.rusting ? "  \u00b7  " + lo.rusting + " rusting" : ""),
-        W - pad - 26, y + 40, 15, 0.55);
+    /* A stone-slot inventory window, the way these have looked since they were drawn
+       in sixteen colours: recessed grey squares on a brown board, strung on a spine of
+       dark strapping. An empty socket is a dark silhouette on stone; a filled one
+       lights its glyph in the item's rarity and stamps the level in the corner.
+
+       The spine is the point. Seven rows of text told you what you had; a socket
+       sitting dark tells you what you have not, and the helm is the one socket that
+       training alone can never fill. */
+    y = 344; h = 500;
+    var bw2 = 604, bx0 = Math.round(W / 2 - bw2 / 2);
+    var board = ctx.createLinearGradient(bx0, y, bx0, y + h);
+    board.addColorStop(0, "#584A3A"); board.addColorStop(1, "#413527");
+    platePath(bx0, y, bw2, h); ctx.fillStyle = board; ctx.fill();
+    platePath(bx0, y, bw2, h); ctx.strokeStyle = "#8A7558"; ctx.lineWidth = 2.4; ctx.stroke();
+    platePath(bx0 + 6, y + 6, bw2 - 12, h - 12);
+    ctx.strokeStyle = "rgba(0,0,0,0.32)"; ctx.lineWidth = 1.6; ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#E8D9BC"; ctx.font = "600 17px Oswald, sans-serif";
+    ctx.fillText("WORN EQUIPMENT", W / 2, y + 40);
     ctx.textAlign = "left";
 
-    var SZ = 84, GAPX = 170, ROWY = [y + 74, y + 204, y + 334];
-    var SHORT = { helmet: "Helm", weapon: "Weapon", chest: "Body", shield: "Shield",
-                  belt: "Belt", legs: "Legs", boots: "Boots" };
+    /* the two readings that do not fit inside a narrow pane sit beside it */
+    sectionLabel("Armoury", pad + 8, y + 54, 150);
+    body(lo.equipped + " of " + lo.slots + " sockets filled", pad + 8, y + 92, 17, 0.62);
+    if (lo.rusting) {
+      ctx.fillStyle = "#FF8F6B"; ctx.font = "500 17px Inter, sans-serif";
+      ctx.fillText(lo.rusting + " rusting", pad + 8, y + 122);
+    }
+    ctx.textAlign = "left";
+    sectionLabel("Score", W - pad - 158, y + 54, 0);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
+    ctx.fillText(fmtInt(lo.gearScore), W - pad - 8, y + 96);
+    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 17px Inter, sans-serif";
+    ctx.fillText("gear score", W - pad - 8, y + 122);
+    ctx.textAlign = "left";
+
+    /* the spine: helm, belt, body, legs, boots down the middle; weapon and shield out
+       to the sides of the body, exactly where an equipment screen puts them */
+    var SZ = 70, GAPX = 122;
+    var ROWY = [y + 80, y + 172, y + 264, y + 356, y + 448];
     var midX = W / 2;
     var DOLL = {
-      helmet: { x: midX,         yy: ROWY[0] },
-      weapon: { x: midX - GAPX,  yy: ROWY[1] },
-      chest:  { x: midX,         yy: ROWY[1] },
-      shield: { x: midX + GAPX,  yy: ROWY[1] },
-      belt:   { x: midX - GAPX,  yy: ROWY[2] },
-      legs:   { x: midX,         yy: ROWY[2] },
-      boots:  { x: midX + GAPX,  yy: ROWY[2] }
+      helmet: { x: midX,        yy: ROWY[0] },
+      belt:   { x: midX,        yy: ROWY[1] },
+      weapon: { x: midX - GAPX, yy: ROWY[2] },
+      chest:  { x: midX,        yy: ROWY[2] },
+      shield: { x: midX + GAPX, yy: ROWY[2] },
+      legs:   { x: midX,        yy: ROWY[3] },
+      boots:  { x: midX,        yy: ROWY[4] }
     };
 
-    /* the strapping between the slots, drawn first so it runs behind them */
-    ctx.strokeStyle = "rgba(201,162,39,0.3)"; ctx.lineWidth = 3;
+    ctx.strokeStyle = "#2B2219"; ctx.lineWidth = 7; ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(midX, ROWY[0] + SZ / 2); ctx.lineTo(midX, ROWY[2] - SZ / 2);
-    ctx.moveTo(midX - GAPX, ROWY[1]); ctx.lineTo(midX + GAPX, ROWY[1]);
+    ctx.moveTo(midX, ROWY[0]); ctx.lineTo(midX, ROWY[4]);
     ctx.moveTo(midX - GAPX, ROWY[2]); ctx.lineTo(midX + GAPX, ROWY[2]);
     ctx.stroke();
-    [[midX - GAPX, ROWY[1]], [midX + GAPX, ROWY[1]], [midX - GAPX, ROWY[2]], [midX + GAPX, ROWY[2]]].forEach(function (pt) {
-      ctx.fillStyle = "rgba(201,162,39,0.45)";
-      ctx.beginPath(); ctx.arc(pt[0], pt[1], 4.5, 0, Math.PI * 2); ctx.fill();
-    });
+    ctx.lineCap = "butt";
 
-    /* a recessed stone square per slot, lit by its rarity once something fills it */
-    lo.rows.forEach(function (r) {
-      var pos = DOLL[r.key]; if (!pos) return;
-      var sx = pos.x - SZ / 2, sy = pos.yy - SZ / 2;
-      var filled = r.ilvl > 0;
-
-      roundRect(ctx, sx, sy, SZ, SZ, 12);
-      ctx.fillStyle = filled ? r.rarity.color + "1A" : "rgba(255,255,255,0.03)"; ctx.fill();
-      if (filled) {
-        ctx.save(); ctx.shadowColor = r.rarity.color + "99"; ctx.shadowBlur = 16;
-        roundRect(ctx, sx, sy, SZ, SZ, 12);
-        ctx.strokeStyle = r.rusted ? "#FF8F6B" : r.rarity.color; ctx.lineWidth = 2.4; ctx.stroke();
-        ctx.restore();
-      } else {
-        roundRect(ctx, sx, sy, SZ, SZ, 12);
-        ctx.setLineDash([5, 5]); ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1.8;
-        ctx.stroke(); ctx.setLineDash([]);
-      }
-
-      /* the slot's own glyph, drawn from the same paths the app uses on screen */
-      ctx.save();
-      ctx.translate(sx + SZ / 2 - 21, sy + 15);
-      ctx.scale(42 / 24, 42 / 24);
-      ctx.strokeStyle = filled ? r.rarity.color : "rgba(255,255,255,0.28)";
-      ctx.lineWidth = 1.7; ctx.lineJoin = "round"; ctx.lineCap = "round";
-      (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
+    /* one recessed stone socket */
+    function socket(cx, cy, filled, color, ilvl, icon, rusted) {
+      var sx = cx - SZ / 2, sy = cy - SZ / 2;
+      roundRect(ctx, sx - 3, sy - 3, SZ + 6, SZ + 6, 8);
+      ctx.fillStyle = "#2B2219"; ctx.fill();
+      var face = ctx.createLinearGradient(sx, sy, sx, sy + SZ);
+      face.addColorStop(0, "#8C8C86"); face.addColorStop(1, "#5A5A55");
+      roundRect(ctx, sx, sy, SZ, SZ, 5); ctx.fillStyle = face; ctx.fill();
+      ctx.save(); roundRect(ctx, sx, sy, SZ, SZ, 5); ctx.clip();
+      ctx.strokeStyle = "rgba(255,255,255,0.26)"; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(sx, sy + SZ); ctx.lineTo(sx, sy); ctx.lineTo(sx + SZ, sy); ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,0.34)";
+      ctx.beginPath(); ctx.moveTo(sx + SZ, sy); ctx.lineTo(sx + SZ, sy + SZ); ctx.lineTo(sx, sy + SZ); ctx.stroke();
       ctx.restore();
 
-      ctx.textAlign = "center";
-      ctx.fillStyle = filled ? "#fff" : "rgba(255,255,255,0.3)";
-      ctx.font = "600 20px Oswald, sans-serif";
-      ctx.fillText(filled ? String(r.ilvl) : "—", pos.x, sy + SZ - 14);
-      ctx.fillStyle = filled ? r.rarity.color : "rgba(255,255,255,0.28)";
-      ctx.font = "600 13px Oswald, sans-serif";
-      ctx.fillText(String(SHORT[r.key] || "").toUpperCase(), pos.x, sy + SZ + 22);
-      ctx.textAlign = "left";
+      ctx.save();
+      ctx.translate(cx - 20, cy - 22);
+      ctx.scale(40 / 24, 40 / 24);
+      ctx.strokeStyle = filled ? color : "#3C3C34";
+      ctx.lineWidth = filled ? 1.9 : 2.1;
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      (SLOT_PATHS[icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
+      ctx.restore();
+
+      if (filled) {
+        var lab = String(ilvl);
+        ctx.font = "600 15px Oswald, sans-serif";
+        var lw = ctx.measureText(lab).width + 14;
+        roundRect(ctx, sx + SZ - lw - 3, sy + SZ - 22, lw, 19, 5);
+        ctx.fillStyle = "rgba(20,16,11,0.82)"; ctx.fill();
+        ctx.fillStyle = rusted ? "#FF8F6B" : color;
+        ctx.textAlign = "center";
+        ctx.fillText(lab, sx + SZ - lw / 2 - 3, sy + SZ - 8);
+        ctx.textAlign = "left";
+      }
+    }
+
+    lo.rows.forEach(function (r) {
+      var pos = DOLL[r.key]; if (!pos) return;
+      socket(pos.x, pos.yy, r.ilvl > 0, r.rarity.color, r.ilvl, r.icon, r.rusted);
     });
+
+    /* the two flanking sockets have room beside them for their names */
+    ctx.font = "600 14px Oswald, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillStyle = lo.rows.filter(function(r){return r.key==="weapon";})[0].ilvl ? "#E8D9BC" : "rgba(232,217,188,0.45)";
+    ctx.fillText("WEAPON", midX - GAPX - SZ / 2 - 16, ROWY[2] + 5);
+    ctx.textAlign = "left";
+    ctx.fillStyle = lo.rows.filter(function(r){return r.key==="shield";})[0].ilvl ? "#E8D9BC" : "rgba(232,217,188,0.45)";
+    ctx.fillText("SHIELD", midX + GAPX + SZ / 2 + 16, ROWY[2] + 5);
 
     /* ---- 4. the day's fight ---- */
     var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    y = 788; h = 230;
+    y = 864; h = 230;
     plate(pad, y, W - pad * 2, h, bt.won ? "rgba(125,240,184,0.07)" : "rgba(255,255,255,0.045)",
           bt.won ? "rgba(125,240,184,0.45)" : GOLD_DIM);
 
@@ -4466,7 +4500,7 @@
     });
 
     /* ---- 5. nutrition ---- */
-    y = 1032; h = 368;
+    y = 1108; h = 320;
     plate(pad, y, W - pad * 2, h);
     sectionLabel("Nutrition", pad + 26, y + 40, 260);
     var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
@@ -4489,16 +4523,16 @@
       ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 19);
     }
 
-    var cx3 = pad + 26 + 112, cy3 = y + 248;
+    var cx3 = pad + 26 + 100, cy3 = y + 212;
     var rings = [
-      { r: 100, w: 23, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
-      { r: 72,  w: 23, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
-      { r: 44,  w: 23, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
+      { r: 86, w: 20, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
+      { r: 62, w: 20, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
+      { r: 38, w: 20, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
     ];
     rings.forEach(function (rg) { ringArc(ctx, cx3, cy3, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)"); });
-    var lx = cx3 + 150;
+    var lx = cx3 + 130;
     rings.forEach(function (rg, i) {
-      var ly = cy3 - 60 + i * 62;
+      var ly = cy3 - 54 + i * 56;
       ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 7, ly - 7, 7, 0, Math.PI * 2); ctx.fill();
       cap(rg.name, lx + 22, ly - 1, 14, 0.62);
       ctx.fillStyle = "#fff"; ctx.font = "600 28px Oswald, sans-serif";
@@ -4508,7 +4542,7 @@
     });
 
     /* ---- 6. what is costing you, or what the coach said ---- */
-    y = 1416;
+    y = 1444;
     /* blessings and curses side by side, because they are one ledger */
     var states = activeBuffs(pr).map(function (b) {
       return { n: b.name, w: b.why(pr.gaps, pr), v: "+" + Math.round(b.gain * 100) + "%", c: "#7DF0B8" };
