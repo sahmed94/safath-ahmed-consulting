@@ -3403,6 +3403,16 @@
 
   /* ---- the character sheet ---- */
   var lastLoadout = null;
+  /* the same glyphs in two forms: strings for the DOM, arrays for the canvas */
+  var SLOT_PATHS = {
+    helm:   ["M5 11a7 7 0 0 1 14 0v6l-3 2h-8l-3-2z", "M12 7v10"],
+    chest:  ["M7 5l5 2 5-2 2 5-2 2v7H7v-7l-2-2z"],
+    weapon: ["M14 3l7 7-9 9-3-3 9-9", "M5 19l3-3", "M3 21l2-2"],
+    shield: ["M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"],
+    belt:   ["M3 9h18v6H3z", "M9 9v6M15 9v6", "M11 11h2v2h-2z"],
+    legs:   ["M8 3h8l-1 8-1 10h-3l-1-7-1 7H6l1-10z"],
+    boots:  ["M7 3h4v10l6 3v5H7z", "M7 16h10"]
+  };
   var SLOT_ART = {
     helm:   '<path d="M5 11a7 7 0 0 1 14 0v6l-3 2h-8l-3-2z"/><path d="M12 7v10"/>',
     chest:  '<path d="M7 5l5 2 5-2 2 5-2 2v7H7v-7l-2-2z"/>',
@@ -4315,29 +4325,87 @@
     px += pill(px, y + 160, fmtInt(lo.gearScore) + " GEAR", "#B06BFF") + 10;
     pill(px, y + 160, "▲ " + pr.run + "d  " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
 
-    /* ---- 3. equipment: six slots, two by three ---- */
-    y = 344; h = 404;
+    /* ---- 3. equipment: the worn-items panel ---- */
+    /* Laid out as a paperdoll rather than a list, the way an equipment screen has
+       always been: the helm on top, the weapon and shield flanking the body, the rest
+       in a row along the bottom, with the whole thing strung together by the lines
+       between the slots. You can read what is missing at a glance, which a list of
+       seven rows never let you do. */
+    y = 344; h = 424;
     plate(pad, y, W - pad * 2, h);
-    sectionLabel("Equipment", pad + 26, y + 40, W - pad * 2 - 52);
-    var tileW = (W - pad * 2 - 52 - 18) / 2, tileH = 76;
-    lo.rows.forEach(function (r, i2) {
-      var col = i2 % 2, row = Math.floor(i2 / 2);
-      var tx2 = pad + 26 + col * (tileW + 18), ty = y + 58 + row * (tileH + 8);
-      plate(tx2, ty, tileW, tileH, r.ilvl ? r.rarity.color + "12" : "rgba(255,255,255,0.025)",
-            r.ilvl ? r.rarity.color + "66" : "rgba(255,255,255,0.1)");
-      slotIcon(tx2 + 12, ty + 13, 50, r.ilvl, r.rarity.color, r.rusted);
-      ctx.fillStyle = "#fff"; ctx.font = "600 18px Oswald, sans-serif";
-      var nm = r.name; while (ctx.measureText(nm).width > tileW - 84 && nm.length > 6) nm = nm.slice(0, -2);
-      ctx.fillText(nm, tx2 + 74, ty + 32);
-      ctx.fillStyle = r.rarity.color; ctx.font = "500 13px Inter, sans-serif";
-      var dt = r.rarity.name + "  ·  " + r.fed;
-      while (ctx.measureText(dt).width > tileW - 84 && dt.length > 6) dt = dt.slice(0, -2);
-      ctx.fillText(dt, tx2 + 74, ty + 54);
+    sectionLabel("Worn equipment", pad + 26, y + 40, 300);
+    ctx.textAlign = "right";
+    cap(lo.equipped + " of " + lo.slots + " filled" + (lo.rusting ? "  \u00b7  " + lo.rusting + " rusting" : ""),
+        W - pad - 26, y + 40, 15, 0.55);
+    ctx.textAlign = "left";
+
+    var SZ = 84, GAPX = 170, ROWY = [y + 74, y + 204, y + 334];
+    var SHORT = { helmet: "Helm", weapon: "Weapon", chest: "Body", shield: "Shield",
+                  belt: "Belt", legs: "Legs", boots: "Boots" };
+    var midX = W / 2;
+    var DOLL = {
+      helmet: { x: midX,         yy: ROWY[0] },
+      weapon: { x: midX - GAPX,  yy: ROWY[1] },
+      chest:  { x: midX,         yy: ROWY[1] },
+      shield: { x: midX + GAPX,  yy: ROWY[1] },
+      belt:   { x: midX - GAPX,  yy: ROWY[2] },
+      legs:   { x: midX,         yy: ROWY[2] },
+      boots:  { x: midX + GAPX,  yy: ROWY[2] }
+    };
+
+    /* the strapping between the slots, drawn first so it runs behind them */
+    ctx.strokeStyle = "rgba(201,162,39,0.3)"; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(midX, ROWY[0] + SZ / 2); ctx.lineTo(midX, ROWY[2] - SZ / 2);
+    ctx.moveTo(midX - GAPX, ROWY[1]); ctx.lineTo(midX + GAPX, ROWY[1]);
+    ctx.moveTo(midX - GAPX, ROWY[2]); ctx.lineTo(midX + GAPX, ROWY[2]);
+    ctx.stroke();
+    [[midX - GAPX, ROWY[1]], [midX + GAPX, ROWY[1]], [midX - GAPX, ROWY[2]], [midX + GAPX, ROWY[2]]].forEach(function (pt) {
+      ctx.fillStyle = "rgba(201,162,39,0.45)";
+      ctx.beginPath(); ctx.arc(pt[0], pt[1], 4.5, 0, Math.PI * 2); ctx.fill();
+    });
+
+    /* a recessed stone square per slot, lit by its rarity once something fills it */
+    lo.rows.forEach(function (r) {
+      var pos = DOLL[r.key]; if (!pos) return;
+      var sx = pos.x - SZ / 2, sy = pos.yy - SZ / 2;
+      var filled = r.ilvl > 0;
+
+      roundRect(ctx, sx, sy, SZ, SZ, 12);
+      ctx.fillStyle = filled ? r.rarity.color + "1A" : "rgba(255,255,255,0.03)"; ctx.fill();
+      if (filled) {
+        ctx.save(); ctx.shadowColor = r.rarity.color + "99"; ctx.shadowBlur = 16;
+        roundRect(ctx, sx, sy, SZ, SZ, 12);
+        ctx.strokeStyle = r.rusted ? "#FF8F6B" : r.rarity.color; ctx.lineWidth = 2.4; ctx.stroke();
+        ctx.restore();
+      } else {
+        roundRect(ctx, sx, sy, SZ, SZ, 12);
+        ctx.setLineDash([5, 5]); ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1.8;
+        ctx.stroke(); ctx.setLineDash([]);
+      }
+
+      /* the slot's own glyph, drawn from the same paths the app uses on screen */
+      ctx.save();
+      ctx.translate(sx + SZ / 2 - 21, sy + 15);
+      ctx.scale(42 / 24, 42 / 24);
+      ctx.strokeStyle = filled ? r.rarity.color : "rgba(255,255,255,0.28)";
+      ctx.lineWidth = 1.7; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
+      ctx.restore();
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = filled ? "#fff" : "rgba(255,255,255,0.3)";
+      ctx.font = "600 20px Oswald, sans-serif";
+      ctx.fillText(filled ? String(r.ilvl) : "—", pos.x, sy + SZ - 14);
+      ctx.fillStyle = filled ? r.rarity.color : "rgba(255,255,255,0.28)";
+      ctx.font = "600 13px Oswald, sans-serif";
+      ctx.fillText(String(SHORT[r.key] || "").toUpperCase(), pos.x, sy + SZ + 22);
+      ctx.textAlign = "left";
     });
 
     /* ---- 4. the day's fight ---- */
     var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    y = 768; h = 230;
+    y = 788; h = 230;
     plate(pad, y, W - pad * 2, h, bt.won ? "rgba(125,240,184,0.07)" : "rgba(255,255,255,0.045)",
           bt.won ? "rgba(125,240,184,0.45)" : GOLD_DIM);
 
@@ -4398,7 +4466,7 @@
     });
 
     /* ---- 5. nutrition ---- */
-    y = 1012; h = 368;
+    y = 1032; h = 368;
     plate(pad, y, W - pad * 2, h);
     sectionLabel("Nutrition", pad + 26, y + 40, 260);
     var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
@@ -4440,7 +4508,7 @@
     });
 
     /* ---- 6. what is costing you, or what the coach said ---- */
-    y = 1396;
+    y = 1416;
     /* blessings and curses side by side, because they are one ledger */
     var states = activeBuffs(pr).map(function (b) {
       return { n: b.name, w: b.why(pr.gaps, pr), v: "+" + Math.round(b.gain * 100) + "%", c: "#7DF0B8" };
