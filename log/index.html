@@ -552,6 +552,9 @@
     border-radius: 10px; padding: 10px 12px; color: #fff; font-family: var(--font-body); font-size: 13.5px; }
   .gd-ded input::placeholder { color: rgba(255,255,255,0.38); }
   .gd-ded input:focus { outline: none; border-color: #FFD166; }
+  .give-why { font-size: 11.5px; line-height: 1.5; color: var(--ink-dim); background: var(--surface-2);
+    border-radius: 10px; padding: 9px 11px; margin-bottom: 12px; }
+  .give-why b { color: var(--ink); font-family: var(--font-head); font-size: 14px; }
   .give-sec { font-family: var(--font-head); font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase;
     color: var(--ink-faint); margin: 4px 0 9px; }
   .gv-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--ink-dim);
@@ -1005,6 +1008,7 @@
   <!-- Record a gift -->
   <div class="modal-inner" id="giveModal" style="display:none;">
     <h3>Record a gift</h3>
+    <div class="give-why" id="giveWhy"></div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field" style="flex:0 0 76px;"><label>Currency</label><input type="text" id="giveCurrency" maxlength="3"></div>
       <div class="field"><label>Amount given</label><input type="number" step="0.01" id="giveAmount"></div>
@@ -2330,9 +2334,13 @@
       return { date: h.date, sets: sets, reps: reps };
     });
     var bestReps = done.reduce(function (a, d) { return Math.max(a, d.reps); }, 0);
+    /* Sessions repeat, so a tie for the best is common. Marking every one of them
+       BEST marks nothing; the badge goes on the most recent day that reached it. */
+    var bestAt = -1;
+    for (var bi = 0; bi < done.length; bi++) { if (done[bi].reps === bestReps) { bestAt = bi; break; } }
     listEl.innerHTML = "";
-    done.forEach(function (d) {
-      var isPR = d.reps > 0 && d.reps === bestReps;
+    done.forEach(function (d, di) {
+      var isPR = d.reps > 0 && di === bestAt;
       var row = document.createElement("div");
       row.className = "exh-row" + (isPR ? " pr" : "");
       row.innerHTML = '<span>' + d.date + '</span><span>' + d.sets + " set" + (d.sets === 1 ? "" : "s") +
@@ -3194,6 +3202,19 @@
   function openGiveSheet(pr) {
     var acc = accrued(pr), out = Math.max(0, acc - givenTotal());
     document.getElementById("giveAmount").value = out > 0 ? (Math.round(out * 100) / 100) : "";
+    /* The amount is pre-filled, so the sheet has to say where it came from -- a number
+       in a box with no reason behind it reads as "go and spend money". */
+    var why = document.getElementById("giveWhy"), r = GOOD.rates, st = pr.stats || {};
+    if (why) {
+      var bits = [];
+      if (r.session > 0 && st.sessions) bits.push(st.sessions + " sessions finished");
+      if (r.onPlan > 0 && st.onPlanDays) bits.push(st.onPlanDays + " days inside the window");
+      if (r.streakWeek > 0 && st.streakWeeks) bits.push(st.streakWeeks + " weeks the streak survived");
+      why.innerHTML = out > 0
+        ? "<b>" + money(out) + "</b> earned and not yet given" + (bits.length ? " \u2014 " + bits.join(", ") : "") + "."
+        : (acc > 0 ? "Everything your work has earned has been given. " + money(acc) + " so far."
+                   : "Nothing earned yet. Finish a session or eat inside the window and it starts.");
+    }
     document.getElementById("giveNote").value = "";
     document.getElementById("giveCause").value = GOOD.cause;
     document.getElementById("giveCurrency").value = GOOD.currency;
@@ -3524,7 +3545,6 @@
     el.innerHTML = '<div class="gt-tag">' + (firstTime ? "A start" : rankedUp ? "A record, and your waist went up" : "A record") + '</div>' +
       '<div class="gt-name">' + headline + '</div>' +
       '<div class="gt-row"><span class="gt-level">' + valueText + '</span>' +
-      '<span class="gt-rar">' + rarity.name + '</span>' +
       '<span class="gt-val">' + (firstTime ? "first sets logged" : "the most you have ever done in a day") + '</span></div>';
     wrap.innerHTML = ""; wrap.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("show"); });
@@ -4691,7 +4711,7 @@
         var key = dateKey(selectedDate);
         var scoreData = lastScoreData || await computeDailyScore();
         lastScoreData = scoreData;
-        renderScoreBreakdown(scoreData);
+        await renderScoreBreakdown();
         document.getElementById("scoreNumber").textContent = scoreData.overall;
         document.getElementById("shareModalTitle").textContent = selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + " score";
         document.getElementById("shareModal").classList.add("open");
@@ -4790,17 +4810,24 @@
   }
 
   function scoreBarColor(pct) { if (pct >= 80) return "var(--teal)"; if (pct >= 50) return "var(--amber)"; return "var(--coral)"; }
-  function renderScoreBreakdown(sd) {
-    var wrap = document.getElementById("scoreBreakdown"); wrap.innerHTML = "";
-    var rows = [];
-    if (sd.weights.pct != null) rows.push({ label: "Weight training", pct: sd.weights.pct, detail: sd.weights.detail });
-    rows.push({ label: "Cardio", pct: sd.cardio.pct, detail: sd.cardio.detail });
-    rows.push({ label: "Meals", pct: sd.meals.pct, detail: sd.meals.detail });
-    rows.forEach(function (r) {
-      var row = document.createElement("div"); row.className = "score-bar-row";
-      row.innerHTML = '<div class="sbr-top"><span class="sbr-label">' + r.label + '</span><span class="sbr-pct">' + r.pct + '%</span></div><div class="score-bar-track"><div class="score-bar-fill" style="width:' + r.pct + '%; background:' + scoreBarColor(r.pct) + ';"></div></div><div style="font-size:11px; color:var(--ink-faint); margin-top:4px;">' + r.detail + '</div>';
-      wrap.appendChild(row);
-    });
+  /* This used to show three percentages of its own -- weights 30%, cardio 100%,
+     meals 100% -- which agreed with nothing else on screen, because the day is scored
+     out of a hundred across four readings, not three out of a hundred each. It shows
+     the four, and they add to the number above them. */
+  async function renderScoreBreakdown() {
+    var wrap = document.getElementById("scoreBreakdown"); if (!wrap) return;
+    var key = dateKey(selectedDate);
+    var bl = dayBlows(PROGRAM[selectedDate.getDay()], await getDayDoc(key),
+                      foodCache.filter(function (f) { return f.date === key; }));
+    wrap.innerHTML = bl.blows.map(function (b) {
+      var pct = b.max ? Math.round(b.v / b.max * 100) : 0;
+      return '<div class="score-bar-row">' +
+        '<div class="sbr-top"><span class="sbr-label">' + b.k + '</span>' +
+        '<span class="sbr-pct">+' + b.v + ' of ' + b.max + '</span></div>' +
+        '<div class="score-bar-track"><div class="score-bar-fill" style="width:' + pct +
+        '%; background:' + scoreBarColor(pct) + ';"></div></div>' +
+        '<div style="font-size:11px; color:var(--ink-faint); margin-top:4px;">' + b.note + '</div></div>';
+    }).join("");
   }
   /* The score used to exist only behind a button and only for whichever day you were
      on when you pressed it, so walking back through the week meant pressing it again on
