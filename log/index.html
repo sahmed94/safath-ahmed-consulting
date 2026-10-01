@@ -386,6 +386,16 @@
   .rk-flame { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: #FFD166; }
   .rk-mult { font-family: var(--font-head); font-size: 12px; letter-spacing: .05em; padding: 3px 9px; border-radius: 20px;
     background: rgba(255,209,102,0.2); color: #FFD166; box-shadow: inset 0 0 0 1px rgba(255,209,102,0.45); }
+  .rk-debuffs { margin-top: 11px; display: flex; flex-direction: column; gap: 6px; position: relative; z-index: 1; }
+  .db-row { display: flex; align-items: center; gap: 9px; border-radius: 10px; padding: 8px 11px;
+    background: rgba(255,107,74,0.15); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.4); }
+  .db-name { font-family: var(--font-head); font-size: 12px; letter-spacing: .05em; color: #FFB4A0; flex: 0 0 auto; }
+  .db-why { flex: 1; font-size: 11.5px; color: rgba(255,255,255,0.72); min-width: 0; }
+  .db-cost { font-family: var(--font-head); font-size: 12px; color: #FF8F6B; flex: 0 0 auto; }
+  .db-fix { display: block; font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .rk-mult.hit { background: rgba(255,107,74,0.2); color: #FFB4A0; box-shadow: inset 0 0 0 1px rgba(255,107,74,0.45); }
+  .rk-mult s { color: rgba(255,255,255,0.4); margin-right: 5px; }
+
   .rk-window, .rk-risk { margin-top: 11px; border-radius: 11px; padding: 10px 12px; font-size: 12.5px;
     line-height: 1.45; position: relative; z-index: 1; }
   .rk-window { background: rgba(111,208,255,0.15); box-shadow: inset 0 0 0 1px rgba(111,208,255,0.32); color: #DFF3FF; }
@@ -440,6 +450,12 @@
   .gear-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .gear-body b { font-size: 13.5px; }
   .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .gear-row.rusted .gear-ilvl { position: relative; }
+  .gear-row.rusted .gear-ilvl i { position: absolute; right: -4px; top: -7px; font-style: normal; font-size: 9.5px;
+    color: rgba(255,255,255,0.45); text-decoration: line-through; }
+  .rust-tag { font-family: var(--font-head); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+    color: #FF8F6B; background: rgba(255,107,74,0.18); padding: 2px 6px; border-radius: 20px; margin-left: 5px;
+    vertical-align: middle; }
   .char-foot { margin-top: 14px; background: rgba(255,255,255,0.08); border-radius: 11px; padding: 11px 12px;
     font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.72); }
 
@@ -578,6 +594,7 @@
         </div>
       </div>
       <div class="rk-streak" id="rkStreak"></div>
+      <div class="rk-debuffs" id="rkDebuffs" hidden></div>
       <div class="rk-window" id="rkWindow" hidden></div>
       <div class="rk-risk" id="rkRisk" hidden></div>
       <button class="rk-drop" id="rkDropBtn" type="button" hidden></button>
@@ -2535,6 +2552,7 @@
     var total = 0, run = 0, prevKey = null, todayXP = 0, todayRaw = 0, perfectDays = 0;
     var totalSets = 0, totalCardioMin = 0, onPlanDays = 0, loggedDays = 0;
     var sessions = 0, streakWeeks = 0;
+    var lastLift = null, lastCardio = null, lastAny = null, over = 0, under = 0, recentFood = 0;
     var tKey = dateKey(new Date());
 
     for (var i = 0; i < keys.length; i++) {
@@ -2557,6 +2575,15 @@
       if (d.onPlan) onPlanDays++;
       if (d.sessionDone) sessions++;
       if (run > 0 && run % 7 === 0) streakWeeks++;
+      lastAny = k;
+      if (prog && prog.type !== "cardio" && d.sessionDone) lastLift = k;
+      if (doc.cardio && doc.cardio.min) lastCardio = k;
+      /* the last week of eating, for the two food debuffs */
+      if (daysBetween(k, tKey) <= 6 && rows.length) {
+        var cal = 0, any = false;
+        rows.forEach(function (f) { if (f.estimate && f.estimate.calories) { any = true; cal += f.estimate.calories; } });
+        if (any) { recentFood++; if (cal > planIntake()) over++; else if (cal < PLAN.floor) under++; }
+      }
       if (doc.cardio && doc.cardio.min) totalCardioMin += doc.cardio.min;
       if (doc.sets) Object.keys(doc.sets).forEach(function (en) {
         if (!Array.isArray(doc.sets[en])) return;
@@ -2584,11 +2611,55 @@
       floorXP: xpForLevel(L), nextXP: xpForLevel(L + 1),
       todayXP: todayXP, todayRaw: todayRaw, run: liveRun, mult: multFor(liveRun || 1),
       next: nextTier(liveRun), loggedToday: keys.indexOf(tKey) >= 0 && todayRaw > 0,
+      gaps: { sinceLog: lastAny ? daysBetween(lastAny, tKey) : 99,
+              sinceLift: lastLift ? daysBetween(lastLift, tKey) : 99,
+              sinceCardio: lastCardio ? daysBetween(lastCardio, tKey) : 99,
+              over: over, under: under, recentFood: recentFood, everLogged: !!lastAny },
       brokenRun: liveRun ? 0 : run, missedYesterday: missedYesterday,
       stats: { sets: totalSets, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
                perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
                sessions: sessions, streakWeeks: streakWeeks }
     };
+  }
+
+  /* ---- what it costs to stop ---- */
+  /* Real stakes, with one rule holding them: every penalty is clearable by a single
+     next action. Nothing here needs a week of grinding to undo, because a penalty you
+     cannot pay off quickly makes quitting the rational move -- which is the opposite
+     of what a penalty is for.
+
+     Levels and records are never touched. Those are the floor you keep. What suffers
+     is current form: the multiplier, the gear score, the power rating. */
+  var DEBUFFS = [
+    { id: "adrift",    name: "Adrift",    cost: 0.20,
+      test: function (g) { return g.everLogged && g.sinceLog >= 2; },
+      why:  function (g) { return g.sinceLog + " days without logging anything"; },
+      fix:  "Log anything at all" },
+    { id: "detrained", name: "Detrained", cost: 0.15,
+      test: function (g) { return g.sinceLift >= 8; },
+      why:  function (g) { return (g.sinceLift > 90 ? "no" : g.sinceLift + " days since a") + " finished session"; },
+      fix:  "Finish every set of one session" },
+    { id: "sedentary", name: "Sedentary", cost: 0.10,
+      test: function (g) { return g.sinceCardio >= 4; },
+      why:  function (g) { return (g.sinceCardio > 90 ? "no" : g.sinceCardio + " days since") + " cardio"; },
+      fix:  "Log any cardio" },
+    { id: "overfed",   name: "Overfed",   cost: 0.10,
+      test: function (g) { return g.over >= 3; },
+      why:  function (g) { return g.over + " of the last 7 days over target"; },
+      fix:  "One day inside the window" },
+    { id: "underfed",  name: "Underfed",  cost: 0.10,
+      test: function (g) { return g.under >= 3; },
+      why:  function (g) { return g.under + " of the last 7 days under the floor"; },
+      fix:  "Eat to the floor for one day" }
+  ];
+  function activeDebuffs(pr) {
+    if (!pr || !pr.gaps) return [];
+    return DEBUFFS.filter(function (d) { return d.test(pr.gaps); });
+  }
+  /* The multiplier the streak earned, less what the debuffs take, never below half. */
+  function effectiveMult(pr) {
+    var pen = activeDebuffs(pr).reduce(function (a, d) { return a + d.cost; }, 0);
+    return Math.max(0.5, Math.round(pr.mult * (1 - pen) * 100) / 100);
   }
 
   /* ---- the windows that pay more while they are open ---- */
@@ -2987,9 +3058,31 @@
 
   var STAT_TARGETS = { str: 300000, sta: 1200, con: 30, wis: 30 };
 
+  /* Detraining is not a punishment somebody invented, it is what happens. Strength
+     holds for a couple of weeks and then goes; this models that and nothing harsher.
+
+     Ten days of grace, then two per cent of everything gained above the starting
+     weight falls away per day, and it stops at the starting weight -- a slot can rust
+     back to where it began and no further. The RECORD is never touched. What decays is
+     the effective item level, and a single session on that lift restores all of it,
+     which is the point: the cost is real but it is always one session away from being
+     paid off. */
+  var DECAY_GRACE = 10, DECAY_PER_DAY = 0.02;
+  function daysBetween(a, b) {
+    return Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000);
+  }
+  function decayed(best, base, daysSince) {
+    if (best == null) return best;
+    if (daysSince == null || daysSince <= DECAY_GRACE) return best;
+    var gain = best - base;
+    if (gain <= 0) return best;
+    var keep = Math.max(0, 1 - (daysSince - DECAY_GRACE) * DECAY_PER_DAY);
+    return Math.round((base + gain * keep) * 10) / 10;
+  }
+
   async function loadout() {
     var slots = allSlots();
-    var bestBy = {}, bestRepsBy = {};
+    var bestBy = {}, bestRepsBy = {}, lastBy = {};
     var keys = (await getAllDayKeys()).slice().sort();
     var cut = new Date(); cut.setDate(cut.getDate() - 29);   // today plus the 29 before it
     var cutKey = dateKey(cut);
@@ -3008,6 +3101,7 @@
           touched = true;
           if (r.weight != null && (bestBy[en] == null || r.weight > bestBy[en])) bestBy[en] = r.weight;
           if (r.reps != null && (bestRepsBy[en] == null || r.reps > bestRepsBy[en])) bestRepsBy[en] = r.reps;
+          lastBy[en] = k;
           if (recent && r.weight != null && r.reps != null) volume += r.weight * r.reps;
         });
       });
@@ -3021,19 +3115,26 @@
       }
     }
 
-    var gearScore = 0, equipped = 0;
+    var gearScore = 0, equipped = 0, rusting = 0, recordScore = 0;
+    var tKey = dateKey(new Date());
     var rows = slots.map(function (sl) {
       var best = sl.bodyweight ? bestRepsBy[sl.name] : bestBy[sl.name];
       var base = sl.bodyweight ? 10 : sl.base;
-      var il = ilvlOf(best, sl);
-      if (il > 0) { gearScore += il; equipped++; }
-      return { name: sl.name, best: best, base: base, ilvl: il,
-               rarity: rarityFor(best, base), bodyweight: sl.bodyweight, label: sl.label };
+      var since = lastBy[sl.name] ? daysBetween(lastBy[sl.name], tKey) : null;
+      var eff = decayed(best, base, since);
+      var il = ilvlOf(eff, sl), recIl = ilvlOf(best, sl);
+      if (recIl > 0) { gearScore += il; recordScore += recIl; equipped++; }
+      if (recIl > 0 && il < recIl) rusting++;
+      return { name: sl.name, best: best, eff: eff, base: base, ilvl: il, recordIlvl: recIl,
+               since: since, rusted: recIl > 0 && il < recIl,
+               rarity: rarityFor(eff, base), recordRarity: rarityFor(best, base),
+               bodyweight: sl.bodyweight, label: sl.label };
     });
-    rows.sort(function (a, b) { return b.ilvl - a.ilvl; });
+    rows.sort(function (a, b) { return b.recordIlvl - a.recordIlvl; });
 
     return {
-      rows: rows, gearScore: gearScore, equipped: equipped, slots: slots.length,
+      rows: rows, gearScore: gearScore, recordScore: recordScore, rusting: rusting,
+      equipped: equipped, slots: slots.length,
       stats: {
         str: { v: Math.round(volume), t: STAT_TARGETS.str, label: "Strength", sub: "lb lifted, 30 days" },
         sta: { v: Math.round(cardioMin), t: STAT_TARGETS.sta, label: "Stamina", sub: "cardio minutes, 30 days" },
@@ -3059,8 +3160,10 @@
     var power = powerOf(pr, lo);
 
     document.getElementById("charPower").textContent = fmtInt(power);
-    document.getElementById("charSub").textContent =
-      pr.title + "  ·  Level " + pr.level + "  ·  Gear score " + fmtInt(lo.gearScore);
+    document.getElementById("charSub").innerHTML =
+      pr.title + "  ·  Level " + pr.level + "  ·  Gear score <b>" + fmtInt(lo.gearScore) + "</b>" +
+      (lo.rusting ? ' <span style="color:#FF8F6B">(' + fmtInt(lo.recordScore) + " at your best — " +
+        lo.rusting + " slot" + (lo.rusting === 1 ? "" : "s") + " rusting)</span>" : "");
 
     document.getElementById("charStats").innerHTML = ["str", "sta", "con", "wis"].map(function (k) {
       var st = lo.stats[k];
@@ -3075,18 +3178,24 @@
       var val = r.best == null ? "empty"
         : r.bodyweight ? r.best + " reps" : r.best + " " + (r.label || "lb");
       var gain = (r.best != null && r.base) ? Math.round((r.best - r.base) / r.base * 100) : null;
-      return '<div class="gear-row"' + (r.best == null ? ' style="opacity:.45"' : '') + '>' +
+      var meta = val + (gain != null && gain > 0 ? "  ·  +" + gain + "% over start" : "");
+      if (r.rusted) meta += "  ·  " + r.since + " days untrained";
+      return '<div class="gear-row' + (r.rusted ? " rusted" : "") + '"' + (r.best == null ? ' style="opacity:.45"' : '') + '>' +
         '<span class="gear-ilvl" style="color:' + r.rarity.color + ';box-shadow:inset 0 0 0 1.5px ' + r.rarity.color + '55">' +
-          (r.ilvl || "—") + '</span>' +
-        '<span class="gear-body"><b>' + r.name + '</b>' +
-          '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name + '</span>' +
-          '<span class="gear-meta">' + val + (gain != null && gain > 0 ? "  ·  +" + gain + "% over start" : "") + '</span>' +
+          (r.ilvl || "—") + (r.rusted ? '<i>' + r.recordIlvl + '</i>' : "") + '</span>' +
+        '<span class="gear-body"><b>' + r.name + (r.rusted ? ' <span class="rust-tag">Rusting</span>' : "") + '</b>' +
+          '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name +
+            (r.rusted && r.recordRarity.name !== r.rarity.name ? ' (was ' + r.recordRarity.name + ')' : "") + '</span>' +
+          '<span class="gear-meta">' + meta + '</span>' +
         '</span></div>';
     }).join("");
 
-    document.getElementById("charFoot").textContent =
+    document.getElementById("charFoot").innerHTML =
       lo.equipped + " of " + lo.slots + " slots filled. An item level is the heaviest set you have " +
-      "ever finished on that lift; rarity is how far past the starting weight you have taken it.";
+      "ever finished on that lift; rarity is how far past the starting weight you have taken it." +
+      (lo.rusting ? "<br><br><b>Rusting</b> slots have gone more than " + DECAY_GRACE + " days untrained and are " +
+        "losing their edge, as they would in the gym. The record is never erased — one session on that lift " +
+        "takes it straight back." : "");
 
     ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal"].forEach(function (id) {
       document.getElementById(id).style.display = "none";
@@ -3174,6 +3283,7 @@
 
     /* the streak line, and what the next tier is worth */
     var st = document.getElementById("rkStreak");
+    var eff = effectiveMult(pr);
     var hadMult = Number(st.dataset.m || 0);
     if (hadMult && pr.mult > hadMult) {
       sfx("streak");
@@ -3183,7 +3293,10 @@
     st.dataset.m = pr.mult;
     var nx = pr.next;
     st.innerHTML = '<span class="rk-flame">▲ ' + pr.run + ' day' + (pr.run === 1 ? "" : "s") + '</span>' +
-      '<span class="rk-mult">' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '× XP</span>' +
+      '<span class="rk-mult' + (eff < pr.mult ? " hit" : "") + '">' +
+        /* striking out a 1x says nothing; only show what was actually lost */
+        (eff < pr.mult && pr.mult > 1 ? '<s>' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '×</s>' : "") +
+        eff.toFixed(2).replace(/\.?0+$/, "") + '× XP</span>' +
       (nx ? '<span style="color:rgba(255,255,255,0.6)">' + (nx.at - pr.run) + ' more day' +
             ((nx.at - pr.run) === 1 ? "" : "s") + ' for ' + nx.m + '×</span>' : "") +
       (GAME.shields ? '<span class="rk-mult" style="background:rgba(125,240,184,0.18);color:#7DF0B8;box-shadow:inset 0 0 0 1px rgba(125,240,184,0.4)">⛨ ' + GAME.shields + ' shield' + (GAME.shields === 1 ? "" : "s") + '</span>' : "");
@@ -3214,6 +3327,19 @@
       if (got && !GAME.badges[b.id]) { GAME.badges[b.id] = Date.now(); saveGame(); }
       return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "✓ " : "") + b.name + '</span>';
     }).join("");
+
+    /* what is currently costing you, and the one thing that clears each */
+    var dbWrap = document.getElementById("rkDebuffs");
+    var active = activeDebuffs(pr);
+    if (!active.length) { dbWrap.hidden = true; dbWrap.innerHTML = ""; }
+    else {
+      dbWrap.hidden = false;
+      dbWrap.innerHTML = active.map(function (d) {
+        return '<div class="db-row"><span class="db-name">' + d.name + '</span>' +
+          '<span class="db-why">' + d.why(pr.gaps) + '<span class="db-fix">' + d.fix + '</span></span>' +
+          '<span class="db-cost">\u2212' + Math.round(d.cost * 100) + '%</span></div>';
+      }).join("");
+    }
 
     renderLedger(pr);
 
