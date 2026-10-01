@@ -3901,13 +3901,25 @@
     var overall = scoreData ? scoreData.overall : 0;
     var rank = rankFor(overall);
 
-    var SCALE = 2, W = 1080, H = 1920, pad = 64;
+    /* Everything the app knows, rolled into one window. The layout is an ARPG
+       character panel: a plate of compartments with cut corners and a thin gold rule,
+       the loadout down one side, attributes down the other, and the day's own numbers
+       underneath. */
+    var pr = lastProg || await progression();
+    var lo = lastLoadout || await loadout();
+    var power = powerOf(pr, lo);
+    var debuffs = activeDebuffs(pr);
+    var effMult = effectiveMult(pr);
+
+    var SCALE = 2, W = 1080, H = 1920, pad = 52;
     var canvas = document.getElementById("summaryCanvas");
     canvas.width = W * SCALE; canvas.height = H * SCALE;
     var ctx = canvas.getContext("2d");
     ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.textBaseline = "alphabetic";
+
+    var GOLD = "#C9A227", GOLD_DIM = "rgba(201,162,39,0.38)", INK = "#07080E";
 
     function hexPath(cx, cy, r) {
       ctx.beginPath();
@@ -3918,258 +3930,336 @@
       }
       ctx.closePath();
     }
-
-    /* ---- background: dark plate, a glow in the day's rank colour, a hex lattice ---- */
-    ctx.fillStyle = "#0B0D18"; ctx.fillRect(0, 0, W, H);
-    var g1 = ctx.createRadialGradient(W * 0.86, 140, 40, W * 0.86, 140, 900);
-    g1.addColorStop(0, rank.color + "AA"); g1.addColorStop(1, "rgba(11,13,24,0)");
-    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
-    var g2 = ctx.createRadialGradient(-80, H * 0.72, 60, -80, H * 0.72, 1050);
-    g2.addColorStop(0, "rgba(46,107,255,0.55)"); g2.addColorStop(1, "rgba(11,13,24,0)");
-    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
-    var g3 = ctx.createRadialGradient(W * 0.6, H, 80, W * 0.6, H, 760);
-    g3.addColorStop(0, "rgba(224,65,124,0.45)"); g3.addColorStop(1, "rgba(11,13,24,0)");
-    ctx.fillStyle = g3; ctx.fillRect(0, 0, W, H);
-
-    ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,0.045)"; ctx.lineWidth = 1.6;
-    var hr = 62, hdx = hr * 1.5, hdy = hr * Math.sqrt(3);
-    for (var hc = -1; hc * hdx < W + hr; hc++) {
-      for (var hrw = -1; hrw * hdy < H + hr; hrw++) {
-        hexPath(hc * hdx, hrw * hdy + (Math.abs(hc % 2) ? hdy / 2 : 0), hr * 0.92);
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
-
-    /* A game panel: square top-right and bottom-left, cut corners on the other two. */
-    function panelPath(x, y, w, h, n) {
-      n = n || 26;
+    /* A compartment: cut corners, a hairline of gold, and ticks at the cuts. */
+    function platePath(x, y, w, h, n) {
+      n = n || 16;
       ctx.beginPath();
-      ctx.moveTo(x + n, y); ctx.lineTo(x + w, y);
+      ctx.moveTo(x + n, y); ctx.lineTo(x + w - n, y); ctx.lineTo(x + w, y + n);
       ctx.lineTo(x + w, y + h - n); ctx.lineTo(x + w - n, y + h);
-      ctx.lineTo(x, y + h); ctx.lineTo(x, y + n);
+      ctx.lineTo(x + n, y + h); ctx.lineTo(x, y + h - n); ctx.lineTo(x, y + n);
       ctx.closePath();
     }
-    function card(x, y, w, h, accent) {
-      panelPath(x, y, w, h);
-      ctx.fillStyle = "rgba(255,255,255,0.055)"; ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 2; ctx.stroke();
-      ctx.save(); panelPath(x, y, w, h); ctx.clip();
-      ctx.fillStyle = accent || rank.color; ctx.fillRect(x, y, 5, h);
-      ctx.restore();
+    function plate(x, y, w, h, fill, stroke) {
+      platePath(x, y, w, h);
+      ctx.fillStyle = fill || "rgba(255,255,255,0.045)"; ctx.fill();
+      ctx.strokeStyle = stroke || GOLD_DIM; ctx.lineWidth = 1.6; ctx.stroke();
+    }
+    function sectionLabel(t, x, y, w) {
+      ctx.fillStyle = GOLD; ctx.font = "600 17px Oswald, sans-serif";
+      ctx.fillText(String(t).toUpperCase(), x, y);
+      var tw = ctx.measureText(String(t).toUpperCase()).width;
+      if (w && w > tw + 24) {
+        ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x + tw + 14, y - 6); ctx.lineTo(x + w, y - 6); ctx.stroke();
+      }
     }
     function cap(t, x, y, size, alpha) {
-      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.62) + ")";
-      ctx.font = "600 " + (size || 16) + "px Oswald, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.56) + ")";
+      ctx.font = "600 " + (size || 15) + "px Oswald, sans-serif";
       ctx.fillText(String(t).toUpperCase(), x, y);
     }
-    function big(t, x, y, size) {
-      ctx.fillStyle = "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, y);
+    function big(t, x, y, size, color) {
+      ctx.fillStyle = color || "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, y);
     }
-    function streakChip(x, y, days) {
-      var label = days + "d";
-      ctx.font = "600 20px Oswald, sans-serif";
-      var w = ctx.measureText(label).width + 44;
-      ctx.fillStyle = days > 0 ? "rgba(255,209,102,0.2)" : "rgba(255,255,255,0.1)";
-      roundRect(ctx, x, y - 22, w, 33, 16); ctx.fill();
-      ctx.strokeStyle = days > 0 ? "rgba(255,209,102,0.5)" : "rgba(255,255,255,0.14)";
-      ctx.lineWidth = 1.5; roundRect(ctx, x, y - 22, w, 33, 16); ctx.stroke();
-      ctx.fillStyle = days > 0 ? "#FFD166" : "rgba(255,255,255,0.55)";
-      ctx.font = "600 15px Inter, sans-serif"; ctx.fillText("▲", x + 13, y);
-      ctx.font = "600 21px Oswald, sans-serif"; ctx.fillText(label, x + 32, y);
+    function body(t, x, y, size, alpha) {
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.72) + ")";
+      ctx.font = "500 " + (size || 18) + "px Inter, sans-serif"; ctx.fillText(t, x, y);
+    }
+    function pill(x, y, text, color, bg) {
+      ctx.font = "600 18px Oswald, sans-serif";
+      var w = ctx.measureText(text).width + 26;
+      ctx.fillStyle = bg || "rgba(255,255,255,0.08)";
+      roundRect(ctx, x, y - 19, w, 30, 15); ctx.fill();
+      ctx.strokeStyle = color + "66"; ctx.lineWidth = 1.3;
+      roundRect(ctx, x, y - 19, w, 30, 15); ctx.stroke();
+      ctx.fillStyle = color; ctx.fillText(text, x + 13, y + 1);
       return w;
     }
-
-    /* ---- 1. header: who, when, and the rank earned ---- */
-    cap("ACCOUNTABILITYAAS", pad, 86, 19, 0.55);
-    ctx.fillStyle = "#fff"; ctx.font = "600 68px Oswald, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase(), pad, 162);
-    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 29px Inter, sans-serif";
-    ctx.fillText(selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), pad, 208);
-
-    var bx = W - pad - 92, by = 150;
-    ctx.save();
-    ctx.shadowColor = rank.color; ctx.shadowBlur = 44;
-    hexPath(bx, by, 88); ctx.fillStyle = rank.color; ctx.fill();
-    ctx.restore();
-    hexPath(bx, by, 88); ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.lineWidth = 3; ctx.stroke();
-    hexPath(bx, by, 72); ctx.strokeStyle = "rgba(255,255,255,0.3)"; ctx.lineWidth = 2; ctx.stroke();
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#0B0D18"; ctx.font = "600 84px Oswald, sans-serif";
-    ctx.fillText(rank.letter, bx, by + 30);
-    ctx.textAlign = "left";
-
-    /* ---- 2. the day's score as an XP bar ---- */
-    var xpY = 290, xpW = W - pad * 2;
-    cap("DAY SCORE", pad, xpY - 16, 17, 0.6);
-    ctx.textAlign = "right";
-    ctx.fillStyle = rank.color; ctx.font = "600 21px Oswald, sans-serif";
-    var wordW = ctx.measureText(rank.word.toUpperCase()).width;
-    ctx.fillStyle = "#fff"; ctx.font = "600 30px Oswald, sans-serif";
-    ctx.fillText(overall + " / 100", W - pad, xpY - 14);
-    var numW = ctx.measureText(overall + " / 100").width;
-    ctx.fillStyle = rank.color; ctx.font = "600 21px Oswald, sans-serif";
-    ctx.fillText(rank.word.toUpperCase() + "  \u00b7", W - pad - numW - 14, xpY - 14);
-    ctx.textAlign = "left";
-    ctx.fillStyle = "rgba(255,255,255,0.12)"; roundRect(ctx, pad, xpY, xpW, 16, 8); ctx.fill();
-    ctx.save();
-    ctx.shadowColor = rank.color; ctx.shadowBlur = 26;
-    ctx.fillStyle = rank.color;
-    roundRect(ctx, pad, xpY, Math.max(16, xpW * Math.min(1, overall / 100)), 16, 8); ctx.fill();
-    ctx.restore();
-
-    /* ---- 3. bodyweight ---- */
-    var y = 346, h = 146;
-    card(pad, y, W - pad * 2, h);
-    cap("BODYWEIGHT", pad + 34, y + 44, 17);
-    if (summaryShowWeight) {
-      big(doc.weight != null ? doc.weight + " lb" : "—", pad + 34, y + 110, 60);
-      if (doc.weight != null && prevWeight != null) {
-        var dlt = doc.weight - prevWeight;
-        ctx.fillStyle = dlt > 0 ? "#FFC4B4" : "#8BF0C4";
-        ctx.font = "600 26px Inter, sans-serif";
-        ctx.fillText((dlt > 0 ? "+" : "") + dlt.toFixed(1) + " lb vs last", pad + 300, y + 106);
-      }
-    } else {
-      big("•••", pad + 34, y + 106, 60);
-      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 24px Inter, sans-serif";
-      ctx.fillText("hidden", pad + 190, y + 102);
+    /* An inventory square: rarity-bordered, item level inside. */
+    function slotIcon(x, y, size, ilvl, color, rusted) {
+      ctx.save();
+      roundRect(ctx, x, y, size, size, 9);
+      ctx.fillStyle = color + "1E"; ctx.fill();
+      ctx.strokeStyle = rusted ? "rgba(255,143,107,0.75)" : color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = color; ctx.font = "600 " + Math.round(size * 0.42) + "px Oswald, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(ilvl || "—"), x + size / 2, y + size * 0.66);
+      ctx.textAlign = "left";
     }
-    ctx.textAlign = "right";
-    cap("STREAK · SAME OR DOWN", W - pad - 34, y + 44, 15);
-    ctx.textAlign = "left";
-    streakChip(W - pad - 120, y + 106, st.weight);
 
-    /* ---- 4. training: cardio + weights side by side ---- */
-    y = 516; h = 196;
-    var colW = (W - pad * 2 - 20) / 2;
-    [[pad, "CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + " min" : "—",
-      (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + " mph" : "not logged", st.cardio, "#6FD0FF"],
-     [pad + colW + 20, "WEIGHT TRAINING", prog.type === "cardio" ? "Rest" : doneSets + "/" + totalSets,
-      prog.type === "cardio" ? "no lifting today" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting, "#FF8F6B"]
-    ].forEach(function (c) {
-      card(c[0], y, colW, h, c[5]);
-      cap(c[1], c[0] + 28, y + 42, 15);
-      big(c[2], c[0] + 28, y + 106, 50);
-      ctx.fillStyle = "rgba(255,255,255,0.68)"; ctx.font = "500 20px Inter, sans-serif";
-      ctx.fillText(c[3], c[0] + 28, y + 140);
-      streakChip(c[0] + 28, y + 176, c[4]);
+    /* ---- plate ---- */
+    ctx.fillStyle = INK; ctx.fillRect(0, 0, W, H);
+    var gl = ctx.createRadialGradient(W * 0.5, 240, 60, W * 0.5, 240, 980);
+    gl.addColorStop(0, rank.color + "38"); gl.addColorStop(1, "rgba(7,8,14,0)");
+    ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+    var g2 = ctx.createRadialGradient(-60, H * 0.78, 60, -60, H * 0.78, 980);
+    g2.addColorStop(0, "rgba(46,107,255,0.3)"); g2.addColorStop(1, "rgba(7,8,14,0)");
+    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(201,162,39,0.045)"; ctx.lineWidth = 1.4;
+    var hr = 58, hdx = hr * 1.5, hdy = hr * Math.sqrt(3);
+    for (var hc = -1; hc * hdx < W + hr; hc++)
+      for (var hw = -1; hw * hdy < H + hr; hw++) {
+        hexPath(hc * hdx, hw * hdy + (Math.abs(hc % 2) ? hdy / 2 : 0), hr * 0.92); ctx.stroke();
+      }
+    ctx.restore();
+
+    /* outer frame */
+    ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 2;
+    platePath(22, 22, W - 44, H - 44, 26); ctx.stroke();
+
+    /* ---- 1. title bar ---- */
+    cap("ACCOUNTABILITYAAS", pad, 86, 18, 0.5);
+    ctx.textAlign = "right";
+    cap(selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+        W - pad, 86, 18, 0.5);
+    ctx.textAlign = "left";
+    ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, 104); ctx.lineTo(W - pad, 104); ctx.stroke();
+
+    /* ---- 2. character header ---- */
+    var y = 126, h = 196;
+    plate(pad, y, W - pad * 2, h);
+    var bx = pad + 92, by = y + 92;
+    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 34;
+    hexPath(bx, by, 60); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
+    hexPath(bx, by, 60); ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.fillStyle = INK; ctx.font = "600 58px Oswald, sans-serif";
+    ctx.fillText(rank.letter, bx, by + 21);
+    ctx.textAlign = "left";
+    cap("day " + overall + "/100", bx - 50, y + 178, 15, 0.6);
+
+    var tx = pad + 176;
+    big(pr.title.toUpperCase(), tx, y + 54, 40);
+    cap("level " + pr.level, tx + ctx.measureText(pr.title.toUpperCase()).width + 18, y + 52, 19, 0.55);
+
+    var xpW = W - pad - 34 - tx, xpY = y + 74;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, tx, xpY, xpW, 12, 6); ctx.fill();
+    var into = Math.max(0, pr.total - pr.floorXP), span = Math.max(1, pr.nextXP - pr.floorXP);
+    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 18; ctx.fillStyle = rank.color;
+    roundRect(ctx, tx, xpY, Math.max(12, xpW * Math.min(1, into / span)), 12, 6); ctx.fill(); ctx.restore();
+    body(fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to " + (pr.level + 1), tx, xpY + 36, 17, 0.6);
+
+    var px = tx;
+    px += pill(px, y + 160, fmtInt(power) + " POWER", GOLD) + 10;
+    px += pill(px, y + 160, fmtInt(lo.gearScore) + " GEAR", "#B06BFF") + 10;
+    pill(px, y + 160, "▲ " + pr.run + "d  " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
+
+    /* ---- 3. attributes | loadout ---- */
+    y = 344; h = 404;
+    var colW = (W - pad * 2 - 16) / 2;
+    plate(pad, y, colW, h);
+    plate(pad + colW + 16, y, colW, h);
+
+    sectionLabel("Attributes", pad + 26, y + 40, colW - 52);
+    ["str", "sta", "con", "wis"].forEach(function (k, i) {
+      var sObj = lo.stats[k], ry = y + 86 + i * 78;
+      var pct = Math.min(1, sObj.v / sObj.t);
+      cap(sObj.label, pad + 26, ry, 17, 0.8);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+      ctx.fillText(fmtInt(sObj.v), pad + colW - 26, ry);
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad + 26, ry + 12, colW - 52, 9, 5); ctx.fill();
+      ctx.fillStyle = pct >= 1 ? "#7DF0B8" : "#6FD0FF";
+      roundRect(ctx, pad + 26, ry + 12, Math.max(9, (colW - 52) * pct), 9, 5); ctx.fill();
+      body(sObj.sub, pad + 26, ry + 42, 14, 0.4);
     });
 
-    /* ---- 5. nutrition: calories and the three rings in one band ---- */
-    /* Calories used to have a band of its own above the rings, which cost about 200px
-       of card for one number and a bar. They measure the same thing -- what was eaten --
-       so they share a card now, and the photos get the height back. */
-    y = 732; h = 436;
-    card(pad, y, W - pad * 2, h, "#8BF0C4");
-    cap("NUTRITION", pad + 34, y + 42, 15);
+    var gx = pad + colW + 16;
+    sectionLabel("Loadout", gx + 26, y + 40, colW - 52);
+    var slots = lo.rows.filter(function (r) { return r.recordIlvl > 0; }).slice(0, 6);
+    if (!slots.length) body("nothing equipped yet", gx + 26, y + 90, 17, 0.45);
+    slots.forEach(function (r, i) {
+      var ry = y + 62 + i * 56;
+      slotIcon(gx + 26, ry, 44, r.ilvl, r.rarity.color, r.rusted);
+      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+      var nm = r.name; while (ctx.measureText(nm).width > colW - 106 && nm.length > 6) nm = nm.slice(0, -2);
+      ctx.fillText(nm, gx + 82, ry + 20);
+      ctx.fillStyle = r.rarity.color; ctx.font = "500 14px Inter, sans-serif";
+      ctx.fillText(r.rarity.name + (r.rusted ? "  ·  rusting" : ""), gx + 82, ry + 40);
+    });
+    if (lo.rusting) {
+      ctx.textAlign = "right";
+      cap(lo.rusting + " rusting", gx + colW - 26, y + 40, 15, 0.5);
+      ctx.textAlign = "left";
+    }
+
+    /* ---- 4. the day itself ---- */
+    y = 768; h = 168;
+    var tw = (W - pad * 2 - 20) / 3;
+    [[ "CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + "m" : "—",
+       (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + "mph" : "not logged", st.cardio, "#6FD0FF"],
+     [ "TRAINING", prog.type === "cardio" ? "REST" : doneSets + "/" + totalSets,
+       prog.type === "cardio" ? "no lifting" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting, "#FF8F6B"],
+     [ "BODYWEIGHT", summaryShowWeight ? (doc.weight != null ? doc.weight + "" : "—") : "•••",
+       summaryShowWeight
+         ? (doc.weight != null && prevWeight != null
+             ? ((doc.weight - prevWeight) > 0 ? "+" : "") + (doc.weight - prevWeight).toFixed(1) + " vs last" : "lb")
+         : "hidden", st.weight, "#7DF0B8"]
+    ].forEach(function (c, i) {
+      var cx2 = pad + i * (tw + 10);
+      plate(cx2, y, tw, h);
+      cap(c[0], cx2 + 20, y + 36, 14, 0.55);
+      big(c[1], cx2 + 20, y + 92, 42, c[4]);
+      body(c[2], cx2 + 20, y + 120, 15, 0.55);
+      pill(cx2 + 20, y + 150, "▲ " + c[3] + "d", c[3] > 0 ? "#FFD166" : "rgba(255,255,255,0.45)");
+    });
+
+    /* ---- 5. nutrition ---- */
+    y = 952; h = 376;
+    plate(pad, y, W - pad * 2, h);
+    sectionLabel("Nutrition", pad + 26, y + 40, 260);
     var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
     ctx.textAlign = "right";
-    cap(!anyEst ? "NOTHING LOGGED" : underCap ? "ON PLAN"
-        : (cal < PLAN.floor ? "UNDER THE FLOOR" : "OVER THE TARGET"),
-        W - pad - 130, y + 42, 15);
+    cap(!anyEst ? "nothing logged" : underCap ? "on plan" : (cal < PLAN.floor ? "under the floor" : "over the target"),
+        W - pad - 26, y + 40, 15, 0.6);
     ctx.textAlign = "left";
-    streakChip(W - pad - 112, y + 48, st.calories);
 
-    big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 108, 54);
-    ctx.fillStyle = "rgba(255,255,255,0.68)"; ctx.font = "500 21px Inter, sans-serif";
-    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  aim " + fmtInt(planIntake()) + "  ·  maint " + fmtInt(PLAN.maintenance)
-                        : "no meals logged today",
-      pad + 34 + ctx.measureText("0").width + (anyEst ? 170 : 130), y + 104);
+    big(anyEst ? fmtInt(cal) : "—", pad + 26, y + 100, 46);
+    body(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  aim " + fmtInt(planIntake()) + "  ·  maint " + fmtInt(PLAN.maintenance)
+                : "no meals logged today",
+         pad + 26 + ctx.measureText(anyEst ? fmtInt(cal) : "—").width + 24, y + 96, 17, 0.6);
 
-    var barW = W - pad * 2 - 68, barY = y + 130;
-    ctx.fillStyle = "rgba(255,255,255,0.14)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
+    var barW = W - pad * 2 - 52, barY = y + 120;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad + 26, barY, barW, 9, 5); ctx.fill();
     if (anyEst) {
       ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
-      roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / PLAN.maintenance)), 10, 5); ctx.fill();
-      // where the day was meant to land, so the bar reads as a budget rather than a goal
-      var tickX = pad + 34 + barW * Math.min(1, planIntake() / PLAN.maintenance);
-      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 20);
+      roundRect(ctx, pad + 26, barY, Math.max(9, barW * Math.min(1, cal / PLAN.maintenance)), 9, 5); ctx.fill();
+      var tickX = pad + 26 + barW * Math.min(1, planIntake() / PLAN.maintenance);
+      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 19);
     }
 
-    var cx = pad + 34 + 132, cy = y + 290;
+    var cx3 = pad + 26 + 112, cy3 = y + 262;
     var rings = [
-      { r: 118, w: 27, val: pro, target: TARGETS.protein, color: "#5BE1A8", name: "PROTEIN", unit: "g" },
-      { r: 84,  w: 27, val: fat, target: TARGETS.fat,     color: "#FFD666", name: "FAT",     unit: "g" },
-      { r: 50,  w: 27, val: fib, target: TARGETS.fiber,   color: "#6FD0FF", name: "FIBRE",   unit: "g" }
+      { r: 100, w: 23, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
+      { r: 72,  w: 23, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
+      { r: 44,  w: 23, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
     ];
-    rings.forEach(function (rg) {
-      ringArc(ctx, cx, cy, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.14)");
-    });
-    var lx = cx + 172;
+    rings.forEach(function (rg) { ringArc(ctx, cx3, cy3, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)"); });
+    var lx = cx3 + 150;
     rings.forEach(function (rg, i) {
-      var ly = cy - 74 + i * 78;
-      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 8, ly - 8, 8, 0, Math.PI * 2); ctx.fill();
-      cap(rg.name, lx + 26, ly - 2, 15, 0.7);
-      ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
-      ctx.fillText(rg.val + rg.unit, lx + 26, ly + 36);
-      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 18px Inter, sans-serif";
-      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target + rg.unit,
-        lx + 26 + ctx.measureText(rg.val + rg.unit).width + 66, ly + 34);
+      var ly = cy3 - 62 + i * 66;
+      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 7, ly - 7, 7, 0, Math.PI * 2); ctx.fill();
+      cap(rg.name, lx + 22, ly - 1, 14, 0.62);
+      ctx.fillStyle = "#fff"; ctx.font = "600 28px Oswald, sans-serif";
+      ctx.fillText(rg.val + "g", lx + 22, ly + 30);
+      body((rg.name === "FAT" ? "cap " : "of ") + rg.target + "g",
+           lx + 22 + ctx.measureText(rg.val + "g").width + 50, ly + 28, 15, 0.45);
     });
 
-    /* ---- 6. the coach ---- */
-    y = 1194;
-    if (summaryShowCoach && coachText) {
+    /* ---- 6. what is costing you, or what the coach said ---- */
+    y = 1352;
+    if (debuffs.length) {
+      var dh = 54 + debuffs.length * 34;
+      plate(pad, y, W - pad * 2, dh, "rgba(255,107,74,0.1)", "rgba(255,107,74,0.42)");
+      sectionLabel("Afflictions", pad + 26, y + 36, 240);
+      debuffs.forEach(function (d, i) {
+        var ry = y + 68 + i * 34;
+        ctx.fillStyle = "#FFB4A0"; ctx.font = "600 19px Oswald, sans-serif";
+        ctx.fillText(d.name, pad + 26, ry);
+        body(d.why(pr.gaps), pad + 26 + 160, ry, 16, 0.6);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#FF8F6B"; ctx.font = "600 18px Oswald, sans-serif";
+        ctx.fillText("−" + Math.round(d.cost * 100) + "%", W - pad - 26, ry);
+        ctx.textAlign = "left";
+      });
+      y += dh + 14;
+    } else if (summaryShowCoach && coachText) {
       var words = coachText.split(/\s+/), lines = [], line = "";
-      ctx.font = "500 27px Inter, sans-serif";
-      var maxW = W - pad * 2 - 68;
+      ctx.font = "500 24px Inter, sans-serif";
+      var maxW = W - pad * 2 - 52;
       words.forEach(function (wd) {
         var t = line ? line + " " + wd : wd;
         if (ctx.measureText(t).width > maxW) { lines.push(line); line = wd; } else { line = t; }
       });
       if (line) lines.push(line);
-      lines = lines.slice(0, 7);
-      var ch = 92 + lines.length * 38;
-      card(pad, y, W - pad * 2, ch);
-      cap("COACH'S TAKE", pad + 34, y + 46, 15);
-      ctx.fillStyle = "rgba(255,255,255,0.95)"; ctx.font = "500 27px Inter, sans-serif";
-      lines.forEach(function (ln, i) { ctx.fillText(ln, pad + 34, y + 92 + i * 38); });
-      y += ch;
+      lines = lines.slice(0, 5);
+      var ch = 76 + lines.length * 34;
+      plate(pad, y, W - pad * 2, ch);
+      sectionLabel("Coach", pad + 26, y + 38, 200);
+      ctx.fillStyle = "rgba(255,255,255,0.92)"; ctx.font = "500 24px Inter, sans-serif";
+      lines.forEach(function (ln, i) { ctx.fillText(ln, pad + 26, y + 74 + i * 34); });
+      y += ch + 14;
     }
 
     /* ---- 7. photos fill whatever is left ---- */
-    /* Whatever height is left after the coach band, and no more. The previous version
-       forced at least one full-width-square row even when it did not fit, so on a day
-       with a long coach note the photos ran off the bottom edge and through the footer.
-       Square tiles when there is room for them, a shorter landscape band when there is
-       not, and nothing at all below 150px. */
-    var footY = H - 52;
-    var gTop = y + 24, gap = 16;
-    var avail = footY - 34 - gTop;
+    var footY = H - 64;
+    var gTop = y + 4, gap = 14;
+    var avail = footY - 46 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
-    var rows = Math.floor((avail + gap) / (cellW + gap));
+    var rowsN = Math.floor((avail + gap) / (cellW + gap));
     var cellH;
-    if (rows >= 2) { rows = 2; cellH = cellW; }               // two square rows
-    else if (rows === 1) { cellH = Math.min(avail, cellW * 1.3); }  // one row, grown to fill
-    else { rows = 1; cellH = avail; }                          // whatever is left
+    if (rowsN >= 2) { rowsN = 2; cellH = cellW; }
+    else if (rowsN === 1) { cellH = Math.min(avail, cellW * 1.3); }
+    else { rowsN = 1; cellH = avail; }
 
-    if (cellH >= 150 && dayFood.length) {
-      var shown = dayFood.slice(0, rows * 2);
+    /* A day with no photographs left a hole where they would have been. The week
+       behind you is the thing worth putting there: seven plates, each filled by how
+       much that day earned, so the card still says something about the run even when
+       the day itself is thin. */
+    var usingPhotos = cellH >= 130 && dayFood.length;
+    if (!usingPhotos && avail >= 150) {
+      /* grow the plates to take whatever the photographs would have used */
+      var sw = (W - pad * 2 - 6 * 10) / 7, sh = Math.max(150, Math.min(300, avail - 56));
+      var best = 1, week = [];
+      for (var wi = 6; wi >= 0; wi--) {
+        var d2 = new Date(selectedDate); d2.setDate(d2.getDate() - wi);
+        var k2 = dateKey(d2), doc2 = await getDayDoc(k2);
+        var rows2 = foodCache.filter(function (f) { return f.date === k2; });
+        var dx = dayXP(k2, doc2, PROGRAM[d2.getDay()], rows2);
+        best = Math.max(best, dx.xp);
+        week.push({ d: d2, xp: dx.xp, perfect: dx.perfect });
+      }
+      sectionLabel("The week behind", pad, gTop + 18, 280);
+      week.forEach(function (wd, i) {
+        var x = pad + i * (sw + 10), top = gTop + 34;
+        plate(x, top, sw, sh, "rgba(255,255,255,0.03)");
+        var fh = Math.round((sh - 54) * Math.min(1, wd.xp / best));
+        if (wd.xp > 0) {
+          ctx.fillStyle = wd.perfect ? "#7DF0B8" : rank.color;
+          roundRect(ctx, x + 14, top + (sh - 32) - fh, sw - 28, fh, 6); ctx.fill();
+        }
+        ctx.textAlign = "center";
+        ctx.fillStyle = wd.xp > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.3)";
+        ctx.font = "600 16px Oswald, sans-serif";
+        ctx.fillText(["S", "M", "T", "W", "T", "F", "S"][wd.d.getDay()], x + sw / 2, top + sh - 12);
+        ctx.textAlign = "left";
+      });
+    }
+
+    if (usingPhotos) {
+      var shown = dayFood.slice(0, rowsN * 2);
       var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
       imgs.forEach(function (img, idx) {
         var col = idx % 2, row = Math.floor(idx / 2);
         var x = pad + col * (cellW + gap), yy = gTop + row * (cellH + gap);
-        ctx.save(); roundRect(ctx, x, yy, cellW, cellH, 22); ctx.clip();
+        ctx.save(); roundRect(ctx, x, yy, cellW, cellH, 14); ctx.clip();
         if (img) {
           var sc = Math.max(cellW / img.width, cellH / img.height);
           ctx.drawImage(img, x + (cellW - img.width * sc) / 2, yy + (cellH - img.height * sc) / 2,
             img.width * sc, img.height * sc);
-        } else { ctx.fillStyle = "rgba(255,255,255,0.18)"; ctx.fillRect(x, yy, cellW, cellH); }
+        } else { ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(x, yy, cellW, cellH); }
         ctx.restore();
+        platePath(x, yy, cellW, cellH, 14); ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1.6; ctx.stroke();
       });
     }
 
+    /* ---- 8. footer: what went out, and who it was for ---- */
+    ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad, footY - 34); ctx.lineTo(W - pad, footY - 34); ctx.stroke();
+    var gave = givenTotal();
+    body("accountabilityaas.com" + (gave > 0 ? "   ·   " + money(gave) + " to " + GOOD.cause : ""), pad, footY, 19, 0.6);
     var ded = GOOD.dedications[key];
-    ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "500 22px Inter, sans-serif";
-    ctx.fillText("accountabilityaas.com", pad, footY);
     if (ded) {
       ctx.textAlign = "right";
-      ctx.fillStyle = "rgba(255,255,255,0.78)"; ctx.font = "500 22px Inter, sans-serif";
-      var line = "for " + ded;
-      while (ctx.measureText(line).width > W - pad * 2 - 340 && line.length > 8) line = line.slice(0, -2);
-      ctx.fillText(line, W - pad, footY);
+      ctx.fillStyle = GOLD; ctx.font = "500 19px Inter, sans-serif";
+      var dl = "for " + ded;
+      while (ctx.measureText(dl).width > W - pad * 2 - 420 && dl.length > 8) dl = dl.slice(0, -2);
+      ctx.fillText(dl, W - pad, footY);
       ctx.textAlign = "left";
     }
     return canvas.toDataURL("image/jpeg", 0.93);
