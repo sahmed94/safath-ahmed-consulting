@@ -59,16 +59,16 @@
   .session-sub { font-size: 12px; color: var(--ink-faint); margin-bottom: 14px; }
 
   .quest-card { background: linear-gradient(135deg, #EAF0FF 0%, #FDE9F1 100%); border: none; }
-  .power-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .power-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
   .card-split { height: 1px; background: rgba(27,30,43,0.09); margin: 16px 0 14px; }
-  .streak-row { display: flex; gap: 6px; }
+  .streak-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .sr-pill { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.72);
     border: 1px solid rgba(27,30,43,0.08); border-radius: 999px; padding: 3px 9px;
     font-family: var(--font-head); font-size: 11.5px; font-weight: 600; color: var(--ink-dim); }
   .sr-pill b { color: var(--ink); font-size: 12.5px; }
   .sr-pill.on { color: var(--amber); }
   .sr-pill.on b { color: var(--amber); }
-  .power-title { font-family: var(--font-head); font-size: 13px; letter-spacing: .04em; color: var(--ink-dim); text-transform: uppercase; }
+  .power-title { font-family: var(--font-head); font-size: 13px; letter-spacing: .04em; color: var(--ink-dim); text-transform: uppercase; white-space: nowrap; }
   .streak { display: flex; align-items: center; gap: 5px; font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--amber); }
   .streak svg { width: 17px; height: 17px; }
   .power-track { height: 12px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.9); }
@@ -136,7 +136,7 @@
   #summaryEyeNote { flex: 1 1 100%; }
   .eye-btn[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
   .eye-btn[aria-pressed="true"] #summaryEyeSlash { display: none; }
-  .meal-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 2px 0 11px; }
+  .meal-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 0 0 13px; }
   .mp-chip { position: relative; display: flex; align-items: center; gap: 6px; min-width: 0;
     padding: 10px 26px 10px 11px; border-radius: 11px; border: 1.5px solid var(--line);
     background: var(--surface-2); color: var(--ink-dim); cursor: pointer; text-align: left;
@@ -211,7 +211,9 @@
   .set-grid { margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
 
   .split-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-  .split-col { min-width: 0; } .split-col.col-right { border-left: 1px solid var(--line); padding-left: 14px; }
+  .split-card.wide-left { grid-template-columns: 1.18fr 1fr; }
+  .split-col { min-width: 0; padding-right: 14px; }
+  .split-col.col-right { border-left: 1px solid var(--line); padding-left: 14px; padding-right: 0; }
   .split-col-label { font-family: var(--font-head); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
   .split-col-label.expected { color: var(--ink-faint); } .split-col-label.input { color: var(--blue); }
 
@@ -615,6 +617,8 @@
   <main>
     <div class="card"><div class="day-row" id="dayRow"></div></div>
 
+    <!-- 1 · THE SUMMARY: everything that moved, the moment it moves -->
+    <section class="panel active" id="panel-summary">
     <div class="card rank-card" id="rankCard" hidden>
       <div class="rk-top">
         <div class="rk-lvl"><span id="rkLevelNum">1</span><small>LVL</small></div>
@@ -644,23 +648,6 @@
       </div>
       <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
       <div class="quest-list" id="questList"></div>
-
-      <div class="card-split"></div>
-
-      <div class="stat-grid">
-        <div class="stat-tile blue"><div class="stat-label">Bodyweight</div><div class="stat-value" id="statWeight">—</div><div class="stat-sub" id="statWeightSub">not logged</div></div>
-        <div class="stat-tile coral"><div class="stat-label">Total loss</div><div class="stat-value" id="statTotalLoss">—</div><div class="stat-sub" id="statTotalLossSub">since 218 lb start</div></div>
-      </div>
-      <div class="rate-row" id="rateRow" hidden>
-        <div class="rate-main"><span id="rateValue">—</span> <span class="rate-unit">lb / week</span></div>
-        <div class="rate-sub" id="rateSub"></div>
-      </div>
-      <div class="field-row" style="margin-top:12px;">
-        <div class="field"><label>Log bodyweight (lb)</label><input type="number" step="0.1" id="weightInput" placeholder="e.g. 208.4"></div>
-        <div class="field" style="flex: 0 0 auto;"><label>&nbsp;</label><button class="save-chip primary" id="saveWeightBtn">Log</button></div>
-      </div>
-      <div class="saved-tick" id="weightSaved"></div>
-      <button class="plan-btn" type="button" id="planBtn">Eating plan · <span id="planBtnLabel">—</span></button>
     </div>
 
     <div class="card score-card" id="scoreCard">
@@ -702,7 +689,45 @@
     </div>
 
     <!-- WEIGHT TRAINING -->
-    <section class="panel active" id="panel-lifting">
+    </section>
+
+    <!-- 2 · FOOD -->
+    <section class="panel" id="panel-food">
+      <div class="card">
+        <div class="meal-picker" id="mealPicker"></div>
+        <div class="split-card wide-left">
+          <div class="split-col">
+            <div class="split-col-label expected">Expected</div>
+            <div class="macro-row"><span class="mk">Eat today</span><span class="mv" id="planIntakeLabel">—</span></div>
+            <div class="macro-row"><span class="mk">Maintenance</span><span class="mv" id="planMaintLabel">—</span></div>
+            <div class="macro-row"><span class="mk">Protein</span><span class="mv" id="planProteinLabel">—</span></div>
+            <div class="macro-row"><span class="mk">So far (est.)</span><span class="mv" id="todayEstTotals">—</span></div>
+            <div style="font-size:10px; color:var(--ink-faint); margin-top:8px; line-height:1.4;">Estimates come from a quick visual read of your photos, deliberately skewed to round up rather than down — tap any photo to correct it.</div>
+          </div>
+          <div class="split-col col-right">
+            <div class="split-col-label input">Your input</div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Details (ingredients, portion, how it was cooked)</label>
+              <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
+            </div>
+            <div style="display:flex; gap:8px;">
+              <label class="food-upload-btn" for="foodCameraInput" style="flex:1;">📷 Take photo</label>
+              <label class="food-upload-btn" for="foodLibraryInput" style="flex:1;">🖼️ Choose photo</label>
+            </div>
+            <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
+            <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
+          </div>
+        </div>
+      </div>
+      <div class="card"><h2>Today's meals</h2><div id="foodToday"></div></div>
+      <div class="card"><h2>The last two weeks</h2><div id="foodLog"></div><div class="empty" id="foodLogNote" hidden></div></div>
+      <div class="card" style="padding:12px 14px;">
+        <button class="plan-btn" type="button" id="planBtn">Eating plan · <span id="planBtnLabel">—</span></button>
+      </div>
+    </section>
+
+    <!-- 3 · TRAIN: the session, exercise by exercise, then the cardio -->
+    <section class="panel" id="panel-train">
       <div class="card">
         <div class="plan-hero">
           <div class="plan-hero-icon" id="liftHeroIcon" style="background:var(--coral);">
@@ -724,10 +749,6 @@
       <div class="card" id="liftInputCard">
         <div id="exerciseList"></div>
       </div>
-    </section>
-
-    <!-- CARDIO -->
-    <section class="panel" id="panel-cardio">
       <div class="card">
         <div class="split-card">
           <div class="split-col">
@@ -755,40 +776,23 @@
       </div>
     </section>
 
-    <!-- MEALS -->
-    <section class="panel" id="panel-food">
+    <!-- 4 · WEIGHT: the number today, and everything it has done -->
+    <section class="panel" id="panel-weight">
       <div class="card">
-        <div class="split-card">
-          <div class="split-col">
-            <div class="split-col-label expected">Expected</div>
-            <div class="macro-row"><span class="mk">Eat today</span><span class="mv" id="planIntakeLabel">—</span></div>
-            <div class="macro-row"><span class="mk">Maintenance</span><span class="mv" id="planMaintLabel">—</span></div>
-            <div class="macro-row"><span class="mk">Protein</span><span class="mv" id="planProteinLabel">—</span></div>
-            <div class="macro-row"><span class="mk">So far (est.)</span><span class="mv" id="todayEstTotals">—</span></div>
-            <div style="font-size:10px; color:var(--ink-faint); margin-top:8px; line-height:1.4;">Estimates come from a quick visual read of your photos, deliberately skewed to round up rather than down — tap any photo to correct it.</div>
-          </div>
-          <div class="split-col col-right">
-            <div class="split-col-label input">Your input</div>
-            <div class="meal-picker" id="mealPicker"></div>
-            <div class="field" style="margin-bottom:8px;">
-              <label>Details (ingredients, portion, how it was cooked)</label>
-              <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
-            </div>
-            <div style="display:flex; gap:8px;">
-              <label class="food-upload-btn" for="foodCameraInput" style="flex:1;">📷 Take photo</label>
-              <label class="food-upload-btn" for="foodLibraryInput" style="flex:1;">🖼️ Choose photo</label>
-            </div>
-            <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
-            <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
-          </div>
+        <div class="stat-grid">
+          <div class="stat-tile blue"><div class="stat-label">Bodyweight</div><div class="stat-value" id="statWeight">—</div><div class="stat-sub" id="statWeightSub">not logged</div></div>
+          <div class="stat-tile coral"><div class="stat-label">Total loss</div><div class="stat-value" id="statTotalLoss">—</div><div class="stat-sub" id="statTotalLossSub">since 218 lb start</div></div>
         </div>
+        <div class="rate-row" id="rateRow" hidden>
+          <div class="rate-main"><span id="rateValue">—</span> <span class="rate-unit">lb / week</span></div>
+          <div class="rate-sub" id="rateSub"></div>
+        </div>
+        <div class="field-row" style="margin-top:12px;">
+          <div class="field"><label>Log bodyweight (lb)</label><input type="number" step="0.1" id="weightInput" placeholder="e.g. 208.4"></div>
+          <div class="field" style="flex: 0 0 auto;"><label>&nbsp;</label><button class="save-chip primary" id="saveWeightBtn">Log</button></div>
+        </div>
+        <div class="saved-tick" id="weightSaved"></div>
       </div>
-      <div class="card"><h2>Today's meals</h2><div id="foodToday"></div></div>
-      <div class="card"><h2>Earlier</h2><div id="foodLog"></div></div>
-    </section>
-
-    <!-- TRENDS -->
-    <section class="panel" id="panel-history">
       <div class="trend-tabs">
         <button class="trend-tab-btn active" data-pane="daily">Daily</button>
         <button class="trend-tab-btn" data-pane="weekly">Weekly</button>
@@ -857,10 +861,10 @@
   </div>
 
   <nav class="tabbar">
-    <button class="tab-btn active" data-panel="lifting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/></svg>Weights</button>
-    <button class="tab-btn" data-panel="cardio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg>Cardio</button>
-    <button class="tab-btn" data-panel="food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Meals</button>
-    <button class="tab-btn" data-panel="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Trends</button>
+    <button class="tab-btn active" data-panel="summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 7v11H3V10z"/><path d="M9 21v-7h6v7"/></svg>Today</button>
+    <button class="tab-btn" data-panel="food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Food</button>
+    <button class="tab-btn" data-panel="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/></svg>Train</button>
+    <button class="tab-btn" data-panel="weight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"/><path d="M6 20V8h12v12"/><path d="M12 4v4"/><path d="M8.5 16l3.5-5 3.5 5"/></svg>Weight</button>
   </nav>
 </div>
 
@@ -3713,7 +3717,7 @@
   async function renderStreakPills() {
     var row = document.getElementById("streakRow");
     if (!row) return;
-    var kinds = [["weight", "WT"], ["cardio", "CD"], ["lifting", "LF"], ["calories", "KC"]];
+    var kinds = [["weight", "Weigh"], ["cardio", "Cardio"], ["lifting", "Lift"], ["calories", "Food"]];
     var vals = await Promise.all(kinds.map(function (k) { return streakOf(k[0]); }));
     row.innerHTML = kinds.map(function (k, i) {
       return '<span class="sr-pill' + (vals[i] > 0 ? " on" : "") + '" title="' +
@@ -3952,7 +3956,20 @@
     var todayKey = dateKey(new Date());
     var todayItems = items.filter(function(it){ return it.date === todayKey; });
     renderFoodGrid(document.getElementById("foodToday"), todayItems);
-    renderFoodGrid(document.getElementById("foodLog"), items.filter(function(it){ return it.date !== todayKey; }));
+    /* The earlier list used to print every photo ever taken, which on a long streak
+       is a thousand thumbnails nobody scrolls to the end of. A fortnight is as far
+       back as anyone looks for a meal, and the rest is in the trends. */
+    var earlier = items.filter(function (it) { return it.date !== todayKey; });
+    var cut = new Date(); cut.setDate(cut.getDate() - 14);
+    var cutK = dateKey(cut);
+    var recent = earlier.filter(function (it) { return it.date >= cutK; });
+    renderFoodGrid(document.getElementById("foodLog"), recent);
+    var older = earlier.length - recent.length;
+    var note = document.getElementById("foodLogNote");
+    if (note) {
+      note.hidden = older <= 0;
+      note.textContent = older > 0 ? fmtInt(older) + " more photo" + (older === 1 ? "" : "s") + " before this, kept but not listed." : "";
+    }
     var cal = 0, prot = 0, any = false;
     todayItems.forEach(function(it){ if (it.estimate) { any = true; cal += it.estimate.calories || 0; prot += it.estimate.protein_g || 0; } });
     var totalsEl = document.getElementById("todayEstTotals");
@@ -4483,33 +4500,45 @@
     var imgs = shown.length ? await Promise.all(shown.map(function (f) { return loadImg(f.url); })) : [];
     var usingPhotos = imgs.some(function (im) { return !!im; });
     if (!usingPhotos && avail >= 150) {
-      var sw = (W - pad * 2 - 6 * 10) / 7, sh = Math.max(150, Math.min(340, avail - 56));
-      /* the strip is shorter than the photo grid it replaces, so it sits in the middle
-         of the space rather than leaving the whole gap underneath it */
-      var lift = Math.max(0, Math.round((avail - (34 + sh)) / 2));
-      var best = 1, week = [];
+      /* This used to be seven bars of different heights with nothing saying what the
+         height meant -- a chart you had to decode before it told you anything. It is
+         the one question the week asks instead: which days did you win. */
+      var sw = (W - pad * 2 - 6 * 12) / 7, sh = Math.min(190, Math.max(130, avail - 70));
+      var lift = Math.max(0, Math.round((avail - (40 + sh)) / 2));
+      var week = [], wonCount = 0;
       for (var wi = 6; wi >= 0; wi--) {
         var d2 = new Date(selectedDate); d2.setDate(d2.getDate() - wi);
         var k2 = dateKey(d2), doc2 = await getDayDoc(k2);
         var rows2 = foodCache.filter(function (f) { return f.date === k2; });
         var dx = dayXP(k2, doc2, PROGRAM[d2.getDay()], rows2);
-        best = Math.max(best, dx.xp);
-        week.push({ d: d2, xp: dx.xp, perfect: dx.perfect });
+        if (dx.won) wonCount++;
+        week.push({ d: d2, score: dx.score || 0, won: !!dx.won });
       }
-      cap("the week behind", pad, gTop + lift + 18, 16, 0.5);
+      cap(wonCount + " of the last 7 days won", pad, gTop + lift + 20, 17, 0.5);
       week.forEach(function (wd, i2) {
-        var x = pad + i2 * (sw + 10), top = gTop + lift + 34;
+        var x = pad + i2 * (sw + 12), top = gTop + lift + 40;
+        var near = !wd.won && wd.score >= WIN_AT - 20;
+        var col = wd.won ? "#7DF0B8" : near ? "#FFD166" : "rgba(255,255,255,0.22)";
         platePath(x, top, sw, sh, 12);
-        ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.lineWidth = 1.4; ctx.stroke();
-        var fh = Math.round((sh - 54) * Math.min(1, wd.xp / best));
-        if (wd.xp > 0) {
-          ctx.fillStyle = wd.perfect ? "#7DF0B8" : rank.color;
-          roundRect(ctx, x + 14, top + (sh - 32) - fh, sw - 28, fh, 6); ctx.fill();
-        }
+        ctx.fillStyle = wd.won ? "rgba(125,240,184,0.16)" : "rgba(255,255,255,0.03)"; ctx.fill();
+        platePath(x, top, sw, sh, 12);
+        ctx.strokeStyle = col; ctx.lineWidth = wd.won ? 2 : 1.3; ctx.stroke();
         ctx.textAlign = "center";
-        ctx.fillStyle = wd.xp > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.3)";
+        /* a tick for a day won, the score for one that fell short */
+        if (wd.won) {
+          ctx.strokeStyle = "#7DF0B8"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.lineJoin = "round";
+          ctx.beginPath();
+          ctx.moveTo(x + sw / 2 - 17, top + sh / 2 - 4);
+          ctx.lineTo(x + sw / 2 - 5, top + sh / 2 + 9);
+          ctx.lineTo(x + sw / 2 + 17, top + sh / 2 - 15);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = col; ctx.font = "600 30px Oswald, sans-serif";
+          ctx.fillText(wd.score || "\u2014", x + sw / 2, top + sh / 2 + 10);
+        }
+        ctx.fillStyle = wd.won ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.4)";
         ctx.font = "600 16px Oswald, sans-serif";
-        ctx.fillText(["S", "M", "T", "W", "T", "F", "S"][wd.d.getDay()], x + sw / 2, top + sh - 12);
+        ctx.fillText(["S", "M", "T", "W", "T", "F", "S"][wd.d.getDay()], x + sw / 2, top + sh - 16);
         ctx.textAlign = "left";
       });
     }
@@ -4657,9 +4686,10 @@
       }
       else { mealsPct += 30; mealsDetail = todayFood.length + " meal photo(s) logged"; }
     }
-    var overall;
-    if (prog.type === "lift") overall = Math.round(weightsPct * 0.40 + cardioPct * 0.35 + mealsPct * 0.25);
-    else overall = Math.round(cardioPct * 0.55 + mealsPct * 0.45);
+    /* The card used to carry two numbers for the same day -- a weighted average here
+       and the out-of-a-hundred reading on the bar below it -- and they never agreed.
+       There is one reading now, and it is the one that decides whether the day is won. */
+    var overall = dayBlows(prog, doc, todayFood).score;
     return { overall: overall, dayType: prog.type, weightLogged: doc.weight != null, skipped: skipped,
       weights: { pct: weightsPct, detail: weightsDetail }, cardio: { pct: cardioPct, detail: cardioDetail }, meals: { pct: mealsPct, detail: mealsDetail } };
   }
@@ -4831,8 +4861,11 @@
         btn.classList.add("active");
         Array.from(document.querySelectorAll(".panel")).forEach(function(p){ p.classList.remove("active"); });
         document.getElementById("panel-" + btn.getAttribute("data-panel")).classList.add("active");
-        if (btn.getAttribute("data-panel") === "history") renderHistory();
-        if (btn.getAttribute("data-panel") === "food") renderFood();
+        var which = btn.getAttribute("data-panel");
+        if (which === "weight") renderHistory();
+        if (which === "food") renderFood();
+        if (which === "summary") { renderRank(); renderInlineScore(); }
+        window.scrollTo({ top: 0, behavior: "instant" });
       };
     });
   }
