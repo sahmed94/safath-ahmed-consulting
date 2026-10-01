@@ -325,6 +325,26 @@
     background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .sc-open:active { background: rgba(255,255,255,0.16); }
 
+  .wins-card { background: linear-gradient(158deg, #07301F 0%, #0C4A33 52%, #10654A 100%); border: none; color: #fff; }
+  .wins-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .wins-title { font-family: var(--font-head); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.72); }
+  .wins-span { font-size: 11.5px; color: rgba(255,255,255,0.5); white-space: nowrap; }
+  .wins-hero { margin-top: 14px; }
+  .wins-hero .wh-k { font-size: 12px; color: rgba(255,255,255,0.66); letter-spacing: .04em; text-transform: uppercase; font-family: var(--font-head); }
+  .wins-hero .wh-v { font-family: var(--font-head); font-size: 34px; font-weight: 600; line-height: 1.1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .wins-hero .wh-v .was { color: rgba(255,255,255,0.45); }
+  .wins-hero .wh-v .arrow { color: rgba(255,255,255,0.45); margin: 0 7px; }
+  .wins-hero .wh-v .now { color: #7DF0B8; }
+  .wins-hero .wh-note { font-size: 12.5px; color: rgba(255,255,255,0.88); margin-top: 5px; line-height: 1.45; }
+  .wins-rows { margin-top: 15px; display: flex; flex-direction: column; gap: 1px; }
+  .win-row { display: flex; align-items: baseline; gap: 9px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.12); font-size: 13px; }
+  .win-row .wr-k { flex: 1; color: rgba(255,255,255,0.74); }
+  .win-row .wr-v { font-variant-numeric: tabular-nums; color: rgba(255,255,255,0.95); font-weight: 600; }
+  .win-row .wr-d { font-family: var(--font-head); font-size: 12.5px; min-width: 56px; text-align: right; }
+  .win-row .wr-d.good { color: #7DF0B8; } .win-row .wr-d.bad { color: #FFB4A0; }
+  .wins-foot { margin-top: 13px; background: rgba(255,255,255,0.1); border-radius: 11px; padding: 11px 12px;
+    font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,0.93); }
+
   .rate-row { margin-top: 12px; padding: 11px 13px; border-radius: 12px; background: var(--surface-2);
     border: 1.5px solid var(--line); }
   .rate-main { font-family: var(--font-head); font-size: 26px; font-weight: 600; line-height: 1;
@@ -440,6 +460,16 @@
       <div class="sc-bars" id="scBars"></div>
       <div class="sc-coach" id="scCoach" hidden></div>
       <button class="sc-open" id="scOpenBtn" type="button">Open the share card</button>
+    </div>
+
+    <div class="card wins-card" id="winsCard" hidden>
+      <div class="wins-head">
+        <div class="wins-title">How far you've come</div>
+        <div class="wins-span" id="winsSpan"></div>
+      </div>
+      <div class="wins-hero" id="winsHero"></div>
+      <div class="wins-rows" id="winsRows"></div>
+      <div class="wins-foot" id="winsFoot"></div>
     </div>
 
     <!-- WEIGHT TRAINING -->
@@ -1308,7 +1338,7 @@
     var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
-    renderQuests(); renderTopStats();
+    renderQuests(); renderTopStats().then(renderWins);
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
     document.getElementById("weightSaved").textContent = doc.weight != null ? "Logged" : "";
@@ -1960,6 +1990,71 @@
       showToast("Plan saved — eat " + fmtInt(planIntake()) + " kcal a day.", false);
     };
   }
+  /* Three lab panels sat at the bottom of Trends > Monthly as three lines of plain
+     text, with nothing comparing them to each other. It is the most consequential data
+     in the app -- an A1c that walked out of the prediabetes band -- and it was the part
+     nobody could see. A scale read daily is a thermometer in a draught; this is the
+     measurement that says whether the last two years worked.
+
+     Nothing here is interpreted beyond printing the standard reference band next to
+     the number. The doctor who ordered the panel reads it; this card just stops it
+     being invisible. */
+  var A1C_BANDS = [
+    { max: 5.7, name: "normal" },
+    { max: 6.5, name: "prediabetes" },
+    { max: Infinity, name: "diabetes range" }
+  ];
+  function a1cBand(v) {
+    for (var i = 0; i < A1C_BANDS.length; i++) if (v < A1C_BANDS[i].max) return A1C_BANDS[i].name;
+    return "";
+  }
+  function renderWins(latestWeight) {
+    var card = document.getElementById("winsCard");
+    if (!card) return;
+    var mine = currentProfileName && currentProfileName.trim().toLowerCase() === DEFAULT_PROFILE_NAME.toLowerCase();
+    if (!mine || LABS.length < 2) { card.hidden = true; return; }
+    card.hidden = false;
+
+    var first = LABS[0], last = LABS[LABS.length - 1];
+    var d0 = new Date(first.date + "T12:00:00"), d1 = new Date(last.date + "T12:00:00");
+    var months = Math.round((d1 - d0) / (1000 * 60 * 60 * 24 * 30.44));
+    document.getElementById("winsSpan").textContent = months + " months of panels";
+
+    var bandFrom = a1cBand(first.a1c), bandTo = a1cBand(last.a1c);
+    document.getElementById("winsHero").innerHTML =
+      '<div class="wh-k">HbA1c</div>' +
+      '<div class="wh-v"><span class="was">' + first.a1c + '%</span><span class="arrow">&rarr;</span>' +
+      '<span class="now">' + last.a1c + '%</span></div>' +
+      '<div class="wh-note">' + (bandFrom !== bandTo
+        ? "Out of the <b>" + bandFrom + "</b> band and into <b>" + bandTo + "</b>."
+        : "Still in the <b>" + bandTo + "</b> band.") +
+      " Standard reference: under 5.7 normal, 5.7–6.4 prediabetes.</div>";
+
+    var rows = [
+      { k: "LDL cholesterol", a: first.ldl, b: last.ldl, lowerIsBetter: true, unit: "" },
+      { k: "HDL cholesterol", a: first.hdl, b: last.hdl, lowerIsBetter: false, unit: "" },
+      { k: "Triglycerides",   a: first.trig, b: last.trig, lowerIsBetter: true, unit: "" }
+    ];
+    if (latestWeight != null) rows.push({ k: "Bodyweight", a: 218, b: latestWeight, lowerIsBetter: true, unit: " lb" });
+
+    var improved = 0;
+    document.getElementById("winsRows").innerHTML = rows.map(function (r) {
+      var ch = r.b - r.a;
+      var good = r.lowerIsBetter ? ch < 0 : ch > 0;
+      if (good) improved++;
+      var pct = r.a ? Math.round(ch / r.a * 100) : 0;
+      return '<div class="win-row"><span class="wr-k">' + r.k + '</span>' +
+        '<span class="wr-v">' + r.a + r.unit + ' &rarr; ' + r.b + r.unit + '</span>' +
+        '<span class="wr-d ' + (good ? "good" : "bad") + '">' + (pct > 0 ? "+" : "") + pct + '%</span></div>';
+    }).join("");
+
+    var a1cGood = last.a1c < first.a1c;
+    var total = rows.length + 1, won = improved + (a1cGood ? 1 : 0);
+    document.getElementById("winsFoot").textContent = won === total
+      ? "Every marker moved the right way. The scale is the noisiest measurement you own and the slowest to move — this is the one that says whether it worked."
+      : won + " of " + total + " markers moved the right way over " + months + " months.";
+  }
+
   function renderPlanLabels() {
     var set = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
     set("planIntakeLabel", fmtInt(planIntake()) + " kcal");
