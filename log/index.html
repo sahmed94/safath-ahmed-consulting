@@ -210,10 +210,27 @@
   .pager > * { flex: 0 0 100%; scroll-snap-align: center; min-width: 0; overflow-y: auto;
     -webkit-overflow-scrolling: touch; padding-right: 2px; }
   .pager .ex-block { margin: 0; }
-  .pager-dots { display: flex; justify-content: center; gap: 6px; }
-  .pg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-  .pg-dot.on { background: var(--blue); width: 20px; border-radius: 4px; }
-  .pg-dot.done { background: var(--teal); }
+  /* The dots are buttons: a 7px circle is a fine thing to look at and a terrible
+     thing to hit, so each one carries a 28px invisible target, and each is reachable
+     by keyboard with the arrows on either side for a mouse. */
+  .pager-nav { display: flex; align-items: center; justify-content: center; gap: 2px; }
+  .pager-dots { display: flex; justify-content: center; align-items: center; gap: 0; flex-wrap: wrap; }
+  .pg-dot { appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius: 8px; }
+  .pg-dot i { display: block; width: 7px; height: 7px; border-radius: 50%; background: var(--line);
+    transition: width .22s ease, background .22s ease; }
+  .pg-dot[aria-current="true"] i { background: var(--blue); width: 20px; border-radius: 4px; }
+  .pg-dot.done i { background: var(--teal); }
+  .pg-arrow { appearance: none; border: 0; background: transparent; color: var(--ink-faint);
+    width: 30px; height: 28px; border-radius: 9px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; }
+  .pg-arrow svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.2;
+    stroke-linecap: round; stroke-linejoin: round; }
+  .pg-arrow:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+  .pg-arrow:disabled { opacity: .3; cursor: default; }
+  .pg-dot:focus-visible, .pg-arrow:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+  @media (hover: none) { .pg-arrow { display: none; } }
   .t2-cardio-icon { flex: 0 0 56px; height: 56px; border-radius: 14px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; }
   .t2-cardio-icon svg { width: 26px; height: 26px; stroke: var(--teal); }
   .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
@@ -899,7 +916,15 @@
             <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
           </div>
         </div>
-        <div class="pager-dots" id="exDots"></div>
+        <div class="pager-nav">
+          <button class="pg-arrow" id="exPrev" type="button" aria-label="Previous exercise">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <div class="pager-dots" id="exDots" role="tablist" aria-label="Exercises in this session"></div>
+          <button class="pg-arrow" id="exNext" type="button" aria-label="Next exercise">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -3613,18 +3638,40 @@
   }
 
   /* ---- where you are in the session ----
-     A pager with no dots is a pager you do not know you can swipe. Each dot is one
-     page, filled when every set on it is done, and tapping one jumps to it. */
+     A pager you can only swipe is a pager half the people using it cannot work. The
+     same strip answers both: on a phone it is a row of dots with a 28px target each,
+     and on anything with a pointer it grows a pair of arrows and answers the keyboard
+     as well -- left and right step, home and end jump to the ends, and every control
+     is a real button, so tab reaches it and a screen reader can say which exercise it
+     goes to and whether that one is finished. */
+  function pageName(pg, i) {
+    var n = pg.querySelector(".ex-name");
+    return n ? n.textContent.trim() : (pg.id === "cardioPage" ? "Cardio" : "Page " + (i + 1));
+  }
+  function gotoPage(i) {
+    var list = document.getElementById("exerciseList");
+    if (!list || !list.children[i]) return;
+    list.children[i].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }
+  function currentPage() {
+    var list = document.getElementById("exerciseList");
+    if (!list || !list.children.length) return 0;
+    var step = Math.max(1, list.children[0].offsetWidth + 12);
+    return Math.max(0, Math.min(list.children.length - 1, Math.round(list.scrollLeft / step)));
+  }
   function renderPagerDots() {
     var list = document.getElementById("exerciseList");
     var dots = document.getElementById("exDots");
     if (!list || !dots) return;
     var pages = Array.from(list.children);
     dots.innerHTML = pages.map(function (pg, i) {
-      return '<span class="pg-dot' + (pg.querySelector(".ex-crest.complete") ? " done" : "") + '" data-i="' + i + '"></span>';
+      var done = !!pg.querySelector(".ex-crest.complete");
+      return '<button type="button" role="tab" class="pg-dot' + (done ? " done" : "") +
+        '" data-i="' + i + '" aria-label="' + esc(pageName(pg, i)) + (done ? ", finished" : "") +
+        '" aria-current="false"><i></i></button>';
     }).join("");
     Array.from(dots.children).forEach(function (d, i) {
-      d.onclick = function () { pages[i].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" }); };
+      d.onclick = function () { gotoPage(i); };
     });
     markPagerDot();
   }
@@ -3632,8 +3679,37 @@
     var list = document.getElementById("exerciseList");
     var dots = document.getElementById("exDots");
     if (!list || !dots || !list.children.length) return;
-    var i = Math.round(list.scrollLeft / Math.max(1, list.children[0].offsetWidth + 12));
-    Array.from(dots.children).forEach(function (d, j) { d.classList.toggle("on", j === i); });
+    var i = currentPage();
+    Array.from(dots.children).forEach(function (d, j) {
+      d.setAttribute("aria-current", j === i ? "true" : "false");
+    });
+    var prev = document.getElementById("exPrev"), next = document.getElementById("exNext");
+    if (prev) prev.disabled = i <= 0;
+    if (next) next.disabled = i >= list.children.length - 1;
+  }
+  function wirePager() {
+    var list = document.getElementById("exerciseList");
+    if (!list) return;
+    list.addEventListener("scroll", function () {
+      clearTimeout(list._t); list._t = setTimeout(markPagerDot, 80);
+    });
+    var prev = document.getElementById("exPrev"), next = document.getElementById("exNext");
+    if (prev) prev.onclick = function () { gotoPage(currentPage() - 1); };
+    if (next) next.onclick = function () { gotoPage(currentPage() + 1); };
+    /* Arrows step through the session, but only when they are not being used to move
+       a caret: typing reps into a set must never jump you to the next exercise. */
+    document.addEventListener("keydown", function (e) {
+      var panel = document.getElementById("panel-train");
+      if (!panel || !panel.classList.contains("active")) return;
+      if (document.querySelector("#modalOverlay.open, #shareModal.open")) return;
+      var t = e.target, tag = t && t.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+      var n = list.children.length;
+      if (e.key === "ArrowRight") { gotoPage(Math.min(n - 1, currentPage() + 1)); e.preventDefault(); }
+      else if (e.key === "ArrowLeft") { gotoPage(Math.max(0, currentPage() - 1)); e.preventDefault(); }
+      else if (e.key === "Home") { gotoPage(0); e.preventDefault(); }
+      else if (e.key === "End") { gotoPage(n - 1); e.preventDefault(); }
+    });
   }
 
   /* ---- drawing it ---- */
@@ -4988,10 +5064,7 @@
     sizeCards();
     window.addEventListener("resize", sizeCards);
     window.addEventListener("orientationchange", function () { setTimeout(sizeCards, 120); });
-    var pager = document.getElementById("exerciseList");
-    if (pager) pager.addEventListener("scroll", function () {
-      clearTimeout(pager._t); pager._t = setTimeout(markPagerDot, 80);
-    });
+    wirePager();
     wireLedger();
     document.getElementById("charCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
 
