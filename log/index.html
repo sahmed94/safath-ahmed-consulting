@@ -325,6 +325,24 @@
     background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .sc-open:active { background: rgba(255,255,255,0.16); }
 
+  .rate-row { margin-top: 12px; padding: 11px 13px; border-radius: 12px; background: var(--surface-2);
+    border: 1.5px solid var(--line); }
+  .rate-main { font-family: var(--font-head); font-size: 26px; font-weight: 600; line-height: 1;
+    font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rate-main.good { color: var(--teal); } .rate-main.bad { color: var(--coral); }
+  .rate-unit { font-size: 13px; color: var(--ink-faint); font-weight: 500; letter-spacing: .02em; }
+  .rate-sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 5px; line-height: 1.45; }
+  .plan-btn { width: 100%; margin-top: 12px; font-family: var(--font-head); font-size: 12px;
+    letter-spacing: .04em; padding: 10px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--surface); color: var(--ink-dim); cursor: pointer; }
+  .plan-btn:active { background: var(--surface-2); }
+  .plan-sheet .field-row { display: flex; gap: 10px; }
+  .plan-math { background: var(--surface-2); border-radius: 10px; padding: 11px 12px; font-size: 12px;
+    line-height: 1.55; color: var(--ink-dim); margin-top: 12px; }
+  .plan-math b { color: var(--ink); }
+  .plan-warn { background: var(--amber-soft); border-radius: 10px; padding: 10px 12px; font-size: 12px;
+    line-height: 1.5; color: var(--ink); margin-top: 10px; }
+
   #scoreBarWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 9; padding: 0 16px; display: flex; justify-content: center; }
   #scoreDayBtn { width: 100%; max-width: 608px; background: linear-gradient(90deg, var(--blue), var(--magenta)); border: none; color: #fff; font-family: var(--font-head); font-size: 13px; letter-spacing: .03em; padding: 13px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 -4px 14px rgba(30,34,60,0.12); }
   #scoreDayBtn svg { width: 16px; height: 16px; stroke: #fff; }
@@ -398,11 +416,16 @@
         <div class="stat-tile blue"><div class="stat-label">Bodyweight</div><div class="stat-value" id="statWeight">—</div><div class="stat-sub" id="statWeightSub">not logged</div></div>
         <div class="stat-tile coral"><div class="stat-label">Total loss</div><div class="stat-value" id="statTotalLoss">—</div><div class="stat-sub" id="statTotalLossSub">since 218 lb start</div></div>
       </div>
+      <div class="rate-row" id="rateRow" hidden>
+        <div class="rate-main"><span id="rateValue">—</span> <span class="rate-unit">lb / week</span></div>
+        <div class="rate-sub" id="rateSub"></div>
+      </div>
       <div class="field-row" style="margin-top:12px;">
         <div class="field"><label>Log bodyweight (lb)</label><input type="number" step="0.1" id="weightInput" placeholder="e.g. 208.4"></div>
         <div class="field" style="flex: 0 0 auto;"><label>&nbsp;</label><button class="save-chip primary" id="saveWeightBtn">Log</button></div>
       </div>
       <div class="saved-tick" id="weightSaved"></div>
+      <button class="plan-btn" type="button" id="planBtn">Eating plan · <span id="planBtnLabel">—</span></button>
     </div>
 
     <div class="card score-card" id="scoreCard">
@@ -479,8 +502,9 @@
         <div class="split-card">
           <div class="split-col">
             <div class="split-col-label expected">Expected</div>
-            <div class="macro-row"><span class="mk">Calories</span><span class="mv">2,350–2,450</span></div>
-            <div class="macro-row"><span class="mk">Protein</span><span class="mv">~170 g</span></div>
+            <div class="macro-row"><span class="mk">Eat today</span><span class="mv" id="planIntakeLabel">—</span></div>
+            <div class="macro-row"><span class="mk">Maintenance</span><span class="mv" id="planMaintLabel">—</span></div>
+            <div class="macro-row"><span class="mk">Protein</span><span class="mv" id="planProteinLabel">—</span></div>
             <div class="macro-row"><span class="mk">So far (est.)</span><span class="mv" id="todayEstTotals">—</span></div>
             <div style="font-size:10px; color:var(--ink-faint); margin-top:8px; line-height:1.4;">Estimates come from a quick visual read of your photos, deliberately skewed to round up rather than down — tap any photo to correct it.</div>
           </div>
@@ -612,6 +636,29 @@
 
 <!-- Exercise history modal -->
 <div id="modalOverlay">
+  <!-- Eating plan -->
+  <div class="modal-inner plan-sheet" id="planModal" style="display:none;">
+    <h3>Eating plan</h3>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Maintenance (kcal/day)</label><input type="number" id="planMaint"></div>
+      <div class="field"><label>Daily deficit</label><input type="number" id="planDeficit" step="50"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Floor — don't go below</label><input type="number" id="planFloor" step="50"></div>
+      <div class="field"><label>Protein (g)</label><input type="number" id="planProtein"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Fat cap (g)</label><input type="number" id="planFat"></div>
+      <div class="field"><label>Fibre (g)</label><input type="number" id="planFiber"></div>
+    </div>
+    <div class="plan-math" id="planMath"></div>
+    <div class="plan-warn" id="planWarn" hidden></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="planCancelBtn">Cancel</button>
+      <button class="primary-btn" id="planSaveBtn">Save plan</button>
+    </div>
+  </div>
+
   <div class="modal-inner" id="exHistoryModal" style="display:none;">
     <h3 id="exHistoryTitle">Exercise history</h3>
     <div id="exHistoryList"></div>
@@ -669,11 +716,52 @@
   var SEED_WEIGHTS = [ { date: "2026-09-04", weight: 211.4 }, { date: "2026-09-06", weight: 209.2 } ];
   var DEFAULT_PROFILE_NAME = "Safath Ahmed";
 
-  /* The numbers every ring, streak and score is measured against. Maintenance is the
-     top of the 2,350-2,450 band the meals panel already quotes, so "under maintenance"
-     means under 2,450. Fat is a ceiling to stay under, protein and fibre are floors to
-     reach -- change any of these here and the card, the rings and the streaks follow. */
-  var TARGETS = { calories: 2450, protein: 170, fat: 80, fiber: 30 };
+  /* The numbers every ring, streak and score is measured against.
+
+     `maintenance` used to be a constant I had inferred from the band printed on the
+     meals panel, and labelled maintenance without ever being told it was one. That
+     guess decided every streak, every score and every "under maintenance" badge, and
+     it was wrong in a way that graded a real deficit as a bad day. It is a setting
+     now, kept with the rest of the plan, and the app shows its working.
+
+     Mifflin-St Jeor for a 32-year-old man of 6'3" at 215 lb puts resting burn at about
+     2,010 and a desk-job day at about 2,410. The stored default takes the desk-job
+     figure and trims 5% for body composition, because the formula runs high when more
+     of the weight is fat -- 2,300, deliberately conservative. Assuming a LOW
+     maintenance is the cautious direction: it credits you with less deficit than you
+     probably have, so the app under-promises.
+
+     `floor` is the intake below which the meal score stops improving. Without one, a
+     score that rewards eating less rewards eating nothing. */
+  var DEFAULT_PLAN = { maintenance: 2300, deficit: 500, floor: 1500, protein: 170, fat: 80, fiber: 30 };
+  var PLAN = Object.assign({}, DEFAULT_PLAN);
+  /* Everything downstream reads TARGETS, so keep it as the derived view of the plan. */
+  var TARGETS = { calories: 2300, protein: 170, fat: 80, fiber: 30 };
+  function planIntake() { return Math.max(PLAN.floor, PLAN.maintenance - PLAN.deficit); }
+  function applyPlan() {
+    TARGETS.calories = PLAN.maintenance;
+    TARGETS.protein = PLAN.protein; TARGETS.fat = PLAN.fat; TARGETS.fiber = PLAN.fiber;
+  }
+
+  /* The plan is one row per account, parked on a sentinel date no log day can reach,
+     so it rides the table that is already there rather than needing a migration. */
+  var PLAN_ROW_DATE = "1900-01-01";
+  var PLAN_SLOT = "__plan";
+  async function loadPlan() {
+    try {
+      var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
+      var v = res && res.data && res.data.sets && res.data.sets[PLAN_SLOT];
+      if (v && typeof v === "object") PLAN = Object.assign({}, DEFAULT_PLAN, v);
+    } catch (e) {}
+    applyPlan();
+  }
+  async function savePlan() {
+    applyPlan();
+    try {
+      var blob = {}; blob[PLAN_SLOT] = PLAN;
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
+    } catch (e) {}
+  }
 
   // Accounts are created by hand in the Supabase dashboard, so the page offers
   // sign-in only. This flag is the cosmetic half: it hides the name field and the
@@ -883,12 +971,14 @@
         });
         return (total > 0 && done >= total) ? "yes" : "no";
       }
-      // calories
+      // calories -- a day inside the eating window, not merely a day under maintenance.
+      // "Under maintenance" was satisfied by eating maintenance exactly, which is a
+      // streak of standing still.
       var cal = 0, any = false;
       foodCache.forEach(function (f) {
         if (f.date === dk && f.estimate && f.estimate.calories) { any = true; cal += f.estimate.calories; }
       });
-      return (any && cal <= TARGETS.calories) ? "yes" : "no";
+      return (any && cal <= planIntake() && cal >= PLAN.floor) ? "yes" : "no";
     }
 
     // A day that has not happened yet should not end a run that is still alive.
@@ -928,7 +1018,8 @@
   async function getAllDayKeys() {
     try {
       var { data } = await supabase.from("days").select("date").eq("user_id", currentProfileId);
-      return (data || []).map(function (r) { return r.date; }).sort().reverse();
+      return (data || []).map(function (r) { return r.date; })
+        .filter(function (d) { return d !== PLAN_ROW_DATE; }).sort().reverse();
     } catch (e) { return []; }
   }
   async function seedHistoricalWeights() {
@@ -1032,6 +1123,7 @@
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
     document.getElementById("profileNameBtn").textContent = displayName + " · Sign out";
+    await loadPlan();
     await seedHistoricalWeights();
     await renderAll();
   }
@@ -1118,6 +1210,68 @@
     }
   }
 
+  /* The question the app exists to answer is "is this working", and a column of raw
+     daily weights cannot answer it: bodyweight swings two or three pounds on water and
+     sodium alone, so half a pound a week of real loss looks like a jagged line that
+     often goes up. A least-squares slope over the last fortnight can answer it. Two
+     weigh-ins are not enough to fit a line through, so it says so instead of guessing. */
+  function weeklyRate(points, days) {
+    var cut = new Date(); cut.setDate(cut.getDate() - (days || 14));
+    var cutKey = dateKey(cut);
+    var use = points.filter(function (p) { return p.key >= cutKey; });
+    if (use.length < 3) return null;
+    var t0 = new Date(use[0].key + "T12:00:00").getTime();
+    var xs = use.map(function (p) { return (new Date(p.key + "T12:00:00").getTime() - t0) / 86400000; });
+    var ys = use.map(function (p) { return p.weight; });
+    var n = xs.length;
+    var mx = xs.reduce(function (a, b) { return a + b; }, 0) / n;
+    var my = ys.reduce(function (a, b) { return a + b; }, 0) / n;
+    var sxy = 0, sxx = 0;
+    for (var i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) * (xs[i] - mx); }
+    if (sxx === 0) return null;
+    return { perWeek: (sxy / sxx) * 7, n: n, spanDays: xs[n - 1] - xs[0] };
+  }
+
+  /* The rate sits on the day card, which is on screen on every tab, so it has to be
+     built from the weights directly rather than waiting for Trends to be opened. */
+  async function renderRateFromCache() {
+    var keys = await getAllDayKeys();
+    var points = [];
+    for (var i = 0; i < keys.length; i++) {
+      var d = await getDayDoc(keys[i]);
+      if (d.weight != null) points.push({ key: keys[i], weight: d.weight });
+    }
+    points.sort(function (a, b) { return a.key.localeCompare(b.key); });
+    renderRate(points);
+  }
+
+  function renderRate(points) {
+    var row = document.getElementById("rateRow");
+    if (!row) return;
+    var r = weeklyRate(points, 14);
+    if (!r) {
+      row.hidden = false;
+      document.getElementById("rateValue").textContent = "—";
+      document.getElementById("rateValue").parentNode.className = "rate-main";
+      document.getElementById("rateSub").textContent =
+        "Weigh in on at least three days in a fortnight and this becomes a trend. Single weigh-ins swing too much to read.";
+      return;
+    }
+    row.hidden = false;
+    var v = r.perWeek;
+    var el = document.getElementById("rateValue");
+    el.textContent = (v > 0 ? "+" : "") + v.toFixed(2);
+    el.parentNode.className = "rate-main " + (v < -0.1 ? "good" : v > 0.25 ? "bad" : "");
+    var impliedDeficit = Math.round(-v * 3500 / 7);
+    document.getElementById("rateSub").textContent =
+      "Trend across " + r.n + " weigh-ins over " + Math.round(r.spanDays) + " days. " +
+      (Math.abs(v) < 0.15
+        ? "Flat — too close to zero to call either way yet."
+        : v < 0
+          ? "That rate implies about " + fmtInt(impliedDeficit) + " kcal/day under maintenance."
+          : "Going the wrong way: about " + fmtInt(-impliedDeficit) + " kcal/day over maintenance.");
+  }
+
   async function renderTopStats() {
     var keys = await getAllDayKeys();
     var latest = null;
@@ -1165,6 +1319,8 @@
     renderLiftingPanel(prog, doc, key);
     await renderCardioPanel(prog, doc);
     renderSessionTimerUI(doc);
+    renderPlanLabels();
+    renderRateFromCache();
     renderInlineScore();
   }
 
@@ -1742,6 +1898,76 @@
       listEl.appendChild(row);
     });
   }
+  /* The plan sheet shows its arithmetic as you type, because the whole reason the old
+     target was wrong is that a number sat in the code with nothing explaining it. */
+  var BMR_EST = 2011;   // Mifflin-St Jeor: male, 32, 6'3", 215 lb
+  function planMathText() {
+    var m = Number(document.getElementById("planMaint").value) || 0;
+    var d = Number(document.getElementById("planDeficit").value) || 0;
+    var fl = Number(document.getElementById("planFloor").value) || 0;
+    var eat = Math.max(fl, m - d);
+    var lbWk = d / 500;
+    document.getElementById("planMath").innerHTML =
+      "Eat <b>" + fmtInt(eat) + " kcal</b> a day. At a " + fmtInt(d) + " deficit that is about <b>" +
+      lbWk.toFixed(1) + " lb a week</b>, or " + (lbWk * 4.33).toFixed(1) + " lb a month." +
+      "<br>Scoring treats " + fmtInt(fl) + "–" + fmtInt(eat) + " as a full day. Above " + fmtInt(eat) +
+      " the score falls away; below " + fmtInt(fl) + " it falls away too.";
+    var warn = document.getElementById("planWarn");
+    if (eat < 1500 || fl < 1500) {
+      warn.hidden = false;
+      warn.innerHTML = "<b>Under 1,500 kcal a day</b> is the point where the usual advice for men is to " +
+        "have someone medical watching. Your resting burn alone is about " + fmtInt(BMR_EST) + " kcal. " +
+        "The app will do what you set here — this is a note, not a block.";
+    } else if (lbWk > 2) {
+      warn.hidden = false;
+      warn.innerHTML = "<b>" + lbWk.toFixed(1) + " lb a week</b> is faster than the 1–2 lb that usually holds. " +
+        "Above that, more of what comes off tends to be muscle rather than fat.";
+    } else { warn.hidden = true; }
+  }
+  function openPlanSheet() {
+    document.getElementById("planMaint").value = PLAN.maintenance;
+    document.getElementById("planDeficit").value = PLAN.deficit;
+    document.getElementById("planFloor").value = PLAN.floor;
+    document.getElementById("planProtein").value = PLAN.protein;
+    document.getElementById("planFat").value = PLAN.fat;
+    document.getElementById("planFiber").value = PLAN.fiber;
+    planMathText();
+    document.getElementById("exHistoryModal").style.display = "none";
+    document.getElementById("mealEditModal").style.display = "none";
+    document.getElementById("planModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  function wirePlanSheet() {
+    document.getElementById("planBtn").onclick = openPlanSheet;
+    ["planMaint","planDeficit","planFloor"].forEach(function (id) {
+      document.getElementById(id).addEventListener("input", planMathText);
+    });
+    document.getElementById("planCancelBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+    document.getElementById("planSaveBtn").onclick = async function () {
+      var n = function (id, dflt) { var v = Number(document.getElementById(id).value); return isFinite(v) && v > 0 ? Math.round(v) : dflt; };
+      PLAN.maintenance = n("planMaint", DEFAULT_PLAN.maintenance);
+      PLAN.deficit     = n("planDeficit", DEFAULT_PLAN.deficit);
+      PLAN.floor       = n("planFloor", DEFAULT_PLAN.floor);
+      PLAN.protein     = n("planProtein", DEFAULT_PLAN.protein);
+      PLAN.fat         = n("planFat", DEFAULT_PLAN.fat);
+      PLAN.fiber       = n("planFiber", DEFAULT_PLAN.fiber);
+      await savePlan();
+      document.getElementById("modalOverlay").classList.remove("open");
+      lastScoreData = null;
+      await renderAll();
+      showToast("Plan saved — eat " + fmtInt(planIntake()) + " kcal a day.", false);
+    };
+  }
+  function renderPlanLabels() {
+    var set = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
+    set("planIntakeLabel", fmtInt(planIntake()) + " kcal");
+    set("planMaintLabel", fmtInt(PLAN.maintenance) + " kcal");
+    set("planProteinLabel", "~" + PLAN.protein + " g");
+    set("planBtnLabel", fmtInt(planIntake()) + " kcal/day, " + (PLAN.deficit / 500).toFixed(1) + " lb/wk");
+  }
+
   function wireExerciseHistoryModal() {
     document.getElementById("closeExHistoryBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
   }
@@ -1934,6 +2160,7 @@
     for (var i = 0; i < keys.length; i++) { var d = await getDayDoc(keys[i]); if (d.weight != null) points.push({ key: keys[i], weight: d.weight }); }
     points.sort(function(a,b){ return a.key.localeCompare(b.key); });
     drawLineChart(document.getElementById("weightChart"), points.map(function(p){return p.weight;}), points.map(function(p){return p.key;}), "#2E6BFF");
+    renderRate(points);
     var histList = document.getElementById("histList"); histList.innerHTML = "";
     if (keys.length === 0) { histList.innerHTML = '<div class="empty">Nothing logged yet — entries you save will show up here.</div>'; return; }
     for (var j = 0; j < Math.min(keys.length, 30); j++) {
@@ -2478,16 +2705,17 @@
     y = 732; h = 436;
     card(pad, y, W - pad * 2, h, "#8BF0C4");
     cap("NUTRITION", pad + 34, y + 42, 15);
-    var underCap = anyEst && cal <= TARGETS.calories;
+    var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
     ctx.textAlign = "right";
-    cap(underCap ? "UNDER MAINTENANCE" : (anyEst ? "OVER MAINTENANCE" : "NOTHING LOGGED"),
+    cap(!anyEst ? "NOTHING LOGGED" : underCap ? "ON PLAN"
+        : (cal < PLAN.floor ? "UNDER THE FLOOR" : "OVER THE TARGET"),
         W - pad - 130, y + 42, 15);
     ctx.textAlign = "left";
     streakChip(W - pad - 112, y + 48, st.calories);
 
     big(anyEst ? fmtInt(cal) : "—", pad + 34, y + 108, 54);
     ctx.fillStyle = "rgba(255,255,255,0.68)"; ctx.font = "500 21px Inter, sans-serif";
-    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  maintenance " + fmtInt(TARGETS.calories)
+    ctx.fillText(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  aim " + fmtInt(planIntake()) + "  ·  maint " + fmtInt(PLAN.maintenance)
                         : "no meals logged today",
       pad + 34 + ctx.measureText("0").width + (anyEst ? 170 : 130), y + 104);
 
@@ -2495,7 +2723,10 @@
     ctx.fillStyle = "rgba(255,255,255,0.14)"; roundRect(ctx, pad + 34, barY, barW, 10, 5); ctx.fill();
     if (anyEst) {
       ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
-      roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / TARGETS.calories)), 10, 5); ctx.fill();
+      roundRect(ctx, pad + 34, barY, Math.max(10, barW * Math.min(1, cal / PLAN.maintenance)), 10, 5); ctx.fill();
+      // where the day was meant to land, so the bar reads as a budget rather than a goal
+      var tickX = pad + 34 + barW * Math.min(1, planIntake() / PLAN.maintenance);
+      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 20);
     }
 
     var cx = pad + 34 + 132, cy = y + 290;
@@ -2634,6 +2865,23 @@
     };
   }
 
+  /* The old curve was a band centred on maintenance with falloff on BOTH sides, so a
+     1,270 kcal day scored the floor and a 2,140 kcal day scored best -- it marked down
+     exactly the behaviour the programme exists to produce, and fed that reading to the
+     coach, which then asked for more food.
+
+     The curve now runs one way. Anything from the floor up to the target intake is a
+     full score; above the target it falls away towards maintenance and keeps falling
+     past it. Below the floor it falls away too, and that is deliberate: a score that
+     rewards eating less without a bottom rewards eating nothing. The floor is a
+     setting, so it can be moved or argued with, but it is not absent. */
+  function calorieScore(cal) {
+    var target = planIntake();
+    if (cal >= PLAN.floor && cal <= target) return 1;
+    if (cal > target) return Math.max(0, 1 - (cal - target) / Math.max(300, PLAN.deficit + 250));
+    return Math.max(0, 1 - (PLAN.floor - cal) / 400);
+  }
+
   function softFalloff(val, lo, hi, span) {
     if (val >= lo && val <= hi) return 1;
     var d = val < lo ? lo - val : val - hi;
@@ -2664,7 +2912,11 @@
       var calTotal = 0, hasEstimate = false;
       todayFood.forEach(function (f) { if (f.estimate) { hasEstimate = true; calTotal += f.estimate.calories || 0; } });
       mealsPct = 50;
-      if (hasEstimate) { mealsPct += Math.round(50 * softFalloff(calTotal, 2350, 2450, 700)); mealsDetail = todayFood.length + " meals logged, ~" + calTotal + " kcal est. (target 2,350–2,450)"; }
+      if (hasEstimate) {
+        mealsPct += Math.round(50 * calorieScore(calTotal));
+        mealsDetail = todayFood.length + " meals logged, ~" + fmtInt(calTotal) + " kcal est. (aim " +
+          fmtInt(PLAN.floor) + "–" + fmtInt(planIntake()) + ", maintenance " + fmtInt(PLAN.maintenance) + ")";
+      }
       else { mealsPct += 30; mealsDetail = todayFood.length + " meal photo(s) logged"; }
     }
     var overall;
@@ -2780,7 +3032,9 @@
     "You're given their actual scored breakdown for today (weight training / cardio / meals) as real numbers — use them, don't invent anything. " +
     "Write 2-3 short sentences: (1) what went well, (2) the ONE area they slipped most, named plainly and specifically using the numbers given, (3) one encouraging, concrete nudge to get back on track — not generic cheerleading. " +
     "Never comment on body size, shape, or appearance. Never moralize about food. Keep it warm but honest — this is meant to hold them accountable, not just flatter them. Plain text, no markdown. " +
-    "If a meal is listed as deliberately skipped, that is a choice they made and recorded, not a lapse in logging. Do not tell them they forgot to log it, do not ask them to log it, and do not count it against them.";
+    "If a meal is listed as deliberately skipped, that is a choice they made and recorded, not a lapse in logging. Do not tell them they forgot to log it, do not ask them to log it, and do not count it against them. " +
+    "This person is in a deliberate calorie deficit to lose weight. A day BELOW the calorie target is the plan working, not a shortfall -- never suggest they eat more to reach a number, and never treat being under as the area they slipped in. " +
+    "The one exception: if the day came in under the stated floor, say so plainly and once, as a note about sustainability, and move on.";
   async function fetchScoreNarrative(sd) {
     var el = document.getElementById("scoreNarrative");
     el.innerHTML = '<span class="fb-dots" style="display:inline-block;"><span></span><span></span><span></span></span>';
@@ -2829,7 +3083,7 @@
 
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
-    wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth();
+    wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet();
 
     // Resume an existing session if the browser already has one (Supabase persists this in localStorage).
     try {
