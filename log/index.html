@@ -4210,6 +4210,22 @@
     var debuffs = activeDebuffs(pr);
     var effMult = effectiveMult(pr);
 
+    /* One view. The card used to be six stacked boxes -- header, equipment, fight,
+       nutrition, states, photographs -- each in its own frame, and the frames were
+       doing more work than the content. Everything hangs off the figure now:
+
+         the rings ARE the body socket, because the body is fed by what you eat
+         the fight bar runs under the figure, because the figure is what fought
+         the margins carry the readings the spine leaves room for
+
+       No inner panels at all, just hairlines between the three zones. */
+    var pr = lastProg || await progression();
+    var lo = lastLoadout || await loadout(pr);
+    var power = powerOf(pr, lo);
+    var debuffs = activeDebuffs(pr);
+    var buffs = activeBuffs(pr);
+    var effMult = effectiveMult(pr);
+
     var SCALE = 2, W = 1080, H = 1920, pad = 52;
     var canvas = document.getElementById("summaryCanvas");
     canvas.width = W * SCALE; canvas.height = H * SCALE;
@@ -4218,7 +4234,8 @@
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.textBaseline = "alphabetic";
 
-    var GOLD = "#C9A227", GOLD_DIM = "rgba(201,162,39,0.38)", INK = "#07080E";
+    var GOLD = "#C9A227", GOLD_DIM = "rgba(201,162,39,0.34)", INK = "#07080E";
+    var midX = W / 2;
 
     function hexPath(cx, cy, r) {
       ctx.beginPath();
@@ -4229,7 +4246,6 @@
       }
       ctx.closePath();
     }
-    /* A compartment: cut corners, a hairline of gold, and ticks at the cuts. */
     function platePath(x, y, w, h, n) {
       n = n || 16;
       ctx.beginPath();
@@ -4238,379 +4254,239 @@
       ctx.lineTo(x + n, y + h); ctx.lineTo(x, y + h - n); ctx.lineTo(x, y + n);
       ctx.closePath();
     }
-    function plate(x, y, w, h, fill, stroke) {
-      platePath(x, y, w, h);
-      ctx.fillStyle = fill || "rgba(255,255,255,0.045)"; ctx.fill();
-      ctx.strokeStyle = stroke || GOLD_DIM; ctx.lineWidth = 1.6; ctx.stroke();
+    function rule(yy) {
+      ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(W - pad, yy); ctx.stroke();
     }
-    function sectionLabel(t, x, y, w) {
-      ctx.fillStyle = GOLD; ctx.font = "600 17px Oswald, sans-serif";
-      ctx.fillText(String(t).toUpperCase(), x, y);
-      var tw = ctx.measureText(String(t).toUpperCase()).width;
-      if (w && w > tw + 24) {
-        ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(x + tw + 14, y - 6); ctx.lineTo(x + w, y - 6); ctx.stroke();
-      }
-    }
-    function cap(t, x, y, size, alpha) {
-      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.56) + ")";
+    function cap(t, x, yy, size, alpha) {
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.55) + ")";
       ctx.font = "600 " + (size || 15) + "px Oswald, sans-serif";
-      ctx.fillText(String(t).toUpperCase(), x, y);
+      ctx.fillText(String(t).toUpperCase(), x, yy);
     }
-    function big(t, x, y, size, color) {
-      ctx.fillStyle = color || "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, y);
+    function big(t, x, yy, size, color) {
+      ctx.fillStyle = color || "#fff"; ctx.font = "600 " + size + "px Oswald, sans-serif"; ctx.fillText(t, x, yy);
     }
-    function body(t, x, y, size, alpha) {
-      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.72) + ")";
-      ctx.font = "500 " + (size || 18) + "px Inter, sans-serif"; ctx.fillText(t, x, y);
+    function body(t, x, yy, size, alpha) {
+      ctx.fillStyle = "rgba(255,255,255," + (alpha || 0.66) + ")";
+      ctx.font = "500 " + (size || 17) + "px Inter, sans-serif"; ctx.fillText(t, x, yy);
     }
-    function pill(x, y, text, color, bg) {
-      ctx.font = "600 18px Oswald, sans-serif";
-      var w = ctx.measureText(text).width + 26;
-      ctx.fillStyle = bg || "rgba(255,255,255,0.08)";
-      roundRect(ctx, x, y - 19, w, 30, 15); ctx.fill();
-      ctx.strokeStyle = color + "66"; ctx.lineWidth = 1.3;
-      roundRect(ctx, x, y - 19, w, 30, 15); ctx.stroke();
-      ctx.fillStyle = color; ctx.fillText(text, x + 13, y + 1);
-      return w;
-    }
-    /* An inventory square: rarity-bordered, item level inside. */
-    function slotIcon(x, y, size, ilvl, color, rusted) {
-      ctx.save();
-      roundRect(ctx, x, y, size, size, 9);
+    function chip(x, yy, text, color) {
+      ctx.font = "600 17px Oswald, sans-serif";
+      var w = ctx.measureText(text).width + 24;
+      roundRect(ctx, x, yy - 18, w, 28, 14);
       ctx.fillStyle = color + "1E"; ctx.fill();
-      ctx.strokeStyle = rusted ? "rgba(255,143,107,0.75)" : color; ctx.lineWidth = 2; ctx.stroke();
-      ctx.restore();
-      ctx.fillStyle = color; ctx.font = "600 " + Math.round(size * 0.42) + "px Oswald, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(String(ilvl || "—"), x + size / 2, y + size * 0.66);
-      ctx.textAlign = "left";
+      ctx.strokeStyle = color + "77"; ctx.lineWidth = 1.2;
+      roundRect(ctx, x, yy - 18, w, 28, 14); ctx.stroke();
+      ctx.fillStyle = color; ctx.fillText(text, x + 12, yy + 1);
+      return w;
     }
 
     /* ---- plate ---- */
     ctx.fillStyle = INK; ctx.fillRect(0, 0, W, H);
-    var gl = ctx.createRadialGradient(W * 0.5, 240, 60, W * 0.5, 240, 980);
-    gl.addColorStop(0, rank.color + "38"); gl.addColorStop(1, "rgba(7,8,14,0)");
+    var gl = ctx.createRadialGradient(midX, 620, 80, midX, 620, 1020);
+    gl.addColorStop(0, rank.color + "2E"); gl.addColorStop(1, "rgba(7,8,14,0)");
     ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
-    var g2 = ctx.createRadialGradient(-60, H * 0.78, 60, -60, H * 0.78, 980);
-    g2.addColorStop(0, "rgba(46,107,255,0.3)"); g2.addColorStop(1, "rgba(7,8,14,0)");
+    var g2 = ctx.createRadialGradient(-60, H * 0.84, 60, -60, H * 0.84, 900);
+    g2.addColorStop(0, "rgba(46,107,255,0.26)"); g2.addColorStop(1, "rgba(7,8,14,0)");
     ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
 
     ctx.save();
-    ctx.strokeStyle = "rgba(201,162,39,0.045)"; ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "rgba(201,162,39,0.04)"; ctx.lineWidth = 1.4;
     var hr = 58, hdx = hr * 1.5, hdy = hr * Math.sqrt(3);
     for (var hc = -1; hc * hdx < W + hr; hc++)
       for (var hw = -1; hw * hdy < H + hr; hw++) {
         hexPath(hc * hdx, hw * hdy + (Math.abs(hc % 2) ? hdy / 2 : 0), hr * 0.92); ctx.stroke();
       }
     ctx.restore();
-
-    /* outer frame */
     ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 2;
     platePath(22, 22, W - 44, H - 44, 26); ctx.stroke();
 
-    /* ---- 1. title bar ---- */
-    cap("ACCOUNTABILITYAAS", pad, 86, 18, 0.5);
+    /* ---- 1. who, when, how far ---- */
+    cap("ACCOUNTABILITYAAS", pad, 84, 17, 0.45);
     ctx.textAlign = "right";
     cap(selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
-        W - pad, 86, 18, 0.5);
+        W - pad, 84, 17, 0.45);
     ctx.textAlign = "left";
-    ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad, 104); ctx.lineTo(W - pad, 104); ctx.stroke();
+    rule(104);
 
-    /* ---- 2. character header ---- */
-    var y = 126, h = 196;
-    plate(pad, y, W - pad * 2, h);
-    var bx = pad + 92, by = y + 92;
-    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 34;
-    hexPath(bx, by, 60); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
-    hexPath(bx, by, 60); ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2.5; ctx.stroke();
+    var bx = pad + 56, by = 178;
+    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 30;
+    hexPath(bx, by, 50); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
+    hexPath(bx, by, 50); ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.lineWidth = 2.2; ctx.stroke();
     ctx.textAlign = "center";
-    ctx.fillStyle = INK; ctx.font = "600 58px Oswald, sans-serif";
-    ctx.fillText(rank.letter, bx, by + 21);
+    ctx.fillStyle = INK; ctx.font = "600 48px Oswald, sans-serif";
+    ctx.fillText(rank.letter, bx, by + 17);
     ctx.textAlign = "left";
-    cap("day " + overall + "/100", bx - 50, y + 178, 15, 0.6);
 
-    var tx = pad + 176;
-    big(pr.title.toUpperCase(), tx, y + 54, 40);
-    cap("level " + pr.level, tx + ctx.measureText(pr.title.toUpperCase()).width + 18, y + 52, 19, 0.55);
-
-    var xpW = W - pad - 34 - tx, xpY = y + 74;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, tx, xpY, xpW, 12, 6); ctx.fill();
+    var tx = pad + 126;
+    big(pr.title.toUpperCase(), tx, by - 12, 40);
+    cap("level " + pr.level, tx + ctx.measureText(pr.title.toUpperCase()).width + 16, by - 14, 18, 0.5);
+    var xpW = W - pad - tx, xpY = by + 6;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, tx, xpY, xpW, 11, 6); ctx.fill();
     var into = Math.max(0, pr.total - pr.floorXP), span = Math.max(1, pr.nextXP - pr.floorXP);
-    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 18; ctx.fillStyle = rank.color;
-    roundRect(ctx, tx, xpY, Math.max(12, xpW * Math.min(1, into / span)), 12, 6); ctx.fill(); ctx.restore();
-    body(fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to " + (pr.level + 1), tx, xpY + 36, 17, 0.6);
+    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 16; ctx.fillStyle = rank.color;
+    roundRect(ctx, tx, xpY, Math.max(11, xpW * Math.min(1, into / span)), 11, 6); ctx.fill(); ctx.restore();
+    body(fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to " + (pr.level + 1) +
+         "  ·  " + fmtInt(power) + " power  ·  " + fmtInt(lo.gearScore) + " gear", tx, xpY + 34, 16, 0.55);
+    rule(238);
 
-    var px = tx;
-    px += pill(px, y + 160, fmtInt(power) + " POWER", GOLD) + 10;
-    px += pill(px, y + 160, fmtInt(lo.gearScore) + " GEAR", "#B06BFF") + 10;
-    pill(px, y + 160, "▲ " + pr.run + "d  " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
+    /* ---- 2. the figure: everything worn, everything eaten, everything today ---- */
+    var SZ = 72;
+    var Y_HELM = 318, Y_BELT = 430, Y_MID = 580, Y_LEGS = 730, Y_BOOT = 842;
+    var FLANK = 232;
+    var ringR = 96;
 
-    /* ---- 3. equipment: the worn-items panel ---- */
-    /* The arrangement of an equipment screen -- a spine from the helm down to the
-       boots, weapon and shield branching off the body -- in the card's own materials
-       rather than a brown board that fought everything around it.
-
-       Each socket shows the real measurement, not the scaled level. A column of
-       numbers like 280 and 232 says nothing you can act on; "58d" and "11 PR" say
-       exactly what is in that slot, the border says how good it is, and the line
-       underneath says what the next tier costs in the units of the thing that fills
-       it. */
-    y = 344; h = 466;
-    plate(pad, y, W - pad * 2, h);
-    sectionLabel("Worn equipment", pad + 26, y + 40, 280);
-    ctx.textAlign = "right";
-    cap(lo.equipped + " of " + lo.slots + " filled" + (lo.rusting ? "  ·  " + lo.rusting + " rusting" : ""),
-        W - pad - 26, y + 40, 15, 0.52);
-    ctx.textAlign = "left";
-
-    var SZ = 72, GAPX = 112;
-    var ROWY = [y + 104, y + 186, y + 268, y + 350, y + 432];
-    var midX = W / 2;
-    var DOLL = {
-      helmet: { x: midX,        yy: ROWY[0], label: "Helm" },
-      belt:   { x: midX,        yy: ROWY[1], label: "Belt" },
-      weapon: { x: midX - GAPX, yy: ROWY[2], label: "Weapon" },
-      chest:  { x: midX,        yy: ROWY[2], label: "Body" },
-      shield: { x: midX + GAPX, yy: ROWY[2], label: "Shield" },
-      legs:   { x: midX,        yy: ROWY[3], label: "Legs" },
-      boots:  { x: midX,        yy: ROWY[4], label: "Boots" }
-    };
-
-    /* the spine, drawn first so the sockets sit on top of it */
-    ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255,255,255,0.14)"; ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(midX, ROWY[0]); ctx.lineTo(midX, ROWY[4]);
-    ctx.moveTo(midX - GAPX, ROWY[2]); ctx.lineTo(midX + GAPX, ROWY[2]);
+    ctx.moveTo(midX, Y_HELM); ctx.lineTo(midX, Y_BOOT);
+    ctx.moveTo(midX - FLANK, Y_MID); ctx.lineTo(midX + FLANK, Y_MID);
     ctx.stroke();
 
-    lo.rows.forEach(function (r) {
-      var pos = DOLL[r.key]; if (!pos) return;
-      var sx = pos.x - SZ / 2, sy = pos.yy - SZ / 2;
+    function socket(cx, cy, r) {
+      var sx = cx - SZ / 2, sy = cy - SZ / 2;
       var filled = r.ilvl > 0;
       var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
-
       roundRect(ctx, sx, sy, SZ, SZ, 11);
-      ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(255,255,255,0.03)"; ctx.fill();
+      ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(7,8,14,0.9)"; ctx.fill();
       if (filled) {
-        ctx.save(); ctx.shadowColor = r.rarity.color + "66"; ctx.shadowBlur = 12;
-        roundRect(ctx, sx, sy, SZ, SZ, 11);
-        ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.shadowColor = r.rarity.color + "66"; ctx.shadowBlur = 14;
+        roundRect(ctx, sx, sy, SZ, SZ, 11); ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); ctx.restore();
       } else {
         roundRect(ctx, sx, sy, SZ, SZ, 11);
         ctx.setLineDash([4, 5]); ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke(); ctx.setLineDash([]);
       }
-
       ctx.save();
-      ctx.translate(pos.x - 15, sy + 11);
-      ctx.scale(30 / 24, 30 / 24);
+      ctx.translate(cx - 15, sy + 11); ctx.scale(30 / 24, 30 / 24);
       ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.lineCap = "round";
       (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
       ctx.restore();
-
-      /* the measurement itself, which is the part worth reading */
       ctx.textAlign = "center";
       ctx.fillStyle = filled ? "#fff" : "rgba(255,255,255,0.3)";
       ctx.font = "600 17px Oswald, sans-serif";
-      ctx.fillText(filled ? r.face : "—", pos.x, sy + SZ - 13);
+      ctx.fillText(filled ? r.face : "—", cx, sy + SZ - 13);
       ctx.textAlign = "left";
-    });
-
-    /* the two outer sockets have room beside them for their rarity */
-    [["weapon", -1], ["shield", 1]].forEach(function (pair) {
-      var r = lo.rows.filter(function (q) { return q.key === pair[0]; })[0];
+    }
+    function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
+    /* a slot's name and rarity, set beside it */
+    function aside(r, x, yy, align) {
       if (!r) return;
-      var edge = midX + pair[1] * (GAPX + SZ / 2 + 18);
-      ctx.textAlign = pair[1] < 0 ? "right" : "left";
+      ctx.textAlign = align;
       ctx.fillStyle = r.ilvl ? r.rarity.color : "rgba(255,255,255,0.3)";
       ctx.font = "600 15px Oswald, sans-serif";
-      ctx.fillText(r.rarity.name.toUpperCase(), edge, ROWY[2] - 4);
-      ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 14px Inter, sans-serif";
-      ctx.fillText(r.fed, edge, ROWY[2] + 18);
+      ctx.fillText(r.rarity.name.toUpperCase(), x, yy);
+      ctx.fillStyle = "rgba(255,255,255,0.58)"; ctx.font = "500 15px Inter, sans-serif";
+      ctx.fillText(r.name, x, yy + 22);
+      ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "500 13px Inter, sans-serif";
+      ctx.fillText(r.fed, x, yy + 42);
       ctx.textAlign = "left";
-    });
-
-    /* one concrete next step, picked as the slot closest to its next tier */
-    var upgradable = lo.rows.filter(function (r) { return r.next; })
-      .sort(function (a, b) { return a.need - b.need; });
-    if (upgradable.length) {
-      var u = upgradable[0];
-      sectionLabel("Next upgrade", pad + 26, y + 90, 0);
-      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
-      ctx.fillText(u.name, pad + 26, y + 124);
-      ctx.fillStyle = u.next.color; ctx.font = "600 15px Oswald, sans-serif";
-      ctx.fillText(u.rarity.name.toUpperCase() + "  →  " + u.next.name.toUpperCase(), pad + 26, y + 150);
-      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 16px Inter, sans-serif";
-      ctx.fillText(u.needText, pad + 26, y + 178);
     }
 
-    /* and the three best things you are carrying */
-    ctx.textAlign = "right";
-    sectionLabel("Best worn", W - pad - 150, y + 90, 0);
-    ctx.textAlign = "right";
-    lo.rows.filter(function (r) { return r.ilvl > 0; })
-      .sort(function (a, b) { return b.ilvl - a.ilvl; }).slice(0, 3)
-      .forEach(function (r, i2) {
-        var ry = y + 124 + i2 * 28;
-        ctx.fillStyle = r.rarity.color; ctx.font = "600 15px Oswald, sans-serif";
-        ctx.fillText(r.rarity.name.toUpperCase(), W - pad - 26, ry);
-        ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 14px Inter, sans-serif";
-        ctx.fillText(r.name, W - pad - 26 - ctx.measureText(r.rarity.name).width - 76, ry);
-      });
+    socket(midX, Y_HELM, rowFor("helmet"));  aside(rowFor("helmet"), midX + 56, Y_HELM - 10, "left");
+    socket(midX, Y_BELT, rowFor("belt"));    aside(rowFor("belt"),   midX + 56, Y_BELT - 10, "left");
+    socket(midX - FLANK, Y_MID, rowFor("weapon"));
+    aside(rowFor("weapon"), midX - FLANK, Y_MID + 62, "center");
+    socket(midX + FLANK, Y_MID, rowFor("shield"));
+    aside(rowFor("shield"), midX + FLANK, Y_MID + 62, "center");
+    socket(midX, Y_LEGS, rowFor("legs"));    aside(rowFor("legs"),   midX + 56, Y_LEGS - 10, "left");
+    socket(midX, Y_BOOT, rowFor("boots"));   aside(rowFor("boots"),  midX + 56, Y_BOOT - 10, "left");
+
+    /* the body socket is the nutrition: the rings ARE the chest piece */
+    var chestRow = rowFor("chest");
+    var rings = [
+      { r: ringR,      w: 17, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
+      { r: ringR - 23, w: 17, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
+      { r: ringR - 46, w: 17, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
+    ];
+    rings.forEach(function (rg) {
+      ringArc(ctx, midX, Y_MID, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)");
+    });
+    ctx.textAlign = "center";
+    ctx.fillStyle = anyEst ? "#fff" : "rgba(255,255,255,0.35)";
+    ctx.font = "600 34px Oswald, sans-serif";
+    ctx.fillText(anyEst ? fmtInt(cal) : "—", midX, Y_MID + 2);
+    ctx.fillStyle = chestRow && chestRow.ilvl ? chestRow.rarity.color : "rgba(255,255,255,0.4)";
+    ctx.font = "600 13px Oswald, sans-serif";
+    ctx.fillText("KCAL · " + (chestRow ? chestRow.face : ""), midX, Y_MID + 26);
     ctx.textAlign = "left";
 
-    /* ---- 4. the day's fight ---- */
+    /* the macros the rings stand for, and the one next upgrade, in the margins */
+    var mX = pad, mY = Y_BELT - 6;
+    cap("macros", mX, mY, 14, 0.45);
+    rings.forEach(function (rg, i2) {
+      var ly = mY + 30 + i2 * 44;
+      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(mX + 6, ly - 6, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "600 20px Oswald, sans-serif";
+      var vTxt = rg.val + "g", vW = ctx.measureText(vTxt).width;
+      ctx.fillText(vTxt, mX + 20, ly);
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
+      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target, mX + 20 + vW + 12, ly);
+    });
+    var upg = lo.rows.filter(function (r) { return r.next; }).sort(function (a, b) { return a.need - b.need; })[0];
+    if (upg) {
+      var uY = Y_LEGS - 20;
+      cap("next upgrade", mX, uY, 14, 0.45);
+      ctx.fillStyle = "#fff"; ctx.font = "600 18px Oswald, sans-serif";
+      ctx.fillText(upg.name, mX, uY + 28);
+      ctx.fillStyle = upg.next.color; ctx.font = "600 14px Oswald, sans-serif";
+      ctx.fillText(upg.rarity.name.toUpperCase() + " → " + upg.next.name.toUpperCase(), mX, uY + 50);
+      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 15px Inter, sans-serif";
+      ctx.fillText(upg.needText, mX, uY + 74);
+    }
+    rule(912);
+
+    /* ---- 3. what the figure fought ---- */
     var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    y = 830; h = 230;
-    plate(pad, y, W - pad * 2, h, bt.won ? "rgba(125,240,184,0.07)" : "rgba(255,255,255,0.045)",
-          bt.won ? "rgba(125,240,184,0.45)" : GOLD_DIM);
-
-    sectionLabel("The day's fight", pad + 26, y + 38, 300);
+    cap("the day's fight", pad, 952, 16, 0.5);
     ctx.textAlign = "right";
-    cap(bt.tier.name + " \u00b7 " + bt.foe.name, W - pad - 26, y + 38, 16, 0.62);
+    cap(bt.tier.name + " · " + bt.foe.name, W - pad, 952, 16, 0.5);
     ctx.textAlign = "left";
 
-    /* you, versus it */
-    var vy = y + 86;
-    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 20;
-    hexPath(pad + 56, vy, 30); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
-    ctx.textAlign = "center";
-    ctx.fillStyle = INK; ctx.font = "600 27px Oswald, sans-serif";
-    ctx.fillText(rank.letter, pad + 56, vy + 10);
-    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "600 13px Oswald, sans-serif";
-    ctx.fillText("YOU", pad + 56, vy + 50);
-    ctx.textAlign = "left";
-
-    ctx.save(); ctx.shadowColor = bt.tier.color; ctx.shadowBlur = 20;
-    hexPath(W - pad - 56, vy, 30);
-    ctx.strokeStyle = bt.tier.color; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
-    ctx.textAlign = "center";
-    ctx.fillStyle = bt.tier.color; ctx.font = "600 24px Oswald, sans-serif";
-    ctx.fillText(String(bt.hp), W - pad - 56, vy + 9);
-    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "600 13px Oswald, sans-serif";
-    ctx.fillText("HP", W - pad - 56, vy + 50);
-    ctx.textAlign = "left";
-
-    /* the blow landed */
-    var hbX = pad + 110, hbW = W - pad * 2 - 220, hbY = vy - 14;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, hbX, hbY, hbW, 26, 13); ctx.fill();
-    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 20;
+    var hbY = 972, hbW = W - pad * 2;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad, hbY, hbW, 30, 15); ctx.fill();
+    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 22;
     ctx.fillStyle = bt.won ? "#7DF0B8" : rank.color;
-    roundRect(ctx, hbX, hbY, Math.max(26, hbW * bt.pct), 26, 13); ctx.fill(); ctx.restore();
+    roundRect(ctx, pad, hbY, Math.max(30, hbW * bt.pct), 30, 15); ctx.fill(); ctx.restore();
     ctx.textAlign = "center";
-    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 18px Oswald, sans-serif";
-    ctx.fillText(bt.damage + " / " + bt.hp + " DMG", hbX + hbW / 2, hbY + 19);
-    ctx.fillStyle = bt.won ? "#7DF0B8" : "#FF8F6B"; ctx.font = "600 21px Oswald, sans-serif";
-    ctx.fillText(bt.won ? "VICTORY" : (bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"), hbX + hbW / 2, vy + 50);
+    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+    ctx.fillText(bt.damage + " / " + bt.hp + " DMG  ·  " + (bt.won ? "VICTORY" : bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"),
+                 midX, hbY + 21);
     ctx.textAlign = "left";
 
-    /* where the damage came from */
-    var bw = (W - pad * 2 - 52 - (bt.blows.length - 1) * 10) / bt.blows.length;
+    var bw3 = (W - pad * 2 - (bt.blows.length - 1) * 12) / bt.blows.length;
     bt.blows.forEach(function (bl, i2) {
-      var bx2 = pad + 26 + i2 * (bw + 10), byy = y + 150;
-      ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, bx2, byy, bw, 7, 4); ctx.fill();
+      var bx2 = pad + i2 * (bw3 + 12), byy = hbY + 52;
+      ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, bx2, byy, bw3, 6, 3); ctx.fill();
       ctx.fillStyle = bl.v >= bl.max ? "#7DF0B8" : (bl.v > 0 ? rank.color : "rgba(255,255,255,0.12)");
-      roundRect(ctx, bx2, byy, Math.max(4, bw * (bl.v / bl.max)), 7, 4); ctx.fill();
-      cap(bl.k, bx2, byy + 30, 14, 0.62);
-      ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 13px Inter, sans-serif";
-      var nt = bl.note; while (ctx.measureText(nt).width > bw && nt.length > 4) nt = nt.slice(0, -2);
-      ctx.fillText(nt, bx2, byy + 50);
+      roundRect(ctx, bx2, byy, Math.max(3, bw3 * (bl.v / bl.max)), 6, 3); ctx.fill();
+      cap(bl.k, bx2, byy + 28, 14, 0.6);
       ctx.textAlign = "right";
       ctx.fillStyle = "#fff"; ctx.font = "600 15px Oswald, sans-serif";
-      ctx.fillText("+" + bl.v, bx2 + bw, byy + 30);
+      ctx.fillText("+" + bl.v, bx2 + bw3, byy + 28);
       ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
+      var nt = bl.note; while (ctx.measureText(nt).width > bw3 && nt.length > 4) nt = nt.slice(0, -2);
+      ctx.fillText(nt, bx2, byy + 48);
     });
 
-    /* ---- 5. nutrition ---- */
-    y = 1074; h = 332;
-    plate(pad, y, W - pad * 2, h);
-    sectionLabel("Nutrition", pad + 26, y + 40, 260);
-    var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
-    ctx.textAlign = "right";
-    cap(!anyEst ? "nothing logged" : underCap ? "on plan" : (cal < PLAN.floor ? "under the floor" : "over the target"),
-        W - pad - 26, y + 40, 15, 0.6);
-    ctx.textAlign = "left";
-
-    big(anyEst ? fmtInt(cal) : "—", pad + 26, y + 100, 46);
-    body(anyEst ? "to " + fmtInt(cal + 150) + " est.  ·  aim " + fmtInt(planIntake()) + "  ·  maint " + fmtInt(PLAN.maintenance)
-                : "no meals logged today",
-         pad + 26 + ctx.measureText(anyEst ? fmtInt(cal) : "—").width + 24, y + 96, 17, 0.6);
-
-    var barW = W - pad * 2 - 52, barY = y + 120;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad + 26, barY, barW, 9, 5); ctx.fill();
-    if (anyEst) {
-      ctx.fillStyle = underCap ? "#5BE1A8" : "#FF8F6B";
-      roundRect(ctx, pad + 26, barY, Math.max(9, barW * Math.min(1, cal / PLAN.maintenance)), 9, 5); ctx.fill();
-      var tickX = pad + 26 + barW * Math.min(1, planIntake() / PLAN.maintenance);
-      ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 19);
-    }
-
-    var cx3 = pad + 26 + 100, cy3 = y + 212;
-    var rings = [
-      { r: 86, w: 20, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
-      { r: 62, w: 20, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
-      { r: 38, w: 20, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
-    ];
-    rings.forEach(function (rg) { ringArc(ctx, cx3, cy3, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)"); });
-    var lx = cx3 + 130;
-    rings.forEach(function (rg, i) {
-      var ly = cy3 - 54 + i * 56;
-      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 7, ly - 7, 7, 0, Math.PI * 2); ctx.fill();
-      cap(rg.name, lx + 22, ly - 1, 14, 0.62);
-      ctx.fillStyle = "#fff"; ctx.font = "600 28px Oswald, sans-serif";
-      ctx.fillText(rg.val + "g", lx + 22, ly + 30);
-      body((rg.name === "FAT" ? "cap " : "of ") + rg.target + "g",
-           lx + 22 + ctx.measureText(rg.val + "g").width + 50, ly + 28, 15, 0.45);
+    /* blessings and curses as chips on one line, not a table */
+    var chY = 1118, chX = pad;
+    chip(chX, chY, pr.mult + "× → " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
+    chX += ctx.measureText(pr.mult + "× → " + effMult + "×").width + 36;
+    buffs.concat([]).forEach(function (bf) {
+      var t2 = bf.name + " +" + Math.round(bf.gain * 100) + "%";
+      if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
+      chX += chip(chX, chY, t2, "#7DF0B8") + 10;
     });
+    debuffs.forEach(function (d) {
+      var t2 = d.name + " −" + Math.round(d.cost * 100) + "%";
+      if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
+      chX += chip(chX, chY, t2, "#FF8F6B") + 10;
+    });
+    rule(1158);
 
-    /* ---- 6. what is costing you, or what the coach said ---- */
-    y = 1420;
-    /* blessings and curses side by side, because they are one ledger */
-    var states = activeBuffs(pr).map(function (b) {
-      return { n: b.name, w: b.why(pr.gaps, pr), v: "+" + Math.round(b.gain * 100) + "%", c: "#7DF0B8" };
-    }).concat(debuffs.map(function (d) {
-      return { n: d.name, w: d.why(pr.gaps), v: "−" + Math.round(d.cost * 100) + "%", c: "#FF8F6B" };
-    }));
-    if (states.length) {
-      var dh = 54 + states.length * 34;
-      plate(pad, y, W - pad * 2, dh);
-      sectionLabel("Blessings & curses", pad + 26, y + 36, 310);
-      ctx.textAlign = "right";
-      cap(pr.mult + "× → " + effMult + "×", W - pad - 26, y + 36, 16, 0.6);
-      ctx.textAlign = "left";
-      states.forEach(function (d, i) {
-        var ry = y + 68 + i * 34;
-        ctx.fillStyle = d.c; ctx.font = "600 19px Oswald, sans-serif";
-        ctx.fillText(d.n, pad + 26, ry);
-        body(d.w, pad + 26 + 180, ry, 16, 0.6);
-        ctx.textAlign = "right";
-        ctx.fillStyle = d.c; ctx.font = "600 18px Oswald, sans-serif";
-        ctx.fillText(d.v, W - pad - 26, ry);
-        ctx.textAlign = "left";
-      });
-      y += dh + 14;
-    } else if (summaryShowCoach && coachText) {
-      var words = coachText.split(/\s+/), lines = [], line = "";
-      ctx.font = "500 24px Inter, sans-serif";
-      var maxW = W - pad * 2 - 52;
-      words.forEach(function (wd) {
-        var t = line ? line + " " + wd : wd;
-        if (ctx.measureText(t).width > maxW) { lines.push(line); line = wd; } else { line = t; }
-      });
-      if (line) lines.push(line);
-      lines = lines.slice(0, 5);
-      var ch = 76 + lines.length * 34;
-      plate(pad, y, W - pad * 2, ch);
-      sectionLabel("Coach", pad + 26, y + 38, 200);
-      ctx.fillStyle = "rgba(255,255,255,0.92)"; ctx.font = "500 24px Inter, sans-serif";
-      lines.forEach(function (ln, i) { ctx.fillText(ln, pad + 26, y + 74 + i * 34); });
-      y += ch + 14;
-    }
-
-    /* ---- 7. photos fill whatever is left ---- */
+    /* ---- 4. the plates, or the week that produced them ---- */
     var footY = H - 64;
-    var gTop = y + 4, gap = 14;
+    var gTop = 1182, gap = 14;
     var avail = footY - 46 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
     var rowsN = Math.floor((avail + gap) / (cellW + gap));
@@ -4619,13 +4495,8 @@
     else if (rowsN === 1) { cellH = Math.min(avail, cellW * 1.3); }
     else { rowsN = 1; cellH = avail; }
 
-    /* A day with no photographs left a hole where they would have been. The week
-       behind you is the thing worth putting there: seven plates, each filled by how
-       much that day earned, so the card still says something about the run even when
-       the day itself is thin. */
     var usingPhotos = cellH >= 130 && dayFood.length;
     if (!usingPhotos && avail >= 150) {
-      /* grow the plates to take whatever the photographs would have used */
       var sw = (W - pad * 2 - 6 * 10) / 7, sh = Math.max(150, Math.min(300, avail - 56));
       var best = 1, week = [];
       for (var wi = 6; wi >= 0; wi--) {
@@ -4636,10 +4507,11 @@
         best = Math.max(best, dx.xp);
         week.push({ d: d2, xp: dx.xp, perfect: dx.perfect });
       }
-      sectionLabel("The week behind", pad, gTop + 18, 280);
-      week.forEach(function (wd, i) {
-        var x = pad + i * (sw + 10), top = gTop + 34;
-        plate(x, top, sw, sh, "rgba(255,255,255,0.03)");
+      cap("the week behind", pad, gTop + 18, 16, 0.5);
+      week.forEach(function (wd, i2) {
+        var x = pad + i2 * (sw + 10), top = gTop + 34;
+        platePath(x, top, sw, sh, 12);
+        ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.lineWidth = 1.4; ctx.stroke();
         var fh = Math.round((sh - 54) * Math.min(1, wd.xp / best));
         if (wd.xp > 0) {
           ctx.fillStyle = wd.perfect ? "#7DF0B8" : rank.color;
@@ -4664,21 +4536,20 @@
           var sc = Math.max(cellW / img.width, cellH / img.height);
           ctx.drawImage(img, x + (cellW - img.width * sc) / 2, yy + (cellH - img.height * sc) / 2,
             img.width * sc, img.height * sc);
-        } else { ctx.fillStyle = "rgba(255,255,255,0.12)"; ctx.fillRect(x, yy, cellW, cellH); }
+        } else { ctx.fillStyle = "rgba(255,255,255,0.1)"; ctx.fillRect(x, yy, cellW, cellH); }
         ctx.restore();
         platePath(x, yy, cellW, cellH, 14); ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1.6; ctx.stroke();
       });
     }
 
-    /* ---- 8. footer: what went out, and who it was for ---- */
-    ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad, footY - 34); ctx.lineTo(W - pad, footY - 34); ctx.stroke();
+    /* ---- footer ---- */
+    rule(footY - 34);
     var gave = givenTotal();
-    body("accountabilityaas.com" + (gave > 0 ? "   ·   " + money(gave) + " to " + GOOD.cause : ""), pad, footY, 19, 0.6);
+    body("accountabilityaas.com" + (gave > 0 ? "   ·   " + money(gave) + " to " + GOOD.cause : ""), pad, footY, 18, 0.55);
     var ded = GOOD.dedications[key];
     if (ded) {
       ctx.textAlign = "right";
-      ctx.fillStyle = GOLD; ctx.font = "500 19px Inter, sans-serif";
+      ctx.fillStyle = GOLD; ctx.font = "500 18px Inter, sans-serif";
       var dl = "for " + ded;
       while (ctx.measureText(dl).width > W - pad * 2 - 420 && dl.length > 8) dl = dl.slice(0, -2);
       ctx.fillText(dl, W - pad, footY);
