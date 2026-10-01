@@ -3358,17 +3358,32 @@
 
     var run = pr ? pr.run : 0;
     var given = givenTotal();
+    /* `face` is what the socket shows: the real measurement, not the scaled level.
+       `per` is what one more of that thing is worth, so the panel can say what the next
+       tier actually costs rather than leaving you to guess. */
     var raw = {
-      helmet: { v: given,     ilvl: Math.round(given),            unit: GOOD.currency, detail: money(given) + " to " + GOOD.cause },
-      chest:  { v: onPlan,    ilvl: Math.round(onPlan * 4 + mealDays * 1.5), unit: "",  detail: onPlan + " days on plan, " + mealDays + " logged (of 30)" },
-      weapon: { v: run,       ilvl: Math.round(run * 4),          unit: "d", detail: run + " day streak" + (run ? "" : " — start one") },
-      shield: { v: everLogged, ilvl: Math.round(everLogged * 2.5), unit: "d",
+      helmet: { ilvl: Math.round(given), face: money(given), per: 1,
+                step: function (n) { return money(n) + " more given"; },
+                detail: money(given) + " given to " + GOOD.cause },
+      chest:  { ilvl: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
+                step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " on plan"; },
+                detail: onPlan + " of the last 30 days inside the window" },
+      weapon: { ilvl: Math.round(run * 4), face: run + "d", per: 4,
+                step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " unbroken"; },
+                detail: run ? run + " days without a gap" : "no streak — log today to start one" },
+      shield: { ilvl: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
+                step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
                 detail: everLogged + " days logged, all time" },
-      belt:   { v: beltCount, ilvl: beltIlvl, unit: "",
-                detail: bestLift ? beltCount + " lifts on record · best " + bestLift.name + " " + bestLift.raw + (bestLift.bodyweight ? " reps" : " lb")
+      belt:   { ilvl: beltIlvl, face: beltCount + " PR", per: 1.4,
+                step: function (n) { return n + " lb more on any lift"; },
+                detail: bestLift ? beltCount + " lifts on record, best " + bestLift.name + " " + bestLift.raw + (bestLift.bodyweight ? " reps" : " lb")
                                  : "no finished sets yet" },
-      legs:   { v: cardioMin, ilvl: Math.round(cardioMin / 8),    unit: "min", detail: fmtInt(cardioMin) + " cardio minutes (of 30 days)" },
-      boots:  { v: weighDays, ilvl: Math.round(weighDays * 5),    unit: "d", detail: weighDays + " weigh-ins in 30 days" }
+      legs:   { ilvl: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + "m", per: 1 / 8,
+                step: function (n) { return fmtInt(n) + " more cardio minutes"; },
+                detail: fmtInt(cardioMin) + " cardio minutes in 30 days" },
+      boots:  { ilvl: Math.round(weighDays * 5), face: weighDays + "/30", per: 5,
+                step: function (n) { return n + " more weigh-in" + (n === 1 ? "" : "s"); },
+                detail: weighDays + " weigh-ins in the last 30 days" }
     };
 
     var gearScore = 0, equipped = 0, rusting = 0;
@@ -3378,11 +3393,18 @@
       gearScore += r.ilvl;
       if (r.ilvl > 0) equipped++;
       if (rusted) rusting++;
+      /* what the next rarity costs, in the units of the thing that feeds this slot */
+      var tier = tierFor(r.ilvl), nextT = null;
+      for (var ti = ILVL_TIERS.length - 1; ti >= 0; ti--) {
+        if (ILVL_TIERS[ti].at > r.ilvl) { nextT = ILVL_TIERS[ti]; break; }
+      }
+      var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.ilvl) / r.per)) : null;
       return { key: sl.key, name: sl.name, fed: sl.fed, icon: sl.icon,
                ilvl: r.ilvl, recordIlvl: rusted ? beltRecord : r.ilvl,
-               detail: r.detail, rusted: !!rusted,
+               face: r.face, detail: r.detail, rusted: !!rusted,
                since: rusted ? beltRusting + " lift" + (beltRusting === 1 ? "" : "s") : null,
-               rarity: tierFor(r.ilvl) };
+               rarity: tier, next: nextT, need: need,
+               needText: nextT ? r.step(need) : "at the cap" };
     });
 
     return {
@@ -4326,120 +4348,121 @@
     pill(px, y + 160, "▲ " + pr.run + "d  " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
 
     /* ---- 3. equipment: the worn-items panel ---- */
-    /* A stone-slot inventory window, the way these have looked since they were drawn
-       in sixteen colours: recessed grey squares on a brown board, strung on a spine of
-       dark strapping. An empty socket is a dark silhouette on stone; a filled one
-       lights its glyph in the item's rarity and stamps the level in the corner.
+    /* The arrangement of an equipment screen -- a spine from the helm down to the
+       boots, weapon and shield branching off the body -- in the card's own materials
+       rather than a brown board that fought everything around it.
 
-       The spine is the point. Seven rows of text told you what you had; a socket
-       sitting dark tells you what you have not, and the helm is the one socket that
-       training alone can never fill. */
-    y = 344; h = 500;
-    var bw2 = 604, bx0 = Math.round(W / 2 - bw2 / 2);
-    var board = ctx.createLinearGradient(bx0, y, bx0, y + h);
-    board.addColorStop(0, "#584A3A"); board.addColorStop(1, "#413527");
-    platePath(bx0, y, bw2, h); ctx.fillStyle = board; ctx.fill();
-    platePath(bx0, y, bw2, h); ctx.strokeStyle = "#8A7558"; ctx.lineWidth = 2.4; ctx.stroke();
-    platePath(bx0 + 6, y + 6, bw2 - 12, h - 12);
-    ctx.strokeStyle = "rgba(0,0,0,0.32)"; ctx.lineWidth = 1.6; ctx.stroke();
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#E8D9BC"; ctx.font = "600 17px Oswald, sans-serif";
-    ctx.fillText("WORN EQUIPMENT", W / 2, y + 40);
-    ctx.textAlign = "left";
-
-    /* the two readings that do not fit inside a narrow pane sit beside it */
-    sectionLabel("Armoury", pad + 8, y + 54, 150);
-    body(lo.equipped + " of " + lo.slots + " sockets filled", pad + 8, y + 92, 17, 0.62);
-    if (lo.rusting) {
-      ctx.fillStyle = "#FF8F6B"; ctx.font = "500 17px Inter, sans-serif";
-      ctx.fillText(lo.rusting + " rusting", pad + 8, y + 122);
-    }
-    ctx.textAlign = "left";
-    sectionLabel("Score", W - pad - 158, y + 54, 0);
+       Each socket shows the real measurement, not the scaled level. A column of
+       numbers like 280 and 232 says nothing you can act on; "58d" and "11 PR" say
+       exactly what is in that slot, the border says how good it is, and the line
+       underneath says what the next tier costs in the units of the thing that fills
+       it. */
+    y = 344; h = 466;
+    plate(pad, y, W - pad * 2, h);
+    sectionLabel("Worn equipment", pad + 26, y + 40, 280);
     ctx.textAlign = "right";
-    ctx.fillStyle = "#fff"; ctx.font = "600 34px Oswald, sans-serif";
-    ctx.fillText(fmtInt(lo.gearScore), W - pad - 8, y + 96);
-    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 17px Inter, sans-serif";
-    ctx.fillText("gear score", W - pad - 8, y + 122);
+    cap(lo.equipped + " of " + lo.slots + " filled" + (lo.rusting ? "  ·  " + lo.rusting + " rusting" : ""),
+        W - pad - 26, y + 40, 15, 0.52);
     ctx.textAlign = "left";
 
-    /* the spine: helm, belt, body, legs, boots down the middle; weapon and shield out
-       to the sides of the body, exactly where an equipment screen puts them */
-    var SZ = 70, GAPX = 122;
-    var ROWY = [y + 80, y + 172, y + 264, y + 356, y + 448];
+    var SZ = 72, GAPX = 112;
+    var ROWY = [y + 104, y + 186, y + 268, y + 350, y + 432];
     var midX = W / 2;
     var DOLL = {
-      helmet: { x: midX,        yy: ROWY[0] },
-      belt:   { x: midX,        yy: ROWY[1] },
-      weapon: { x: midX - GAPX, yy: ROWY[2] },
-      chest:  { x: midX,        yy: ROWY[2] },
-      shield: { x: midX + GAPX, yy: ROWY[2] },
-      legs:   { x: midX,        yy: ROWY[3] },
-      boots:  { x: midX,        yy: ROWY[4] }
+      helmet: { x: midX,        yy: ROWY[0], label: "Helm" },
+      belt:   { x: midX,        yy: ROWY[1], label: "Belt" },
+      weapon: { x: midX - GAPX, yy: ROWY[2], label: "Weapon" },
+      chest:  { x: midX,        yy: ROWY[2], label: "Body" },
+      shield: { x: midX + GAPX, yy: ROWY[2], label: "Shield" },
+      legs:   { x: midX,        yy: ROWY[3], label: "Legs" },
+      boots:  { x: midX,        yy: ROWY[4], label: "Boots" }
     };
 
-    ctx.strokeStyle = "#2B2219"; ctx.lineWidth = 7; ctx.lineCap = "round";
+    /* the spine, drawn first so the sockets sit on top of it */
+    ctx.strokeStyle = "rgba(255,255,255,0.16)"; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(midX, ROWY[0]); ctx.lineTo(midX, ROWY[4]);
     ctx.moveTo(midX - GAPX, ROWY[2]); ctx.lineTo(midX + GAPX, ROWY[2]);
     ctx.stroke();
-    ctx.lineCap = "butt";
-
-    /* one recessed stone socket */
-    function socket(cx, cy, filled, color, ilvl, icon, rusted) {
-      var sx = cx - SZ / 2, sy = cy - SZ / 2;
-      roundRect(ctx, sx - 3, sy - 3, SZ + 6, SZ + 6, 8);
-      ctx.fillStyle = "#2B2219"; ctx.fill();
-      var face = ctx.createLinearGradient(sx, sy, sx, sy + SZ);
-      face.addColorStop(0, "#8C8C86"); face.addColorStop(1, "#5A5A55");
-      roundRect(ctx, sx, sy, SZ, SZ, 5); ctx.fillStyle = face; ctx.fill();
-      ctx.save(); roundRect(ctx, sx, sy, SZ, SZ, 5); ctx.clip();
-      ctx.strokeStyle = "rgba(255,255,255,0.26)"; ctx.lineWidth = 2.6;
-      ctx.beginPath(); ctx.moveTo(sx, sy + SZ); ctx.lineTo(sx, sy); ctx.lineTo(sx + SZ, sy); ctx.stroke();
-      ctx.strokeStyle = "rgba(0,0,0,0.34)";
-      ctx.beginPath(); ctx.moveTo(sx + SZ, sy); ctx.lineTo(sx + SZ, sy + SZ); ctx.lineTo(sx, sy + SZ); ctx.stroke();
-      ctx.restore();
-
-      ctx.save();
-      ctx.translate(cx - 20, cy - 22);
-      ctx.scale(40 / 24, 40 / 24);
-      ctx.strokeStyle = filled ? color : "#3C3C34";
-      ctx.lineWidth = filled ? 1.9 : 2.1;
-      ctx.lineJoin = "round"; ctx.lineCap = "round";
-      (SLOT_PATHS[icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
-      ctx.restore();
-
-      if (filled) {
-        var lab = String(ilvl);
-        ctx.font = "600 15px Oswald, sans-serif";
-        var lw = ctx.measureText(lab).width + 14;
-        roundRect(ctx, sx + SZ - lw - 3, sy + SZ - 22, lw, 19, 5);
-        ctx.fillStyle = "rgba(20,16,11,0.82)"; ctx.fill();
-        ctx.fillStyle = rusted ? "#FF8F6B" : color;
-        ctx.textAlign = "center";
-        ctx.fillText(lab, sx + SZ - lw / 2 - 3, sy + SZ - 8);
-        ctx.textAlign = "left";
-      }
-    }
 
     lo.rows.forEach(function (r) {
       var pos = DOLL[r.key]; if (!pos) return;
-      socket(pos.x, pos.yy, r.ilvl > 0, r.rarity.color, r.ilvl, r.icon, r.rusted);
+      var sx = pos.x - SZ / 2, sy = pos.yy - SZ / 2;
+      var filled = r.ilvl > 0;
+      var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
+
+      roundRect(ctx, sx, sy, SZ, SZ, 11);
+      ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(255,255,255,0.03)"; ctx.fill();
+      if (filled) {
+        ctx.save(); ctx.shadowColor = r.rarity.color + "66"; ctx.shadowBlur = 12;
+        roundRect(ctx, sx, sy, SZ, SZ, 11);
+        ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); ctx.restore();
+      } else {
+        roundRect(ctx, sx, sy, SZ, SZ, 11);
+        ctx.setLineDash([4, 5]); ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke(); ctx.setLineDash([]);
+      }
+
+      ctx.save();
+      ctx.translate(pos.x - 15, sy + 11);
+      ctx.scale(30 / 24, 30 / 24);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
+      ctx.restore();
+
+      /* the measurement itself, which is the part worth reading */
+      ctx.textAlign = "center";
+      ctx.fillStyle = filled ? "#fff" : "rgba(255,255,255,0.3)";
+      ctx.font = "600 17px Oswald, sans-serif";
+      ctx.fillText(filled ? r.face : "—", pos.x, sy + SZ - 13);
+      ctx.textAlign = "left";
     });
 
-    /* the two flanking sockets have room beside them for their names */
-    ctx.font = "600 14px Oswald, sans-serif";
+    /* the two outer sockets have room beside them for their rarity */
+    [["weapon", -1], ["shield", 1]].forEach(function (pair) {
+      var r = lo.rows.filter(function (q) { return q.key === pair[0]; })[0];
+      if (!r) return;
+      var edge = midX + pair[1] * (GAPX + SZ / 2 + 18);
+      ctx.textAlign = pair[1] < 0 ? "right" : "left";
+      ctx.fillStyle = r.ilvl ? r.rarity.color : "rgba(255,255,255,0.3)";
+      ctx.font = "600 15px Oswald, sans-serif";
+      ctx.fillText(r.rarity.name.toUpperCase(), edge, ROWY[2] - 4);
+      ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 14px Inter, sans-serif";
+      ctx.fillText(r.fed, edge, ROWY[2] + 18);
+      ctx.textAlign = "left";
+    });
+
+    /* one concrete next step, picked as the slot closest to its next tier */
+    var upgradable = lo.rows.filter(function (r) { return r.next; })
+      .sort(function (a, b) { return a.need - b.need; });
+    if (upgradable.length) {
+      var u = upgradable[0];
+      sectionLabel("Next upgrade", pad + 26, y + 90, 0);
+      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+      ctx.fillText(u.name, pad + 26, y + 124);
+      ctx.fillStyle = u.next.color; ctx.font = "600 15px Oswald, sans-serif";
+      ctx.fillText(u.rarity.name.toUpperCase() + "  →  " + u.next.name.toUpperCase(), pad + 26, y + 150);
+      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 16px Inter, sans-serif";
+      ctx.fillText(u.needText, pad + 26, y + 178);
+    }
+
+    /* and the three best things you are carrying */
     ctx.textAlign = "right";
-    ctx.fillStyle = lo.rows.filter(function(r){return r.key==="weapon";})[0].ilvl ? "#E8D9BC" : "rgba(232,217,188,0.45)";
-    ctx.fillText("WEAPON", midX - GAPX - SZ / 2 - 16, ROWY[2] + 5);
+    sectionLabel("Best worn", W - pad - 150, y + 90, 0);
+    ctx.textAlign = "right";
+    lo.rows.filter(function (r) { return r.ilvl > 0; })
+      .sort(function (a, b) { return b.ilvl - a.ilvl; }).slice(0, 3)
+      .forEach(function (r, i2) {
+        var ry = y + 124 + i2 * 28;
+        ctx.fillStyle = r.rarity.color; ctx.font = "600 15px Oswald, sans-serif";
+        ctx.fillText(r.rarity.name.toUpperCase(), W - pad - 26, ry);
+        ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 14px Inter, sans-serif";
+        ctx.fillText(r.name, W - pad - 26 - ctx.measureText(r.rarity.name).width - 76, ry);
+      });
     ctx.textAlign = "left";
-    ctx.fillStyle = lo.rows.filter(function(r){return r.key==="shield";})[0].ilvl ? "#E8D9BC" : "rgba(232,217,188,0.45)";
-    ctx.fillText("SHIELD", midX + GAPX + SZ / 2 + 16, ROWY[2] + 5);
 
     /* ---- 4. the day's fight ---- */
     var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    y = 864; h = 230;
+    y = 830; h = 230;
     plate(pad, y, W - pad * 2, h, bt.won ? "rgba(125,240,184,0.07)" : "rgba(255,255,255,0.045)",
           bt.won ? "rgba(125,240,184,0.45)" : GOLD_DIM);
 
@@ -4500,7 +4523,7 @@
     });
 
     /* ---- 5. nutrition ---- */
-    y = 1108; h = 320;
+    y = 1074; h = 332;
     plate(pad, y, W - pad * 2, h);
     sectionLabel("Nutrition", pad + 26, y + 40, 260);
     var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
@@ -4542,7 +4565,7 @@
     });
 
     /* ---- 6. what is costing you, or what the coach said ---- */
-    y = 1444;
+    y = 1420;
     /* blessings and curses side by side, because they are one ledger */
     var states = activeBuffs(pr).map(function (b) {
       return { n: b.name, w: b.why(pr.gaps, pr), v: "+" + Math.round(b.gain * 100) + "%", c: "#7DF0B8" };
