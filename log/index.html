@@ -463,16 +463,17 @@
   .cs-sub { font-size: 10.5px; color: rgba(255,255,255,0.42); margin-top: 4px; }
   .gear-row { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.1); }
   .gear-row:first-child { border-top: none; }
-  .gear-ilvl { flex: 0 0 52px; height: 52px; border-radius: 12px; display: flex; flex-direction: column;
+  .gear-level { flex: 0 0 52px; height: 52px; border-radius: 12px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 1px; background: rgba(255,255,255,0.06); position: relative; }
-  .gear-ilvl svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8;
+  .gear-level svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8;
     stroke-linejoin: round; stroke-linecap: round; opacity: .9; }
-  .gear-ilvl em { font-style: normal; font-family: var(--font-head); font-size: 13px; font-weight: 700; line-height: 1; }
+  .gear-level em { font-style: normal; font-family: var(--font-head); font-size: 11px; font-weight: 600;
+    line-height: 1; letter-spacing: .04em; text-transform: uppercase; }
   .gear-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .gear-body b { font-size: 13.5px; }
   .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
-  .gear-row.rusted .gear-ilvl { position: relative; }
-  .gear-row.rusted .gear-ilvl i { position: absolute; right: -5px; top: -7px; font-style: normal; font-size: 9.5px;
+  .gear-row.rusted .gear-level { position: relative; }
+  .gear-row.rusted .gear-level i { position: absolute; right: -5px; top: -7px; font-style: normal; font-size: 9.5px;
     color: rgba(255,255,255,0.45); text-decoration: line-through; }
   .state-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; margin-bottom: 6px; }
   .state-row.good { background: rgba(125,240,184,0.14); box-shadow: inset 0 0 0 1px rgba(125,240,184,0.34); }
@@ -499,7 +500,7 @@
   .gt-tag { font-family: var(--font-head); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gc); }
   .gt-name { font-family: var(--font-head); font-size: 18px; margin: 3px 0 7px; }
   .gt-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; }
-  .gt-ilvl { font-family: var(--font-head); font-size: 13px; padding: 3px 9px; border-radius: 20px;
+  .gt-level { font-family: var(--font-head); font-size: 13px; padding: 3px 9px; border-radius: 20px;
     background: color-mix(in srgb, var(--gc) 22%, transparent); color: var(--gc); }
   .gt-rar { color: var(--gc); font-family: var(--font-head); letter-spacing: .05em; }
   .gt-val { color: rgba(255,255,255,0.6); }
@@ -629,15 +630,15 @@
       <div class="rk-risk" id="rkRisk" hidden></div>
       <button class="rk-drop" id="rkDropBtn" type="button" hidden></button>
       <button class="rk-char" id="rkCharBtn" type="button">
-        <span class="rkc-l">Character</span>
-        <span class="rkc-r"><b id="rkPower">—</b> power · <b id="rkGear">—</b> gear</span>
+        <span class="rkc-l">What you've built</span>
+        <span class="rkc-r"><b id="rkBuilt">—</b> of 7 parts going</span>
       </button>
       <div class="rk-badges" id="rkBadges"></div>
     </div>
 
     <div class="card quest-card">
       <div class="power-head">
-        <div class="power-title">Today's power</div>
+        <div class="power-title">Today's points</div>
         <div class="streak-row" id="streakRow"></div>
       </div>
       <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
@@ -929,10 +930,10 @@
   <!-- Character sheet -->
   <div class="modal-inner char-sheet" id="charModal" style="display:none;">
     <div class="char-head">
-      <div class="char-power"><span id="charPower">0</span><small>POWER</small></div>
+      <div class="char-power"><span id="charPower">0</span><small>PARTS GOING</small></div>
       <div class="char-sub" id="charSub"></div>
     </div>
-    <div class="char-section">Equipment</div>
+    <div class="char-section">Your seven parts</div>
     <div id="charSlots"></div>
     <div class="char-section">Blessings &amp; curses</div>
     <div id="charStates"></div>
@@ -2571,12 +2572,12 @@
   function xpForLevel(L) { return L <= 1 ? 0 : Math.round(250 * Math.pow(L - 1, 1.7)); }
   function levelFromXP(xp) { var L = 1; while (xpForLevel(L + 1) <= xp && L < 200) L++; return L; }
   var RANK_TITLES = [
-    [40, "Ascendant"], [30, "Paragon"], [22, "Vanguard"], [16, "Ironclad"],
-    [11, "Relentless"], [7, "Contender"], [4, "Climber"], [2, "Initiate"], [0, "Unranked"]
+    [40, "Unstoppable"], [30, "Hard to stop"], [22, "Dialled in"], [16, "Strong"],
+    [11, "Steady"], [7, "Consistent"], [4, "Getting going"], [2, "Started"], [0, "Day one"]
   ];
   function rankTitle(L) {
     for (var i = 0; i < RANK_TITLES.length; i++) if (L >= RANK_TITLES[i][0]) return RANK_TITLES[i][1];
-    return "Unranked";
+    return "Day one";
   }
 
   /* ---- one pass over every logged day: totals, streak, today ---- */
@@ -2710,7 +2711,8 @@
     var mealHit = onPlan ? mealW : (dayFood.length ? Math.round(mealW * 0.45) : 0);
     var weighHit = doc.weight != null ? weighW : 0;
 
-    /* what the armoury is worth in a fight, capped so it never wins the day alone */
+    /* what everything you have already built is worth today, capped so it can never
+       win the day on its own -- past work helps, it does not excuse today */
     var gearHit = lo ? Math.min(25, Math.round(lo.gearScore / 35)) : 0;
 
     var blows = [
@@ -2718,7 +2720,7 @@
       { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
       { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (dayFood.length ? dayFood.length + " logged" : "none logged") },
       { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" },
-      { k: "Gear",     v: gearHit,   max: 25,      note: lo ? fmtInt(lo.gearScore) + " gear score" : "" }
+      { k: "Built",    v: gearHit,   max: 25,      note: lo ? lo.equipped + " of " + lo.slots + " parts going" : "" }
     ].filter(function (b) { return b.max > 0; });
 
     var damage = blows.reduce(function (acc, b) { return acc + b.v; }, 0);
@@ -2733,7 +2735,7 @@
      of what a penalty is for.
 
      Levels and records are never touched. Those are the floor you keep. What suffers
-     is current form: the multiplier, the gear score, the power rating. */
+     is current form: what the streak pays, and how built up a part counts as today. */
   var DEBUFFS = [
     { id: "adrift",    name: "Adrift",    cost: 0.20,
       test: function (g) { return g.everLogged && g.sinceLog >= 2; },
@@ -2836,10 +2838,10 @@
     };
   }
   var DROP_TABLE = [
-    { p: 0.56, rarity: "Common",    color: "#9599AC", art: "✦", what: "+30 XP",            xp: 30,  shield: 0 },
-    { p: 0.26, rarity: "Rare",      color: "#6FD0FF", art: "❈", what: "+90 XP",            xp: 90,  shield: 0 },
-    { p: 0.13, rarity: "Epic",      color: "#B06BFF", art: "◈", what: "Streak shield",     xp: 40,  shield: 1 },
-    { p: 0.05, rarity: "Legendary", color: "#FFD166", art: "★", what: "+250 XP & a shield", xp: 250, shield: 1 }
+    { p: 0.56, rarity: "Small",  color: "#9599AC", art: "✦", what: "+30 points",             xp: 30,  shield: 0 },
+    { p: 0.26, rarity: "Good",   color: "#6FD0FF", art: "❈", what: "+90 points",             xp: 90,  shield: 0 },
+    { p: 0.13, rarity: "Great",  color: "#B06BFF", art: "◈", what: "A spare day for your streak", xp: 40, shield: 1 },
+    { p: 0.05, rarity: "Best",   color: "#FFD166", art: "★", what: "+250 points and a spare day", xp: 250, shield: 1 }
   ];
   function rollDrop(dayKey) {
     var r = seeded((currentProfileId || "anon") + ":" + dayKey)();
@@ -3146,112 +3148,42 @@
     });
   }
 
-  /* ===================== GEAR ===================== */
-  /* The conceit is not a conceit: in a lifting programme your gear really is your
-     lifts. An item level here is the heaviest working set you have ever completed on
-     that movement, and rarity is how far past the programme's starting weight you have
-     pushed it. Nothing is invented and nothing is awarded by luck -- the only way to
-     upgrade a slot is to put more on the bar than you did last time, which is the
-     behaviour the whole programme exists to produce.
+  /* ===================== WHAT YOU BUILD ===================== */
+  /* Seven parts of one body, and each part is fed by exactly one thing you do:
 
-     Stats are the same idea: real measures over a rolling 30 days, shown as themselves
-     with a bar against a target rather than as a made-up score. */
+       Head   money given             Core   meals inside the eating window
+       Arms   the streak you are on, and every day you have ever logged
+       Waist  weight on the bar       Legs   cardio minutes       Feet   weigh-ins
 
-  var RARITY = [
-    { over: 0.75, name: "Mythic",    color: "#FF4FD8" },
-    { over: 0.50, name: "Legendary", color: "#FFD166" },
-    { over: 0.30, name: "Epic",      color: "#B06BFF" },
-    { over: 0.15, name: "Rare",      color: "#6FD0FF" },
-    { over: 0.05, name: "Uncommon",  color: "#7DF0B8" },
-    { over: -Infinity, name: "Common", color: "#9599AC" }
-  ];
-  function rarityFor(best, base) {
-    if (!base || !best) return RARITY[RARITY.length - 1];
-    var gain = (best - base) / base;
-    for (var i = 0; i < RARITY.length; i++) if (gain >= RARITY[i].over) return RARITY[i];
-    return RARITY[RARITY.length - 1];
-  }
-
-  /* Every movement in the programme, with the weight it starts at. */
-  function allSlots() {
-    var seen = {}, out = [];
-    Object.keys(PROGRAM).forEach(function (d) {
-      (PROGRAM[d].ex || []).forEach(function (exx) {
-        if (seen[exx.name]) return;
-        seen[exx.name] = 1;
-        out.push({ name: exx.name, base: exx.weightDefault, label: exx.weightLabel, bodyweight: exx.weightDefault == null });
-      });
-    });
-    return out;
-  }
-
-  /* An item level: the heaviest completed set, or for a bodyweight movement the best
-     rep count standing in for load. */
-  function ilvlOf(best, slot) {
-    if (best == null) return 0;
-    return slot.bodyweight ? Math.round(best * 3) : Math.round(best);
-  }
-
-  var STAT_TARGETS = { str: 300000, sta: 1200, con: 30, wis: 30 };
-
-  /* Detraining is not a punishment somebody invented, it is what happens. Strength
-     holds for a couple of weeks and then goes; this models that and nothing harsher.
-
-     Ten days of grace, then two per cent of everything gained above the starting
-     weight falls away per day, and it stops at the starting weight -- a slot can rust
-     back to where it began and no further. The RECORD is never touched. What decays is
-     the effective item level, and a single session on that lift restores all of it,
-     which is the point: the cost is real but it is always one session away from being
-     paid off. */
-  var DECAY_GRACE = 10, DECAY_PER_DAY = 0.02;
-  function daysBetween(a, b) {
-    return Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000);
-  }
-  function decayed(best, base, daysSince) {
-    if (best == null) return best;
-    if (daysSince == null || daysSince <= DECAY_GRACE) return best;
-    var gain = best - base;
-    if (gain <= 0) return best;
-    var keep = Math.max(0, 1 - (daysSince - DECAY_GRACE) * DECAY_PER_DAY);
-    return Math.round((base + gain * keep) * 10) / 10;
-  }
-
-  /* Six slots, and each one is fed by exactly one thing you do. That is the whole
-     model, and it replaced a sixteen-slot loadout that needed explaining:
-
-       Helmet    charity given          Chest     meals logged on plan
-       Shield    your heaviest lift     Weapon    the streak you are on
-       Legs      cardio minutes         Boots     weigh-ins
-
-     An item level is the raw measure behind the slot, scaled so all six sit on one
-     ladder and a rarity means the same thing everywhere. Nothing is invented: every
-     number traces back to a row in the log. */
+     Behind each part is one raw measure, scaled so all seven sit on the same ladder
+     and a word means the same thing on the head as on the feet. Nothing is invented
+     and nothing is awarded by luck: every number traces back to a row in the log, and
+     the only way to build a part up is to do the thing that feeds it. */
 
   var SLOTS = [
-    { key: "helmet", name: "Helm of Sadaqah",      fed: "money given",       icon: "helm" },
-    { key: "chest",  name: "Plate of Discipline",  fed: "meals on plan",     icon: "chest" },
-    { key: "weapon", name: "Edge of Consistency",  fed: "the current streak", icon: "weapon" },
-    { key: "shield", name: "Bulwark of Days",      fed: "every day logged",    icon: "shield" },
-    { key: "belt",   name: "Belt of Records",      fed: "every all-time best", icon: "belt" },
-    { key: "legs",   name: "Greaves of Endurance", fed: "cardio minutes",    icon: "legs" },
-    { key: "boots",  name: "Boots of Reckoning",   fed: "weigh-ins",         icon: "boots" }
+    { key: "helmet", name: "Giving",     part: "Head",  fed: "money you give away",      icon: "helm" },
+    { key: "chest",  name: "Food",       part: "Core",  fed: "meals inside your window", icon: "chest" },
+    { key: "weapon", name: "Showing up", part: "Arm",   fed: "days in a row",            icon: "weapon" },
+    { key: "shield", name: "History",    part: "Arm",   fed: "every day you logged",     icon: "shield" },
+    { key: "belt",   name: "Lifting",    part: "Waist", fed: "weight on the bar",        icon: "belt" },
+    { key: "legs",   name: "Walking",    part: "Legs",  fed: "cardio minutes",           icon: "legs" },
+    { key: "boots",  name: "Weighing",   part: "Feet",  fed: "times on the scale",       icon: "boots" }
   ];
-  /* One ladder for all six, so Epic means the same on the helm as on the shield. */
-  var ILVL_TIERS = [
-    { at: 170, name: "Mythic",    color: "#FF4FD8" },
-    { at: 120, name: "Legendary", color: "#FFD166" },
-    { at: 80,  name: "Epic",      color: "#B06BFF" },
-    { at: 50,  name: "Rare",      color: "#6FD0FF" },
-    { at: 25,  name: "Uncommon",  color: "#7DF0B8" },
-    { at: 1,   name: "Common",    color: "#9599AC" },
-    { at: -1,  name: "Empty",     color: "#5A5E72" }
+  /* One ladder for all seven, in words that need no glossary: they say how built up
+     a part is, which is the only thing anybody wanted to know. */
+  var BUILD_TIERS = [
+    { at: 170, name: "Peak",     color: "#FF4FD8" },
+    { at: 120, name: "Strong",   color: "#FFD166" },
+    { at: 80,  name: "Solid",    color: "#B06BFF" },
+    { at: 50,  name: "Building", color: "#6FD0FF" },
+    { at: 25,  name: "Started",  color: "#7DF0B8" },
+    { at: 1,   name: "Weak",     color: "#9599AC" },
+    { at: -1,  name: "Empty",    color: "#5A5E72" }
   ];
-  function tierFor(ilvl) {
-    for (var i = 0; i < ILVL_TIERS.length; i++) if (ilvl >= ILVL_TIERS[i].at) return ILVL_TIERS[i];
-    return ILVL_TIERS[ILVL_TIERS.length - 1];
+  function tierFor(built) {
+    for (var i = 0; i < BUILD_TIERS.length; i++) if (built >= BUILD_TIERS[i].at) return BUILD_TIERS[i];
+    return BUILD_TIERS[BUILD_TIERS.length - 1];
   }
-
-  var STAT_TARGETS = { str: 300000, sta: 1200, con: 30, wis: 30 };
 
   /* Detraining is not a punishment somebody invented, it is what happens. Strength
      holds a couple of weeks and then goes; this models that and nothing harsher.
@@ -3335,14 +3267,14 @@
       var eff = decayed(raw, base, since);
       var il = lf.bodyweight ? Math.round(eff * 3) : Math.round(eff);
       var recIl = lf.bodyweight ? Math.round(raw * 3) : Math.round(raw);
-      if (!bestLift || recIl > bestLift.recordIlvl) {
-        bestLift = { name: lf.name, raw: raw, eff: eff, ilvl: il, recordIlvl: recIl,
+      if (!bestLift || recIl > bestLift.recordBuilt) {
+        bestLift = { name: lf.name, raw: raw, eff: eff, built: il, recordBuilt: recIl,
                      since: since, rusted: il < recIl, label: lf.label, bodyweight: lf.bodyweight };
       }
     });
 
     /* the belt: every record added together, decayed where a lift has been left */
-    var beltIlvl = 0, beltRecord = 0, beltRusting = 0, beltCount = 0;
+    var beltBuilt = 0, beltRecord = 0, beltRusting = 0, beltCount = 0;
     lifts.forEach(function (lf) {
       var raw2 = lf.bodyweight ? bestRepsBy[lf.name] : bestBy[lf.name];
       if (raw2 == null) return;
@@ -3350,7 +3282,7 @@
       var base2 = lf.bodyweight ? 10 : lf.base;
       var since2 = lastBy[lf.name] ? daysBetween(lastBy[lf.name], tKey) : null;
       var gainR = Math.max(0, raw2 - base2), gainE = Math.max(0, decayed(raw2, base2, since2) - base2);
-      beltRecord += Math.round(gainR * 1.4); beltIlvl += Math.round(gainE * 1.4);
+      beltRecord += Math.round(gainR * 1.4); beltBuilt += Math.round(gainE * 1.4);
       if (gainE < gainR) beltRusting++;
     });
     /* the shield: every day you ever showed up is a plate in it */
@@ -3362,26 +3294,26 @@
        `per` is what one more of that thing is worth, so the panel can say what the next
        tier actually costs rather than leaving you to guess. */
     var raw = {
-      helmet: { ilvl: Math.round(given), face: money(given), per: 1,
+      helmet: { built: Math.round(given), face: money(given), per: 1,
                 step: function (n) { return money(n) + " more given"; },
                 detail: money(given) + " given to " + GOOD.cause },
-      chest:  { ilvl: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
+      chest:  { built: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " on plan"; },
                 detail: onPlan + " of the last 30 days inside the window" },
-      weapon: { ilvl: Math.round(run * 4), face: run + "d", per: 4,
+      weapon: { built: Math.round(run * 4), face: run + "d", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " unbroken"; },
                 detail: run ? run + " days without a gap" : "no streak — log today to start one" },
-      shield: { ilvl: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
+      shield: { built: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
                 detail: everLogged + " days logged, all time" },
-      belt:   { ilvl: beltIlvl, face: beltCount + " PR", per: 1.4,
+      belt:   { built: beltBuilt, face: beltCount + " PR", per: 1.4,
                 step: function (n) { return n + " lb more on any lift"; },
                 detail: bestLift ? beltCount + " lifts on record, best " + bestLift.name + " " + bestLift.raw + (bestLift.bodyweight ? " reps" : " lb")
                                  : "no finished sets yet" },
-      legs:   { ilvl: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + "m", per: 1 / 8,
+      legs:   { built: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + "m", per: 1 / 8,
                 step: function (n) { return fmtInt(n) + " more cardio minutes"; },
                 detail: fmtInt(cardioMin) + " cardio minutes in 30 days" },
-      boots:  { ilvl: Math.round(weighDays * 5), face: weighDays + "/30", per: 5,
+      boots:  { built: Math.round(weighDays * 5), face: weighDays + "/30", per: 5,
                 step: function (n) { return n + " more weigh-in" + (n === 1 ? "" : "s"); },
                 detail: weighDays + " weigh-ins in the last 30 days" }
     };
@@ -3390,17 +3322,17 @@
     var rows = SLOTS.map(function (sl) {
       var r = raw[sl.key];
       var rusted = (sl.key === "belt" && beltRusting > 0);
-      gearScore += r.ilvl;
-      if (r.ilvl > 0) equipped++;
+      gearScore += r.built;
+      if (r.built > 0) equipped++;
       if (rusted) rusting++;
       /* what the next rarity costs, in the units of the thing that feeds this slot */
-      var tier = tierFor(r.ilvl), nextT = null;
-      for (var ti = ILVL_TIERS.length - 1; ti >= 0; ti--) {
-        if (ILVL_TIERS[ti].at > r.ilvl) { nextT = ILVL_TIERS[ti]; break; }
+      var tier = tierFor(r.built), nextT = null;
+      for (var ti = BUILD_TIERS.length - 1; ti >= 0; ti--) {
+        if (BUILD_TIERS[ti].at > r.built) { nextT = BUILD_TIERS[ti]; break; }
       }
-      var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.ilvl) / r.per)) : null;
-      return { key: sl.key, name: sl.name, fed: sl.fed, icon: sl.icon,
-               ilvl: r.ilvl, recordIlvl: rusted ? beltRecord : r.ilvl,
+      var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.built) / r.per)) : null;
+      return { key: sl.key, name: sl.name, part: sl.part, fed: sl.fed, icon: sl.icon,
+               built: r.built, recordBuilt: rusted ? beltRecord : r.built,
                face: r.face, detail: r.detail, rusted: !!rusted,
                since: rusted ? beltRusting + " lift" + (beltRusting === 1 ? "" : "s") : null,
                rarity: tier, next: nextT, need: need,
@@ -3409,18 +3341,8 @@
 
     return {
       rows: rows, lifts: lifts, bestBy: bestBy, bestRepsBy: bestRepsBy, lastBy: lastBy,
-      gearScore: gearScore, equipped: equipped, slots: SLOTS.length, rusting: rusting,
-      stats: {
-        str: { v: Math.round(volume), t: STAT_TARGETS.str, label: "Strength", sub: "lb lifted, 30 days" },
-        sta: { v: Math.round(cardioMin), t: STAT_TARGETS.sta, label: "Stamina", sub: "cardio minutes, 30 days" },
-        con: { v: daysLogged, t: STAT_TARGETS.con, label: "Constitution", sub: "days logged of 30" },
-        wis: { v: onPlan, t: STAT_TARGETS.wis, label: "Wisdom", sub: "days on plan of 30" }
-      }
+      gearScore: gearScore, equipped: equipped, slots: SLOTS.length, rusting: rusting
     };
-  }
-
-  function powerOf(pr, lo) {
-    return Math.round(lo.gearScore * 2 + pr.level * 25);
   }
 
   /* ---- the character sheet ---- */
@@ -3448,19 +3370,18 @@
     var pr = lastProg || await progression();
     var lo = await loadout(pr);
     lastLoadout = lo;
-    var power = powerOf(pr, lo);
 
-    document.getElementById("charPower").textContent = fmtInt(power);
+    document.getElementById("charPower").textContent = lo.equipped + " of " + lo.slots;
     document.getElementById("charSub").innerHTML =
-      pr.title + "  ·  Level " + pr.level + "  ·  Gear score <b>" + fmtInt(lo.gearScore) + "</b>";
+      pr.title + "  ·  Level " + pr.level + "  ·  <b>" + fmtInt(pr.total) + "</b> points";
 
     /* six slots, each labelled with the one thing that feeds it */
     document.getElementById("charSlots").innerHTML = lo.rows.map(function (r) {
-      return '<div class="gear-row' + (r.rusted ? " rusted" : "") + '"' + (r.ilvl ? "" : ' style="opacity:.5"') + '>' +
-        '<span class="gear-ilvl" style="color:' + r.rarity.color + ';box-shadow:inset 0 0 0 1.5px ' + r.rarity.color + '55">' +
+      return '<div class="gear-row' + (r.rusted ? " rusted" : "") + '"' + (r.built ? "" : ' style="opacity:.5"') + '>' +
+        '<span class="gear-level" style="color:' + r.rarity.color + ';box-shadow:inset 0 0 0 1.5px ' + r.rarity.color + '55">' +
           '<svg viewBox="0 0 24 24">' + SLOT_ART[r.icon] + '</svg>' +
-          '<em>' + (r.ilvl || "—") + '</em>' +
-          (r.rusted ? '<i>' + r.recordIlvl + '</i>' : "") + '</span>' +
+          '<em>' + r.part + '</em>' +
+          (r.rusted ? '<i>' + r.recordBuilt + '</i>' : "") + '</span>' +
         '<span class="gear-body"><b>' + r.name + (r.rusted ? ' <span class="rust-tag">Rusting</span>' : "") + '</b>' +
           '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name + '  ·  ' + r.fed + '</span>' +
           '<span class="gear-meta">' + r.detail + (r.rusted ? "  ·  " + r.since + " rusting" : "") + '</span>' +
@@ -3484,8 +3405,8 @@
         : '<div class="empty" style="color:rgba(255,255,255,0.45)">Nothing active either way.</div>';
 
     document.getElementById("charFoot").innerHTML =
-      "Streak pays <b>" + pr.mult + "×</b>, blessings and curses make it <b>" + eff + "×</b>. " +
-      "Every slot is fed by one thing you do, and every number traces back to a row in the log.";
+      "Your streak pays <b>" + pr.mult + "×</b>, blessings and curses make it <b>" + eff + "×</b>. " +
+      "Each part is fed by one thing you do, and every number traces back to a row in the log.";
 
     ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal"].forEach(function (id) {
       document.getElementById(id).style.display = "none";
@@ -3513,25 +3434,27 @@
     var now = isBw ? reps : weight;
     if (now == null || (prev.best != null && now <= prev.best)) return;
     var firstTime = prev.best == null;
-    var newIlvl = isBw ? Math.round(now * 3) : Math.round(now);
-    var newRarity = tierFor(newIlvl);
-    var rankedUp = !firstTime && newRarity.name !== (prev.rarity || tierFor(prev.ilvl || 0).name);
-    prev.best = now; prev.ilvl = newIlvl;                 // so one session cannot fire twice
+    var newBuilt = isBw ? Math.round(now * 3) : Math.round(now);
+    var newRarity = tierFor(newBuilt);
+    var rankedUp = !firstTime && newRarity.name !== (prev.rarity || tierFor(prev.built || 0).name);
+    prev.best = now; prev.built = newBuilt;                 // so one session cannot fire twice
     prev.rarity = newRarity.name;
-    showUpgrade(exName, newIlvl, newRarity, rankedUp, isBw ? now + " reps" : now + " lb", firstTime);
+    showUpgrade(exName, newBuilt, newRarity, rankedUp, isBw ? now + " reps" : now + " lb", firstTime);
   }
-  function showUpgrade(exName, ilvl, rarity, rankedUp, valueText, firstTime) {
+  function showUpgrade(exName, built, rarity, rankedUp, valueText, firstTime) {
     var wrap = document.getElementById("feedbackWrap");
     var el = document.createElement("div");
     el.className = "gear-toast";
     el.style.setProperty("--gc", rarity.color);
-    el.innerHTML = '<div class="gt-tag">' + (firstTime ? "Slot equipped" : rankedUp ? "Rarity up" : "Gear upgrade") + '</div>' +
+    el.innerHTML = '<div class="gt-tag">' + (firstTime ? "First one on the board" : rankedUp ? "Your waist just levelled up" : "New best") + '</div>' +
       '<div class="gt-name">' + exName + '</div>' +
-      '<div class="gt-row"><span class="gt-ilvl">ilvl ' + ilvl + '</span>' +
-      '<span class="gt-rar">' + rarity.name + '</span><span class="gt-val">' + valueText + '</span></div>';
+      '<div class="gt-row"><span class="gt-level">' + valueText + '</span>' +
+      '<span class="gt-rar">' + rarity.name + '</span>' +
+      '<span class="gt-val">' + (firstTime ? "first time logged" : "beats your old best") + '</span></div>';
     wrap.innerHTML = ""; wrap.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("show"); });
-    var step = ["Empty", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"].indexOf(rarity.name) - 1;
+    /* how big a noise to make: where the new tier sits on the one ladder */
+    var step = BUILD_TIERS.length - 2 - BUILD_TIERS.map(function (t) { return t.name; }).indexOf(rarity.name);
     if (firstTime) { sfx("logged"); burstFrom(el, [rarity.color, "#FFFFFF"], 14); }
     else {
       sfx("gear", Math.max(0, step));
@@ -3571,7 +3494,7 @@
     document.getElementById("rkXpFill").style.width = Math.min(100, into / span * 100) + "%";
     countTo(document.getElementById("rkXpNum"), pr.total);
     document.getElementById("rkXpRest").textContent =
-      " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
+      " points  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
       (pr.todayXP ? "  ·  +" + fmtInt(pr.todayXP) + " today" : "");
 
     /* the streak line, and what the next tier is worth */
@@ -3581,7 +3504,7 @@
     if (hadMult && pr.mult > hadMult) {
       sfx("streak");
       burstFrom(st, ["#FFD166", "#FFFFFF"], 30);
-      showToast(pr.mult + "\u00d7 XP \u2014 " + pr.run + " days running.", false);
+      showToast("Everything counts " + pr.mult + "\u00d7 now \u2014 " + pr.run + " days running.", false);
     }
     st.dataset.m = pr.mult;
     var nx = pr.next;
@@ -3589,10 +3512,10 @@
       '<span class="rk-mult' + (eff < pr.mult ? " hit" : "") + '">' +
         /* striking out a 1x says nothing; only show what was actually lost */
         (eff < pr.mult && pr.mult > 1 ? '<s>' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '×</s>' : "") +
-        eff.toFixed(2).replace(/\.?0+$/, "") + '× XP</span>' +
+        eff.toFixed(2).replace(/\.?0+$/, "") + '× points</span>' +
       (nx ? '<span style="color:rgba(255,255,255,0.6)">' + (nx.at - pr.run) + ' more day' +
             ((nx.at - pr.run) === 1 ? "" : "s") + ' for ' + nx.m + '×</span>' : "") +
-      (GAME.shields ? '<span class="rk-mult" style="background:rgba(125,240,184,0.18);color:#7DF0B8;box-shadow:inset 0 0 0 1px rgba(125,240,184,0.4)">⛨ ' + GAME.shields + ' shield' + (GAME.shields === 1 ? "" : "s") + '</span>' : "");
+      (GAME.shields ? '<span class="rk-mult" style="background:rgba(125,240,184,0.18);color:#7DF0B8;box-shadow:inset 0 0 0 1px rgba(125,240,184,0.4)">⛨ ' + GAME.shields + ' spare day' + (GAME.shields === 1 ? "" : "s") + '</span>' : "");
 
     /* the drop */
     var btn = document.getElementById("rkDropBtn");
@@ -3604,13 +3527,13 @@
       if (GAME.opened[tKey]) {
         var got = GAME.opened[tKey];
         btn.disabled = true; btn.className = "rk-drop";
-        btn.textContent = "Today's drop: " + got.rarity + " · " + got.what;
+        btn.textContent = "Today's reward: " + got.rarity + " · " + got.what;
       } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
         btn.disabled = false; btn.className = "rk-drop ready";
-        btn.textContent = "✦  Open today's drop";
+        btn.textContent = "✦  Open today's reward";
       } else {
         btn.disabled = true; btn.className = "rk-drop";
-        btn.textContent = "\u25CC  Drop unlocks in " + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " XP";
+        btn.textContent = "\u25CC  Today's reward opens at " + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " more points";
       }
     }
 
@@ -3645,8 +3568,7 @@
     /* the headline numbers for the character sheet, so the way in shows its worth */
     loadout(pr).then(function (lo) {
       lastLoadout = lo;
-      countTo(document.getElementById("rkPower"), powerOf(pr, lo));
-      countTo(document.getElementById("rkGear"), lo.gearScore);
+      countTo(document.getElementById("rkBuilt"), lo.equipped);
     });
 
     tickRank();
@@ -3681,7 +3603,7 @@
         fmtLabel(new Date(pr.missedYesterday + "T12:00:00")) +
         '. <button type="button" id="rkRestore" style="margin-left:6px;border:none;border-radius:8px;' +
         'padding:6px 11px;font-family:var(--font-head);font-size:12px;letter-spacing:.05em;' +
-        'background:#7DF0B8;color:#07301F;cursor:pointer">\u26E8 Spend a shield</button>';
+        'background:#7DF0B8;color:#07301F;cursor:pointer">\u26E8 Use a spare day</button>';
       var rb = document.getElementById("rkRestore");
       if (rb) rb.onclick = async function () {
         GAME.shields--; GAME.spent[pr.missedYesterday] = true;
@@ -3695,9 +3617,9 @@
     /* loss aversion, shown only once the day is genuinely at risk */
     if (pr.run > 0 && !pr.loggedToday && now.getHours() >= 16) {
       risk.hidden = false;
-      risk.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× XP</b> end in <b>" +
+      risk.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× points</b> end in <b>" +
         hms(msUntilHour(now, 24)) + "</b>" +
-        (GAME.shields ? " — a shield will cover it if you miss." : " — log anything to keep them.");
+        (GAME.shields ? " — a spare day will cover it if you miss." : " — log anything to keep them.");
     } else { risk.hidden = true; }
   }
 
@@ -3710,9 +3632,9 @@
       GAME.shields += prize.shield;
       await saveGame();
       vibrate([18, 40, 18, 40, 30]);
-      sfx("drop", ["Common", "Rare", "Epic", "Legendary"].indexOf(prize.rarity));
+      sfx("drop", ["Small", "Good", "Great", "Best"].indexOf(prize.rarity));
       showDropModal(prize);
-      setTimeout(function () { burstFrom(document.querySelector("#dropModal .drop-art"), [prize.color, "#FFFFFF"], 30 + 14 * ["Common", "Rare", "Epic", "Legendary"].indexOf(prize.rarity)); }, 160);
+      setTimeout(function () { burstFrom(document.querySelector("#dropModal .drop-art"), [prize.color, "#FFFFFF"], 30 + 14 * ["Small", "Good", "Great", "Best"].indexOf(prize.rarity)); }, 160);
       renderRank();
     };
   }
@@ -3728,7 +3650,7 @@
     art.style.boxShadow = "inset 0 0 0 2px " + prize.color + "66, 0 0 34px " + prize.color + "55";
     m.querySelector(".drop-what").textContent = prize.what;
     m.querySelector(".drop-sub").textContent = prize.shield
-      ? "A shield covers one missed day without breaking your streak. It is spent automatically."
+      ? "A spare day covers one day you miss without breaking your streak. It is used automatically."
       : "Banked. Come back tomorrow for the next one.";
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
@@ -4200,28 +4122,17 @@
     var overall = scoreData ? scoreData.overall : 0;
     var rank = rankFor(overall);
 
-    /* Everything the app knows, rolled into one window. The layout is an ARPG
-       character panel: a plate of compartments with cut corners and a thin gold rule,
-       the loadout down one side, attributes down the other, and the day's own numbers
-       underneath. */
-    var pr = lastProg || await progression();
-    var lo = lastLoadout || await loadout();
-    var power = powerOf(pr, lo);
-    var debuffs = activeDebuffs(pr);
-    var effMult = effectiveMult(pr);
-
     /* One view. The card used to be six stacked boxes -- header, equipment, fight,
        nutrition, states, photographs -- each in its own frame, and the frames were
        doing more work than the content. Everything hangs off the figure now:
 
-         the rings ARE the body socket, because the body is fed by what you eat
+         the rings ARE the core, because the core is fed by what you eat
          the fight bar runs under the figure, because the figure is what fought
          the margins carry the readings the spine leaves room for
 
        No inner panels at all, just hairlines between the three zones. */
     var pr = lastProg || await progression();
     var lo = lastLoadout || await loadout(pr);
-    var power = powerOf(pr, lo);
     var debuffs = activeDebuffs(pr);
     var buffs = activeBuffs(pr);
     var effMult = effectiveMult(pr);
@@ -4301,218 +4212,180 @@
     ctx.strokeStyle = GOLD_DIM; ctx.lineWidth = 2;
     platePath(22, 22, W - 44, H - 44, 26); ctx.stroke();
 
-    /* ---- 1. who, when, how far ---- */
+    /* ---- 1. the headline: did you beat today ---- */
+    /* Levels, experience, power ratings, gear scores and six rarity names were a
+       vocabulary standing between the person and their own day. All of it is gone from
+       the card. What is left is the one question the day asks and the answer to it. */
     cap("ACCOUNTABILITYAAS", pad, 84, 17, 0.45);
     ctx.textAlign = "right";
-    cap(selectedDate.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+    cap(selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
         W - pad, 84, 17, 0.45);
     ctx.textAlign = "left";
     rule(104);
 
-    var bx = pad + 56, by = 178;
-    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 30;
-    hexPath(bx, by, 50); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
-    hexPath(bx, by, 50); ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.lineWidth = 2.2; ctx.stroke();
-    ctx.textAlign = "center";
-    ctx.fillStyle = INK; ctx.font = "600 48px Oswald, sans-serif";
-    ctx.fillText(rank.letter, bx, by + 17);
-    ctx.textAlign = "left";
-
-    var tx = pad + 126;
-    big(pr.title.toUpperCase(), tx, by - 12, 40);
-    cap("level " + pr.level, tx + ctx.measureText(pr.title.toUpperCase()).width + 16, by - 14, 18, 0.5);
-    var xpW = W - pad - tx, xpY = by + 6;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, tx, xpY, xpW, 11, 6); ctx.fill();
-    var into = Math.max(0, pr.total - pr.floorXP), span = Math.max(1, pr.nextXP - pr.floorXP);
-    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 16; ctx.fillStyle = rank.color;
-    roundRect(ctx, tx, xpY, Math.max(11, xpW * Math.min(1, into / span)), 11, 6); ctx.fill(); ctx.restore();
-    body(fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to " + (pr.level + 1) +
-         "  ·  " + fmtInt(power) + " power  ·  " + fmtInt(lo.gearScore) + " gear", tx, xpY + 34, 16, 0.55);
-    rule(238);
-
-    /* ---- 2. the figure: everything worn, everything eaten, everything today ---- */
-    /* The sockets sit where they sit on a body -- helm at the head, weapon and shield
-       in the hands, belt at the waist above the legs, boots at the feet -- and the
-       rings encircle the body because the body is the slot that food fills.
-
-       The point of the badges: every socket carries the damage that input dealt to
-       today's opponent, so the chain from "I walked forty minutes" to "the bar moved
-       thirty" is visible on the figure itself. The separate row of blow meters is gone;
-       the sockets were always the blows. */
     var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    var DMG = {};
-    bt.blows.forEach(function (bl) { DMG[bl.k] = bl; });
-    var SOCKET_FEEDS = {
-      legs:   "Cardio",     /* minutes walked  -> the legs */
-      belt:   "Training",   /* sets finished   -> the belt */
-      chest:  "Meals",      /* what you ate    -> the body */
-      boots:  "Weigh-in",   /* the scale       -> the boots */
-      shield: "Gear"        /* the armoury itself */
-    };
+    var won = bt.won, nearly = !won && bt.pct >= 0.75;
+    var vCol = won ? "#7DF0B8" : nearly ? "#FFD166" : "#FF8F6B";
 
-    var SZ = 72;
-    var Y_HELM = 312, Y_MID = 470, Y_BELT = 652, Y_LEGS = 762, Y_BOOT = 872;
-    var FLANK = 226;
-    var ringR = 88;
-
-    ctx.strokeStyle = "rgba(255,255,255,0.14)"; ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(midX, Y_HELM); ctx.lineTo(midX, Y_BOOT);
-    ctx.moveTo(midX - FLANK, Y_MID); ctx.lineTo(midX + FLANK, Y_MID);
-    ctx.stroke();
-
-    /* a badge showing what this slot put into the day */
-    function dmgBadge(cx, cy, key, centred) {
-      var bl = DMG[SOCKET_FEEDS[key]];
-      if (!bl) return;
-      var t2 = "+" + bl.v;
-      ctx.font = "600 15px Oswald, sans-serif";
-      var w = ctx.measureText(t2).width + 18;
-      var bxx = centred ? cx - w / 2 : cx + SZ / 2 - w + 6;
-      var byy = centred ? cy : cy + SZ / 2 - 6;
-      var full = bl.v >= bl.max;
-      roundRect(ctx, bxx, byy, w, 24, 12);
-      ctx.fillStyle = full ? "rgba(125,240,184,0.9)" : (bl.v > 0 ? rank.color : "rgba(40,44,58,0.95)");
-      ctx.fill();
-      ctx.fillStyle = bl.v > 0 ? INK : "rgba(255,255,255,0.45)";
-      ctx.textAlign = "center"; ctx.fillText(t2, bxx + w / 2, byy + 17); ctx.textAlign = "left";
-    }
-
-    function socket(cx, cy, r) {
-      if (!r) return;
-      var sx = cx - SZ / 2, sy = cy - SZ / 2;
-      var filled = r.ilvl > 0;
-      var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
-      roundRect(ctx, sx, sy, SZ, SZ, 11);
-      ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(7,8,14,0.9)"; ctx.fill();
-      if (filled) {
-        ctx.save(); ctx.shadowColor = r.rarity.color + "66"; ctx.shadowBlur = 14;
-        roundRect(ctx, sx, sy, SZ, SZ, 11); ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); ctx.restore();
-      } else {
-        roundRect(ctx, sx, sy, SZ, SZ, 11);
-        ctx.setLineDash([4, 5]); ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.stroke(); ctx.setLineDash([]);
-      }
-      ctx.save();
-      ctx.translate(cx - 15, sy + 11); ctx.scale(30 / 24, 30 / 24);
-      ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.lineCap = "round";
-      (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
-      ctx.restore();
-      ctx.textAlign = "center";
-      ctx.fillStyle = filled ? "#fff" : "rgba(255,255,255,0.3)";
-      ctx.font = "600 17px Oswald, sans-serif";
-      ctx.fillText(filled ? r.face : "—", cx, sy + SZ - 13);
-      ctx.textAlign = "left";
-      dmgBadge(cx, cy, r.key);
-    }
-    function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
-    /* name, rarity, and what that slot put in today, set beside the socket */
-    function aside(r, x, yy, align) {
-      if (!r) return;
-      var bl = DMG[SOCKET_FEEDS[r.key]];
-      ctx.textAlign = align;
-      ctx.fillStyle = r.ilvl ? r.rarity.color : "rgba(255,255,255,0.3)";
-      ctx.font = "600 15px Oswald, sans-serif";
-      ctx.fillText(r.rarity.name.toUpperCase(), x, yy);
-      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 15px Inter, sans-serif";
-      ctx.fillText(r.name, x, yy + 22);
-      ctx.fillStyle = "rgba(255,255,255,0.38)"; ctx.font = "500 13px Inter, sans-serif";
-      ctx.fillText(bl ? bl.note + "  \u2192  " + bl.v + " dmg" : r.fed, x, yy + 42);
-      ctx.textAlign = "left";
-    }
-
-    socket(midX, Y_HELM, rowFor("helmet"));  aside(rowFor("helmet"), midX + 56, Y_HELM - 10, "left");
-    socket(midX - FLANK, Y_MID, rowFor("weapon"));
-    aside(rowFor("weapon"), midX - FLANK, Y_MID + 62, "center");
-    socket(midX + FLANK, Y_MID, rowFor("shield"));
-    aside(rowFor("shield"), midX + FLANK, Y_MID + 62, "center");
-    socket(midX, Y_BELT, rowFor("belt"));    aside(rowFor("belt"),   midX + 56, Y_BELT - 10, "left");
-    socket(midX, Y_LEGS, rowFor("legs"));    aside(rowFor("legs"),   midX + 56, Y_LEGS - 10, "left");
-    socket(midX, Y_BOOT, rowFor("boots"));   aside(rowFor("boots"),  midX + 56, Y_BOOT - 10, "left");
-
-    /* the body socket is the nutrition: the rings ARE the chest piece, and the macros
-       they stand for sit directly under them rather than off in a margin */
-    var chestRow = rowFor("chest");
-    var rings = [
-      { r: ringR,      w: 16, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
-      { r: ringR - 22, w: 16, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
-      { r: ringR - 44, w: 16, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
-    ];
-    rings.forEach(function (rg) {
-      ringArc(ctx, midX, Y_MID, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)");
-    });
     ctx.textAlign = "center";
-    ctx.fillStyle = anyEst ? "#fff" : "rgba(255,255,255,0.35)";
-    ctx.font = "600 32px Oswald, sans-serif";
-    ctx.fillText(anyEst ? fmtInt(cal) : "—", midX, Y_MID + 2);
-    ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "600 12px Oswald, sans-serif";
-    ctx.fillText("KCAL", midX, Y_MID + 22);
-    ctx.textAlign = "left";
-    dmgBadge(midX, Y_MID + ringR + 10, "chest", true);
-
-    /* protein, fat, fibre on one line beneath the rings */
-    var macroY = Y_MID + 142;
-    var mTotal = 0, mParts = rings.map(function (rg) {
-      ctx.font = "600 20px Oswald, sans-serif";
-      var a1 = rg.val + "g", w1 = ctx.measureText(a1).width;
-      ctx.font = "500 13px Inter, sans-serif";
-      var a2 = (rg.name === "FAT" ? "cap " : "of ") + rg.target, w2 = ctx.measureText(a2).width;
-      var w = 16 + w1 + 8 + w2;
-      mTotal += w; return { rg: rg, a1: a1, a2: a2, w1: w1, w: w };
-    });
-    mTotal += 36 * (mParts.length - 1);
-    var mx2 = midX - mTotal / 2;
-    mParts.forEach(function (mp) {
-      ctx.fillStyle = mp.rg.color; ctx.beginPath(); ctx.arc(mx2 + 5, macroY - 7, 5.5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#fff"; ctx.font = "600 20px Oswald, sans-serif";
-      ctx.fillText(mp.a1, mx2 + 16, macroY);
-      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
-      ctx.fillText(mp.a2, mx2 + 16 + mp.w1 + 8, macroY);
-      mx2 += mp.w + 36;
-    });
-
-    /* one concrete next step, in the room the spine leaves */
-    var upg = lo.rows.filter(function (r) { return r.next; }).sort(function (a, b) { return a.need - b.need; })[0];
-    if (upg) {
-      var uY = Y_BELT - 10;
-      cap("next upgrade", pad, uY, 14, 0.45);
-      ctx.fillStyle = "#fff"; ctx.font = "600 18px Oswald, sans-serif";
-      ctx.fillText(upg.name, pad, uY + 28);
-      ctx.fillStyle = upg.next.color; ctx.font = "600 14px Oswald, sans-serif";
-      ctx.fillText(upg.rarity.name.toUpperCase() + " \u2192 " + upg.next.name.toUpperCase(), pad, uY + 50);
-      ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 15px Inter, sans-serif";
-      ctx.fillText(upg.needText, pad, uY + 74);
-    }
-    rule(938);
-
-    /* ---- 3. the sum of all of it ---- */
-    cap("the day's fight", pad, 978, 16, 0.5);
-    ctx.textAlign = "right";
-    cap(bt.tier.name + " \u00b7 " + bt.foe.name, W - pad, 978, 16, 0.5);
+    ctx.fillStyle = vCol; ctx.font = "600 68px Oswald, sans-serif";
+    ctx.fillText(won ? "DAY WON" : nearly ? "ALMOST" : "DAY LOST", midX, 186);
+    ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 22px Inter, sans-serif";
+    ctx.fillText(bt.damage + " of the " + bt.hp + " points today was worth", midX, 222);
     ctx.textAlign = "left";
 
-    var hbY = 998, hbW = W - pad * 2;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad, hbY, hbW, 34, 17); ctx.fill();
-    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 24;
-    ctx.fillStyle = bt.won ? "#7DF0B8" : rank.color;
-    roundRect(ctx, pad, hbY, Math.max(34, hbW * bt.pct), 34, 17); ctx.fill(); ctx.restore();
-    /* the ticks are where each socket's damage landed, so the bar reads as a stack */
+    var hbY = 246, hbW = W - pad * 2;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad, hbY, hbW, 18, 9); ctx.fill();
+    ctx.save(); ctx.shadowColor = vCol; ctx.shadowBlur = 20; ctx.fillStyle = vCol;
+    roundRect(ctx, pad, hbY, Math.max(18, hbW * bt.pct), 18, 9); ctx.fill(); ctx.restore();
     var acc = 0;
     bt.blows.forEach(function (bl) {
       acc += bl.v;
       if (acc >= bt.damage) return;
-      var tx2 = pad + hbW * Math.min(1, acc / bt.hp);
-      ctx.fillStyle = "rgba(7,8,14,0.45)"; ctx.fillRect(tx2 - 1, hbY + 4, 2, 26);
+      ctx.fillStyle = "rgba(7,8,14,0.5)";
+      ctx.fillRect(pad + hbW * Math.min(1, acc / bt.hp) - 1, hbY + 3, 2, 12);
     });
+    rule(300);
+
+    /* ---- 2. the tree: what you put in, and the part of you it builds ---- */
+    var DMG = {};
+    bt.blows.forEach(function (bl) { DMG[bl.k] = bl; });
+    var SOCKET_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in", shield: "Built" };
+
     ctx.textAlign = "center";
-    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 20px Oswald, sans-serif";
-    ctx.fillText(bt.damage + " / " + bt.hp + " DMG  \u00b7  " + (bt.won ? "VICTORY" : bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"),
-                 midX, hbY + 24);
+    cap("what you put in  \u2192  what it builds", midX, 342, 16, 0.42);
     ctx.textAlign = "left";
 
+    var SZ = 64;
+    var Y_HEAD = 412, Y_CORE = 580, Y_WAIST = 802, Y_LEGS = 914, Y_FEET = 1026;
+    var FLANK = 212, ringR = 80;
+
+    ctx.strokeStyle = "rgba(255,255,255,0.13)"; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(midX, Y_HEAD); ctx.lineTo(midX, Y_FEET);
+    ctx.moveTo(midX - FLANK, Y_CORE); ctx.lineTo(midX + FLANK, Y_CORE);
+    ctx.stroke();
+
+    function node(cx, cy, r) {
+      if (!r) return;
+      var sx = cx - SZ / 2, sy = cy - SZ / 2;
+      var filled = r.built > 0;
+      var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
+      roundRect(ctx, sx, sy, SZ, SZ, 10);
+      ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(7,8,14,0.9)"; ctx.fill();
+      roundRect(ctx, sx, sy, SZ, SZ, 10);
+      if (filled) { ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); }
+      else { ctx.setLineDash([4, 5]); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
+      ctx.save();
+      ctx.translate(cx - 15, sy + 17); ctx.scale(30 / 24, 30 / 24);
+      ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      (SLOT_PATHS[r.icon] || []).forEach(function (d) { ctx.stroke(new Path2D(d)); });
+      ctx.restore();
+    }
+    function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
+
+    /* the reading beside a node: what went in, the part it feeds, and today's points */
+    function leaf(r, x, yy, align) {
+      if (!r) return;
+      var bl = DMG[SOCKET_FEEDS[r.key]];
+      ctx.textAlign = align;
+      ctx.fillStyle = "#fff"; ctx.font = "600 21px Oswald, sans-serif";
+      ctx.fillText(r.name.toUpperCase(), x, yy);
+      ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 17px Inter, sans-serif";
+      ctx.fillText(r.detail, x, yy + 24);
+      ctx.fillStyle = r.built ? r.rarity.color : "rgba(255,255,255,0.3)";
+      ctx.font = "500 14px Inter, sans-serif";
+      ctx.fillText(r.part + " \u00b7 " + r.rarity.name.toLowerCase(), x, yy + 46);
+      if (bl) {
+        var t2 = "+" + bl.v + " today";
+        ctx.font = "600 15px Oswald, sans-serif";
+        var w = ctx.measureText(t2).width + 18;
+        var bxx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
+        roundRect(ctx, bxx, yy + 56, w, 24, 12);
+        ctx.fillStyle = bl.v >= bl.max ? "rgba(125,240,184,0.9)" : (bl.v > 0 ? vCol : "rgba(40,44,58,0.95)");
+        ctx.fill();
+        ctx.fillStyle = bl.v > 0 ? INK : "rgba(255,255,255,0.45)";
+        ctx.textAlign = "center"; ctx.fillText(t2, bxx + w / 2, yy + 73);
+      }
+      ctx.textAlign = "left";
+    }
+
+    node(midX, Y_HEAD, rowFor("helmet"));   leaf(rowFor("helmet"), midX + 52, Y_HEAD - 14, "left");
+    node(midX - FLANK, Y_CORE, rowFor("weapon"));
+    leaf(rowFor("weapon"), midX - FLANK, Y_CORE + 40, "center");
+    node(midX + FLANK, Y_CORE, rowFor("shield"));
+    leaf(rowFor("shield"), midX + FLANK, Y_CORE + 40, "center");
+    node(midX, Y_WAIST, rowFor("belt"));    leaf(rowFor("belt"),   midX + 52, Y_WAIST - 14, "left");
+    node(midX, Y_LEGS, rowFor("legs"));     leaf(rowFor("legs"),   midX + 52, Y_LEGS - 14, "left");
+    node(midX, Y_FEET, rowFor("boots"));    leaf(rowFor("boots"),  midX + 52, Y_FEET - 14, "left");
+
+    /* the core is the food: the rings are the part, the calories are the input */
+    var rings = [
+      { r: ringR,      w: 15, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "protein" },
+      { r: ringR - 20, w: 15, val: fat, target: PLAN.fat,     color: "#FFD666", name: "fat" },
+      { r: ringR - 40, w: 15, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "fibre" }
+    ];
+    rings.forEach(function (rg) {
+      ringArc(ctx, midX, Y_CORE, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)");
+    });
+    ctx.textAlign = "center";
+    ctx.fillStyle = anyEst ? "#fff" : "rgba(255,255,255,0.35)";
+    ctx.font = "600 30px Oswald, sans-serif";
+    ctx.fillText(anyEst ? fmtInt(cal) : "—", midX, Y_CORE + 2);
+    ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "600 12px Oswald, sans-serif";
+    ctx.fillText("CALORIES", midX, Y_CORE + 22);
+    ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+    ctx.fillText("FOOD", midX, Y_CORE - ringR - 26);
+    if (DMG.Meals) {
+      var mt = "+" + DMG.Meals.v + " today";
+      ctx.font = "600 15px Oswald, sans-serif";
+      var mw = ctx.measureText(mt).width + 18;
+      roundRect(ctx, midX - mw / 2, Y_CORE + ringR + 8, mw, 24, 12);
+      ctx.fillStyle = DMG.Meals.v >= DMG.Meals.max ? "rgba(125,240,184,0.9)" : (DMG.Meals.v > 0 ? vCol : "rgba(40,44,58,0.95)");
+      ctx.fill();
+      ctx.fillStyle = DMG.Meals.v > 0 ? INK : "rgba(255,255,255,0.45)";
+      ctx.fillText(mt, midX, Y_CORE + ringR + 25);
+    }
+    ctx.textAlign = "left";
+
+    /* the three rings named, so nobody has to guess which colour is which */
+    var macroY = Y_CORE + 150;
+    var mParts = rings.map(function (rg) {
+      ctx.font = "600 19px Oswald, sans-serif";
+      var a1 = rg.val + "g", w1 = ctx.measureText(a1).width;
+      ctx.font = "500 13px Inter, sans-serif";
+      var a2 = rg.name + " of " + rg.target, w2 = ctx.measureText(a2).width;
+      return { rg: rg, a1: a1, a2: a2, w1: w1, w: 15 + w1 + 7 + w2 };
+    });
+    var mTotal = mParts.reduce(function (a, m) { return a + m.w; }, 0) + 30 * (mParts.length - 1);
+    var mx2 = midX - mTotal / 2;
+    mParts.forEach(function (mp) {
+      ctx.fillStyle = mp.rg.color; ctx.beginPath(); ctx.arc(mx2 + 5, macroY - 6, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+      ctx.fillText(mp.a1, mx2 + 15, macroY);
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
+      ctx.fillText(mp.a2, mx2 + 15 + mp.w1 + 7, macroY);
+      mx2 += mp.w + 30;
+    });
+
+    /* the one thing worth doing next, in the room the spine leaves */
+    var upg = lo.rows.filter(function (r) { return r.next; }).sort(function (a, b) { return a.need - b.need; })[0];
+    if (upg) {
+      var uY = Y_WAIST + 4;
+      cap("easiest win left", pad, uY, 14, 0.42);
+      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
+      ctx.fillText(upg.needText, pad, uY + 30);
+      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 15px Inter, sans-serif";
+      ctx.fillText("and your " + upg.part.toLowerCase() + " goes from " + upg.rarity.name.toLowerCase(), pad, uY + 54);
+      ctx.fillText("to " + upg.next.name.toLowerCase(), pad, uY + 76);
+    }
+    rule(1092);
+
     /* blessings and curses as chips on one line, not a table */
-    var chY = 1082, chX = pad;
-    chip(chX, chY, pr.mult + "× → " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
-    chX += ctx.measureText(pr.mult + "× → " + effMult + "×").width + 36;
+    var chY = 1132, chX = pad;
+    var multText = "everything counts " + effMult + "×";
+    chip(chX, chY, multText, effMult < pr.mult ? "#FF8F6B" : "#FFD166");
+    chX += ctx.measureText(multText).width + 36;
     buffs.concat([]).forEach(function (bf) {
       var t2 = bf.name + " +" + Math.round(bf.gain * 100) + "%";
       if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
@@ -4523,11 +4396,11 @@
       if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
       chX += chip(chX, chY, t2, "#FF8F6B") + 10;
     });
-    rule(1122);
+    rule(1172);
 
     /* ---- 4. the plates, or the week that produced them ---- */
     var footY = H - 64;
-    var gTop = 1146, gap = 14;
+    var gTop = 1196, gap = 14;
     var avail = footY - 46 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
     var rowsN = Math.floor((avail + gap) / (cellW + gap));
@@ -4536,9 +4409,18 @@
     else if (rowsN === 1) { cellH = Math.min(avail, cellW * 1.3); }
     else { rowsN = 1; cellH = avail; }
 
-    var usingPhotos = cellH >= 130 && dayFood.length;
+    /* Photos win the space when there are any that actually load. A URL can be dead --
+       storage prunes anything past the retention window, and a phone offline resolves
+       nothing -- and an empty frame says less than the week does, so the images are
+       fetched first and the week strip takes over if none of them arrive. */
+    var shown = (cellH >= 130 && dayFood.length) ? dayFood.slice(0, rowsN * 2) : [];
+    var imgs = shown.length ? await Promise.all(shown.map(function (f) { return loadImg(f.url); })) : [];
+    var usingPhotos = imgs.some(function (im) { return !!im; });
     if (!usingPhotos && avail >= 150) {
-      var sw = (W - pad * 2 - 6 * 10) / 7, sh = Math.max(150, Math.min(300, avail - 56));
+      var sw = (W - pad * 2 - 6 * 10) / 7, sh = Math.max(150, Math.min(340, avail - 56));
+      /* the strip is shorter than the photo grid it replaces, so it sits in the middle
+         of the space rather than leaving the whole gap underneath it */
+      var lift = Math.max(0, Math.round((avail - (34 + sh)) / 2));
       var best = 1, week = [];
       for (var wi = 6; wi >= 0; wi--) {
         var d2 = new Date(selectedDate); d2.setDate(d2.getDate() - wi);
@@ -4548,9 +4430,9 @@
         best = Math.max(best, dx.xp);
         week.push({ d: d2, xp: dx.xp, perfect: dx.perfect });
       }
-      cap("the week behind", pad, gTop + 18, 16, 0.5);
+      cap("the week behind", pad, gTop + lift + 18, 16, 0.5);
       week.forEach(function (wd, i2) {
-        var x = pad + i2 * (sw + 10), top = gTop + 34;
+        var x = pad + i2 * (sw + 10), top = gTop + lift + 34;
         platePath(x, top, sw, sh, 12);
         ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.lineWidth = 1.4; ctx.stroke();
         var fh = Math.round((sh - 54) * Math.min(1, wd.xp / best));
@@ -4567,8 +4449,6 @@
     }
 
     if (usingPhotos) {
-      var shown = dayFood.slice(0, rowsN * 2);
-      var imgs = await Promise.all(shown.map(function (f) { return loadImg(f.url); }));
       imgs.forEach(function (img, idx) {
         var col = idx % 2, row = Math.floor(idx / 2);
         var x = pad + col * (cellW + gap), yy = gTop + row * (cellH + gap);
