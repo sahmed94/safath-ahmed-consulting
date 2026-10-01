@@ -325,6 +325,15 @@
     background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .sc-open:active { background: rgba(255,255,255,0.16); }
 
+  .spark-layer { position: fixed; inset: 0; z-index: 95; pointer-events: none; }
+  .mute-btn { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--surface); color: var(--ink-faint); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; padding: 0; }
+  .mute-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2; }
+  /* sound on is the default and should not shout; muted is the state worth showing */
+  .mute-btn[aria-pressed="false"] .mute-slash { display: none; }
+  .mute-btn[aria-pressed="true"] { color: var(--coral); border-color: var(--coral); background: var(--coral-soft); }
+
   .good-card { background: linear-gradient(155deg, #1A1206 0%, #3A2608 52%, #5A3A0A 100%); border: none; color: #fff; }
   .gd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
   .gd-title { font-family: var(--font-head); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
@@ -371,6 +380,7 @@
   .rk-xpfill { height: 100%; border-radius: 6px; width: 0;
     background: linear-gradient(90deg, #6FD0FF, #E0417C); transition: width .7s cubic-bezier(.22,1,.36,1); }
   .rk-xptext { font-size: 11.5px; color: rgba(255,255,255,0.68); margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .rk-xptext b { color: #fff; font-family: var(--font-head); font-size: 13px; font-weight: 600; }
   .rk-streak { margin-top: 13px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
     font-size: 12.5px; color: rgba(255,255,255,0.88); position: relative; z-index: 1; }
   .rk-flame { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: #FFD166; }
@@ -547,6 +557,9 @@
   <header class="top">
     <div class="mark">AAS <span>LOG</span></div>
     <div style="display:flex; align-items:center; gap:10px;">
+      <button class="mute-btn" id="muteBtn" type="button" aria-pressed="false" title="Sound on">
+        <svg viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path class="mute-slash" d="M3 3l18 18"/></svg>
+      </button>
       <button class="profile-header-btn" id="profileNameBtn">—</button>
       <div class="date-pill" id="todayPill"></div>
     </div>
@@ -561,7 +574,7 @@
         <div class="rk-main">
           <div class="rk-name" id="rkTitle">Unranked</div>
           <div class="rk-xpbar"><div class="rk-xpfill" id="rkXpFill"></div></div>
-          <div class="rk-xptext" id="rkXpText"></div>
+          <div class="rk-xptext"><b id="rkXpNum">0</b><span id="rkXpRest"></span></div>
         </div>
       </div>
       <div class="rk-streak" id="rkStreak"></div>
@@ -613,16 +626,6 @@
       <div class="sc-bars" id="scBars"></div>
       <div class="sc-coach" id="scCoach" hidden></div>
       <button class="sc-open" id="scOpenBtn" type="button">Open the share card</button>
-    </div>
-
-    <div class="card wins-card" id="winsCard" hidden>
-      <div class="wins-head">
-        <div class="wins-title">How far you've come</div>
-        <div class="wins-span" id="winsSpan"></div>
-      </div>
-      <div class="wins-hero" id="winsHero"></div>
-      <div class="wins-rows" id="winsRows"></div>
-      <div class="wins-foot" id="winsFoot"></div>
     </div>
 
     <div class="card good-card" id="goodCard" hidden>
@@ -738,6 +741,16 @@
         <button class="trend-tab-btn" data-pane="monthly">Monthly</button>
       </div>
       <div class="trend-pane active" id="pane-daily">
+        <div class="card wins-card" id="winsCard" hidden>
+          <div class="wins-head">
+            <div class="wins-title">How far you've come</div>
+            <div class="wins-span" id="winsSpan"></div>
+          </div>
+          <div class="wins-hero" id="winsHero"></div>
+          <div class="wins-rows" id="winsRows"></div>
+          <div class="wins-foot" id="winsFoot"></div>
+        </div>
+
         <div class="card"><h2>Bodyweight trend</h2><svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg></div>
         <div class="card"><h2>Log history</h2><div class="hist-list" id="histList"></div></div>
       </div>
@@ -2088,7 +2101,15 @@
         doneBtn.setAttribute("data-done", on ? "0" : "1");
         doneBtn.classList.toggle("on", !on);
         row.classList.toggle("done-row", !on);
-        if (!on) { vibrate(18); startRestTimer(exx.restSec); }
+        if (!on) {
+          vibrate(18); startRestTimer(exx.restSec);
+          var nodeEl = block.querySelector('[data-node="' + idx + '"]');
+          var tier = EX_GROUP_COLOR[exArt(exx.name).g];
+          /* the crest filling is the reward; the last node of a lift is a bigger one */
+          var doneNow = rows.filter(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; }).length;
+          if (doneNow >= rows.length) { sfx("exercise"); burstFrom(block.querySelector(".ex-crest"), [tier.c, "#FFD166", "#FFFFFF"], 34); }
+          else { sfx("set"); burstFrom(nodeEl, [tier.c, "#FFFFFF"], 12); }
+        }
         paintCrest(block);
         persistSet(key, exx.name, row);
       }
@@ -2335,6 +2356,8 @@
       var totalSets = 0, doneSets = 0;
       prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (r) { if (r && r.done) doneSets++; }); });
       if (totalSets > 0 && doneSets === totalSets) {
+        sfx("session");
+        burst(window.innerWidth / 2, window.innerHeight * 0.42, ["#FF6B4A", "#FFD166", "#2E6BFF", "#12B886", "#E0417C"], 70);
         fireFeedback("workout", "Just completed the final set of " + prog.name + " (" + totalSets + " total sets across " + prog.ex.length + " exercises). Give a brief, energetic, encouraging reaction to finishing the whole session.");
         // The last set is the end of the session, so stop the clock rather than
         // leaving it running until someone remembers to press Finish.
@@ -2637,6 +2660,147 @@
     { id: "lvl10",   name: "Level 10",     test: function (p) { return p.level >= 10; } },
     { id: "lvl25",   name: "Level 25",     test: function (p) { return p.level >= 25; } }
   ];
+
+  /* ===================== SOUND & SPARK ===================== */
+  /* Every note is synthesised on the spot rather than loaded, so there are no audio
+     files to ship, nothing to wait for on a cold start, and it works with no signal in
+     a gym basement. A browser will not let a page make a noise before the person has
+     touched it, so the context is built on the first tap and kept.
+
+     Short, bright, and never twice in the same breath -- feedback that fires on every
+     keystroke stops being feedback and becomes noise. Muting is one tap and is
+     remembered. prefers-reduced-motion silences the sparks; it does not silence sound,
+     which is a separate preference. */
+
+  var AC = null, MUTED = false;
+  try { MUTED = localStorage.getItem("aaslog:muted") === "1"; } catch (e) {}
+
+  function audio() {
+    if (MUTED) return null;
+    try {
+      if (!AC) {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        AC = new Ctx();
+      }
+      if (AC.state === "suspended") AC.resume();
+      return AC;
+    } catch (e) { return null; }
+  }
+
+  /* One voice: a pitch, a shape, and an envelope that always closes. */
+  function tone(freq, startAt, dur, type, peak, bendTo) {
+    var ac = audio(); if (!ac) return;
+    var t = ac.currentTime + (startAt || 0);
+    var osc = ac.createOscillator(), g = ac.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq, t);
+    if (bendTo) osc.frequency.exponentialRampToValueAtTime(bendTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak || 0.14, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(ac.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+  function chord(freqs, dur, type, peak, spread) {
+    freqs.forEach(function (f, i) { tone(f, i * (spread || 0.055), dur, type, peak); });
+  }
+
+  var SFX = {
+    tick:     function () { tone(880, 0, 0.07, "triangle", 0.07); },
+    set:      function () { tone(660, 0, 0.09, "triangle", 0.1); tone(990, 0.045, 0.1, "sine", 0.08); },
+    exercise: function () { chord([587.33, 739.99, 880], 0.34, "triangle", 0.09, 0.045); },
+    session:  function () { chord([523.25, 659.25, 783.99, 1046.5], 0.6, "triangle", 0.1, 0.075); },
+    logged:   function () { tone(523.25, 0, 0.1, "sine", 0.1); tone(783.99, 0.055, 0.14, "sine", 0.085); },
+    levelUp:  function () { chord([523.25, 659.25, 783.99, 1046.5, 1318.5], 0.75, "sine", 0.1, 0.07); },
+    streak:   function () { tone(440, 0, 0.1, "sine", 0.09, 880); tone(880, 0.1, 0.22, "sine", 0.09); },
+    warn:     function () { tone(330, 0, 0.16, "sine", 0.09, 247); },
+    /* rarity bends the pitch: the rarer it is, the higher and longer it rings */
+    gear:     function (step) {
+      var base = 523.25 * Math.pow(1.122, step || 0);
+      chord([base, base * 1.26, base * 1.5], 0.3 + (step || 0) * 0.07, "triangle", 0.1, 0.05);
+      if ((step || 0) >= 3) tone(base * 2, 0.22, 0.45, "sine", 0.08);
+    },
+    drop:     function (step) {
+      var base = 659.25 * Math.pow(1.09, step || 0);
+      [0, 0.06, 0.12].forEach(function (d, i) { tone(base * (1 + i * 0.26), d, 0.26, "sine", 0.09); });
+      if ((step || 0) >= 2) chord([base * 2, base * 2.5, base * 3], 0.5, "sine", 0.07, 0.06);
+    }
+  };
+  function sfx(name, arg) { try { if (SFX[name]) SFX[name](arg); } catch (e) {} }
+
+  function setMuted(on) {
+    MUTED = on;
+    try { localStorage.setItem("aaslog:muted", on ? "1" : "0"); } catch (e) {}
+    var b = document.getElementById("muteBtn");
+    if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.title = on ? "Sound off" : "Sound on"; }
+  }
+
+  /* ---- sparks ---- */
+  /* A burst of coloured shards from a point on screen. Canvas rather than DOM nodes so
+     a hundred of them cost nothing, and it tears itself down when the last one dies. */
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  function burst(x, y, colors, count) {
+    if (reduceMotion) return;
+    var cv = document.createElement("canvas");
+    cv.className = "spark-layer";
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var w = window.innerWidth, h = window.innerHeight;
+    cv.width = w * dpr; cv.height = h * dpr;
+    cv.style.width = w + "px"; cv.style.height = h + "px";
+    document.body.appendChild(cv);
+    var g = cv.getContext("2d"); g.scale(dpr, dpr);
+
+    var n = count || 26, bits = [];
+    for (var i = 0; i < n; i++) {
+      var a = (Math.PI * 2 * i) / n + Math.random() * 0.5;
+      var sp = 2.6 + Math.random() * 5.4;
+      bits.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.6,
+                  r: 2 + Math.random() * 3.4, life: 1,
+                  c: colors[(Math.random() * colors.length) | 0], rot: Math.random() * 6.28 });
+    }
+    var t0 = performance.now();
+    (function frame(now) {
+      var dt = Math.min(34, now - t0) / 16.67; t0 = now;
+      g.clearRect(0, 0, w, h);
+      var alive = 0;
+      bits.forEach(function (b) {
+        if (b.life <= 0) return;
+        alive++;
+        b.vy += 0.19 * dt; b.vx *= 0.995;
+        b.x += b.vx * dt; b.y += b.vy * dt;
+        b.life -= 0.016 * dt; b.rot += 0.12 * dt;
+        g.save(); g.globalAlpha = Math.max(0, b.life);
+        g.translate(b.x, b.y); g.rotate(b.rot);
+        g.fillStyle = b.c; g.fillRect(-b.r, -b.r * 0.6, b.r * 2, b.r * 1.2);
+        g.restore();
+      });
+      if (alive) requestAnimationFrame(frame); else cv.remove();
+    })(performance.now());
+  }
+  function burstFrom(el, colors, count) {
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, colors, count);
+  }
+
+  /* ---- numbers that move ---- */
+  /* A figure that lands on its value is worth more than one that was simply replaced. */
+  function countTo(el, to, fmt, ms) {
+    if (!el) return;
+    var from = Number(String(el.dataset.v || "0").replace(/[^0-9.-]/g, "")) || 0;
+    el.dataset.v = to;
+    if (reduceMotion || from === to) { el.textContent = (fmt || fmtInt)(to); return; }
+    var t0 = performance.now(), span = ms || 650;
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / span);
+      var e = 1 - Math.pow(1 - k, 3);
+      el.textContent = (fmt || fmtInt)(Math.round(from + (to - from) * e));
+      if (k < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
 
   /* ===================== THE LEDGER ===================== */
   /* Discipline that only ever points back at yourself runs out. This turns it
@@ -2946,24 +3110,31 @@
     var isBw = prev.bodyweight;
     var now = isBw ? reps : weight;
     if (now == null || (prev.best != null && now <= prev.best)) return;
+    var firstTime = prev.best == null;
     var newRarity = rarityFor(now, prev.base);
     var newIlvl = isBw ? Math.round(now * 3) : Math.round(now);
     prev.best = now; prev.ilvl = newIlvl;                 // so one session cannot fire twice
-    var rankedUp = newRarity.name !== prev.rarity;
+    var rankedUp = !firstTime && newRarity.name !== prev.rarity;
     prev.rarity = newRarity.name;
-    showUpgrade(exName, newIlvl, newRarity, rankedUp, isBw ? now + " reps" : now + " lb");
+    showUpgrade(exName, newIlvl, newRarity, rankedUp, isBw ? now + " reps" : now + " lb", firstTime);
   }
-  function showUpgrade(exName, ilvl, rarity, rankedUp, valueText) {
+  function showUpgrade(exName, ilvl, rarity, rankedUp, valueText, firstTime) {
     var wrap = document.getElementById("feedbackWrap");
     var el = document.createElement("div");
     el.className = "gear-toast";
     el.style.setProperty("--gc", rarity.color);
-    el.innerHTML = '<div class="gt-tag">' + (rankedUp ? "Rarity up" : "Gear upgrade") + '</div>' +
+    el.innerHTML = '<div class="gt-tag">' + (firstTime ? "Slot equipped" : rankedUp ? "Rarity up" : "Gear upgrade") + '</div>' +
       '<div class="gt-name">' + exName + '</div>' +
       '<div class="gt-row"><span class="gt-ilvl">ilvl ' + ilvl + '</span>' +
       '<span class="gt-rar">' + rarity.name + '</span><span class="gt-val">' + valueText + '</span></div>';
     wrap.innerHTML = ""; wrap.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("show"); });
+    var step = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"].indexOf(rarity.name);
+    if (firstTime) { sfx("logged"); burstFrom(el, [rarity.color, "#FFFFFF"], 14); }
+    else {
+      sfx("gear", Math.max(0, step));
+      burstFrom(el, [rarity.color, "#FFFFFF", "#FFD166"], 24 + Math.max(0, step) * 8);
+    }
     vibrate(rankedUp ? [20, 50, 20, 50, 40] : [18, 40, 18]);
     clearTimeout(showUpgrade._t);
     showUpgrade._t = setTimeout(function () {
@@ -2982,17 +3153,34 @@
     lastProg = pr;
     card.hidden = false;
 
-    document.getElementById("rkLevelNum").textContent = pr.level;
+    /* A level that arrives while you are looking at it is worth announcing. */
+    var lvlEl = document.getElementById("rkLevelNum");
+    var hadLevel = Number(lvlEl.dataset.v || 0);
+    if (hadLevel && pr.level > hadLevel) {
+      sfx("levelUp");
+      burstFrom(document.querySelector(".rk-lvl"), ["#FFD166", "#E0417C", "#6FD0FF", "#FFFFFF"], 48);
+      showToast("Level " + pr.level + " \u2014 " + pr.title + ".", false);
+    }
+    lvlEl.dataset.v = pr.level;
+    lvlEl.textContent = pr.level;
     document.getElementById("rkTitle").textContent = pr.title;
     var span = Math.max(1, pr.nextXP - pr.floorXP);
     var into = Math.max(0, pr.total - pr.floorXP);
     document.getElementById("rkXpFill").style.width = Math.min(100, into / span * 100) + "%";
-    document.getElementById("rkXpText").textContent =
-      fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
+    countTo(document.getElementById("rkXpNum"), pr.total);
+    document.getElementById("rkXpRest").textContent =
+      " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
       (pr.todayXP ? "  ·  +" + fmtInt(pr.todayXP) + " today" : "");
 
     /* the streak line, and what the next tier is worth */
     var st = document.getElementById("rkStreak");
+    var hadMult = Number(st.dataset.m || 0);
+    if (hadMult && pr.mult > hadMult) {
+      sfx("streak");
+      burstFrom(st, ["#FFD166", "#FFFFFF"], 30);
+      showToast(pr.mult + "\u00d7 XP \u2014 " + pr.run + " days running.", false);
+    }
+    st.dataset.m = pr.mult;
     var nx = pr.next;
     st.innerHTML = '<span class="rk-flame">▲ ' + pr.run + ' day' + (pr.run === 1 ? "" : "s") + '</span>' +
       '<span class="rk-mult">' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '× XP</span>' +
@@ -3032,8 +3220,8 @@
     /* the headline numbers for the character sheet, so the way in shows its worth */
     loadout().then(function (lo) {
       lastLoadout = lo;
-      document.getElementById("rkPower").textContent = fmtInt(powerOf(pr, lo));
-      document.getElementById("rkGear").textContent = fmtInt(lo.gearScore);
+      countTo(document.getElementById("rkPower"), powerOf(pr, lo));
+      countTo(document.getElementById("rkGear"), lo.gearScore);
     });
 
     tickRank();
@@ -3097,7 +3285,9 @@
       GAME.shields += prize.shield;
       await saveGame();
       vibrate([18, 40, 18, 40, 30]);
+      sfx("drop", ["Common", "Rare", "Epic", "Legendary"].indexOf(prize.rarity));
       showDropModal(prize);
+      setTimeout(function () { burstFrom(document.querySelector("#dropModal .drop-art"), [prize.color, "#FFFFFF"], 30 + 14 * ["Common", "Rare", "Epic", "Legendary"].indexOf(prize.rarity)); }, 160);
       renderRank();
     };
   }
@@ -3189,6 +3379,7 @@
       doc.cardio = { min: min, incline: incline, speed: speed, calories: calories };
       await saveDayDoc(key, doc);
       document.getElementById("cardioSaved").textContent = "Logged";
+      sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
       document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
       if (doc.cardio.min != null) fireFeedback("cardio", "Logged " + doc.cardio.min + " minutes of incline cardio at " + (doc.cardio.incline || "?") + "% incline, " + (doc.cardio.speed || "?") + " mph, roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction.");
       renderHistory(); renderQuests();
@@ -4136,6 +4327,8 @@
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    setMuted(MUTED);
+    document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
     wireLedger();
     document.getElementById("rkCharBtn").onclick = openCharacter;
     document.getElementById("charCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
