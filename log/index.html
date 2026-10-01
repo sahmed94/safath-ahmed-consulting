@@ -4331,10 +4331,29 @@
     rule(238);
 
     /* ---- 2. the figure: everything worn, everything eaten, everything today ---- */
+    /* The sockets sit where they sit on a body -- helm at the head, weapon and shield
+       in the hands, belt at the waist above the legs, boots at the feet -- and the
+       rings encircle the body because the body is the slot that food fills.
+
+       The point of the badges: every socket carries the damage that input dealt to
+       today's opponent, so the chain from "I walked forty minutes" to "the bar moved
+       thirty" is visible on the figure itself. The separate row of blow meters is gone;
+       the sockets were always the blows. */
+    var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
+    var DMG = {};
+    bt.blows.forEach(function (bl) { DMG[bl.k] = bl; });
+    var SOCKET_FEEDS = {
+      legs:   "Cardio",     /* minutes walked  -> the legs */
+      belt:   "Training",   /* sets finished   -> the belt */
+      chest:  "Meals",      /* what you ate    -> the body */
+      boots:  "Weigh-in",   /* the scale       -> the boots */
+      shield: "Gear"        /* the armoury itself */
+    };
+
     var SZ = 72;
-    var Y_HELM = 318, Y_BELT = 430, Y_MID = 580, Y_LEGS = 730, Y_BOOT = 842;
-    var FLANK = 232;
-    var ringR = 96;
+    var Y_HELM = 312, Y_MID = 470, Y_BELT = 652, Y_LEGS = 762, Y_BOOT = 872;
+    var FLANK = 226;
+    var ringR = 88;
 
     ctx.strokeStyle = "rgba(255,255,255,0.14)"; ctx.lineWidth = 2;
     ctx.beginPath();
@@ -4342,7 +4361,25 @@
     ctx.moveTo(midX - FLANK, Y_MID); ctx.lineTo(midX + FLANK, Y_MID);
     ctx.stroke();
 
+    /* a badge showing what this slot put into the day */
+    function dmgBadge(cx, cy, key, centred) {
+      var bl = DMG[SOCKET_FEEDS[key]];
+      if (!bl) return;
+      var t2 = "+" + bl.v;
+      ctx.font = "600 15px Oswald, sans-serif";
+      var w = ctx.measureText(t2).width + 18;
+      var bxx = centred ? cx - w / 2 : cx + SZ / 2 - w + 6;
+      var byy = centred ? cy : cy + SZ / 2 - 6;
+      var full = bl.v >= bl.max;
+      roundRect(ctx, bxx, byy, w, 24, 12);
+      ctx.fillStyle = full ? "rgba(125,240,184,0.9)" : (bl.v > 0 ? rank.color : "rgba(40,44,58,0.95)");
+      ctx.fill();
+      ctx.fillStyle = bl.v > 0 ? INK : "rgba(255,255,255,0.45)";
+      ctx.textAlign = "center"; ctx.fillText(t2, bxx + w / 2, byy + 17); ctx.textAlign = "left";
+    }
+
     function socket(cx, cy, r) {
+      if (!r) return;
       var sx = cx - SZ / 2, sy = cy - SZ / 2;
       var filled = r.ilvl > 0;
       var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
@@ -4365,111 +4402,115 @@
       ctx.font = "600 17px Oswald, sans-serif";
       ctx.fillText(filled ? r.face : "—", cx, sy + SZ - 13);
       ctx.textAlign = "left";
+      dmgBadge(cx, cy, r.key);
     }
     function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
-    /* a slot's name and rarity, set beside it */
+    /* name, rarity, and what that slot put in today, set beside the socket */
     function aside(r, x, yy, align) {
       if (!r) return;
+      var bl = DMG[SOCKET_FEEDS[r.key]];
       ctx.textAlign = align;
       ctx.fillStyle = r.ilvl ? r.rarity.color : "rgba(255,255,255,0.3)";
       ctx.font = "600 15px Oswald, sans-serif";
       ctx.fillText(r.rarity.name.toUpperCase(), x, yy);
-      ctx.fillStyle = "rgba(255,255,255,0.58)"; ctx.font = "500 15px Inter, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 15px Inter, sans-serif";
       ctx.fillText(r.name, x, yy + 22);
-      ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "500 13px Inter, sans-serif";
-      ctx.fillText(r.fed, x, yy + 42);
+      ctx.fillStyle = "rgba(255,255,255,0.38)"; ctx.font = "500 13px Inter, sans-serif";
+      ctx.fillText(bl ? bl.note + "  \u2192  " + bl.v + " dmg" : r.fed, x, yy + 42);
       ctx.textAlign = "left";
     }
 
     socket(midX, Y_HELM, rowFor("helmet"));  aside(rowFor("helmet"), midX + 56, Y_HELM - 10, "left");
-    socket(midX, Y_BELT, rowFor("belt"));    aside(rowFor("belt"),   midX + 56, Y_BELT - 10, "left");
     socket(midX - FLANK, Y_MID, rowFor("weapon"));
     aside(rowFor("weapon"), midX - FLANK, Y_MID + 62, "center");
     socket(midX + FLANK, Y_MID, rowFor("shield"));
     aside(rowFor("shield"), midX + FLANK, Y_MID + 62, "center");
+    socket(midX, Y_BELT, rowFor("belt"));    aside(rowFor("belt"),   midX + 56, Y_BELT - 10, "left");
     socket(midX, Y_LEGS, rowFor("legs"));    aside(rowFor("legs"),   midX + 56, Y_LEGS - 10, "left");
     socket(midX, Y_BOOT, rowFor("boots"));   aside(rowFor("boots"),  midX + 56, Y_BOOT - 10, "left");
 
-    /* the body socket is the nutrition: the rings ARE the chest piece */
+    /* the body socket is the nutrition: the rings ARE the chest piece, and the macros
+       they stand for sit directly under them rather than off in a margin */
     var chestRow = rowFor("chest");
     var rings = [
-      { r: ringR,      w: 17, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
-      { r: ringR - 23, w: 17, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
-      { r: ringR - 46, w: 17, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
+      { r: ringR,      w: 16, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
+      { r: ringR - 22, w: 16, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
+      { r: ringR - 44, w: 16, val: fib, target: PLAN.fiber,   color: "#6FD0FF", name: "FIBRE" }
     ];
     rings.forEach(function (rg) {
       ringArc(ctx, midX, Y_MID, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)");
     });
     ctx.textAlign = "center";
     ctx.fillStyle = anyEst ? "#fff" : "rgba(255,255,255,0.35)";
-    ctx.font = "600 34px Oswald, sans-serif";
+    ctx.font = "600 32px Oswald, sans-serif";
     ctx.fillText(anyEst ? fmtInt(cal) : "—", midX, Y_MID + 2);
-    ctx.fillStyle = chestRow && chestRow.ilvl ? chestRow.rarity.color : "rgba(255,255,255,0.4)";
-    ctx.font = "600 13px Oswald, sans-serif";
-    ctx.fillText("KCAL · " + (chestRow ? chestRow.face : ""), midX, Y_MID + 26);
+    ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "600 12px Oswald, sans-serif";
+    ctx.fillText("KCAL", midX, Y_MID + 22);
     ctx.textAlign = "left";
+    dmgBadge(midX, Y_MID + ringR + 10, "chest", true);
 
-    /* the macros the rings stand for, and the one next upgrade, in the margins */
-    var mX = pad, mY = Y_BELT - 6;
-    cap("macros", mX, mY, 14, 0.45);
-    rings.forEach(function (rg, i2) {
-      var ly = mY + 30 + i2 * 44;
-      ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(mX + 6, ly - 6, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "#fff"; ctx.font = "600 20px Oswald, sans-serif";
-      var vTxt = rg.val + "g", vW = ctx.measureText(vTxt).width;
-      ctx.fillText(vTxt, mX + 20, ly);
-      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
-      ctx.fillText((rg.name === "FAT" ? "cap " : "of ") + rg.target, mX + 20 + vW + 12, ly);
+    /* protein, fat, fibre on one line beneath the rings */
+    var macroY = Y_MID + 142;
+    var mTotal = 0, mParts = rings.map(function (rg) {
+      ctx.font = "600 20px Oswald, sans-serif";
+      var a1 = rg.val + "g", w1 = ctx.measureText(a1).width;
+      ctx.font = "500 13px Inter, sans-serif";
+      var a2 = (rg.name === "FAT" ? "cap " : "of ") + rg.target, w2 = ctx.measureText(a2).width;
+      var w = 16 + w1 + 8 + w2;
+      mTotal += w; return { rg: rg, a1: a1, a2: a2, w1: w1, w: w };
     });
+    mTotal += 36 * (mParts.length - 1);
+    var mx2 = midX - mTotal / 2;
+    mParts.forEach(function (mp) {
+      ctx.fillStyle = mp.rg.color; ctx.beginPath(); ctx.arc(mx2 + 5, macroY - 7, 5.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.font = "600 20px Oswald, sans-serif";
+      ctx.fillText(mp.a1, mx2 + 16, macroY);
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
+      ctx.fillText(mp.a2, mx2 + 16 + mp.w1 + 8, macroY);
+      mx2 += mp.w + 36;
+    });
+
+    /* one concrete next step, in the room the spine leaves */
     var upg = lo.rows.filter(function (r) { return r.next; }).sort(function (a, b) { return a.need - b.need; })[0];
     if (upg) {
-      var uY = Y_LEGS - 20;
-      cap("next upgrade", mX, uY, 14, 0.45);
+      var uY = Y_BELT - 10;
+      cap("next upgrade", pad, uY, 14, 0.45);
       ctx.fillStyle = "#fff"; ctx.font = "600 18px Oswald, sans-serif";
-      ctx.fillText(upg.name, mX, uY + 28);
+      ctx.fillText(upg.name, pad, uY + 28);
       ctx.fillStyle = upg.next.color; ctx.font = "600 14px Oswald, sans-serif";
-      ctx.fillText(upg.rarity.name.toUpperCase() + " → " + upg.next.name.toUpperCase(), mX, uY + 50);
+      ctx.fillText(upg.rarity.name.toUpperCase() + " \u2192 " + upg.next.name.toUpperCase(), pad, uY + 50);
       ctx.fillStyle = "rgba(255,255,255,0.55)"; ctx.font = "500 15px Inter, sans-serif";
-      ctx.fillText(upg.needText, mX, uY + 74);
+      ctx.fillText(upg.needText, pad, uY + 74);
     }
-    rule(912);
+    rule(938);
 
-    /* ---- 3. what the figure fought ---- */
-    var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
-    cap("the day's fight", pad, 952, 16, 0.5);
+    /* ---- 3. the sum of all of it ---- */
+    cap("the day's fight", pad, 978, 16, 0.5);
     ctx.textAlign = "right";
-    cap(bt.tier.name + " · " + bt.foe.name, W - pad, 952, 16, 0.5);
+    cap(bt.tier.name + " \u00b7 " + bt.foe.name, W - pad, 978, 16, 0.5);
     ctx.textAlign = "left";
 
-    var hbY = 972, hbW = W - pad * 2;
-    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad, hbY, hbW, 30, 15); ctx.fill();
-    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 22;
+    var hbY = 998, hbW = W - pad * 2;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, pad, hbY, hbW, 34, 17); ctx.fill();
+    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 24;
     ctx.fillStyle = bt.won ? "#7DF0B8" : rank.color;
-    roundRect(ctx, pad, hbY, Math.max(30, hbW * bt.pct), 30, 15); ctx.fill(); ctx.restore();
-    ctx.textAlign = "center";
-    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 19px Oswald, sans-serif";
-    ctx.fillText(bt.damage + " / " + bt.hp + " DMG  ·  " + (bt.won ? "VICTORY" : bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"),
-                 midX, hbY + 21);
-    ctx.textAlign = "left";
-
-    var bw3 = (W - pad * 2 - (bt.blows.length - 1) * 12) / bt.blows.length;
-    bt.blows.forEach(function (bl, i2) {
-      var bx2 = pad + i2 * (bw3 + 12), byy = hbY + 52;
-      ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, bx2, byy, bw3, 6, 3); ctx.fill();
-      ctx.fillStyle = bl.v >= bl.max ? "#7DF0B8" : (bl.v > 0 ? rank.color : "rgba(255,255,255,0.12)");
-      roundRect(ctx, bx2, byy, Math.max(3, bw3 * (bl.v / bl.max)), 6, 3); ctx.fill();
-      cap(bl.k, bx2, byy + 28, 14, 0.6);
-      ctx.textAlign = "right";
-      ctx.fillStyle = "#fff"; ctx.font = "600 15px Oswald, sans-serif";
-      ctx.fillText("+" + bl.v, bx2 + bw3, byy + 28);
-      ctx.textAlign = "left";
-      ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "500 13px Inter, sans-serif";
-      var nt = bl.note; while (ctx.measureText(nt).width > bw3 && nt.length > 4) nt = nt.slice(0, -2);
-      ctx.fillText(nt, bx2, byy + 48);
+    roundRect(ctx, pad, hbY, Math.max(34, hbW * bt.pct), 34, 17); ctx.fill(); ctx.restore();
+    /* the ticks are where each socket's damage landed, so the bar reads as a stack */
+    var acc = 0;
+    bt.blows.forEach(function (bl) {
+      acc += bl.v;
+      if (acc >= bt.damage) return;
+      var tx2 = pad + hbW * Math.min(1, acc / bt.hp);
+      ctx.fillStyle = "rgba(7,8,14,0.45)"; ctx.fillRect(tx2 - 1, hbY + 4, 2, 26);
     });
+    ctx.textAlign = "center";
+    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 20px Oswald, sans-serif";
+    ctx.fillText(bt.damage + " / " + bt.hp + " DMG  \u00b7  " + (bt.won ? "VICTORY" : bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"),
+                 midX, hbY + 24);
+    ctx.textAlign = "left";
 
     /* blessings and curses as chips on one line, not a table */
-    var chY = 1118, chX = pad;
+    var chY = 1082, chX = pad;
     chip(chX, chY, pr.mult + "× → " + effMult + "×", effMult < pr.mult ? "#FF8F6B" : "#FFD166");
     chX += ctx.measureText(pr.mult + "× → " + effMult + "×").width + 36;
     buffs.concat([]).forEach(function (bf) {
@@ -4482,11 +4523,11 @@
       if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
       chX += chip(chX, chY, t2, "#FF8F6B") + 10;
     });
-    rule(1158);
+    rule(1122);
 
     /* ---- 4. the plates, or the week that produced them ---- */
     var footY = H - 64;
-    var gTop = 1182, gap = 14;
+    var gTop = 1146, gap = 14;
     var avail = footY - 46 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
     var rowsN = Math.floor((avail + gap) / (cellW + gap));
