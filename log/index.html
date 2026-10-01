@@ -364,6 +364,60 @@
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
   .rk-badge.got { background: rgba(125,240,184,0.18); color: #7DF0B8; box-shadow: inset 0 0 0 1px rgba(125,240,184,0.45); }
 
+  .rk-char { margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; border: none; border-radius: 12px; padding: 12px 14px; cursor: pointer; position: relative; z-index: 1;
+    background: rgba(255,255,255,0.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); color: #fff; }
+  .rk-char:active { background: rgba(255,255,255,0.16); }
+  .rkc-l { font-family: var(--font-head); font-size: 13px; letter-spacing: .07em; text-transform: uppercase; }
+  .rkc-r { font-size: 12px; color: rgba(255,255,255,0.68); }
+  .rkc-r b { color: #fff; font-family: var(--font-head); font-size: 14px; }
+
+  .modal-inner.char-sheet { background: linear-gradient(162deg, #0D0B1F 0%, #1B1338 55%, #2A1444 100%); color: #fff; }
+  .modal-inner.char-sheet h3 { color: #fff; }
+  .modal-inner.char-sheet .close-btn { background: rgba(255,255,255,0.12); color: #fff; border-color: transparent; }
+  .char-head { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+  .char-power { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 96px; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,0.08);
+    box-shadow: inset 0 0 0 1.5px rgba(255,209,102,0.45), 0 0 30px rgba(255,209,102,0.22); }
+  .char-power span { font-family: var(--font-head); font-size: 33px; font-weight: 700; line-height: 1; color: #FFD166; }
+  .char-power small { font-family: var(--font-head); font-size: 9px; letter-spacing: .16em; color: rgba(255,255,255,0.55); margin-top: 3px; }
+  .char-sub { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.5; }
+  .char-section { font-family: var(--font-head); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5); margin: 18px 0 9px; }
+  .cs-row { margin-bottom: 12px; }
+  .cs-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; margin-bottom: 5px; }
+  .cs-k { font-family: var(--font-head); letter-spacing: .05em; color: rgba(255,255,255,0.9); }
+  .cs-v { font-family: var(--font-head); color: #fff; font-variant-numeric: tabular-nums; }
+  .cs-v small { color: rgba(255,255,255,0.45); font-size: 11px; }
+  .cs-track { height: 7px; border-radius: 5px; background: rgba(255,255,255,0.12); overflow: hidden; }
+  .cs-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #6FD0FF, #B06BFF); }
+  .cs-sub { font-size: 10.5px; color: rgba(255,255,255,0.42); margin-top: 4px; }
+  .gear-row { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+  .gear-row:first-child { border-top: none; }
+  .gear-ilvl { flex: 0 0 46px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-head); font-size: 15px; font-weight: 700; background: rgba(255,255,255,0.06); }
+  .gear-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .gear-body b { font-size: 13.5px; }
+  .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .char-foot { margin-top: 14px; background: rgba(255,255,255,0.08); border-radius: 11px; padding: 11px 12px;
+    font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.72); }
+
+  /* lives inside #feedbackWrap, which already sits clear of the rest-timer bar --
+     positioning it independently put it underneath one */
+  .gear-toast { max-width: 460px; width: 100%; border-radius: 16px; padding: 14px 16px; color: #fff;
+    background: linear-gradient(120deg, #15102B, #241640); box-shadow: inset 0 0 0 1.5px var(--gc), 0 0 34px color-mix(in srgb, var(--gc) 45%, transparent);
+    transform: translateY(16px) scale(.97); opacity: 0; pointer-events: auto;
+    transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .3s; }
+  .gear-toast.show { transform: none; opacity: 1; }
+  .gt-tag { font-family: var(--font-head); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gc); }
+  .gt-name { font-family: var(--font-head); font-size: 18px; margin: 3px 0 7px; }
+  .gt-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; }
+  .gt-ilvl { font-family: var(--font-head); font-size: 13px; padding: 3px 9px; border-radius: 20px;
+    background: color-mix(in srgb, var(--gc) 22%, transparent); color: var(--gc); }
+  .gt-rar { color: var(--gc); font-family: var(--font-head); letter-spacing: .05em; }
+  .gt-val { color: rgba(255,255,255,0.6); }
+  @media (prefers-reduced-motion: reduce) { .gear-toast { transition: none; } }
+
   .drop-reveal { text-align: center; padding: 6px 0 2px; }
   .drop-rarity { font-family: var(--font-head); font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }
   .drop-art { width: 108px; height: 108px; margin: 14px auto 10px; border-radius: 26px; display: flex;
@@ -483,6 +537,10 @@
       <div class="rk-window" id="rkWindow" hidden></div>
       <div class="rk-risk" id="rkRisk" hidden></div>
       <button class="rk-drop" id="rkDropBtn" type="button" hidden></button>
+      <button class="rk-char" id="rkCharBtn" type="button">
+        <span class="rkc-l">Character</span>
+        <span class="rkc-r"><b id="rkPower">—</b> power · <b id="rkGear">—</b> gear</span>
+      </button>
       <div class="rk-badges" id="rkBadges"></div>
     </div>
 
@@ -730,6 +788,20 @@
 
 <!-- Exercise history modal -->
 <div id="modalOverlay">
+  <!-- Character sheet -->
+  <div class="modal-inner char-sheet" id="charModal" style="display:none;">
+    <div class="char-head">
+      <div class="char-power"><span id="charPower">0</span><small>POWER</small></div>
+      <div class="char-sub" id="charSub"></div>
+    </div>
+    <div class="char-section">Attributes</div>
+    <div id="charStats"></div>
+    <div class="char-section">Loadout</div>
+    <div id="charSlots"></div>
+    <div class="char-foot" id="charFoot"></div>
+    <div class="modal-actions"><button class="primary-btn" id="charCloseBtn" style="width:100%;">Close</button></div>
+  </div>
+
   <!-- Daily drop -->
   <div class="modal-inner" id="dropModal" style="display:none;">
     <div class="drop-reveal">
@@ -1415,7 +1487,7 @@
     var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
-    renderQuests(); renderTopStats().then(renderWins); renderRank();
+    renderQuests(); renderTopStats().then(renderWins); renderRank(); snapshotBests();
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
     document.getElementById("weightSaved").textContent = doc.weight != null ? "Logged" : "";
@@ -2042,6 +2114,7 @@
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("dropModal").style.display = "none";
+    document.getElementById("charModal").style.display = "none";
     document.getElementById("planModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -2180,6 +2253,7 @@
     var done = row.querySelector(".mini-done").getAttribute("data-done") === "1";
     doc.sets[exName][setIdx] = { reps: reps === "" ? null : Number(reps), weight: weight === "" || weight === null ? null : Number(weight), done: done };
     await saveDayDoc(key, doc);
+    if (done) checkUpgrade(exName, weight === "" || weight === null ? null : Number(weight), reps === "" ? null : Number(reps));
     renderQuests();
     if (done) {
       var dow = selectedDate.getDay(); var prog = PROGRAM[dow];
@@ -2484,6 +2558,203 @@
     { id: "lvl25",   name: "Level 25",     test: function (p) { return p.level >= 25; } }
   ];
 
+  /* ===================== GEAR ===================== */
+  /* The conceit is not a conceit: in a lifting programme your gear really is your
+     lifts. An item level here is the heaviest working set you have ever completed on
+     that movement, and rarity is how far past the programme's starting weight you have
+     pushed it. Nothing is invented and nothing is awarded by luck -- the only way to
+     upgrade a slot is to put more on the bar than you did last time, which is the
+     behaviour the whole programme exists to produce.
+
+     Stats are the same idea: real measures over a rolling 30 days, shown as themselves
+     with a bar against a target rather than as a made-up score. */
+
+  var RARITY = [
+    { over: 0.75, name: "Mythic",    color: "#FF4FD8" },
+    { over: 0.50, name: "Legendary", color: "#FFD166" },
+    { over: 0.30, name: "Epic",      color: "#B06BFF" },
+    { over: 0.15, name: "Rare",      color: "#6FD0FF" },
+    { over: 0.05, name: "Uncommon",  color: "#7DF0B8" },
+    { over: -Infinity, name: "Common", color: "#9599AC" }
+  ];
+  function rarityFor(best, base) {
+    if (!base || !best) return RARITY[RARITY.length - 1];
+    var gain = (best - base) / base;
+    for (var i = 0; i < RARITY.length; i++) if (gain >= RARITY[i].over) return RARITY[i];
+    return RARITY[RARITY.length - 1];
+  }
+
+  /* Every movement in the programme, with the weight it starts at. */
+  function allSlots() {
+    var seen = {}, out = [];
+    Object.keys(PROGRAM).forEach(function (d) {
+      (PROGRAM[d].ex || []).forEach(function (exx) {
+        if (seen[exx.name]) return;
+        seen[exx.name] = 1;
+        out.push({ name: exx.name, base: exx.weightDefault, label: exx.weightLabel, bodyweight: exx.weightDefault == null });
+      });
+    });
+    return out;
+  }
+
+  /* An item level: the heaviest completed set, or for a bodyweight movement the best
+     rep count standing in for load. */
+  function ilvlOf(best, slot) {
+    if (best == null) return 0;
+    return slot.bodyweight ? Math.round(best * 3) : Math.round(best);
+  }
+
+  var STAT_TARGETS = { str: 300000, sta: 1200, con: 30, wis: 30 };
+
+  async function loadout() {
+    var slots = allSlots();
+    var bestBy = {}, bestRepsBy = {};
+    var keys = (await getAllDayKeys()).slice().sort();
+    var cut = new Date(); cut.setDate(cut.getDate() - 29);   // today plus the 29 before it
+    var cutKey = dateKey(cut);
+    var volume = 0, cardioMin = 0, daysLogged = 0, onPlan = 0;
+    var byDay = {};
+    foodCache.forEach(function (f) { (byDay[f.date] = byDay[f.date] || []).push(f); });
+
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i], doc = await getDayDoc(k);
+      var recent = k >= cutKey;
+      var touched = false;
+      Object.keys(doc.sets || {}).forEach(function (en) {
+        if (!Array.isArray(doc.sets[en])) return;
+        doc.sets[en].forEach(function (r) {
+          if (!r || !r.done) return;
+          touched = true;
+          if (r.weight != null && (bestBy[en] == null || r.weight > bestBy[en])) bestBy[en] = r.weight;
+          if (r.reps != null && (bestRepsBy[en] == null || r.reps > bestRepsBy[en])) bestRepsBy[en] = r.reps;
+          if (recent && r.weight != null && r.reps != null) volume += r.weight * r.reps;
+        });
+      });
+      if (doc.weight != null || (byDay[k] && byDay[k].length) || (doc.cardio && doc.cardio.min != null)) touched = true;
+      if (recent) {
+        if (touched) daysLogged++;
+        if (doc.cardio && doc.cardio.min) cardioMin += doc.cardio.min;
+        var cal = 0, any = false;
+        (byDay[k] || []).forEach(function (f) { if (f.estimate && f.estimate.calories) { any = true; cal += f.estimate.calories; } });
+        if (any && cal >= PLAN.floor && cal <= planIntake()) onPlan++;
+      }
+    }
+
+    var gearScore = 0, equipped = 0;
+    var rows = slots.map(function (sl) {
+      var best = sl.bodyweight ? bestRepsBy[sl.name] : bestBy[sl.name];
+      var base = sl.bodyweight ? 10 : sl.base;
+      var il = ilvlOf(best, sl);
+      if (il > 0) { gearScore += il; equipped++; }
+      return { name: sl.name, best: best, base: base, ilvl: il,
+               rarity: rarityFor(best, base), bodyweight: sl.bodyweight, label: sl.label };
+    });
+    rows.sort(function (a, b) { return b.ilvl - a.ilvl; });
+
+    return {
+      rows: rows, gearScore: gearScore, equipped: equipped, slots: slots.length,
+      stats: {
+        str: { v: Math.round(volume), t: STAT_TARGETS.str, label: "Strength", sub: "lb lifted, 30 days" },
+        sta: { v: Math.round(cardioMin), t: STAT_TARGETS.sta, label: "Stamina", sub: "cardio minutes, 30 days" },
+        con: { v: daysLogged, t: STAT_TARGETS.con, label: "Constitution", sub: "days logged of 30" },
+        wis: { v: onPlan, t: STAT_TARGETS.wis, label: "Wisdom", sub: "days on plan of 30" }
+      }
+    };
+  }
+
+  function powerOf(pr, lo) {
+    var avg = ["str", "sta", "con", "wis"].reduce(function (a, k) {
+      return a + Math.min(1, lo.stats[k].v / lo.stats[k].t);
+    }, 0) / 4;
+    return Math.round(lo.gearScore + pr.level * 25 + avg * 500);
+  }
+
+  /* ---- the character sheet ---- */
+  var lastLoadout = null;
+  async function openCharacter() {
+    var pr = lastProg || await progression();
+    var lo = await loadout();
+    lastLoadout = lo;
+    var power = powerOf(pr, lo);
+
+    document.getElementById("charPower").textContent = fmtInt(power);
+    document.getElementById("charSub").textContent =
+      pr.title + "  ·  Level " + pr.level + "  ·  Gear score " + fmtInt(lo.gearScore);
+
+    document.getElementById("charStats").innerHTML = ["str", "sta", "con", "wis"].map(function (k) {
+      var st = lo.stats[k];
+      var pct = Math.min(100, Math.round(st.v / st.t * 100));
+      return '<div class="cs-row"><div class="cs-top"><span class="cs-k">' + st.label +
+        '</span><span class="cs-v">' + fmtInt(st.v) + ' <small>/ ' + fmtInt(st.t) + '</small></span></div>' +
+        '<div class="cs-track"><div class="cs-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="cs-sub">' + st.sub + '</div></div>';
+    }).join("");
+
+    document.getElementById("charSlots").innerHTML = lo.rows.map(function (r) {
+      var val = r.best == null ? "empty"
+        : r.bodyweight ? r.best + " reps" : r.best + " " + (r.label || "lb");
+      var gain = (r.best != null && r.base) ? Math.round((r.best - r.base) / r.base * 100) : null;
+      return '<div class="gear-row"' + (r.best == null ? ' style="opacity:.45"' : '') + '>' +
+        '<span class="gear-ilvl" style="color:' + r.rarity.color + ';box-shadow:inset 0 0 0 1.5px ' + r.rarity.color + '55">' +
+          (r.ilvl || "—") + '</span>' +
+        '<span class="gear-body"><b>' + r.name + '</b>' +
+          '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name + '</span>' +
+          '<span class="gear-meta">' + val + (gain != null && gain > 0 ? "  ·  +" + gain + "% over start" : "") + '</span>' +
+        '</span></div>';
+    }).join("");
+
+    document.getElementById("charFoot").textContent =
+      lo.equipped + " of " + lo.slots + " slots filled. An item level is the heaviest set you have " +
+      "ever finished on that lift; rarity is how far past the starting weight you have taken it.";
+
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal"].forEach(function (id) {
+      document.getElementById(id).style.display = "none";
+    });
+    document.getElementById("charModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+
+  /* ---- upgrades: the moment the bar goes up ---- */
+  /* Bests are snapshotted when the day is drawn, so a set saved afterwards can be
+     compared against what stood before it. */
+  var bestBefore = {};
+  async function snapshotBests() {
+    var lo = await loadout();
+    bestBefore = {};
+    lo.rows.forEach(function (r) { bestBefore[r.name] = { best: r.best, ilvl: r.ilvl, rarity: r.rarity.name, base: r.base, bodyweight: r.bodyweight }; });
+  }
+  function checkUpgrade(exName, weight, reps) {
+    var prev = bestBefore[exName];
+    if (!prev) return;
+    var isBw = prev.bodyweight;
+    var now = isBw ? reps : weight;
+    if (now == null || (prev.best != null && now <= prev.best)) return;
+    var newRarity = rarityFor(now, prev.base);
+    var newIlvl = isBw ? Math.round(now * 3) : Math.round(now);
+    prev.best = now; prev.ilvl = newIlvl;                 // so one session cannot fire twice
+    var rankedUp = newRarity.name !== prev.rarity;
+    prev.rarity = newRarity.name;
+    showUpgrade(exName, newIlvl, newRarity, rankedUp, isBw ? now + " reps" : now + " lb");
+  }
+  function showUpgrade(exName, ilvl, rarity, rankedUp, valueText) {
+    var wrap = document.getElementById("feedbackWrap");
+    var el = document.createElement("div");
+    el.className = "gear-toast";
+    el.style.setProperty("--gc", rarity.color);
+    el.innerHTML = '<div class="gt-tag">' + (rankedUp ? "Rarity up" : "Gear upgrade") + '</div>' +
+      '<div class="gt-name">' + exName + '</div>' +
+      '<div class="gt-row"><span class="gt-ilvl">ilvl ' + ilvl + '</span>' +
+      '<span class="gt-rar">' + rarity.name + '</span><span class="gt-val">' + valueText + '</span></div>';
+    wrap.innerHTML = ""; wrap.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add("show"); });
+    vibrate(rankedUp ? [20, 50, 20, 50, 40] : [18, 40, 18]);
+    clearTimeout(showUpgrade._t);
+    showUpgrade._t = setTimeout(function () {
+      el.classList.remove("show");
+      setTimeout(function () { el.remove(); }, 400);
+    }, 5200);
+  }
+
   /* ---- drawing it ---- */
   var lastProg = null, rankTicker = null;
 
@@ -2538,6 +2809,13 @@
       if (got && !GAME.badges[b.id]) { GAME.badges[b.id] = Date.now(); saveGame(); }
       return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "✓ " : "") + b.name + '</span>';
     }).join("");
+
+    /* the headline numbers for the character sheet, so the way in shows its worth */
+    loadout().then(function (lo) {
+      lastLoadout = lo;
+      document.getElementById("rkPower").textContent = fmtInt(powerOf(pr, lo));
+      document.getElementById("rkGear").textContent = fmtInt(lo.gearScore);
+    });
 
     tickRank();
     clearInterval(rankTicker);
@@ -2621,6 +2899,7 @@
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("planModal").style.display = "none";
+    document.getElementById("charModal").style.display = "none";
     m.style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -3628,6 +3907,8 @@
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    document.getElementById("rkCharBtn").onclick = openCharacter;
+    document.getElementById("charCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
 
     // Resume an existing session if the browser already has one (Supabase persists this in localStorage).
     try {
