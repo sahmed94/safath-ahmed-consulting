@@ -325,6 +325,54 @@
     background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .sc-open:active { background: rgba(255,255,255,0.16); }
 
+  .rank-card { background: linear-gradient(150deg, #120A2E 0%, #241046 48%, #3A1255 100%); border: none; color: #fff; overflow: hidden; position: relative; }
+  .rank-card::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(520px 200px at 88% -10%, rgba(224,65,124,0.42), transparent 70%); }
+  .rk-top { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+  .rk-lvl { flex: 0 0 auto; width: 62px; height: 62px; border-radius: 16px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; background: rgba(255,255,255,0.1);
+    box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.3), 0 0 26px rgba(224,65,124,0.35); }
+  .rk-lvl span { font-family: var(--font-head); font-size: 27px; font-weight: 700; line-height: 1; }
+  .rk-lvl small { font-family: var(--font-head); font-size: 9px; letter-spacing: .14em; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .rk-main { flex: 1; min-width: 0; }
+  .rk-name { font-family: var(--font-head); font-size: 16px; letter-spacing: .04em; margin-bottom: 7px; }
+  .rk-xpbar { height: 10px; border-radius: 6px; background: rgba(255,255,255,0.14); overflow: hidden; }
+  .rk-xpfill { height: 100%; border-radius: 6px; width: 0;
+    background: linear-gradient(90deg, #6FD0FF, #E0417C); transition: width .7s cubic-bezier(.22,1,.36,1); }
+  .rk-xptext { font-size: 11.5px; color: rgba(255,255,255,0.68); margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .rk-streak { margin-top: 13px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+    font-size: 12.5px; color: rgba(255,255,255,0.88); position: relative; z-index: 1; }
+  .rk-flame { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: #FFD166; }
+  .rk-mult { font-family: var(--font-head); font-size: 12px; letter-spacing: .05em; padding: 3px 9px; border-radius: 20px;
+    background: rgba(255,209,102,0.2); color: #FFD166; box-shadow: inset 0 0 0 1px rgba(255,209,102,0.45); }
+  .rk-window, .rk-risk { margin-top: 11px; border-radius: 11px; padding: 10px 12px; font-size: 12.5px;
+    line-height: 1.45; position: relative; z-index: 1; }
+  .rk-window { background: rgba(111,208,255,0.15); box-shadow: inset 0 0 0 1px rgba(111,208,255,0.32); color: #DFF3FF; }
+  .rk-risk { background: rgba(255,107,74,0.2); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.45); color: #FFE0D6; }
+  .rk-window b, .rk-risk b { color: #fff; }
+  .rk-drop { margin-top: 12px; width: 100%; border: none; border-radius: 12px; padding: 13px;
+    font-family: var(--font-head); font-size: 13px; letter-spacing: .07em; text-transform: uppercase;
+    cursor: pointer; position: relative; z-index: 1; color: #fff;
+    background: linear-gradient(92deg, #E0417C, #8B3BFF); box-shadow: 0 6px 20px rgba(224,65,124,0.42); }
+  .rk-drop[disabled] { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); cursor: default; }
+  .rk-drop.ready { animation: dropPulse 1.9s ease-in-out infinite; }
+  @keyframes dropPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.021); } }
+  .rk-badges { margin-top: 13px; display: flex; flex-wrap: wrap; gap: 6px; position: relative; z-index: 1; }
+  .rk-badge { font-size: 10.5px; font-family: var(--font-head); letter-spacing: .04em; padding: 4px 9px;
+    border-radius: 20px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.45);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+  .rk-badge.got { background: rgba(125,240,184,0.18); color: #7DF0B8; box-shadow: inset 0 0 0 1px rgba(125,240,184,0.45); }
+
+  .drop-reveal { text-align: center; padding: 6px 0 2px; }
+  .drop-rarity { font-family: var(--font-head); font-size: 13px; letter-spacing: .18em; text-transform: uppercase; }
+  .drop-art { width: 108px; height: 108px; margin: 14px auto 10px; border-radius: 26px; display: flex;
+    align-items: center; justify-content: center; font-size: 46px; animation: dropIn .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes dropIn { from { transform: scale(.4) rotate(-14deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .drop-what { font-family: var(--font-head); font-size: 21px; margin-bottom: 5px; }
+  .drop-sub { font-size: 13px; color: var(--ink-dim); line-height: 1.5; }
+  @media (prefers-reduced-motion: reduce) { .rk-drop.ready { animation: none; } .drop-art { animation: none; } }
+
   .wins-card { background: linear-gradient(158deg, #07301F 0%, #0C4A33 52%, #10654A 100%); border: none; color: #fff; }
   .wins-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .wins-title { font-family: var(--font-head); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.72); }
@@ -421,6 +469,22 @@
 
   <main>
     <div class="card"><div class="day-row" id="dayRow"></div></div>
+
+    <div class="card rank-card" id="rankCard" hidden>
+      <div class="rk-top">
+        <div class="rk-lvl"><span id="rkLevelNum">1</span><small>LVL</small></div>
+        <div class="rk-main">
+          <div class="rk-name" id="rkTitle">Unranked</div>
+          <div class="rk-xpbar"><div class="rk-xpfill" id="rkXpFill"></div></div>
+          <div class="rk-xptext" id="rkXpText"></div>
+        </div>
+      </div>
+      <div class="rk-streak" id="rkStreak"></div>
+      <div class="rk-window" id="rkWindow" hidden></div>
+      <div class="rk-risk" id="rkRisk" hidden></div>
+      <button class="rk-drop" id="rkDropBtn" type="button" hidden></button>
+      <div class="rk-badges" id="rkBadges"></div>
+    </div>
 
     <div class="card quest-card">
       <div class="power-head">
@@ -666,6 +730,17 @@
 
 <!-- Exercise history modal -->
 <div id="modalOverlay">
+  <!-- Daily drop -->
+  <div class="modal-inner" id="dropModal" style="display:none;">
+    <div class="drop-reveal">
+      <div class="drop-rarity"></div>
+      <div class="drop-art"></div>
+      <div class="drop-what"></div>
+      <div class="drop-sub"></div>
+    </div>
+    <div class="modal-actions"><button class="primary-btn" id="dropCloseBtn" style="width:100%;">Nice</button></div>
+  </div>
+
   <!-- Eating plan -->
   <div class="modal-inner plan-sheet" id="planModal" style="display:none;">
     <h3>Eating plan</h3>
@@ -780,15 +855,17 @@
   async function loadPlan() {
     try {
       var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
-      var v = res && res.data && res.data.sets && res.data.sets[PLAN_SLOT];
+      var sets = res && res.data && res.data.sets;
+      var v = sets && sets[PLAN_SLOT];
       if (v && typeof v === "object") PLAN = Object.assign({}, DEFAULT_PLAN, v);
+      GAME = gameFromPlanRow(sets);
     } catch (e) {}
     applyPlan();
   }
   async function savePlan() {
     applyPlan();
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -1338,7 +1415,7 @@
     var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
-    renderQuests(); renderTopStats().then(renderWins);
+    renderQuests(); renderTopStats().then(renderWins); renderRank();
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
     document.getElementById("weightSaved").textContent = doc.weight != null ? "Logged" : "";
@@ -1964,6 +2041,7 @@
     planMathText();
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
+    document.getElementById("dropModal").style.display = "none";
     document.getElementById("planModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -2177,6 +2255,376 @@
     return quests;
   }
   var prevQuestState = {};
+  /* ===================== PROGRESSION ===================== */
+  /* Everything in here is a loop meant to make opening the app worth doing: a level
+     that never resets, a streak multiplier worth protecting, a drop worth collecting,
+     and windows in the day that pay more while they are open.
+
+     One rule holds the whole thing honest: XP is computed from what a day CONTAINS,
+     never from events as they happen. Ticking a set off and on again cannot farm it,
+     a lost phone cannot lose it, and the number always agrees with the data. Totals are
+     a pure function of the log, so they can be rebuilt from scratch at any time. */
+
+  var GAME_SLOT = "__game";
+  var GAME = { shields: 0, opened: {}, badges: {}, spent: {} };
+
+  function gameFromPlanRow(sets) {
+    var v = sets && sets[GAME_SLOT];
+    if (v && typeof v === "object") {
+      return { shields: v.shields || 0, opened: v.opened || {}, badges: v.badges || {}, spent: v.spent || {} };
+    }
+    return { shields: 0, opened: {}, badges: {}, spent: {} };
+  }
+  async function saveGame() {
+    try {
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME;
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
+    } catch (e) {}
+  }
+
+  /* ---- what a day is worth ---- */
+  var XP = { weigh: 20, meal: 15, mealCap: 4, onPlan: 40, cardio: 25, cardioPerMin: 0.6,
+             cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, perfect: 100 };
+
+  function dayXP(key, doc, prog, foodRows) {
+    var xp = 0;
+    if (doc.weight != null) xp += XP.weigh;
+
+    var meals = foodRows.length;
+    xp += Math.min(meals, XP.mealCap) * XP.meal;
+    var cal = 0, anyEst = false;
+    foodRows.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
+    if (anyEst && cal >= PLAN.floor && cal <= planIntake()) xp += XP.onPlan;
+
+    if (doc.cardio && doc.cardio.min) {
+      xp += Math.min(XP.cardioCap, XP.cardio + doc.cardio.min * XP.cardioPerMin);
+    }
+
+    var allSets = true, anyLift = false;
+    if (prog && prog.type !== "cardio") {
+      anyLift = true;
+      prog.ex.forEach(function (exx) {
+        var rows = (doc.sets && Array.isArray(doc.sets[exx.name])) ? doc.sets[exx.name] : [];
+        var done = 0;
+        rows.forEach(function (r) { if (r && r.done) done++; });
+        xp += done * XP.set;
+        if (done >= exx.sets && exx.sets > 0) xp += XP.exerciseDone; else allSets = false;
+      });
+      if (allSets) xp += XP.sessionDone;
+    }
+
+    var perfect = doc.weight != null && meals > 0 &&
+      !!(doc.cardio && doc.cardio.min != null) && (!anyLift || allSets);
+    if (perfect) xp += XP.perfect;
+    return { xp: Math.round(xp), perfect: perfect, meals: meals, onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake() };
+  }
+
+  function addDaysKey(key, n) {
+    var d = new Date(key + "T12:00:00"); d.setDate(d.getDate() + n); return dateKey(d);
+  }
+  /* Every missing day between two logged ones must have been paid for. */
+  function gapIsShielded(prevKey, gap) {
+    if (gap < 2 || !GAME.spent) return false;
+    for (var g = 1; g < gap; g++) if (!GAME.spent[addDaysKey(prevKey, g)]) return false;
+    return true;
+  }
+
+  /* ---- streak multiplier: the thing you do not want to drop ---- */
+  var MULT_TIERS = [ { at: 30, m: 2 }, { at: 14, m: 1.75 }, { at: 7, m: 1.5 }, { at: 3, m: 1.25 }, { at: 0, m: 1 } ];
+  function multFor(run) {
+    for (var i = 0; i < MULT_TIERS.length; i++) if (run >= MULT_TIERS[i].at) return MULT_TIERS[i].m;
+    return 1;
+  }
+  function nextTier(run) {
+    var best = null;
+    MULT_TIERS.forEach(function (t) { if (t.at > run && (!best || t.at < best.at)) best = t; });
+    return best;
+  }
+
+  /* ---- levels ---- */
+  function xpForLevel(L) { return L <= 1 ? 0 : Math.round(250 * Math.pow(L - 1, 1.7)); }
+  function levelFromXP(xp) { var L = 1; while (xpForLevel(L + 1) <= xp && L < 200) L++; return L; }
+  var RANK_TITLES = [
+    [40, "Ascendant"], [30, "Paragon"], [22, "Vanguard"], [16, "Ironclad"],
+    [11, "Relentless"], [7, "Contender"], [4, "Climber"], [2, "Initiate"], [0, "Unranked"]
+  ];
+  function rankTitle(L) {
+    for (var i = 0; i < RANK_TITLES.length; i++) if (L >= RANK_TITLES[i][0]) return RANK_TITLES[i][1];
+    return "Unranked";
+  }
+
+  /* ---- one pass over every logged day: totals, streak, today ---- */
+  async function progression() {
+    var keys = (await getAllDayKeys()).slice().sort();     // ascending
+    var byDay = {};
+    foodCache.forEach(function (f) { (byDay[f.date] = byDay[f.date] || []).push(f); });
+
+    var total = 0, run = 0, prevKey = null, todayXP = 0, todayRaw = 0, perfectDays = 0;
+    var totalSets = 0, totalCardioMin = 0, onPlanDays = 0, loggedDays = 0;
+    var tKey = dateKey(new Date());
+
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      var doc = await getDayDoc(k);
+      var rows = byDay[k] || [];
+      var prog = PROGRAM[new Date(k + "T12:00:00").getDay()];
+      var d = dayXP(k, doc, prog, rows);
+      var touched = d.xp > 0;
+      if (!touched) { continue; }
+      loggedDays++;
+      if (prevKey) {
+        var gap = Math.round((new Date(k + "T12:00:00") - new Date(prevKey + "T12:00:00")) / 86400000);
+        run = (gap === 1 || gapIsShielded(prevKey, gap)) ? run + 1 : 1;
+      } else { run = 1; }
+      prevKey = k;
+      var earned = Math.round(d.xp * multFor(run));
+      total += earned;
+      if (d.perfect) perfectDays++;
+      if (d.onPlan) onPlanDays++;
+      if (doc.cardio && doc.cardio.min) totalCardioMin += doc.cardio.min;
+      if (doc.sets) Object.keys(doc.sets).forEach(function (en) {
+        if (!Array.isArray(doc.sets[en])) return;
+        doc.sets[en].forEach(function (r) { if (r && r.done) totalSets++; });
+      });
+      if (k === tKey) { todayXP = earned; todayRaw = d.xp; }
+    }
+
+    /* A run only counts as live if the last logged day was today or yesterday. */
+    var liveRun = 0, missedYesterday = null;
+    if (prevKey) {
+      var since = Math.round((new Date(tKey + "T12:00:00") - new Date(prevKey + "T12:00:00")) / 86400000);
+      liveRun = (since <= 1 || gapIsShielded(prevKey, since)) ? run : 0;
+      /* Exactly one unlogged day behind us is the case a shield can still rescue. */
+      if (!liveRun && since === 2) missedYesterday = addDaysKey(prevKey, 1);
+    }
+
+    /* Drops are banked separately: they are not a property of a day's log, so they
+       cannot be recomputed from one. */
+    Object.keys(GAME.opened).forEach(function (k) { total += (GAME.opened[k] && GAME.opened[k].xp) || 0; });
+
+    var L = levelFromXP(total);
+    return {
+      total: total, level: L, title: rankTitle(L),
+      floorXP: xpForLevel(L), nextXP: xpForLevel(L + 1),
+      todayXP: todayXP, todayRaw: todayRaw, run: liveRun, mult: multFor(liveRun || 1),
+      next: nextTier(liveRun), loggedToday: keys.indexOf(tKey) >= 0 && todayRaw > 0,
+      brokenRun: liveRun ? 0 : run, missedYesterday: missedYesterday,
+      stats: { sets: totalSets, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
+               perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run }
+    };
+  }
+
+  /* ---- the windows that pay more while they are open ---- */
+  var WINDOWS = [
+    { key: "dawn",  from: 5,  to: 10, label: "Morning weigh-in", what: "Step on the scale before 10am" },
+    { key: "midday", from: 11, to: 15, label: "Midday plate",     what: "Photograph lunch before 3pm" },
+    { key: "close", from: 18, to: 23, label: "Evening close-out", what: "Finish the day's quests before 11pm" }
+  ];
+  function activeWindow(now) {
+    var h = now.getHours();
+    for (var i = 0; i < WINDOWS.length; i++) if (h >= WINDOWS[i].from && h < WINDOWS[i].to) return WINDOWS[i];
+    return null;
+  }
+  function nextWindow(now) {
+    var h = now.getHours();
+    for (var i = 0; i < WINDOWS.length; i++) if (WINDOWS[i].from > h) return WINDOWS[i];
+    return WINDOWS[0];
+  }
+  function msUntilHour(now, hour) {
+    var t = new Date(now); t.setHours(hour, 0, 0, 0);
+    if (t <= now) t.setDate(t.getDate() + 1);
+    return t - now;
+  }
+  function hms(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+    return h > 0 ? h + "h " + String(m).padStart(2, "0") + "m" : m + "m " + String(s % 60).padStart(2, "0") + "s";
+  }
+
+  /* ---- the drop ---- */
+  /* Rolled from the profile and the date, so the same day always holds the same prize.
+     Refreshing cannot reroll it; opening only reveals what was already there. */
+  function seeded(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return function () {
+      h += 0x6D2B79F5; var t = h;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  var DROP_TABLE = [
+    { p: 0.56, rarity: "Common",    color: "#9599AC", art: "✦", what: "+30 XP",            xp: 30,  shield: 0 },
+    { p: 0.26, rarity: "Rare",      color: "#6FD0FF", art: "❈", what: "+90 XP",            xp: 90,  shield: 0 },
+    { p: 0.13, rarity: "Epic",      color: "#B06BFF", art: "◈", what: "Streak shield",     xp: 40,  shield: 1 },
+    { p: 0.05, rarity: "Legendary", color: "#FFD166", art: "★", what: "+250 XP & a shield", xp: 250, shield: 1 }
+  ];
+  function rollDrop(dayKey) {
+    var r = seeded((currentProfileId || "anon") + ":" + dayKey)();
+    var acc = 0;
+    for (var i = 0; i < DROP_TABLE.length; i++) { acc += DROP_TABLE[i].p; if (r < acc) return DROP_TABLE[i]; }
+    return DROP_TABLE[0];
+  }
+  var DROP_UNLOCK_XP = 120;
+
+  /* ---- badges: earned by doing the thing, never by luck ---- */
+  var BADGES = [
+    { id: "first",   name: "First Light",  test: function (p) { return p.stats.loggedDays >= 1; } },
+    { id: "week",    name: "Week One",     test: function (p) { return p.stats.bestRun >= 7; } },
+    { id: "fort",    name: "Fortnight",    test: function (p) { return p.stats.bestRun >= 14; } },
+    { id: "month",   name: "Iron Month",   test: function (p) { return p.stats.bestRun >= 30; } },
+    { id: "sets100", name: "100 Sets",     test: function (p) { return p.stats.sets >= 100; } },
+    { id: "sets500", name: "500 Sets",     test: function (p) { return p.stats.sets >= 500; } },
+    { id: "cd500",   name: "500 Min",      test: function (p) { return p.stats.cardioMin >= 500; } },
+    { id: "cd2000",  name: "2000 Min",     test: function (p) { return p.stats.cardioMin >= 2000; } },
+    { id: "plan7",   name: "7 On Plan",    test: function (p) { return p.stats.onPlanDays >= 7; } },
+    { id: "perfect", name: "Flawless Day", test: function (p) { return p.stats.perfectDays >= 1; } },
+    { id: "lvl10",   name: "Level 10",     test: function (p) { return p.level >= 10; } },
+    { id: "lvl25",   name: "Level 25",     test: function (p) { return p.level >= 25; } }
+  ];
+
+  /* ---- drawing it ---- */
+  var lastProg = null, rankTicker = null;
+
+  async function renderRank() {
+    var card = document.getElementById("rankCard");
+    if (!card) return;
+    var pr = await progression();
+    lastProg = pr;
+    card.hidden = false;
+
+    document.getElementById("rkLevelNum").textContent = pr.level;
+    document.getElementById("rkTitle").textContent = pr.title;
+    var span = Math.max(1, pr.nextXP - pr.floorXP);
+    var into = Math.max(0, pr.total - pr.floorXP);
+    document.getElementById("rkXpFill").style.width = Math.min(100, into / span * 100) + "%";
+    document.getElementById("rkXpText").textContent =
+      fmtInt(pr.total) + " XP  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
+      (pr.todayXP ? "  ·  +" + fmtInt(pr.todayXP) + " today" : "");
+
+    /* the streak line, and what the next tier is worth */
+    var st = document.getElementById("rkStreak");
+    var nx = pr.next;
+    st.innerHTML = '<span class="rk-flame">▲ ' + pr.run + ' day' + (pr.run === 1 ? "" : "s") + '</span>' +
+      '<span class="rk-mult">' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '× XP</span>' +
+      (nx ? '<span style="color:rgba(255,255,255,0.6)">' + (nx.at - pr.run) + ' more day' +
+            ((nx.at - pr.run) === 1 ? "" : "s") + ' for ' + nx.m + '×</span>' : "") +
+      (GAME.shields ? '<span class="rk-mult" style="background:rgba(125,240,184,0.18);color:#7DF0B8;box-shadow:inset 0 0 0 1px rgba(125,240,184,0.4)">⛨ ' + GAME.shields + ' shield' + (GAME.shields === 1 ? "" : "s") + '</span>' : "");
+
+    /* the drop */
+    var btn = document.getElementById("rkDropBtn");
+    var tKey = dateKey(new Date());
+    var viewingToday = dateKey(selectedDate) === tKey;
+    if (!viewingToday) { btn.hidden = true; }
+    else {
+      btn.hidden = false;
+      if (GAME.opened[tKey]) {
+        var got = GAME.opened[tKey];
+        btn.disabled = true; btn.className = "rk-drop";
+        btn.textContent = "Today's drop: " + got.rarity + " · " + got.what;
+      } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
+        btn.disabled = false; btn.className = "rk-drop ready";
+        btn.textContent = "✦  Open today's drop";
+      } else {
+        btn.disabled = true; btn.className = "rk-drop";
+        btn.textContent = "\u25CC  Drop unlocks in " + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " XP";
+      }
+    }
+
+    /* badges */
+    document.getElementById("rkBadges").innerHTML = BADGES.map(function (b) {
+      var got = b.test(pr);
+      if (got && !GAME.badges[b.id]) { GAME.badges[b.id] = Date.now(); saveGame(); }
+      return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "✓ " : "") + b.name + '</span>';
+    }).join("");
+
+    tickRank();
+    clearInterval(rankTicker);
+    rankTicker = setInterval(tickRank, 1000);
+  }
+
+  /* The countdowns are the reason to open this twice in a day rather than once. */
+  function tickRank() {
+    var pr = lastProg; if (!pr) return;
+    var now = new Date();
+    var win = document.getElementById("rkWindow");
+    var risk = document.getElementById("rkRisk");
+    var viewingToday = dateKey(selectedDate) === dateKey(now);
+    if (!viewingToday) { win.hidden = true; risk.hidden = true; return; }
+
+    var w = activeWindow(now);
+    if (w) {
+      win.hidden = false;
+      win.innerHTML = "<b>" + w.label + "</b> · " + w.what + " — closes in <b>" + hms(msUntilHour(now, w.to)) + "</b>";
+    } else {
+      var n = nextWindow(now);
+      win.hidden = false;
+      win.innerHTML = "<b>" + n.label + "</b> opens in <b>" + hms(msUntilHour(now, n.from)) + "</b>";
+    }
+
+    /* A run that broke yesterday and could still be bought back. Spending is a choice
+       the player makes, not something that happens quietly on their behalf. */
+    if (!pr.run && pr.brokenRun >= 3 && pr.missedYesterday && GAME.shields > 0) {
+      risk.hidden = false;
+      risk.innerHTML = "Your <b>" + pr.brokenRun + "-day streak</b> broke on " +
+        fmtLabel(new Date(pr.missedYesterday + "T12:00:00")) +
+        '. <button type="button" id="rkRestore" style="margin-left:6px;border:none;border-radius:8px;' +
+        'padding:6px 11px;font-family:var(--font-head);font-size:12px;letter-spacing:.05em;' +
+        'background:#7DF0B8;color:#07301F;cursor:pointer">\u26E8 Spend a shield</button>';
+      var rb = document.getElementById("rkRestore");
+      if (rb) rb.onclick = async function () {
+        GAME.shields--; GAME.spent[pr.missedYesterday] = true;
+        await saveGame(); vibrate([15, 30, 15]);
+        showToast("Streak restored — " + pr.brokenRun + " days intact.", false);
+        renderRank();
+      };
+      return;
+    }
+
+    /* loss aversion, shown only once the day is genuinely at risk */
+    if (pr.run > 0 && !pr.loggedToday && now.getHours() >= 16) {
+      risk.hidden = false;
+      risk.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× XP</b> end in <b>" +
+        hms(msUntilHour(now, 24)) + "</b>" +
+        (GAME.shields ? " — a shield will cover it if you miss." : " — log anything to keep them.");
+    } else { risk.hidden = true; }
+  }
+
+  function wireDrop() {
+    document.getElementById("rkDropBtn").onclick = async function () {
+      var tKey = dateKey(new Date());
+      if (GAME.opened[tKey]) return;
+      var prize = rollDrop(tKey);
+      GAME.opened[tKey] = { rarity: prize.rarity, what: prize.what, xp: prize.xp, shield: prize.shield };
+      GAME.shields += prize.shield;
+      await saveGame();
+      vibrate([18, 40, 18, 40, 30]);
+      showDropModal(prize);
+      renderRank();
+    };
+  }
+
+  function showDropModal(prize) {
+    var m = document.getElementById("dropModal");
+    m.querySelector(".drop-rarity").textContent = prize.rarity;
+    m.querySelector(".drop-rarity").style.color = prize.color;
+    var art = m.querySelector(".drop-art");
+    art.textContent = prize.art;
+    art.style.background = prize.color + "22";
+    art.style.color = prize.color;
+    art.style.boxShadow = "inset 0 0 0 2px " + prize.color + "66, 0 0 34px " + prize.color + "55";
+    m.querySelector(".drop-what").textContent = prize.what;
+    m.querySelector(".drop-sub").textContent = prize.shield
+      ? "A shield covers one missed day without breaking your streak. It is spent automatically."
+      : "Banked. Come back tomorrow for the next one.";
+    document.getElementById("exHistoryModal").style.display = "none";
+    document.getElementById("mealEditModal").style.display = "none";
+    document.getElementById("planModal").style.display = "none";
+    m.style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+
   async function renderQuests() {
     var key = dateKey(selectedDate); var dow = selectedDate.getDay(); var prog = PROGRAM[dow];
     var doc = await getDayDoc(key);
@@ -3178,7 +3626,8 @@
 
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
-    wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet();
+    wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
 
     // Resume an existing session if the browser already has one (Supabase persists this in localStorage).
     try {
