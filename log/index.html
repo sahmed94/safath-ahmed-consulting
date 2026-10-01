@@ -311,6 +311,22 @@
   .sc-title { font-family: var(--font-head); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
   .sc-sub { font-size: 12.5px; color: rgba(255,255,255,0.86); margin-top: 2px; }
   .sc-num { font-family: var(--font-head); font-size: 38px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .fight { margin-top: 15px; }
+  .ft-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+  .ft-foe { font-size: 12.5px; color: rgba(255,255,255,0.68); }
+  .ft-verdict { font-family: var(--font-head); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+  .ft-verdict.win { color: #7DF0B8; } .ft-verdict.hold { color: #FFD166; } .ft-verdict.lose { color: #FF8F6B; }
+  .ft-track { position: relative; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.12); overflow: hidden; }
+  .ft-fill { height: 100%; border-radius: 13px; width: 0; transition: width .7s cubic-bezier(.22,1,.36,1); }
+  .ft-dmg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-head); font-size: 13px; letter-spacing: .05em; color: #fff; }
+  .ft-blows { display: flex; gap: 6px; margin-top: 9px; }
+  .ft-blow { flex: 1; min-width: 0; }
+  .ft-bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.14); overflow: hidden; }
+  .ft-bar i { display: block; height: 100%; border-radius: 3px; }
+  .ft-k { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 5px; display: flex; justify-content: space-between; gap: 4px; }
+  .ft-k b { color: #fff; font-family: var(--font-head); }
+
   .sc-bars { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
   .sc-bar-top { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; }
   .sc-bar-label { color: rgba(255,255,255,0.88); font-weight: 600; }
@@ -653,6 +669,11 @@
           <div class="sc-sub" id="scSub">Nothing logged yet</div>
         </div>
         <div class="sc-num" id="scNum">&mdash;</div>
+      </div>
+      <div class="fight" id="fightRow" hidden>
+        <div class="ft-head"><span class="ft-foe" id="ftFoe"></span><span class="ft-verdict" id="ftVerdict"></span></div>
+        <div class="ft-track"><div class="ft-fill" id="ftFill"></div><span class="ft-dmg" id="ftDmg"></span></div>
+        <div class="ft-blows" id="ftBlows"></div>
       </div>
       <div class="sc-bars" id="scBars"></div>
       <div class="sc-coach" id="scCoach" hidden></div>
@@ -2382,6 +2403,7 @@
     await saveDayDoc(key, doc);
     if (done) checkUpgrade(exName, weight === "" || weight === null ? null : Number(weight), reps === "" ? null : Number(reps));
     renderQuests();
+    liveRefresh();
     if (done) {
       var dow = selectedDate.getDay(); var prog = PROGRAM[dow];
       var totalSets = 0, doneSets = 0;
@@ -2644,6 +2666,64 @@
                perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
                sessions: sessions, streakWeeks: streakWeeks }
     };
+  }
+
+  /* ===================== THE DAY'S FIGHT ===================== */
+  /* The programme already sets a target for every day. Those targets are the
+     opponent, and what you log is the blow you land on it. The enemy's health is a
+     hundred, the damage is what the day was worth, and the gear you have built adds
+     to the swing -- which is the whole reason to gear up at all.
+
+     Nothing new is being measured. This is the same day score the app already keeps,
+     given a shape you can win or lose. */
+
+  var FOES = {
+    "Upper A":     { name: "Warden of the Press", art: "press" },
+    "Upper B":     { name: "Herald of the Pull",  art: "pull" },
+    "Lower A":     { name: "Colossus of the Hill", art: "hill" },
+    "Lower B":     { name: "Titan of the Deep",   art: "deep" },
+    "Cardio only": { name: "The Long Road",       art: "road" }
+  };
+  var FOE_TIERS = [
+    { at: 110, name: "Champion", color: "#FF4FD8" },
+    { at: 80,  name: "Elite",    color: "#B06BFF" },
+    { at: 50,  name: "Standard", color: "#6FD0FF" },
+    { at: -1,  name: "Lesser",   color: "#9599AC" }
+  ];
+  var ENEMY_HP = 100;
+
+  function battle(prog, doc, dayFood, totalSets, doneSets, lo) {
+    var foe = FOES[prog.name] || { name: "The Day", art: "road" };
+    var demand = totalSets * 2 + (prog.cardio ? prog.cardio.min : 0);
+    var tier = FOE_TIERS.filter(function (t) { return demand >= t.at; })[0];
+
+    var isLift = prog.type !== "cardio";
+    var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0, mealW = isLift ? 25 : 30, weighW = 15;
+
+    var actualMin = (doc.cardio && doc.cardio.min) || 0;
+    var cardioHit = Math.round(Math.min(1, prog.cardio && prog.cardio.min ? actualMin / prog.cardio.min : 0) * cardioW);
+    var liftHit = isLift ? Math.round((totalSets ? doneSets / totalSets : 0) * liftW) : 0;
+
+    var cal = 0, anyEst = false;
+    dayFood.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
+    var onPlan = anyEst && cal >= PLAN.floor && cal <= planIntake();
+    var mealHit = onPlan ? mealW : (dayFood.length ? Math.round(mealW * 0.45) : 0);
+    var weighHit = doc.weight != null ? weighW : 0;
+
+    /* what the armoury is worth in a fight, capped so it never wins the day alone */
+    var gearHit = lo ? Math.min(25, Math.round(lo.gearScore / 35)) : 0;
+
+    var blows = [
+      { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + (prog.cardio ? prog.cardio.min : 0) + " min" },
+      { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
+      { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (dayFood.length ? dayFood.length + " logged" : "none logged") },
+      { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" },
+      { k: "Gear",     v: gearHit,   max: 25,      note: lo ? fmtInt(lo.gearScore) + " gear score" : "" }
+    ].filter(function (b) { return b.max > 0; });
+
+    var damage = blows.reduce(function (acc, b) { return acc + b.v; }, 0);
+    return { foe: foe, tier: tier, hp: ENEMY_HP, damage: damage, blows: blows,
+             won: damage >= ENEMY_HP, pct: Math.min(1, damage / ENEMY_HP) };
   }
 
   /* ---- what it costs to stop ---- */
@@ -3151,7 +3231,8 @@
     { key: "helmet", name: "Helm of Sadaqah",      fed: "money given",       icon: "helm" },
     { key: "chest",  name: "Plate of Discipline",  fed: "meals on plan",     icon: "chest" },
     { key: "weapon", name: "Edge of Consistency",  fed: "the current streak", icon: "weapon" },
-    { key: "shield", name: "Bulwark of Strength",  fed: "your heaviest set", icon: "shield" },
+    { key: "shield", name: "Bulwark of Days",      fed: "every day logged",    icon: "shield" },
+    { key: "belt",   name: "Belt of Records",      fed: "every all-time best", icon: "belt" },
     { key: "legs",   name: "Greaves of Endurance", fed: "cardio minutes",    icon: "legs" },
     { key: "boots",  name: "Boots of Reckoning",   fed: "weigh-ins",         icon: "boots" }
   ];
@@ -3260,14 +3341,32 @@
       }
     });
 
+    /* the belt: every record added together, decayed where a lift has been left */
+    var beltIlvl = 0, beltRecord = 0, beltRusting = 0, beltCount = 0;
+    lifts.forEach(function (lf) {
+      var raw2 = lf.bodyweight ? bestRepsBy[lf.name] : bestBy[lf.name];
+      if (raw2 == null) return;
+      beltCount++;
+      var base2 = lf.bodyweight ? 10 : lf.base;
+      var since2 = lastBy[lf.name] ? daysBetween(lastBy[lf.name], tKey) : null;
+      var gainR = Math.max(0, raw2 - base2), gainE = Math.max(0, decayed(raw2, base2, since2) - base2);
+      beltRecord += Math.round(gainR * 1.4); beltIlvl += Math.round(gainE * 1.4);
+      if (gainE < gainR) beltRusting++;
+    });
+    /* the shield: every day you ever showed up is a plate in it */
+    var everLogged = keys.length;
+
     var run = pr ? pr.run : 0;
     var given = givenTotal();
     var raw = {
       helmet: { v: given,     ilvl: Math.round(given),            unit: GOOD.currency, detail: money(given) + " to " + GOOD.cause },
       chest:  { v: onPlan,    ilvl: Math.round(onPlan * 4 + mealDays * 1.5), unit: "",  detail: onPlan + " days on plan, " + mealDays + " logged (of 30)" },
       weapon: { v: run,       ilvl: Math.round(run * 4),          unit: "d", detail: run + " day streak" + (run ? "" : " — start one") },
-      shield: { v: bestLift ? bestLift.raw : 0, ilvl: bestLift ? bestLift.ilvl : 0, unit: "lb",
-                detail: bestLift ? bestLift.name + " · " + bestLift.raw + (bestLift.bodyweight ? " reps" : " " + (bestLift.label || "lb")) : "no finished sets yet" },
+      shield: { v: everLogged, ilvl: Math.round(everLogged * 2.5), unit: "d",
+                detail: everLogged + " days logged, all time" },
+      belt:   { v: beltCount, ilvl: beltIlvl, unit: "",
+                detail: bestLift ? beltCount + " lifts on record · best " + bestLift.name + " " + bestLift.raw + (bestLift.bodyweight ? " reps" : " lb")
+                                 : "no finished sets yet" },
       legs:   { v: cardioMin, ilvl: Math.round(cardioMin / 8),    unit: "min", detail: fmtInt(cardioMin) + " cardio minutes (of 30 days)" },
       boots:  { v: weighDays, ilvl: Math.round(weighDays * 5),    unit: "d", detail: weighDays + " weigh-ins in 30 days" }
     };
@@ -3275,13 +3374,14 @@
     var gearScore = 0, equipped = 0, rusting = 0;
     var rows = SLOTS.map(function (sl) {
       var r = raw[sl.key];
-      var rusted = sl.key === "shield" && bestLift && bestLift.rusted;
+      var rusted = (sl.key === "belt" && beltRusting > 0);
       gearScore += r.ilvl;
       if (r.ilvl > 0) equipped++;
       if (rusted) rusting++;
       return { key: sl.key, name: sl.name, fed: sl.fed, icon: sl.icon,
-               ilvl: r.ilvl, recordIlvl: rusted ? bestLift.recordIlvl : r.ilvl,
-               detail: r.detail, rusted: !!rusted, since: rusted ? bestLift.since : null,
+               ilvl: r.ilvl, recordIlvl: rusted ? beltRecord : r.ilvl,
+               detail: r.detail, rusted: !!rusted,
+               since: rusted ? beltRusting + " lift" + (beltRusting === 1 ? "" : "s") : null,
                rarity: tierFor(r.ilvl) };
     });
 
@@ -3309,6 +3409,7 @@
     weapon: '<path d="M14 3l7 7-9 9-3-3 9-9"/><path d="M5 19l3-3"/><path d="M3 21l2-2"/>',
     shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
     legs:   '<path d="M8 3h8l-1 8-1 10h-3l-1-7-1 7H6l1-10z"/>',
+    belt:   '<path d="M3 9h18v6H3z"/><path d="M9 9v6M15 9v6"/><path d="M11 11h2v2h-2z"/>',
     boots:  '<path d="M7 3h4v10l6 3v5H7z"/><path d="M7 16h10"/>'
   };
   async function openCharacter() {
@@ -3330,7 +3431,7 @@
           (r.rusted ? '<i>' + r.recordIlvl + '</i>' : "") + '</span>' +
         '<span class="gear-body"><b>' + r.name + (r.rusted ? ' <span class="rust-tag">Rusting</span>' : "") + '</b>' +
           '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name + '  ·  ' + r.fed + '</span>' +
-          '<span class="gear-meta">' + r.detail + (r.rusted ? "  ·  " + r.since + " days untrained" : "") + '</span>' +
+          '<span class="gear-meta">' + r.detail + (r.rusted ? "  ·  " + r.since + " rusting" : "") + '</span>' +
         '</span></div>';
     }).join("");
 
@@ -3660,7 +3761,7 @@
       await saveDayDoc(key, doc);
       document.getElementById("weightSaved").textContent = "Logged";
       if (doc.weight != null) fireFeedback("weight", "Logged bodyweight of " + doc.weight + " lb for " + key + ". Give a brief, specific, encouraging reaction.");
-      renderHistory(); renderQuests(); renderTopStats();
+      renderHistory(); renderQuests(); renderTopStats(); liveRefresh();
     };
     document.getElementById("saveCardioBtn").onclick = async function () {
       var key = dateKey(selectedDate); var doc = await getDayDoc(key);
@@ -3674,7 +3775,7 @@
       sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
       document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
       if (doc.cardio.min != null) fireFeedback("cardio", "Logged " + doc.cardio.min + " minutes of incline cardio at " + (doc.cardio.incline || "?") + "% incline, " + (doc.cardio.speed || "?") + " mph, roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction.");
-      renderHistory(); renderQuests();
+      renderHistory(); renderQuests(); liveRefresh();
     };
   }
   function numOrNull(v) { return v === "" || v == null ? null : Number(v); }
@@ -3893,7 +3994,7 @@
         var userNote = detailsInput ? detailsInput.value.trim() : "";
         var saved = await addFoodEntry(reader.result, key, meal, time, userNote);
         if (detailsInput) detailsInput.value = "";
-        renderFood(); renderQuests();
+        renderFood(); renderQuests(); liveRefresh();
         var fbContext = "The user just logged a photo of their " + meal + (userNote ? " — they described it as: \"" + userNote + "\"" : "") + ". React briefly to what you can see in the photo.";
         fireFeedback("food", fbContext, reader.result);
         var est = await estimateMeal(reader.result, userNote);
@@ -3997,7 +4098,7 @@
       if (!editingMeal) return;
       await deleteFoodEntry(editingMeal);
       document.getElementById("modalOverlay").classList.remove("open");
-      renderFood(); renderQuests();
+      renderFood(); renderQuests(); liveRefresh();
     };
   }
 
@@ -4218,46 +4319,86 @@
     y = 344; h = 404;
     plate(pad, y, W - pad * 2, h);
     sectionLabel("Equipment", pad + 26, y + 40, W - pad * 2 - 52);
-    var tileW = (W - pad * 2 - 52 - 18) / 2, tileH = 104;
+    var tileW = (W - pad * 2 - 52 - 18) / 2, tileH = 76;
     lo.rows.forEach(function (r, i2) {
       var col = i2 % 2, row = Math.floor(i2 / 2);
-      var tx2 = pad + 26 + col * (tileW + 18), ty = y + 62 + row * (tileH + 10);
+      var tx2 = pad + 26 + col * (tileW + 18), ty = y + 58 + row * (tileH + 8);
       plate(tx2, ty, tileW, tileH, r.ilvl ? r.rarity.color + "12" : "rgba(255,255,255,0.025)",
             r.ilvl ? r.rarity.color + "66" : "rgba(255,255,255,0.1)");
-      slotIcon(tx2 + 14, ty + 20, 56, r.ilvl, r.rarity.color, r.rusted);
-      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
-      var nm = r.name; while (ctx.measureText(nm).width > tileW - 92 && nm.length > 6) nm = nm.slice(0, -2);
-      ctx.fillText(nm, tx2 + 82, ty + 38);
-      ctx.fillStyle = r.rarity.color; ctx.font = "500 14px Inter, sans-serif";
-      ctx.fillText(r.rarity.name + (r.rusted ? "  ·  rusting" : ""), tx2 + 82, ty + 58);
-      ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 13px Inter, sans-serif";
-      var dt = r.fed; while (ctx.measureText(dt).width > tileW - 92 && dt.length > 6) dt = dt.slice(0, -2);
-      ctx.fillText(dt, tx2 + 82, ty + 78);
+      slotIcon(tx2 + 12, ty + 13, 50, r.ilvl, r.rarity.color, r.rusted);
+      ctx.fillStyle = "#fff"; ctx.font = "600 18px Oswald, sans-serif";
+      var nm = r.name; while (ctx.measureText(nm).width > tileW - 84 && nm.length > 6) nm = nm.slice(0, -2);
+      ctx.fillText(nm, tx2 + 74, ty + 32);
+      ctx.fillStyle = r.rarity.color; ctx.font = "500 13px Inter, sans-serif";
+      var dt = r.rarity.name + "  ·  " + r.fed;
+      while (ctx.measureText(dt).width > tileW - 84 && dt.length > 6) dt = dt.slice(0, -2);
+      ctx.fillText(dt, tx2 + 74, ty + 54);
     });
 
-    /* ---- 4. the day itself ---- */
-    y = 768; h = 168;
-    var tw = (W - pad * 2 - 20) / 3;
-    [[ "CARDIO", (doc.cardio && doc.cardio.min != null) ? doc.cardio.min + "m" : "—",
-       (doc.cardio && doc.cardio.min != null) ? (doc.cardio.incline || 0) + "% · " + (doc.cardio.speed || "?") + "mph" : "not logged", st.cardio, "#6FD0FF"],
-     [ "TRAINING", prog.type === "cardio" ? "REST" : doneSets + "/" + totalSets,
-       prog.type === "cardio" ? "no lifting" : prog.name + (doc.sessionSeconds ? " · " + fmtTime(doc.sessionSeconds) : ""), st.lifting, "#FF8F6B"],
-     [ "BODYWEIGHT", summaryShowWeight ? (doc.weight != null ? doc.weight + "" : "—") : "•••",
-       summaryShowWeight
-         ? (doc.weight != null && prevWeight != null
-             ? ((doc.weight - prevWeight) > 0 ? "+" : "") + (doc.weight - prevWeight).toFixed(1) + " vs last" : "lb")
-         : "hidden", st.weight, "#7DF0B8"]
-    ].forEach(function (c, i) {
-      var cx2 = pad + i * (tw + 10);
-      plate(cx2, y, tw, h);
-      cap(c[0], cx2 + 20, y + 36, 14, 0.55);
-      big(c[1], cx2 + 20, y + 92, 42, c[4]);
-      body(c[2], cx2 + 20, y + 120, 15, 0.55);
-      pill(cx2 + 20, y + 150, "▲ " + c[3] + "d", c[3] > 0 ? "#FFD166" : "rgba(255,255,255,0.45)");
+    /* ---- 4. the day's fight ---- */
+    var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
+    y = 768; h = 230;
+    plate(pad, y, W - pad * 2, h, bt.won ? "rgba(125,240,184,0.07)" : "rgba(255,255,255,0.045)",
+          bt.won ? "rgba(125,240,184,0.45)" : GOLD_DIM);
+
+    sectionLabel("The day's fight", pad + 26, y + 38, 300);
+    ctx.textAlign = "right";
+    cap(bt.tier.name + " \u00b7 " + bt.foe.name, W - pad - 26, y + 38, 16, 0.62);
+    ctx.textAlign = "left";
+
+    /* you, versus it */
+    var vy = y + 86;
+    ctx.save(); ctx.shadowColor = rank.color; ctx.shadowBlur = 20;
+    hexPath(pad + 56, vy, 30); ctx.fillStyle = rank.color; ctx.fill(); ctx.restore();
+    ctx.textAlign = "center";
+    ctx.fillStyle = INK; ctx.font = "600 27px Oswald, sans-serif";
+    ctx.fillText(rank.letter, pad + 56, vy + 10);
+    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "600 13px Oswald, sans-serif";
+    ctx.fillText("YOU", pad + 56, vy + 50);
+    ctx.textAlign = "left";
+
+    ctx.save(); ctx.shadowColor = bt.tier.color; ctx.shadowBlur = 20;
+    hexPath(W - pad - 56, vy, 30);
+    ctx.strokeStyle = bt.tier.color; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
+    ctx.textAlign = "center";
+    ctx.fillStyle = bt.tier.color; ctx.font = "600 24px Oswald, sans-serif";
+    ctx.fillText(String(bt.hp), W - pad - 56, vy + 9);
+    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "600 13px Oswald, sans-serif";
+    ctx.fillText("HP", W - pad - 56, vy + 50);
+    ctx.textAlign = "left";
+
+    /* the blow landed */
+    var hbX = pad + 110, hbW = W - pad * 2 - 220, hbY = vy - 14;
+    ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, hbX, hbY, hbW, 26, 13); ctx.fill();
+    ctx.save(); ctx.shadowColor = bt.won ? "#7DF0B8" : rank.color; ctx.shadowBlur = 20;
+    ctx.fillStyle = bt.won ? "#7DF0B8" : rank.color;
+    roundRect(ctx, hbX, hbY, Math.max(26, hbW * bt.pct), 26, 13); ctx.fill(); ctx.restore();
+    ctx.textAlign = "center";
+    ctx.fillStyle = bt.won ? INK : "#fff"; ctx.font = "600 18px Oswald, sans-serif";
+    ctx.fillText(bt.damage + " / " + bt.hp + " DMG", hbX + hbW / 2, hbY + 19);
+    ctx.fillStyle = bt.won ? "#7DF0B8" : "#FF8F6B"; ctx.font = "600 21px Oswald, sans-serif";
+    ctx.fillText(bt.won ? "VICTORY" : (bt.pct >= 0.75 ? "STILL STANDING" : "LOSING"), hbX + hbW / 2, vy + 50);
+    ctx.textAlign = "left";
+
+    /* where the damage came from */
+    var bw = (W - pad * 2 - 52 - (bt.blows.length - 1) * 10) / bt.blows.length;
+    bt.blows.forEach(function (bl, i2) {
+      var bx2 = pad + 26 + i2 * (bw + 10), byy = y + 150;
+      ctx.fillStyle = "rgba(255,255,255,0.1)"; roundRect(ctx, bx2, byy, bw, 7, 4); ctx.fill();
+      ctx.fillStyle = bl.v >= bl.max ? "#7DF0B8" : (bl.v > 0 ? rank.color : "rgba(255,255,255,0.12)");
+      roundRect(ctx, bx2, byy, Math.max(4, bw * (bl.v / bl.max)), 7, 4); ctx.fill();
+      cap(bl.k, bx2, byy + 30, 14, 0.62);
+      ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 13px Inter, sans-serif";
+      var nt = bl.note; while (ctx.measureText(nt).width > bw && nt.length > 4) nt = nt.slice(0, -2);
+      ctx.fillText(nt, bx2, byy + 50);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#fff"; ctx.font = "600 15px Oswald, sans-serif";
+      ctx.fillText("+" + bl.v, bx2 + bw, byy + 30);
+      ctx.textAlign = "left";
     });
 
     /* ---- 5. nutrition ---- */
-    y = 952; h = 376;
+    y = 1012; h = 368;
     plate(pad, y, W - pad * 2, h);
     sectionLabel("Nutrition", pad + 26, y + 40, 260);
     var underCap = anyEst && cal <= planIntake() && cal >= PLAN.floor;
@@ -4280,7 +4421,7 @@
       ctx.fillStyle = "rgba(255,255,255,0.85)"; ctx.fillRect(tickX - 1.5, barY - 5, 3, 19);
     }
 
-    var cx3 = pad + 26 + 112, cy3 = y + 262;
+    var cx3 = pad + 26 + 112, cy3 = y + 248;
     var rings = [
       { r: 100, w: 23, val: pro, target: PLAN.protein, color: "#5BE1A8", name: "PROTEIN" },
       { r: 72,  w: 23, val: fat, target: PLAN.fat,     color: "#FFD666", name: "FAT" },
@@ -4289,7 +4430,7 @@
     rings.forEach(function (rg) { ringArc(ctx, cx3, cy3, rg.r, rg.w, rg.target ? rg.val / rg.target : 0, rg.color, "rgba(255,255,255,0.1)"); });
     var lx = cx3 + 150;
     rings.forEach(function (rg, i) {
-      var ly = cy3 - 62 + i * 66;
+      var ly = cy3 - 60 + i * 62;
       ctx.fillStyle = rg.color; ctx.beginPath(); ctx.arc(lx + 7, ly - 7, 7, 0, Math.PI * 2); ctx.fill();
       cap(rg.name, lx + 22, ly - 1, 14, 0.62);
       ctx.fillStyle = "#fff"; ctx.font = "600 28px Oswald, sans-serif";
@@ -4299,7 +4440,7 @@
     });
 
     /* ---- 6. what is costing you, or what the coach said ---- */
-    y = 1352;
+    y = 1396;
     /* blessings and curses side by side, because they are one ledger */
     var states = activeBuffs(pr).map(function (b) {
       return { n: b.name, w: b.why(pr.gaps, pr), v: "+" + Math.round(b.gain * 100) + "%", c: "#7DF0B8" };
@@ -4539,6 +4680,14 @@
     return { overall: overall, dayType: prog.type, weightLogged: doc.weight != null, skipped: skipped,
       weights: { pct: weightsPct, detail: weightsDetail }, cardio: { pct: cardioPct, detail: cardioDetail }, meals: { pct: mealsPct, detail: mealsDetail } };
   }
+  /* The fight, the score and the gear all move as you log, but each walks the whole
+     history to do it, so a flurry of taps coalesces into one redraw. */
+  var liveTimer = null;
+  function liveRefresh() {
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () { renderInlineScore(); renderRank(); }, 450);
+  }
+
   function scoreBarColor(pct) { if (pct >= 80) return "var(--teal)"; if (pct >= 50) return "var(--amber)"; return "var(--coral)"; }
   function renderScoreBreakdown(sd) {
     var wrap = document.getElementById("scoreBreakdown"); wrap.innerHTML = "";
@@ -4603,23 +4752,39 @@
     document.getElementById("scSub").textContent = rank.word + " · " +
       (sd.dayType === "lift" ? sd.weights.detail : "rest from lifting") + " · " + sd.cardio.detail;
 
+    /* the same numbers, shaped as a fight you can win */
+    try {
+      var fprog = PROGRAM[selectedDate.getDay()];
+      var fdoc = await getDayDoc(key);
+      var ffood = foodCache.filter(function (f) { return f.date === key; });
+      var fts = 0, fds = 0;
+      fprog.ex.forEach(function (exx) {
+        fts += exx.sets;
+        ((fdoc.sets && Array.isArray(fdoc.sets[exx.name])) ? fdoc.sets[exx.name] : []).forEach(function (r) { if (r && r.done) fds++; });
+      });
+      if (!lastLoadout) lastLoadout = await loadout(lastProg);
+      var bt = battle(fprog, fdoc, ffood, fts, fds, lastLoadout);
+      var fr = document.getElementById("fightRow");
+      fr.hidden = false;
+      document.getElementById("ftFoe").textContent = bt.tier.name + " \u00b7 " + bt.foe.name;
+      var vd = document.getElementById("ftVerdict");
+      vd.textContent = bt.won ? "Victory" : (bt.pct >= 0.75 ? "Still standing" : "Losing");
+      vd.className = "ft-verdict " + (bt.won ? "win" : bt.pct >= 0.75 ? "hold" : "lose");
+      var ff = document.getElementById("ftFill");
+      ff.style.width = (bt.pct * 100) + "%";
+      ff.style.background = bt.won ? "#12B886" : rank.color;
+      document.getElementById("ftDmg").textContent = bt.damage + " / " + bt.hp + " damage";
+      document.getElementById("ftBlows").innerHTML = bt.blows.map(function (bl) {
+        var p2 = Math.round((bl.v / bl.max) * 100);
+        return '<div class="ft-blow"><div class="ft-bar"><i style="width:' + p2 + '%;background:' +
+          (bl.v >= bl.max ? "#12B886" : bl.v > 0 ? rank.color : "transparent") + '"></i></div>' +
+          '<div class="ft-k"><span>' + bl.k + '</span><b>+' + bl.v + '</b></div></div>';
+      }).join("");
+    } catch (e) { var fr2 = document.getElementById("fightRow"); if (fr2) fr2.hidden = true; }
+
+    /* The three bars that used to sit here said exactly what the blow meters above
+       now say, in more words. One telling of the day is enough. */
     var bars = document.getElementById("scBars"); bars.innerHTML = "";
-    var rows = [];
-    if (sd.weights.pct != null) rows.push({ label: "Weight training", pct: sd.weights.pct, detail: sd.weights.detail });
-    rows.push({ label: "Cardio", pct: sd.cardio.pct, detail: sd.cardio.detail });
-    rows.push({ label: "Meals", pct: sd.meals.pct, detail: sd.meals.detail });
-    rows.forEach(function (r) {
-      var row = document.createElement("div");
-      row.innerHTML = '<div class="sc-bar-top"><span class="sc-bar-label"></span><span class="sc-bar-pct"></span></div>' +
-        '<div class="sc-bar-track"><div class="sc-bar-fill"></div></div><div class="sc-bar-detail"></div>';
-      row.querySelector(".sc-bar-label").textContent = r.label;
-      row.querySelector(".sc-bar-pct").textContent = r.pct + "%";
-      row.querySelector(".sc-bar-detail").textContent = r.detail;
-      var fill = row.querySelector(".sc-bar-fill");
-      fill.style.width = r.pct + "%";
-      fill.style.background = rankFor(r.pct).color;
-      bars.appendChild(row);
-    });
 
     var coachEl = document.getElementById("scCoach");
     var cached = readCoach(key);
