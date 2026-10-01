@@ -39,14 +39,138 @@
   .lock-note { margin-top: 16px; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
   .lock-error { margin-top: 10px; font-size: 13px; color: var(--bad); min-height: 18px; }
 
-  #app { display: none; min-height: 100%; padding-bottom: 150px; }
+  /* 150px of padding existed to clear a floating share bar and a tab bar on a page
+     that scrolled. The page does not scroll any more: the card owns the screen. */
+  #app { display: none; min-height: 100%; padding-bottom: 0; }
   header.top { position: sticky; top: 0; z-index: 10; background: rgba(245,246,251,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top,0px) + 14px) 18px 12px; display: flex; align-items: center; justify-content: space-between; }
   header.top .mark { font-family: var(--font-head); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; color: var(--ink); }
   header.top .mark span { background: linear-gradient(90deg, var(--blue), var(--magenta)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   header.top .date-pill { font-size: 12px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
 
-  main { max-width: 640px; margin: 0 auto; padding: 16px 16px 12px; }
+  main { max-width: 640px; margin: 0 auto; padding: 10px 14px 8px; }
   section.panel { display: none; } section.panel.active { display: block; }
+
+  /* ---------- the four cards ----------
+     One card per screen, nine by sixteen, and nothing stacked behind it. The height
+     comes from JS because it has to be the smaller of "what the phone has left" and
+     "what nine by sixteen allows", and CSS cannot see the first of those. Anything
+     that overflows scrolls INSIDE the card; the page itself never scrolls. */
+  .card9 { width: var(--c9w, 100%); height: var(--c9h, auto); margin: 0 auto;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column;
+    gap: 10px; overflow: hidden; }
+  .card9 .field label { font-size: 10.5px; }
+
+  /* TODAY */
+  .today9 { background: linear-gradient(160deg, #130C24 0%, #1B1035 48%, #2A0F3A 100%);
+    border-color: rgba(255,255,255,0.1); color: #fff; gap: 8px; }
+  .t9-top { text-align: center; }
+  .t9-verdict { font-family: var(--font-head); font-size: 30px; font-weight: 700; letter-spacing: .02em; line-height: 1.05; }
+  .t9-verdict.win { color: #7DF0B8; } .t9-verdict.near { color: #FFD166; } .t9-verdict.lose { color: #FF8F6B; }
+  .t9-score { font-size: 12.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
+  .t9-bar { position: relative; height: 10px; border-radius: 6px; background: rgba(255,255,255,0.12); margin: 8px 0 7px; overflow: hidden; }
+  .t9-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: #7DF0B8; transition: width .45s cubic-bezier(.2,.8,.3,1); }
+  .t9-bar u { position: absolute; top: -2px; bottom: -2px; width: 2px; background: rgba(255,255,255,0.8); }
+  .t9-record { font-family: var(--font-head); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+  .t9-record b { color: #7DF0B8; font-size: 13.5px; }
+
+  .t9-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+  .t9-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 7px; border: 0;
+    background: transparent; border-radius: 11px; cursor: pointer; text-align: left; color: #fff; }
+  .t9-row:active { background: rgba(255,255,255,0.07); }
+  .t9-ico { flex: 0 0 38px; height: 38px; border-radius: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1px; box-shadow: inset 0 0 0 1.4px currentColor; }
+  .t9-ico svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .t9-ico em { font-style: normal; font-family: var(--font-head); font-size: 7.5px; letter-spacing: .06em; }
+  .t9-txt { flex: 1 1 auto; min-width: 0; }
+  .t9-n { display: block; font-family: var(--font-head); font-size: 13.5px; line-height: 1.25; }
+  .t9-d { display: block; font-size: 10.5px; line-height: 1.3; color: rgba(255,255,255,0.55);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .t9-add { flex: 0 0 auto; font-family: var(--font-head); font-size: 11.5px; padding: 3px 8px; border-radius: 20px;
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); }
+  .t9-add.part { background: rgba(255,209,102,0.2); color: #FFD166; }
+  .t9-add.full { background: rgba(125,240,184,0.9); color: #07301F; }
+
+  .t9-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .t9-wd { border-radius: 9px; padding: 5px 0 4px; text-align: center; box-shadow: inset 0 0 0 1.2px rgba(255,255,255,0.16); }
+  .t9-wd.won { background: rgba(125,240,184,0.18); box-shadow: inset 0 0 0 1.4px rgba(125,240,184,0.6); }
+  .t9-wd.near { box-shadow: inset 0 0 0 1.3px rgba(255,209,102,0.55); }
+  .t9-wd b { display: block; font-family: var(--font-head); font-size: 14px; line-height: 1.1; }
+  .t9-wd.won b { color: #7DF0B8; } .t9-wd.near b { color: #FFD166; } .t9-wd b { color: rgba(255,255,255,0.35); }
+  .t9-wd span { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: .06em; }
+
+  .t9-chips { display: flex; gap: 5px; flex-wrap: nowrap; overflow: hidden; }
+  .t9-chip { font-family: var(--font-head); font-size: 10.5px; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+  .t9-chip.up { background: rgba(125,240,184,0.16); color: #7DF0B8; }
+  .t9-chip.down { background: rgba(255,107,74,0.18); color: #FF8F6B; }
+  .t9-chip.mult { background: rgba(255,209,102,0.18); color: #FFD166; }
+  .t9-note, .t9-coach { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,0.72);
+    background: rgba(255,255,255,0.07); border-radius: 10px; padding: 7px 9px; }
+  .t9-actions { display: flex; gap: 8px; }
+  .t9-btn { flex: 1 1 0; font-family: var(--font-head); font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+    padding: 11px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
+  .t9-btn.drop { border: 0; background: linear-gradient(90deg, #E0417C, #7A3FF2); animation: dropPulse 1.9s ease-in-out infinite; }
+  .t9-btn.drop:disabled { animation: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); }
+
+  /* TRAIN */
+  .train9 { gap: 8px; }
+  .t2-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .t2-icon { flex: 0 0 38px; height: 38px; border-radius: 11px; background: var(--coral); display: flex; align-items: center; justify-content: center; }
+  .t2-icon svg { width: 20px; height: 20px; stroke: #fff; }
+  .t2-text { flex: 1 1 auto; min-width: 0; }
+  .t2-name { font-family: var(--font-head); font-size: 17px; }
+  .t2-sub { font-size: 11px; color: var(--ink-dim); }
+  .train9 .timer-row { flex: 1 1 100%; margin: 0; }
+  .pager { flex: 1 1 auto; min-height: 0; display: flex; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scrollbar-width: none; gap: 12px; }
+  .pager::-webkit-scrollbar { display: none; }
+  .pager > * { flex: 0 0 100%; scroll-snap-align: center; min-width: 0; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; padding-right: 2px; }
+  .pager .ex-block { margin: 0; }
+  .pager-dots { display: flex; justify-content: center; gap: 6px; }
+  .pg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .pg-dot.on { background: var(--blue); width: 20px; border-radius: 4px; }
+  .pg-dot.done { background: var(--teal); }
+  .t2-cardio-icon { flex: 0 0 56px; height: 56px; border-radius: 14px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; }
+  .t2-cardio-icon svg { width: 26px; height: 26px; stroke: var(--teal); }
+  .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+  .cp-burn { font-size: 12px; color: var(--ink-dim); margin: 12px 0 10px; }
+  .cardio-page .food-upload-btn { padding: 13px 12px; }
+  .cp-burn b { color: var(--ink); font-family: var(--font-head); font-size: 15px; }
+
+  /* FOOD */
+  .f9-targets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+  .f9-targets > div { background: var(--surface-2); border-radius: 11px; padding: 7px 6px; text-align: center; }
+  .f9-targets b { display: block; font-family: var(--font-head); font-size: 13px; }
+  .f9-targets span { font-size: 9px; color: var(--ink-faint); letter-spacing: .03em; }
+  .f9-actions { display: flex; gap: 8px; }
+  .f9-actions .food-upload-btn { flex: 1 1 0; margin: 0; }
+  .f9-note { font-size: 9.5px; line-height: 1.4; color: var(--ink-faint); }
+  .f9-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .f9-sec { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 10px 0 6px; }
+  .f9-scroll .f9-sec:first-child { margin-top: 0; }
+
+  /* WEIGHT */
+  .w9-now { text-align: center; }
+  .w9-big { font-family: var(--font-head); font-size: 44px; line-height: 1; color: var(--blue); }
+  .w9-sub { font-size: 11px; color: var(--ink-faint); margin-top: 3px; }
+  .w9-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .w9-tile { background: var(--surface-2); border-radius: 13px; padding: 9px 11px; min-width: 0; }
+  .w9-tile > span { font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); }
+  .w9-tile > b { display: block; font-family: var(--font-head); font-size: 21px; }
+  .w9-tile .rate-main { font-size: 12px; color: var(--ink-dim); }
+  .w9-tile .rate-main b { font-family: var(--font-head); font-size: 21px; color: var(--ink); }
+  .w9-tile .rate-main.good b { color: var(--teal); } .w9-tile .rate-main.bad b { color: var(--coral); }
+  .w9-tile i { display: block; font-style: normal; font-size: 9.5px; line-height: 1.35; color: var(--ink-faint); margin-top: 3px;
+    max-height: 39px; overflow: hidden; }
+  .w9-input { display: flex; gap: 8px; }
+  .w9-input input { flex: 1 1 auto; }
+  .w9-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .w9-sec { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 12px 0 6px; }
+  .weight9 .weight-chart { height: 110px; flex: 0 0 auto; }
+  .weight9 .wins-card { margin: 0; border-radius: 14px; overflow: hidden; }
 
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .card h2 { font-family: var(--font-head); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; color: var(--ink-dim); margin: 0 0 12px; text-transform: uppercase; display:flex; align-items:center; justify-content:space-between; }
@@ -269,7 +393,9 @@
   .meal-type-btn.selected.lunch { background: var(--teal-soft); border-color: var(--teal); color: #0B7A56; }
   .meal-type-btn.selected.dinner { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
   .meal-type-btn.selected.snack { background: var(--magenta-soft); border-color: var(--magenta); color: var(--magenta); }
-  .food-upload-btn { width: 100%; background: var(--surface-2); border: 1.5px dashed var(--line); color: var(--ink-dim); padding: 20px 12px; text-align: center; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: 500; }
+  /* a label is inline by default, so width:100% did nothing and it sat alongside
+     whatever text came before it */
+  .food-upload-btn { display: block; width: 100%; background: var(--surface-2); border: 1.5px dashed var(--line); color: var(--ink-dim); padding: 20px 12px; text-align: center; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: 500; }
   .food-grid { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .food-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--surface-2); cursor: pointer; }
   .food-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -555,15 +681,18 @@
   .plan-warn { background: var(--amber-soft); border-radius: 10px; padding: 10px 12px; font-size: 12px;
     line-height: 1.5; color: var(--ink); margin-top: 10px; }
 
-  #scoreBarWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 9; padding: 0 16px; display: flex; justify-content: center; }
-  #scoreDayBtn { width: 100%; max-width: 608px; background: linear-gradient(90deg, var(--blue), var(--magenta)); border: none; color: #fff; font-family: var(--font-head); font-size: 13px; letter-spacing: .03em; padding: 13px; border-radius: 12px 12px 0 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 -4px 14px rgba(30,34,60,0.12); }
-  #scoreDayBtn svg { width: 16px; height: 16px; stroke: #fff; }
   .score-bar-row .sbr-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
   .score-bar-row .sbr-label { font-weight: 600; color: var(--ink); }
   .score-bar-row .sbr-pct { color: var(--ink-faint); font-weight: 600; }
   .score-bar-track { height: 9px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
   .score-bar-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
 
+  /* The share sheet had no styles at all: it was a plain div sitting at the bottom of
+     every page, which only passed for a modal while the page was long enough to hide
+     it. With one card per screen there is nothing below to hide it in. */
+  #shareModal { position: fixed; inset: 0; z-index: 60; background: rgba(20,20,35,0.72);
+    display: none; align-items: center; justify-content: center; padding: 20px; }
+  #shareModal.open { display: flex; }
   #modalOverlay { position: fixed; inset: 0; z-index: 60; background: rgba(20,20,35,0.72); display: none; align-items: center; justify-content: center; padding: 20px; }
   #modalOverlay.open { display: flex; }
   .modal-inner { background: #fff; border-radius: 16px; padding: 16px; max-width: 420px; width: 100%; max-height: 88vh; overflow-y: auto; }
@@ -618,225 +747,145 @@
     <div class="card"><div class="day-row" id="dayRow"></div></div>
 
     <!-- 1 · THE SUMMARY: everything that moved, the moment it moves -->
+    <!-- 1 · TODAY -->
+    <!-- The body, and what today has done to it. Nothing here is a separate window:
+         the seven rows ARE the quests, the badge on each one is what today put in,
+         and every number redraws the moment a set, a photo or a weigh-in lands. -->
     <section class="panel active" id="panel-summary">
-    <div class="card rank-card" id="rankCard" hidden>
-      <div class="rk-top">
-        <div class="rk-lvl"><span id="rkLevelNum">1</span><small>LVL</small></div>
-        <div class="rk-main">
-          <div class="rk-name" id="rkTitle">Unranked</div>
-          <div class="rk-xpbar"><div class="rk-xpfill" id="rkXpFill"></div></div>
-          <div class="rk-xptext"><b id="rkXpNum">0</b><span id="rkXpRest"></span></div>
+      <div class="card9 today9">
+        <div class="t9-top">
+          <div class="t9-verdict" id="t9Verdict">&mdash;</div>
+          <div class="t9-score" id="t9Score"></div>
+          <div class="t9-bar"><i id="t9Fill"></i><u id="t9Mark"></u></div>
+          <div class="t9-record" id="t9Record"></div>
         </div>
-      </div>
-      <div class="rk-streak" id="rkStreak"></div>
-      <div class="rk-won" id="rkWon" hidden></div>
-      <div class="rk-debuffs" id="rkDebuffs" hidden></div>
-      <div class="rk-window" id="rkWindow" hidden></div>
-      <div class="rk-risk" id="rkRisk" hidden></div>
-      <button class="rk-drop" id="rkDropBtn" type="button" hidden></button>
-      <button class="rk-char" id="rkCharBtn" type="button">
-        <span class="rkc-l">What you've built</span>
-        <span class="rkc-r"><b id="rkBuilt">—</b> of 7 parts going</span>
-      </button>
-      <div class="rk-badges" id="rkBadges"></div>
-    </div>
-
-    <div class="card quest-card">
-      <div class="power-head">
-        <div class="power-title">Today's points</div>
-        <div class="streak-row" id="streakRow"></div>
-      </div>
-      <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
-      <div class="quest-list" id="questList"></div>
-    </div>
-
-    <div class="card score-card" id="scoreCard">
-      <div class="sc-head">
-        <div class="sc-rank" id="scRank">&mdash;</div>
-        <div class="sc-headtext">
-          <div class="sc-title" id="scTitle">Day score</div>
-          <div class="sc-sub" id="scSub">Nothing logged yet</div>
+        <div class="t9-body" id="t9Body"></div>
+        <div class="t9-week" id="t9Week"></div>
+        <div class="t9-chips" id="t9Chips"></div>
+        <div class="t9-note" id="t9Note" hidden></div>
+        <div class="t9-coach" id="scCoach" hidden></div>
+        <div class="t9-actions">
+          <button class="t9-btn drop" id="rkDropBtn" type="button" hidden></button>
+          <button class="t9-btn share" id="scOpenBtn" type="button">Share the day</button>
         </div>
-        <div class="sc-num" id="scNum">&mdash;</div>
-      </div>
-      <div class="fight" id="fightRow" hidden>
-        <div class="ft-head"><span class="ft-foe" id="ftFoe"></span><span class="ft-verdict" id="ftVerdict"></span></div>
-        <div class="ft-track"><div class="ft-fill" id="ftFill"></div><span class="ft-dmg" id="ftDmg"></span></div>
-        <div class="ft-blows" id="ftBlows"></div>
-      </div>
-      <div class="sc-bars" id="scBars"></div>
-      <div class="sc-coach" id="scCoach" hidden></div>
-      <button class="sc-open" id="scOpenBtn" type="button">Open the share card</button>
-    </div>
-
-    <div class="card good-card" id="goodCard" hidden>
-      <div class="gd-head">
-        <div>
-          <div class="gd-title">Given to <span id="gdCause">Sadaqah</span></div>
-          <div class="gd-total" id="gdGiven">—</div>
-        </div>
-        <button class="gd-give" id="gdGiveBtn" type="button">Record a gift</button>
-      </div>
-      <div class="gd-lines" id="gdLines"></div>
-      <div class="gd-owed">
-        <div class="gd-owed-v" id="gdOwed">—</div>
-        <div class="gd-owed-n" id="gdOwedNote"></div>
-      </div>
-      <div class="gd-ded">
-        <label for="gdDedication" id="gdDedLabel">Who is today for?</label>
-        <input type="text" id="gdDedication" placeholder="a name, or an intention">
-      </div>
-    </div>
-
-    <!-- WEIGHT TRAINING -->
-    </section>
-
-    <!-- 2 · FOOD -->
-    <section class="panel" id="panel-food">
-      <div class="card">
-        <div class="meal-picker" id="mealPicker"></div>
-        <div class="split-card wide-left">
-          <div class="split-col">
-            <div class="split-col-label expected">Expected</div>
-            <div class="macro-row"><span class="mk">Eat today</span><span class="mv" id="planIntakeLabel">—</span></div>
-            <div class="macro-row"><span class="mk">Maintenance</span><span class="mv" id="planMaintLabel">—</span></div>
-            <div class="macro-row"><span class="mk">Protein</span><span class="mv" id="planProteinLabel">—</span></div>
-            <div class="macro-row"><span class="mk">So far (est.)</span><span class="mv" id="todayEstTotals">—</span></div>
-            <div style="font-size:10px; color:var(--ink-faint); margin-top:8px; line-height:1.4;">Estimates come from a quick visual read of your photos, deliberately skewed to round up rather than down — tap any photo to correct it.</div>
-          </div>
-          <div class="split-col col-right">
-            <div class="split-col-label input">Your input</div>
-            <div class="field" style="margin-bottom:8px;">
-              <label>Details (ingredients, portion, how it was cooked)</label>
-              <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
-            </div>
-            <div style="display:flex; gap:8px;">
-              <label class="food-upload-btn" for="foodCameraInput" style="flex:1;">📷 Take photo</label>
-              <label class="food-upload-btn" for="foodLibraryInput" style="flex:1;">🖼️ Choose photo</label>
-            </div>
-            <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
-            <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
-          </div>
-        </div>
-      </div>
-      <div class="card"><h2>Today's meals</h2><div id="foodToday"></div></div>
-      <div class="card"><h2>The last two weeks</h2><div id="foodLog"></div><div class="empty" id="foodLogNote" hidden></div></div>
-      <div class="card" style="padding:12px 14px;">
-        <button class="plan-btn" type="button" id="planBtn">Eating plan · <span id="planBtnLabel">—</span></button>
       </div>
     </section>
 
-    <!-- 3 · TRAIN: the session, exercise by exercise, then the cardio -->
+    <!-- 2 · TRAIN -->
+    <!-- One exercise at a time, swiped left and right, with the cardio as the last
+         page of the same session. A session is a sequence, so the screen is one. -->
     <section class="panel" id="panel-train">
-      <div class="card">
-        <div class="plan-hero">
-          <div class="plan-hero-icon" id="liftHeroIcon" style="background:var(--coral);">
+      <div class="card9 train9">
+        <div class="t2-head">
+          <div class="t2-icon" id="liftHeroIcon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/></svg>
           </div>
-          <div class="plan-hero-text">
-            <div class="pht-1" id="liftSessionName"></div>
-            <div class="pht-2" id="liftSessionSub"></div>
+          <div class="t2-text">
+            <div class="t2-name" id="liftSessionName"></div>
+            <div class="t2-sub" id="liftSessionSub"></div>
+          </div>
+          <div class="timer-row" id="sessionTimerRow">
+            <div class="timer-display" id="sessionTimerDisplay">0:00</div>
+            <span class="timer-state" id="sessionTimerState"></span>
+            <button class="timer-btn start" id="sessionTimerBtn">Start</button>
+            <button class="timer-btn stop" id="sessionFinishBtn" style="display:none;">Finish</button>
           </div>
         </div>
-        <div class="timer-row" id="sessionTimerRow">
-          <div class="timer-display" id="sessionTimerDisplay">0:00</div>
-          <span class="timer-state" id="sessionTimerState"></span>
-          <button class="timer-btn start" id="sessionTimerBtn">Start session</button>
-          <button class="timer-btn stop" id="sessionFinishBtn" style="display:none;">Finish</button>
-        </div>
-      </div>
-
-      <div class="card" id="liftInputCard">
-        <div id="exerciseList"></div>
-      </div>
-      <div class="card">
-        <div class="split-card">
-          <div class="split-col">
-            <div class="split-col-label expected">Expected</div>
-            <div class="plan-hero-text">
-              <div class="pht-1" id="cardioExpectedMin"></div>
-              <div class="pht-2" id="cardioExpectedDetail"></div>
+        <div class="pager" id="exerciseList">
+          <div class="page cardio-page" id="cardioPage">
+            <div class="ex-head" style="--tier:#12B886">
+              <div class="t2-cardio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg></div>
+              <div class="ex-meta">
+                <div class="ex-name">Cardio</div>
+                <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span></div>
+              </div>
             </div>
-          </div>
-          <div class="split-col col-right">
-            <div class="split-col-label input">Your input</div>
-            <div class="field" style="margin-bottom:8px;"><label>Minutes</label><input type="number" id="cardioMin"></div>
-            <div class="field" style="margin-bottom:8px;"><label>Incline %</label><input type="number" id="cardioIncline"></div>
-            <div class="field"><label>Speed mph</label><input type="number" step="0.1" id="cardioSpeed"></div>
-            <button class="save-chip primary" style="margin-top:10px; width:100%;" id="saveCardioBtn">Log cardio</button>
+            <div class="cp-fields">
+              <div class="field"><label>Minutes</label><input type="number" id="cardioMin"></div>
+              <div class="field"><label>Incline %</label><input type="number" id="cardioIncline"></div>
+              <div class="field"><label>Speed mph</label><input type="number" step="0.1" id="cardioSpeed"></div>
+            </div>
+            <button class="save-chip primary" style="width:100%;" id="saveCardioBtn">Log cardio</button>
             <div class="saved-tick" id="cardioSaved"></div>
+            <div class="cp-burn">Burned, roughly: <b id="cardioCalEst">&mdash;</b></div>
+            <label class="food-upload-btn" for="cardioFileInput">Add a photo of the screen</label>
+            <input type="file" id="cardioFileInput" accept="image/*" capture="environment" style="display:none;">
+            <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
           </div>
         </div>
-        <div class="stat-grid" style="margin-top:14px;">
-          <div class="stat-tile coral"><div class="stat-label">Est. calories burned</div><div class="stat-value" id="cardioCalEst">—</div><div class="stat-sub">based on your last logged weight</div></div>
-        </div>
-        <label class="food-upload-btn" for="cardioFileInput" style="margin-top:12px; display:block;">Tap to add a photo (treadmill screen, watch, etc.)</label>
-        <input type="file" id="cardioFileInput" accept="image/*" capture="environment" style="display:none;">
-        <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
+        <div class="pager-dots" id="exDots"></div>
       </div>
     </section>
 
-    <!-- 4 · WEIGHT: the number today, and everything it has done -->
+    <!-- 3 · FOOD -->
+    <section class="panel" id="panel-food">
+      <div class="card9 food9">
+        <div class="f9-targets">
+          <div><b id="planIntakeLabel">&mdash;</b><span>eat today</span></div>
+          <div><b id="todayEstTotals">&mdash;</b><span>so far</span></div>
+          <div><b id="todayProtein">&mdash;</b><span>protein g</span></div>
+          <div><b id="planMaintLabel">&mdash;</b><span>maintenance</span></div>
+        </div>
+        <div class="meal-picker" id="mealPicker"></div>
+        <div class="field">
+          <label>Describe it &mdash; ingredients, portion, how it was cooked</label>
+          <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
+        </div>
+        <div class="f9-actions">
+          <label class="food-upload-btn" for="foodCameraInput">&#128247; Take photo</label>
+          <label class="food-upload-btn" for="foodLibraryInput">&#128444;&#65039; Choose photo</label>
+        </div>
+        <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
+        <div class="f9-note">Estimates are a quick visual read of the photo, skewed to round up rather than down. Tap any photo to correct it.</div>
+        <div class="f9-scroll">
+          <div class="f9-sec">Today</div>
+          <div id="foodToday"></div>
+          <div class="f9-sec">Earlier</div>
+          <div id="foodLog"></div>
+          <div class="empty" id="foodLogNote" hidden></div>
+        </div>
+        <button class="plan-btn" type="button" id="planBtn">Eating plan &middot; <span id="planBtnLabel">&mdash;</span></button>
+      </div>
+    </section>
+
+    <!-- 4 · WEIGHT -->
     <section class="panel" id="panel-weight">
-      <div class="card">
-        <div class="stat-grid">
-          <div class="stat-tile blue"><div class="stat-label">Bodyweight</div><div class="stat-value" id="statWeight">—</div><div class="stat-sub" id="statWeightSub">not logged</div></div>
-          <div class="stat-tile coral"><div class="stat-label">Total loss</div><div class="stat-value" id="statTotalLoss">—</div><div class="stat-sub" id="statTotalLossSub">since 218 lb start</div></div>
+      <div class="card9 weight9">
+        <div class="w9-now">
+          <div class="w9-big" id="statWeight">&mdash;</div>
+          <div class="w9-sub" id="statWeightSub">not logged yet</div>
         </div>
-        <div class="rate-row" id="rateRow" hidden>
-          <div class="rate-main"><span id="rateValue">—</span> <span class="rate-unit">lb / week</span></div>
-          <div class="rate-sub" id="rateSub"></div>
+        <div class="w9-pair">
+          <div class="w9-tile"><span>Total loss</span><b id="statTotalLoss">&mdash;</b><i id="statTotalLossSub">&nbsp;</i></div>
+          <div class="w9-tile" id="rateRow" hidden>
+            <span>Trend</span>
+            <div class="rate-main"><b id="rateValue">&mdash;</b> lb / week</div>
+            <i id="rateSub"></i>
+          </div>
         </div>
-        <div class="field-row" style="margin-top:12px;">
-          <div class="field"><label>Log bodyweight (lb)</label><input type="number" step="0.1" id="weightInput" placeholder="e.g. 208.4"></div>
-          <div class="field" style="flex: 0 0 auto;"><label>&nbsp;</label><button class="save-chip primary" id="saveWeightBtn">Log</button></div>
+        <div class="w9-input">
+          <input type="number" step="0.1" id="weightInput" placeholder="Today's weight, e.g. 208.4">
+          <button class="save-chip primary" id="saveWeightBtn">Log</button>
         </div>
         <div class="saved-tick" id="weightSaved"></div>
-      </div>
-      <div class="trend-tabs">
-        <button class="trend-tab-btn active" data-pane="daily">Daily</button>
-        <button class="trend-tab-btn" data-pane="weekly">Weekly</button>
-        <button class="trend-tab-btn" data-pane="monthly">Monthly</button>
-      </div>
-      <div class="trend-pane active" id="pane-daily">
-        <div class="card wins-card" id="winsCard" hidden>
-          <div class="wins-head">
-            <div class="wins-title">How far you've come</div>
-            <div class="wins-span" id="winsSpan"></div>
+        <svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        <div class="w9-scroll">
+          <div class="wins-card" id="winsCard" hidden>
+            <div class="wins-head">
+              <div class="wins-title">How far you've come</div>
+              <div class="wins-span" id="winsSpan"></div>
+            </div>
+            <div class="wins-hero" id="winsHero"></div>
+            <div class="wins-rows" id="winsRows"></div>
+            <div class="wins-foot" id="winsFoot"></div>
           </div>
-          <div class="wins-hero" id="winsHero"></div>
-          <div class="wins-rows" id="winsRows"></div>
-          <div class="wins-foot" id="winsFoot"></div>
+          <div class="w9-sec">Every day you logged</div>
+          <div class="hist-list" id="histList"></div>
         </div>
-
-        <div class="card"><h2>Bodyweight trend</h2><svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg></div>
-        <div class="card"><h2>Log history</h2><div class="hist-list" id="histList"></div></div>
-      </div>
-      <div class="trend-pane" id="pane-weekly">
-        <div class="card"><h2>Total volume (lb lifted) — last 7 days</h2><svg class="bar-chart" id="weeklyVolumeChart" viewBox="0 0 600 130"></svg></div>
-        <div class="card"><h2>Sets completed — last 7 days</h2><svg class="bar-chart" id="weeklySetsChart" viewBox="0 0 600 130"></svg></div>
-        <div class="card"><h2>Cardio minutes — last 7 days</h2><svg class="bar-chart" id="weeklyCardioChart" viewBox="0 0 600 130"></svg></div>
-        <div class="card"><div class="stat-grid">
-          <div class="stat-tile teal"><div class="stat-label">Total cardio</div><div class="stat-value" id="weekCardioTotal">0</div><div class="stat-sub">minutes this week</div></div>
-          <div class="stat-tile coral"><div class="stat-label">Sets logged</div><div class="stat-value" id="weekSetsTotal">0</div><div class="stat-sub">this week</div></div>
-        </div></div>
-      </div>
-      <div class="trend-pane" id="pane-monthly">
-        <div class="card"><h2 id="monthLabel">This month</h2>
-          <div class="heatmap" id="monthHeatmap"></div>
-          <div class="heat-legend"><span>Less</span><span class="sw" style="background:#F0F1FA;"></span><span class="sw" style="background:#C9DBFF;"></span><span class="sw" style="background:#7FA6FF;"></span><span class="sw" style="background:var(--blue);"></span><span>More</span></div>
-        </div>
-        <div class="card"><div class="stat-grid">
-          <div class="stat-tile blue"><div class="stat-label">Avg weight</div><div class="stat-value" id="monthAvgWeight">—</div><div class="stat-sub">this month</div></div>
-          <div class="stat-tile magenta"><div class="stat-label">Days logged</div><div class="stat-value" id="monthDaysLogged">0</div><div class="stat-sub">this month</div></div>
-        </div></div>
-        <div class="card"><div class="stat-grid">
-          <div class="stat-tile coral"><div class="stat-label">Total volume</div><div class="stat-value" id="monthVolume">0</div><div class="stat-sub">lb lifted this month</div></div>
-          <div class="stat-tile teal"><div class="stat-label">Cardio time</div><div class="stat-value" id="monthCardio">0</div><div class="stat-sub">minutes this month</div></div>
-        </div></div>
-        <div class="card"><h2>Lab trend (HbA1c &amp; lipids)</h2><div id="labsList"></div></div>
       </div>
     </section>
+
   </main>
 
   <div id="restBarWrap">
@@ -853,12 +902,6 @@
     </div>
   </div>
 
-  <div id="scoreBarWrap">
-    <button id="scoreDayBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-      Share the day's card
-    </button>
-  </div>
 
   <nav class="tabbar">
     <button class="tab-btn active" data-panel="summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 7v11H3V10z"/><path d="M9 21v-7h6v7"/></svg>Today</button>
@@ -917,7 +960,8 @@
       <div class="field"><label>Amount given</label><input type="number" step="0.01" id="giveAmount"></div>
     </div>
     <div class="field" style="margin-bottom:8px;"><label>Note (optional)</label><input type="text" id="giveNote" placeholder="where it went"></div>
-    <div class="field" style="margin-bottom:14px;"><label>Cause</label><input type="text" id="giveCause"></div>
+    <div class="field" style="margin-bottom:8px;"><label>Cause</label><input type="text" id="giveCause"></div>
+    <div class="field" style="margin-bottom:14px;"><label id="giveDedLabel">Who is today for?</label><input type="text" id="giveDedication" placeholder="a name, or an intention"></div>
     <div class="give-sec">What each thing is worth</div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Per session</label><input type="number" step="0.5" id="giveSession"></div>
@@ -944,6 +988,8 @@
     <div class="char-note">Each one is a fact about the last few days. Added together they
       change how much today's points are worth — nothing else.</div>
     <div id="charStates"></div>
+    <div class="char-section">Milestones</div>
+    <div class="rk-badges" id="charBadges"></div>
     <div class="char-foot" id="charFoot"></div>
     <div class="modal-actions"><button class="primary-btn" id="charCloseBtn" style="width:100%;">Close</button></div>
   </div>
@@ -1448,6 +1494,7 @@
     cache = {}; foodCache = [];
     document.getElementById("authScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
+    sizeCards();
     document.getElementById("profileNameBtn").textContent = displayName + " · Sign out";
     await loadPlan();
     await seedHistoricalWeights();
@@ -2105,16 +2152,18 @@
     document.getElementById("liftSessionSub").textContent = prog.type === "cardio" ? "Rest from lifting — cardio only" : prog.ex.reduce(function(a,e){return a+e.sets;},0) + " total sets across " + prog.ex.length + " exercises";
     document.getElementById("liftHeroIcon").style.background = prog.type === "cardio" ? "var(--ink-faint)" : "var(--coral)";
 
-    var exCard = document.getElementById("liftInputCard");
+    /* The session is a sequence, so the screen is a pager: one exercise per page,
+       swiped left and right, and the cardio as the last page of the same session. The
+       cardio page lives in the markup (its inputs are wired once at boot), so the
+       rebuild clears only the exercise pages and puts the cardio back on the end. */
     var list = document.getElementById("exerciseList");
-    list.innerHTML = "";
-    if (prog.type === "cardio") { exCard.style.display = "none"; return; }
-    exCard.style.display = "block";
+    var cardioPage = document.getElementById("cardioPage");
+    Array.from(list.querySelectorAll(".ex-block")).forEach(function (n) { n.remove(); });
+    if (prog.type === "cardio") { renderPagerDots(); return; }
 
     prog.ex.forEach(function (exx, exIdx) {
-      if (exx.div) { var divider = document.createElement("div"); divider.className = "ex-divider"; list.appendChild(divider); }
       var block = document.createElement("div");
-      block.className = "ex-block";
+      block.className = "ex-block page";
       var savedSets = (doc.sets && doc.sets[exx.name]) || [];
       var wUnit = exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
       var doneFlags = [];
@@ -2147,7 +2196,7 @@
           '</div>' +
         '</div>' +
         '<div class="set-grid">' + setsHtml + '</div>';
-      list.appendChild(block);
+      list.insertBefore(block, cardioPage);
 
       block.querySelector(".ex-name").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
       block.querySelector(".same-last-btn").onclick = function () { fillFromLastTime(this.getAttribute("data-exname"), block, key); };
@@ -2192,6 +2241,9 @@
         });
       });
     });
+    list.appendChild(cardioPage);          // cardio closes the session, so it closes the pager
+    list.scrollLeft = 0;
+    renderPagerDots();
   }
 
   async function fillFromLastTime(exName, block, key) {
@@ -2370,9 +2422,8 @@
 
   function renderPlanLabels() {
     var set = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
-    set("planIntakeLabel", fmtInt(planIntake()) + " kcal");
-    set("planMaintLabel", fmtInt(PLAN.maintenance) + " kcal");
-    set("planProteinLabel", "~" + PLAN.protein + " g");
+    set("planIntakeLabel", fmtInt(planIntake()));
+    set("planMaintLabel", fmtInt(PLAN.maintenance));
     set("planBtnLabel", fmtInt(planIntake()) + " kcal/day, " + (PLAN.deficit / 500).toFixed(1) + " lb/wk");
   }
 
@@ -2475,25 +2526,6 @@
   }
   async function fireFeedback(kind, extra, imageDataUrl) { showFeedback(kind, FEEDBACK_GUARDRAILS + "\n\nWhat the user just logged: " + extra, imageDataUrl); }
 
-  function questsForDay(prog, doc) {
-    var quests = [];
-    quests.push({ key: "weight", label: "Log your weight", done: doc.weight != null, icon: '<path d="M12 2v2M12 20v2M2 12h2M20 12h2"/><circle cx="12" cy="12" r="7"/>' });
-    // Every day in the programme has cardio, including the lifting days. It used to be
-    // listed only on cardio-only days, so on a lift day the bar could read 100% with
-    // the cardio never done.
-    if (prog.cardio && prog.cardio.min) {
-      quests.push({ key: "cardio", label: "Log today's cardio (" + prog.cardio.min + " min)",
-        done: !!(doc.cardio && doc.cardio.min != null), icon: '<path d="M4 12h4l2-6 4 12 2-6h4"/>' });
-    }
-    if (prog.type !== "cardio") {
-      var totalSets = 0, doneSets = 0;
-      prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (row) { if (row && row.done) doneSets++; }); });
-      quests.push({ key: "workout", label: "Complete the session (" + doneSets + "/" + totalSets + " sets)", done: totalSets > 0 && doneSets >= totalSets, icon: '<path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/>' });
-    }
-    quests.push({ key: "food", label: "Log a meal photo", done: doc._foodLoggedToday === true, icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>' });
-    return quests;
-  }
-  var prevQuestState = {};
   /* ===================== PROGRESSION ===================== */
   /* Everything in here is a loop meant to make opening the app worth doing: a level
      that never resets, a streak multiplier worth protecting, a drop worth collecting,
@@ -3108,38 +3140,6 @@
     return GOOD.given.reduce(function (a, g) { return a + (Number(g.amount) || 0); }, 0);
   }
 
-  function renderLedger(pr) {
-    var card = document.getElementById("goodCard");
-    if (!card || !pr) return;
-    card.hidden = false;
-    var acc = accrued(pr), gave = givenTotal(), out = Math.max(0, acc - gave);
-    var r = GOOD.rates;
-
-    document.getElementById("gdCause").textContent = GOOD.cause;
-    document.getElementById("gdGiven").textContent = money(gave);
-    document.getElementById("gdLines").innerHTML = [
-      { n: pr.stats.sessions,    rate: r.session,    what: "sessions finished" },
-      { n: pr.stats.onPlanDays,  rate: r.onPlan,     what: "days inside the eating window" },
-      { n: pr.stats.streakWeeks, rate: r.streakWeek, what: "weeks the streak survived" }
-    ].filter(function (l) { return l.rate > 0; }).map(function (l) {
-      return '<div class="gd-line"><span class="gd-n">' + l.n + ' × ' + money(l.rate) + '</span>' +
-             '<span class="gd-w">' + l.what + '</span>' +
-             '<span class="gd-a">' + money(l.n * l.rate) + '</span></div>';
-    }).join("");
-
-    document.getElementById("gdOwed").textContent = money(out);
-    document.getElementById("gdOwedNote").textContent = out > 0
-      ? "earned by work already done, and not yet given"
-      : (acc > 0 ? "all settled — keep going" : "nothing earned yet");
-
-    /* today's intention */
-    var key = dateKey(selectedDate);
-    var ded = GOOD.dedications[key] || "";
-    var dedEl = document.getElementById("gdDedication");
-    dedEl.value = ded;
-    document.getElementById("gdDedLabel").textContent = isToday(selectedDate)
-      ? "Who is today for?" : "Who was " + fmtLabel(selectedDate) + " for?";
-  }
 
   function openGiveSheet(pr) {
     var acc = accrued(pr), out = Math.max(0, acc - givenTotal());
@@ -3168,7 +3168,6 @@
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
 
   function wireLedger() {
-    document.getElementById("gdGiveBtn").onclick = function () { openGiveSheet(lastProg || { stats: { sessions: 0, onPlanDays: 0, streakWeeks: 0 } }); };
     document.getElementById("giveCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     document.getElementById("giveSaveBtn").onclick = async function () {
       var amt = Number(document.getElementById("giveAmount").value);
@@ -3183,10 +3182,10 @@
       }
       await saveGood();
       document.getElementById("modalOverlay").classList.remove("open");
-      renderLedger(lastProg);
+      renderTodayCard();
       if (isFinite(amt) && amt > 0) { vibrate([15, 35, 15]); showToast(money(amt) + " recorded to " + GOOD.cause + ". Total given: " + money(givenTotal()) + ".", false); }
     };
-    var ded = document.getElementById("gdDedication");
+    var ded = document.getElementById("giveDedication");
     ded.addEventListener("change", async function () {
       var key = dateKey(selectedDate), v = ded.value.trim();
       if (v) GOOD.dedications[key] = v; else delete GOOD.dedications[key];
@@ -3418,6 +3417,12 @@
           }).join("")
         : '<div class="empty" style="color:rgba(255,255,255,0.45)">Nothing active either way.</div>';
 
+    document.getElementById("charBadges").innerHTML = BADGES.map(function (bd) {
+      var got = bd.test(pr);
+      if (got && !GAME.badges[bd.id]) { GAME.badges[bd.id] = Date.now(); saveGame(); }
+      return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "\u2713 " : "") + bd.name + '</span>';
+    }).join("");
+
     document.getElementById("charFoot").innerHTML =
       "Your streak pays <b>" + pr.mult + "×</b>, and the list above takes it to <b>" + eff + "×</b>. " +
       "Each part is fed by one thing you do, and every number traces back to a row in the log.";
@@ -3488,171 +3493,242 @@
     }, 5200);
   }
 
+
+  /* ---- the nine-by-sixteen shell ----
+     The height is the smaller of what the phone has left under the header and over the
+     tab bar, and what nine by sixteen allows for the width. CSS can express the second
+     and not the first, so it is measured here and handed back as two variables. */
+  function sizeCards() {
+    var panel = document.querySelector("section.panel.active");
+    var tabs = document.querySelector("nav.tabbar");
+    if (!panel || !tabs) return;
+    var pr = panel.getBoundingClientRect(), tr = tabs.getBoundingClientRect();
+    /* Measuring beats arithmetic here: the gap between where the panel starts and
+       where the tab bar begins already has the header, the date row and the safe
+       areas taken out of it. When the app is still hidden those rects are zero, so
+       fall back to the window and let the next call correct it. */
+    var avail = tr.top - pr.top - 8;
+    var maxW = panel.clientWidth;
+    if (!(maxW > 120)) maxW = Math.min(612, (window.innerWidth || 390) - 28);
+    if (!(avail > 200)) avail = (window.innerHeight || 700) - 210;
+    var h = Math.max(380, Math.min(avail, maxW * 16 / 9));
+    var w = Math.min(maxW, Math.round(h * 9 / 16));
+    document.documentElement.style.setProperty("--c9h", Math.round(h) + "px");
+    document.documentElement.style.setProperty("--c9w", w + "px");
+  }
+
+  /* ---- where you are in the session ----
+     A pager with no dots is a pager you do not know you can swipe. Each dot is one
+     page, filled when every set on it is done, and tapping one jumps to it. */
+  function renderPagerDots() {
+    var list = document.getElementById("exerciseList");
+    var dots = document.getElementById("exDots");
+    if (!list || !dots) return;
+    var pages = Array.from(list.children);
+    dots.innerHTML = pages.map(function (pg, i) {
+      return '<span class="pg-dot' + (pg.querySelector(".ex-crest.complete") ? " done" : "") + '" data-i="' + i + '"></span>';
+    }).join("");
+    Array.from(dots.children).forEach(function (d, i) {
+      d.onclick = function () { pages[i].scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" }); };
+    });
+    markPagerDot();
+  }
+  function markPagerDot() {
+    var list = document.getElementById("exerciseList");
+    var dots = document.getElementById("exDots");
+    if (!list || !dots || !list.children.length) return;
+    var i = Math.round(list.scrollLeft / Math.max(1, list.children[0].offsetWidth + 12));
+    Array.from(dots.children).forEach(function (d, j) { d.classList.toggle("on", j === i); });
+  }
+
   /* ---- drawing it ---- */
   var lastProg = null, rankTicker = null;
 
-  async function renderRank() {
-    var card = document.getElementById("rankCard");
-    if (!card) return;
+  /* The whole of today on one screen. It is rebuilt from the log every time anything
+     lands -- a set, a photo, a number on the scale -- so there is never a stale number
+     on it and never a second place to go and look.
+
+     The seven rows are the quests: the badge on the right is what today has put into
+     that part, and a row still showing a dash is a thing left to do. */
+  async function renderTodayCard() {
+    var body = document.getElementById("t9Body");
+    if (!body) return;
     var pr = await progression();
     lastProg = pr;
-    card.hidden = false;
 
-    /* A level that arrives while you are looking at it is worth announcing. */
-    var lvlEl = document.getElementById("rkLevelNum");
-    var hadLevel = Number(lvlEl.dataset.v || 0);
-    if (hadLevel && pr.level > hadLevel) {
+    var key = dateKey(selectedDate);
+    var doc = await getDayDoc(key);
+    var prog = PROGRAM[selectedDate.getDay()];
+    var dayRows = foodCache.filter(function (f) { return f.date === key; });
+    var bl = dayBlows(prog, doc, dayRows);
+    var near = !bl.won && bl.score >= WIN_AT - 20;
+
+    /* three things worth a noise, and only when they happen while you are watching */
+    if (renderTodayCard._lvl && pr.level > renderTodayCard._lvl) {
       sfx("levelUp");
-      burstFrom(document.querySelector(".rk-lvl"), ["#FFD166", "#E0417C", "#6FD0FF", "#FFFFFF"], 48);
-      showToast("Level " + pr.level + " \u2014 " + pr.title + ".", false);
+      burstFrom(document.querySelector(".t9-record"), ["#FFD166", "#E0417C", "#6FD0FF", "#FFFFFF"], 48);
+      showToast("Level " + pr.level + " — " + pr.title + ".", false);
     }
-    lvlEl.dataset.v = pr.level;
-    lvlEl.textContent = pr.level;
-    document.getElementById("rkTitle").textContent = pr.title;
-    var span = Math.max(1, pr.nextXP - pr.floorXP);
-    var into = Math.max(0, pr.total - pr.floorXP);
-    document.getElementById("rkXpFill").style.width = Math.min(100, into / span * 100) + "%";
-    countTo(document.getElementById("rkXpNum"), pr.total);
-    document.getElementById("rkXpRest").textContent =
-      " points  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
-      (pr.todayXP ? "  ·  +" + fmtInt(pr.todayXP) + " today" : "");
-
-    /* the record that outlives the day: how many you have won */
-    var wonEl = document.getElementById("rkWon");
-    if (pr.daysWon > 0) {
-      wonEl.hidden = false;
-      wonEl.innerHTML = '<b>' + fmtInt(pr.daysWon) + '</b> day' + (pr.daysWon === 1 ? "" : "s") + ' won' +
-        (pr.winRun > 1 ? '<span class="rkw-hot">' + pr.winRun + ' IN A ROW</span>' : "") +
-        (pr.bestWinRun > 1 ? '<span>best run ' + pr.bestWinRun + '</span>' : "") +
-        '<span>' + (pr.todayWon ? "today is won" : "today needs 80 of 100") + '</span>';
-    } else { wonEl.hidden = false; wonEl.innerHTML = '<span>Score 80 of 100 today and it goes on the record as a day won.</span>'; }
-
-    /* the streak line, and what the next tier is worth */
-    var st = document.getElementById("rkStreak");
-    var eff = effectiveMult(pr);
-    var hadMult = Number(st.dataset.m || 0);
-    if (hadMult && pr.mult > hadMult) {
+    if (renderTodayCard._mult && pr.mult > renderTodayCard._mult) {
       sfx("streak");
-      burstFrom(st, ["#FFD166", "#FFFFFF"], 30);
-      showToast("Everything counts " + pr.mult + "\u00d7 now \u2014 " + pr.run + " days running.", false);
+      showToast("Everything counts " + pr.mult + "× now — " + pr.run + " days running.", false);
     }
-    st.dataset.m = pr.mult;
-    var nx = pr.next;
-    st.innerHTML = '<span class="rk-flame">▲ ' + pr.run + ' day' + (pr.run === 1 ? "" : "s") + '</span>' +
-      '<span class="rk-mult' + (eff < pr.mult ? " hit" : "") + '">' +
-        /* striking out a 1x says nothing; only show what was actually lost */
-        (eff < pr.mult && pr.mult > 1 ? '<s>' + pr.mult.toFixed(2).replace(/\.?0+$/, "") + '×</s>' : "") +
-        eff.toFixed(2).replace(/\.?0+$/, "") + '× points</span>' +
-      (nx ? '<span style="color:rgba(255,255,255,0.6)">' + (nx.at - pr.run) + ' more day' +
-            ((nx.at - pr.run) === 1 ? "" : "s") + ' for ' + nx.m + '×</span>' : "") +
-      (GAME.shields ? '<span class="rk-mult" style="background:rgba(125,240,184,0.18);color:#7DF0B8;box-shadow:inset 0 0 0 1px rgba(125,240,184,0.4)">⛨ ' + GAME.shields + ' spare day' + (GAME.shields === 1 ? "" : "s") + '</span>' : "");
+    if (renderTodayCard._won === false && bl.won) {
+      sfx("levelUp"); vibrate([20, 50, 20, 50, 60]);
+      burstFrom(document.querySelector(".t9-verdict"), ["#7DF0B8", "#FFFFFF", "#FFD166"], 56);
+      showToast("Day won — " + bl.score + " of 100. That is " + fmtInt(pr.daysWon) + " now.", false);
+    }
+    renderTodayCard._lvl = pr.level;
+    renderTodayCard._mult = pr.mult;
+    renderTodayCard._won = bl.won;
 
-    /* the drop */
-    var btn = document.getElementById("rkDropBtn");
-    var tKey = dateKey(new Date());
-    var viewingToday = dateKey(selectedDate) === tKey;
-    if (!viewingToday) { btn.hidden = true; }
-    else {
-      btn.hidden = false;
-      if (GAME.opened[tKey]) {
-        var got = GAME.opened[tKey];
-        btn.disabled = true; btn.className = "rk-drop";
-        btn.textContent = "Today's reward: " + got.rarity + " · " + got.what;
-      } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
-        btn.disabled = false; btn.className = "rk-drop ready";
-        btn.textContent = "✦  Open today's reward";
+    var v = document.getElementById("t9Verdict");
+    v.textContent = bl.won ? "DAY WON" : near ? "ALMOST" : "NOT YET";
+    v.className = "t9-verdict " + (bl.won ? "win" : near ? "near" : "lose");
+    document.getElementById("t9Score").textContent =
+      (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " · ") +
+      bl.score + " of 100  ·  " + WIN_AT + " wins the day";
+    var fill = document.getElementById("t9Fill");
+    fill.style.width = Math.min(100, bl.score) + "%";
+    fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : "#FF8F6B";
+    document.getElementById("t9Mark").style.left = WIN_AT + "%";
+    document.getElementById("t9Record").innerHTML =
+      "<b>" + fmtInt(pr.daysWon) + "</b> days won" +
+      (pr.winRun > 1 ? "  ·  " + pr.winRun + " in a row" : "") +
+      "  ·  level " + pr.level + "  ·  " + fmtInt(pr.total) + " points";
+
+    /* the body: one row per part, each carrying what today put into it */
+    var DMG = {}; bl.blows.forEach(function (b) { DMG[b.k] = b; });
+    var FEED = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in" };
+    var lo = await loadout(pr);
+    lastLoadout = lo;
+    var gr = GOOD.rates || {};
+    var earnedToday = ((DMG.Training && DMG.Training.v >= DMG.Training.max) ? (gr.session || 0) : 0) +
+                      (bl.onPlan ? (gr.onPlan || 0) : 0);
+
+    body.innerHTML = lo.rows.map(function (r) {
+      var b = DMG[FEED[r.key]], add = "—", cls = "";
+      if (r.key === "helmet") {
+        if (earnedToday > 0) { add = "+" + money(earnedToday); cls = " full"; }
+      } else if (b) {
+        add = "+" + b.v; cls = b.v >= b.max ? " full" : b.v > 0 ? " part" : "";
       } else {
-        btn.disabled = true; btn.className = "rk-drop";
-        btn.textContent = "\u25CC  Today's reward opens at " + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " more points";
+        add = r.rarity.name.toLowerCase();
       }
-    }
+      return '<button class="t9-row" type="button" data-slot="' + r.key + '">' +
+        '<span class="t9-ico" style="color:' + (r.built ? r.rarity.color : "rgba(255,255,255,0.28)") + '">' +
+          '<svg viewBox="0 0 24 24">' + SLOT_ART[r.icon] + '</svg><em>' + r.part.toUpperCase() + '</em></span>' +
+        '<span class="t9-txt"><span class="t9-n">' + r.name + '</span>' +
+          '<span class="t9-d">' + r.detail + '</span></span>' +
+        '<span class="t9-add' + cls + '">' + add + '</span></button>';
+    }).join("");
+    Array.from(body.querySelectorAll(".t9-row")).forEach(function (el) {
+      el.onclick = function () {
+        if (el.getAttribute("data-slot") === "helmet") {
+          openGiveSheet(lastProg || { stats: { sessions: 0, onPlanDays: 0, streakWeeks: 0 } });
+        } else { openCharacter(); }
+      };
+    });
 
-    /* badges */
-    document.getElementById("rkBadges").innerHTML = BADGES.map(function (b) {
-      var got = b.test(pr);
-      if (got && !GAME.badges[b.id]) { GAME.badges[b.id] = Date.now(); saveGame(); }
-      return '<span class="rk-badge' + (got ? " got" : "") + '">' + (got ? "✓ " : "") + b.name + '</span>';
+    /* the week, as the one question it actually asks */
+    var wk = [];
+    for (var i = 6; i >= 0; i--) {
+      var d2 = new Date(selectedDate); d2.setDate(d2.getDate() - i);
+      var k2 = dateKey(d2), doc2 = await getDayDoc(k2);
+      var r2 = foodCache.filter(function (f) { return f.date === k2; });
+      var x = dayXP(k2, doc2, PROGRAM[d2.getDay()], r2);
+      wk.push({ d: d2, score: x.score || 0, won: !!x.won });
+    }
+    document.getElementById("t9Week").innerHTML = wk.map(function (w) {
+      var nr = !w.won && w.score >= WIN_AT - 20;
+      return '<div class="t9-wd' + (w.won ? " won" : nr ? " near" : "") + '">' +
+        '<b>' + (w.won ? "✓" : (w.score || "—")) + '</b>' +
+        '<span>' + ["S", "M", "T", "W", "T", "F", "S"][w.d.getDay()] + '</span></div>';
     }).join("");
 
-    /* what is currently costing you, and the one thing that clears each */
-    var dbWrap = document.getElementById("rkDebuffs");
-    var goodOnes = activeBuffs(pr), badOnes = activeDebuffs(pr);
-    if (!goodOnes.length && !badOnes.length) { dbWrap.hidden = true; dbWrap.innerHTML = ""; }
-    else {
-      dbWrap.hidden = false;
-      dbWrap.innerHTML =
-        '<div class="rk-debuffs-note">Facts about your last few days. Together they change what today\'s points are worth.</div>' +
-        goodOnes.map(function (b) {
-          return '<div class="db-row good"><span class="db-name">' + b.name + '</span>' +
-            '<span class="db-why">' + b.why(pr.gaps, pr) + '</span>' +
-            '<span class="db-cost">+' + Math.round(b.gain * 100) + '%</span></div>';
-        }).join("") +
-        badOnes.map(function (d) {
-          return '<div class="db-row"><span class="db-name">' + d.name + '</span>' +
-            '<span class="db-why">' + d.why(pr.gaps) + '<span class="db-fix">' + d.fix + '</span></span>' +
-            '<span class="db-cost">\u2212' + Math.round(d.cost * 100) + '%</span></div>';
-        }).join("");
-    }
-
-    renderLedger(pr);
-
-    /* the headline numbers for the character sheet, so the way in shows its worth */
-    loadout(pr).then(function (lo) {
-      lastLoadout = lo;
-      countTo(document.getElementById("rkBuilt"), lo.equipped);
+    /* what is helping and what is costing, in one line of chips */
+    var eff = effectiveMult(pr);
+    var chips = ['<span class="t9-chip mult">everything counts ' + eff + '×</span>'];
+    activeDebuffs(pr).forEach(function (d) {
+      chips.push('<span class="t9-chip down">' + d.name + " −" + Math.round(d.cost * 100) + '%</span>');
     });
+    activeBuffs(pr).forEach(function (b) {
+      chips.push('<span class="t9-chip up">' + b.name + " +" + Math.round(b.gain * 100) + '%</span>');
+    });
+    document.getElementById("t9Chips").innerHTML = chips.join("");
+
+    /* the reward */
+    var btn = document.getElementById("rkDropBtn");
+    var tKey = dateKey(new Date());
+    if (dateKey(selectedDate) !== tKey) { btn.hidden = true; }
+    else {
+      btn.hidden = false;
+      btn.className = "t9-btn drop";
+      if (GAME.opened[tKey]) {
+        btn.disabled = true;
+        btn.textContent = "Reward: " + GAME.opened[tKey].rarity;
+      } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
+        btn.disabled = false;
+        btn.textContent = "✦ Open today's reward";
+      } else {
+        btn.disabled = true;
+        btn.textContent = fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " more points to a reward";
+      }
+    }
 
     tickRank();
     clearInterval(rankTicker);
     rankTicker = setInterval(tickRank, 1000);
   }
+  /* every call site still says renderRank; there is only one card to draw now */
+  function renderRank() { return renderTodayCard(); }
+
 
   /* The countdowns are the reason to open this twice in a day rather than once. */
+  /* The countdowns are the reason to open this twice in a day rather than once. One
+     line, and the thing that costs something wins the slot. */
   function tickRank() {
-    var pr = lastProg; if (!pr) return;
+    var note = document.getElementById("t9Note");
+    if (!note) return;
+    var pr = lastProg;
+    if (!pr || dateKey(selectedDate) !== dateKey(new Date())) { note.hidden = true; return; }
     var now = new Date();
-    var win = document.getElementById("rkWindow");
-    var risk = document.getElementById("rkRisk");
-    var viewingToday = dateKey(selectedDate) === dateKey(now);
-    if (!viewingToday) { win.hidden = true; risk.hidden = true; return; }
-
-    var w = activeWindow(now);
-    if (w) {
-      win.hidden = false;
-      win.innerHTML = "<b>" + w.label + "</b> · " + w.what + " — closes in <b>" + hms(msUntilHour(now, w.to)) + "</b>";
-    } else {
-      var n = nextWindow(now);
-      win.hidden = false;
-      win.innerHTML = "<b>" + n.label + "</b> opens in <b>" + hms(msUntilHour(now, n.from)) + "</b>";
-    }
 
     /* A run that broke yesterday and could still be bought back. Spending is a choice
        the player makes, not something that happens quietly on their behalf. */
     if (!pr.run && pr.brokenRun >= 3 && pr.missedYesterday && GAME.shields > 0) {
-      risk.hidden = false;
-      risk.innerHTML = "Your <b>" + pr.brokenRun + "-day streak</b> broke on " +
+      note.hidden = false;
+      note.innerHTML = "Your <b>" + pr.brokenRun + "-day streak</b> broke on " +
         fmtLabel(new Date(pr.missedYesterday + "T12:00:00")) +
         '. <button type="button" id="rkRestore" style="margin-left:6px;border:none;border-radius:8px;' +
-        'padding:6px 11px;font-family:var(--font-head);font-size:12px;letter-spacing:.05em;' +
-        'background:#7DF0B8;color:#07301F;cursor:pointer">\u26E8 Use a spare day</button>';
+        'padding:5px 10px;font-family:var(--font-head);font-size:11px;letter-spacing:.05em;' +
+        'background:#7DF0B8;color:#07301F;cursor:pointer">⛨ Use a spare day</button>';
       var rb = document.getElementById("rkRestore");
       if (rb) rb.onclick = async function () {
         GAME.shields--; GAME.spent[pr.missedYesterday] = true;
         await saveGame(); vibrate([15, 30, 15]);
         showToast("Streak restored — " + pr.brokenRun + " days intact.", false);
-        renderRank();
+        renderTodayCard();
       };
       return;
     }
 
     /* loss aversion, shown only once the day is genuinely at risk */
     if (pr.run > 0 && !pr.loggedToday && now.getHours() >= 16) {
-      risk.hidden = false;
-      risk.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× points</b> end in <b>" +
+      note.hidden = false;
+      note.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× points</b> end in <b>" +
         hms(msUntilHour(now, 24)) + "</b>" +
         (GAME.shields ? " — a spare day will cover it if you miss." : " — log anything to keep them.");
-    } else { risk.hidden = true; }
+      return;
+    }
+
+    var w = activeWindow(now);
+    note.hidden = false;
+    note.innerHTML = w
+      ? "<b>" + w.label + "</b> · " + w.what + " — closes in <b>" + hms(msUntilHour(now, w.to)) + "</b>"
+      : (function () { var n = nextWindow(now); return "<b>" + n.label + "</b> opens in <b>" + hms(msUntilHour(now, n.from)) + "</b>"; })();
   }
+
 
   function wireDrop() {
     document.getElementById("rkDropBtn").onclick = async function () {
@@ -3692,37 +3768,14 @@
     document.getElementById("modalOverlay").classList.add("open");
   }
 
+  /* The quest list was a fifth telling of the same day. The seven rows on the today
+     card carry it now -- a row with a dash is a thing left to do -- so all this has to
+     do is keep the "did a meal land" flag fresh and redraw. */
   async function renderQuests() {
-    var key = dateKey(selectedDate); var dow = selectedDate.getDay(); var prog = PROGRAM[dow];
+    var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
     doc._foodLoggedToday = foodCache.some(function (f) { return f.date === key; });
-    var quests = questsForDay(prog, doc);
-    var list = document.getElementById("questList"); list.innerHTML = "";
-    var doneCount = 0;
-    quests.forEach(function (q) {
-      if (q.done) doneCount++;
-      var row = document.createElement("div");
-      row.className = "quest-row" + (q.done ? " done" : "");
-      if (prevQuestState[q.key] === false && q.done === true) row.classList.add("pop");
-      row.innerHTML = '<div class="quest-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + q.icon + '</svg></div><div class="quest-label">' + q.label + '</div>';
-      list.appendChild(row); prevQuestState[q.key] = q.done;
-    });
-    var pct = quests.length ? Math.round((doneCount / quests.length) * 100) : 0;
-    var fill = document.getElementById("powerFill"); fill.style.width = pct + "%"; fill.classList.toggle("full", pct === 100);
-    renderStreakPills();
-  }
-  /* The four runs the programme actually cares about, drawn small enough to sit in the
-     card header. They are computed in parallel because each one walks its own way back
-     through the day cache. */
-  async function renderStreakPills() {
-    var row = document.getElementById("streakRow");
-    if (!row) return;
-    var kinds = [["weight", "Weigh"], ["cardio", "Cardio"], ["lifting", "Lift"], ["calories", "Food"]];
-    var vals = await Promise.all(kinds.map(function (k) { return streakOf(k[0]); }));
-    row.innerHTML = kinds.map(function (k, i) {
-      return '<span class="sr-pill' + (vals[i] > 0 ? " on" : "") + '" title="' +
-        k[0] + ' streak">' + k[1] + ' <b>' + vals[i] + '</b></span>';
-    }).join("");
+    return renderTodayCard();
   }
 
   async function computeStreak() {
@@ -3811,72 +3864,6 @@
       labs += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(H-4)+'" fill="#9599AC" font-size="10" text-anchor="middle" font-family="Inter">'+labels[i]+'</text>';
     });
     svg.innerHTML = bars + labs;
-  }
-  async function renderWeekly() {
-    var days = []; var base = new Date();
-    for (var i = 6; i >= 0; i--) { var d = new Date(base); d.setDate(base.getDate() - i); days.push(d); }
-    var setsVals = [], cardioVals = [], volVals = [], labels = []; var totalCardio = 0, totalSets = 0;
-    for (var j = 0; j < days.length; j++) {
-      var k = dateKey(days[j]); var doc = await getDayDoc(k); var prog = PROGRAM[days[j].getDay()];
-      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
-      var cMin = (doc.cardio && doc.cardio.min) || 0;
-      var vol = computeSessionVolume(doc, prog);
-      setsVals.push(setCount); cardioVals.push(cMin); volVals.push(vol); labels.push(DAY_ABBR[days[j].getDay()]);
-      totalCardio += cMin; totalSets += setCount;
-    }
-    drawBarChart(document.getElementById("weeklyVolumeChart"), volVals, labels, "#2E6BFF");
-    drawBarChart(document.getElementById("weeklySetsChart"), setsVals, labels, "#FF6B4A");
-    drawBarChart(document.getElementById("weeklyCardioChart"), cardioVals, labels, "#12B886");
-    document.getElementById("weekCardioTotal").textContent = totalCardio;
-    document.getElementById("weekSetsTotal").textContent = totalSets;
-  }
-  async function renderMonthly() {
-    var now = new Date();
-    document.getElementById("monthLabel").textContent = now.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-    var year = now.getFullYear(), month = now.getMonth();
-    var daysInMonth = new Date(year, month + 1, 0).getDate();
-    var grid = document.getElementById("monthHeatmap"); grid.innerHTML = "";
-    var weightSum = 0, weightCount = 0, daysLogged = 0, monthVol = 0, monthCardio = 0;
-    for (var day = 1; day <= daysInMonth; day++) {
-      var d = new Date(year, month, day); var k = dateKey(d);
-      var doc = (d <= now) ? await getDayDoc(k) : { weight: null, cardio: null, sets: {} };
-      var prog = PROGRAM[d.getDay()];
-      var hasWeight = doc.weight != null;
-      var cMin = (doc.cardio && doc.cardio.min) || 0;
-      var setCount = 0; if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
-      var hasFood = foodCache.some(function(f){ return f.date === k; });
-      var score = (hasWeight?1:0) + (cMin>0?1:0) + (setCount>0?1:0) + (hasFood?1:0);
-      if (hasWeight) { weightSum += doc.weight; weightCount++; }
-      if (score > 0) daysLogged++;
-      if (d <= now) { monthVol += computeSessionVolume(doc, prog); monthCardio += cMin; }
-      var bg = "#F0F1FA";
-      if (score === 1) bg = "#C9DBFF"; else if (score === 2) bg = "#7FA6FF"; else if (score >= 3) bg = "#2E6BFF";
-      if (d > now) bg = "#F7F8FC";
-      var cell = document.createElement("div"); cell.className = "heat-cell"; cell.style.background = bg;
-      cell.innerHTML = '<span class="dnum">' + day + '</span>'; grid.appendChild(cell);
-    }
-    document.getElementById("monthAvgWeight").textContent = weightCount ? (weightSum / weightCount).toFixed(1) + " lb" : "—";
-    document.getElementById("monthDaysLogged").textContent = daysLogged;
-    document.getElementById("monthVolume").textContent = monthVol.toLocaleString();
-    document.getElementById("monthCardio").textContent = monthCardio;
-    var labsList = document.getElementById("labsList"); labsList.innerHTML = "";
-    if (currentProfileName && currentProfileName.trim().toLowerCase() === DEFAULT_PROFILE_NAME.toLowerCase()) {
-      LABS.forEach(function (l) { var row = document.createElement("div"); row.className = "labs-row"; row.innerHTML = '<span class="lk">' + l.date + '</span><span class="lv">A1c ' + l.a1c + '% · LDL ' + l.ldl + ' · HDL ' + l.hdl + ' · Trig ' + l.trig + '</span>'; labsList.appendChild(row); });
-    } else {
-      labsList.innerHTML = '<div class="empty">No lab data on file for this profile yet.</div>';
-    }
-  }
-  function wireTrendTabs() {
-    Array.from(document.querySelectorAll(".trend-tab-btn")).forEach(function (btn) {
-      btn.onclick = function () {
-        Array.from(document.querySelectorAll(".trend-tab-btn")).forEach(function(b){ b.classList.remove("active"); });
-        btn.classList.add("active");
-        Array.from(document.querySelectorAll(".trend-pane")).forEach(function(p){ p.classList.remove("active"); });
-        document.getElementById("pane-" + btn.getAttribute("data-pane")).classList.add("active");
-        if (btn.getAttribute("data-pane") === "weekly") renderWeekly();
-        if (btn.getAttribute("data-pane") === "monthly") renderMonthly();
-      };
-    });
   }
 
   // Nothing static left to wire; the chips carry their own state. Draw one row up
@@ -3975,9 +3962,9 @@
     var totalsEl = document.getElementById("todayEstTotals");
     // Shown as a range: the estimates read a photo, so the top of the range carries
     // the same +150 margin the summary card uses rather than implying false precision.
-    if (totalsEl) totalsEl.textContent = any
-      ? (cal.toLocaleString() + "\u2013" + (cal + 150).toLocaleString() + " kcal \u00b7 " + prot + "g protein")
-      : "\u2014";
+    if (totalsEl) totalsEl.textContent = any ? cal.toLocaleString() : "\u2014";
+    var protEl = document.getElementById("todayProtein");
+    if (protEl) protEl.textContent = any ? prot + " / " + PLAN.protein : "\u2014";
     renderMealPicker(todayItems);
   }
   function wireFoodUpload() {
@@ -4623,7 +4610,6 @@
       } catch (e) { alert("Couldn't build the card — try again once some data is saved."); }
       btn.innerHTML = origHtml; btn.disabled = false;
     }
-    document.getElementById("scoreDayBtn").onclick = function () { openScoreCard(this); };
     document.getElementById("scOpenBtn").onclick = function () { openScoreCard(this); };
     document.getElementById("closeShareBtn").onclick = function () { document.getElementById("shareModal").classList.remove("open"); };
     document.getElementById("saveImgBtn").onclick = async function () {
@@ -4755,45 +4741,11 @@
     if (token !== inlineScoreToken) return;      // the date moved on while we were working
     lastScoreData = sd;
 
-    var rank = rankFor(sd.overall);
-    var rankEl = document.getElementById("scRank");
-    rankEl.textContent = rank.letter;
-    rankEl.style.background = rank.color;
-    rankEl.style.boxShadow = "0 0 0 1.5px rgba(255,255,255,0.3), 0 0 18px " + rank.glow;
-    document.getElementById("scNum").textContent = sd.overall;
-    document.getElementById("scTitle").textContent = isToday(selectedDate) ? "Today's score" : fmtLabel(selectedDate) + " score";
-    document.getElementById("scSub").textContent = rank.word + " · " +
-      (sd.dayType === "lift" ? sd.weights.detail : "rest from lifting") + " · " + sd.cardio.detail;
-
-    /* the same numbers, shaped as a fight you can win */
-    try {
-      var fprog = PROGRAM[selectedDate.getDay()];
-      var fdoc = await getDayDoc(key);
-      var ffood = foodCache.filter(function (f) { return f.date === key; });
-      var bt = battle(fprog, fdoc, ffood);
-      var fr = document.getElementById("fightRow");
-      fr.hidden = false;
-      document.getElementById("ftFoe").textContent = bt.name + (bt.target ? " \u00b7 " + bt.target : "");
-      var vd = document.getElementById("ftVerdict");
-      vd.textContent = bt.won ? "Day won" : (bt.damage >= WIN_AT - 20 ? "Nearly" : "Not yet");
-      vd.className = "ft-verdict " + (bt.won ? "win" : bt.damage >= WIN_AT - 20 ? "hold" : "lose");
-      var ff = document.getElementById("ftFill");
-      ff.style.width = (bt.pct * 100) + "%";
-      ff.style.background = bt.won ? "#12B886" : rank.color;
-      document.getElementById("ftDmg").textContent = bt.damage + " of 100  \u00b7  " + bt.need + " wins the day";
-      document.getElementById("ftBlows").innerHTML = bt.blows.map(function (bl) {
-        var p2 = Math.round((bl.v / bl.max) * 100);
-        return '<div class="ft-blow"><div class="ft-bar"><i style="width:' + p2 + '%;background:' +
-          (bl.v >= bl.max ? "#12B886" : bl.v > 0 ? rank.color : "transparent") + '"></i></div>' +
-          '<div class="ft-k"><span>' + bl.k + '</span><b>+' + bl.v + '</b></div></div>';
-      }).join("");
-    } catch (e) { var fr2 = document.getElementById("fightRow"); if (fr2) fr2.hidden = true; }
-
-    /* The three bars that used to sit here said exactly what the blow meters above
-       now say, in more words. One telling of the day is enough. */
-    var bars = document.getElementById("scBars"); bars.innerHTML = "";
-
+    /* The score, the fight and the three bars all said the same thing in three
+       shapes, on three cards. The today card says it once; what is left here is the
+       one line nothing else says -- somebody reading the day back to you. */
     var coachEl = document.getElementById("scCoach");
+    if (!coachEl) return;
     var cached = readCoach(key);
     if (cached) { coachEl.textContent = cached.text; coachEl.hidden = false; }
     else { coachEl.hidden = true; coachEl.textContent = ""; }
@@ -4801,8 +4753,7 @@
     /* Fetch the coach line for a day worth talking about, once, after the date has
        settled -- flicking through the week should not fire a request per chip. */
     clearTimeout(inlineCoachTimer);
-    var worthAsking = !cached && (sd.overall > 0);
-    if (worthAsking) {
+    if (!cached && sd.overall > 0) {
       inlineCoachTimer = setTimeout(async function () {
         if (token !== inlineScoreToken) return;
         var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
@@ -4861,6 +4812,7 @@
         btn.classList.add("active");
         Array.from(document.querySelectorAll(".panel")).forEach(function(p){ p.classList.remove("active"); });
         document.getElementById("panel-" + btn.getAttribute("data-panel")).classList.add("active");
+        sizeCards();
         var which = btn.getAttribute("data-panel");
         if (which === "weight") renderHistory();
         if (which === "food") renderFood();
@@ -4871,13 +4823,19 @@
   }
 
   async function boot() {
-    wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireTrendTabs(); wireShare();
+    wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
+    sizeCards();
+    window.addEventListener("resize", sizeCards);
+    window.addEventListener("orientationchange", function () { setTimeout(sizeCards, 120); });
+    var pager = document.getElementById("exerciseList");
+    if (pager) pager.addEventListener("scroll", function () {
+      clearTimeout(pager._t); pager._t = setTimeout(markPagerDot, 80);
+    });
     wireLedger();
-    document.getElementById("rkCharBtn").onclick = openCharacter;
     document.getElementById("charCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
 
     // Resume an existing session if the browser already has one (Supabase persists this in localStorage).
@@ -4889,7 +4847,11 @@
         await selectProfile(uid, dispName);
         return;
       }
-    } catch (e) {}
+    } catch (e) {
+      /* A thrown render used to drop you back on the sign-in screen with no sign that
+         anything had gone wrong, which looked exactly like a failed password. */
+      console.error("Could not restore the session:", e);
+    }
     document.getElementById("authScreen").style.display = "flex";
   }
 
