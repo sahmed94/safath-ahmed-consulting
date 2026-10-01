@@ -402,6 +402,11 @@
   .rk-flame { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: #FFD166; }
   .rk-mult { font-family: var(--font-head); font-size: 12px; letter-spacing: .05em; padding: 3px 9px; border-radius: 20px;
     background: rgba(255,209,102,0.2); color: #FFD166; box-shadow: inset 0 0 0 1px rgba(255,209,102,0.45); }
+  .rk-won { margin-top: 10px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+    font-size: 12.5px; color: rgba(255,255,255,0.6); position: relative; z-index: 1; }
+  .rk-won b { font-family: var(--font-head); font-size: 20px; color: #7DF0B8; }
+  .rk-won .rkw-hot { color: #FFD166; font-family: var(--font-head); font-size: 12.5px; letter-spacing: .04em; }
+  .rk-debuffs-note { font-size: 11px; line-height: 1.45; color: rgba(255,255,255,0.4); margin-top: 9px; }
   .rk-debuffs { margin-top: 11px; display: flex; flex-direction: column; gap: 6px; position: relative; z-index: 1; }
   .db-row { display: flex; align-items: center; gap: 9px; border-radius: 10px; padding: 8px 11px;
     background: rgba(255,107,74,0.15); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.4); }
@@ -472,9 +477,6 @@
   .gear-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .gear-body b { font-size: 13.5px; }
   .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
-  .gear-row.rusted .gear-level { position: relative; }
-  .gear-row.rusted .gear-level i { position: absolute; right: -5px; top: -7px; font-style: normal; font-size: 9.5px;
-    color: rgba(255,255,255,0.45); text-decoration: line-through; }
   .state-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; margin-bottom: 6px; }
   .state-row.good { background: rgba(125,240,184,0.14); box-shadow: inset 0 0 0 1px rgba(125,240,184,0.34); }
   .state-row.bad { background: rgba(255,107,74,0.14); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.38); }
@@ -484,9 +486,7 @@
   .st-fix { display: block; font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 2px; }
   .st-c { font-family: var(--font-head); font-size: 13px; flex: 0 0 auto; }
   .state-row.good .st-c { color: #7DF0B8; } .state-row.bad .st-c { color: #FF8F6B; }
-  .rust-tag { font-family: var(--font-head); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
-    color: #FF8F6B; background: rgba(255,107,74,0.18); padding: 2px 6px; border-radius: 20px; margin-left: 5px;
-    vertical-align: middle; }
+  .char-note { font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.45); margin: -4px 0 9px; }
   .char-foot { margin-top: 14px; background: rgba(255,255,255,0.08); border-radius: 11px; padding: 11px 12px;
     font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.72); }
 
@@ -625,6 +625,7 @@
         </div>
       </div>
       <div class="rk-streak" id="rkStreak"></div>
+      <div class="rk-won" id="rkWon" hidden></div>
       <div class="rk-debuffs" id="rkDebuffs" hidden></div>
       <div class="rk-window" id="rkWindow" hidden></div>
       <div class="rk-risk" id="rkRisk" hidden></div>
@@ -935,7 +936,9 @@
     </div>
     <div class="char-section">Your seven parts</div>
     <div id="charSlots"></div>
-    <div class="char-section">Blessings &amp; curses</div>
+    <div class="char-section">What is helping, what is costing</div>
+    <div class="char-note">Each one is a fact about the last few days. Added together they
+      change how much today's points are worth — nothing else.</div>
     <div id="charStates"></div>
     <div class="char-foot" id="charFoot"></div>
     <div class="modal-actions"><button class="primary-btn" id="charCloseBtn" style="width:100%;">Close</button></div>
@@ -2212,16 +2215,22 @@
 
     var hist = await getExerciseHistory(exName, 12);
     if (hist.length === 0) { listEl.innerHTML = '<div class="empty">No completed sets logged yet for this exercise.</div>'; return; }
-    var maxWeight = 0;
-    hist.forEach(function (h) { h.sets.forEach(function (s) { if (s.weight != null && s.weight > maxWeight) maxWeight = s.weight; }); });
+    /* Sets and reps, not pounds. What this list is for is seeing whether the work is
+       going up, and the work is the sets you finished and the reps inside them --
+       which also compares honestly across a machine, a dumbbell and a cable. */
+    var done = hist.map(function (h) {
+      var sets = 0, reps = 0;
+      h.sets.forEach(function (s) { sets++; reps += Number(s.reps) || 0; });
+      return { date: h.date, sets: sets, reps: reps };
+    });
+    var bestReps = done.reduce(function (a, d) { return Math.max(a, d.reps); }, 0);
     listEl.innerHTML = "";
-    hist.forEach(function (h) {
-      var best = h.sets.reduce(function (a, s) { return (s.weight != null && s.weight > (a ? a.weight : -1)) ? s : a; }, null);
-      var isPR = best && best.weight === maxWeight && maxWeight > 0;
+    done.forEach(function (d) {
+      var isPR = d.reps > 0 && d.reps === bestReps;
       var row = document.createElement("div");
       row.className = "exh-row" + (isPR ? " pr" : "");
-      var setsStr = h.sets.map(function (s) { return (s.reps != null ? s.reps : "?") + (s.weight != null ? "×" + s.weight : ""); }).join(", ");
-      row.innerHTML = '<span>' + h.date + '</span><span>' + setsStr + (isPR ? '<span class="exh-pr-badge">PR</span>' : '') + '</span>';
+      row.innerHTML = '<span>' + d.date + '</span><span>' + d.sets + " set" + (d.sets === 1 ? "" : "s") +
+        "  \u00b7  " + d.reps + " reps" + (isPR ? '<span class="exh-pr-badge">BEST</span>' : '') + '</span>';
       listEl.appendChild(row);
     });
   }
@@ -2508,9 +2517,54 @@
     } catch (e) {}
   }
 
+  /* ---- the day out of a hundred ---- */
+  /* Four readings, and they add to exactly a hundred whether or not the day has
+     lifting in it. That is the point: "won" has to mean the same thing on a Tuesday
+     as on a rest day, or a record of won days is worth nothing.
+
+     Eighty wins the day. Not a hundred -- a bar you only clear when everything is
+     perfect is a bar you stop aiming at, and the whole problem this is here to solve
+     is wanting to stop. */
+  var WIN_AT = 80;
+  function dayBlows(prog, doc, foodRows) {
+    var isLift = !!(prog && prog.type !== "cardio");
+    var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0,
+        mealW   = isLift ? 25 : 35, weighW = isLift ? 15 : 20;
+
+    var totalSets = 0, doneSets = 0, doneReps = 0;
+    if (isLift) prog.ex.forEach(function (exx) {
+      totalSets += exx.sets;
+      var rows = (doc.sets && Array.isArray(doc.sets[exx.name])) ? doc.sets[exx.name] : [];
+      rows.forEach(function (r) { if (r && r.done) { doneSets++; doneReps += Number(r.reps) || 0; } });
+    });
+
+    var wantMin = (prog && prog.cardio && prog.cardio.min) || 0;
+    var actualMin = (doc.cardio && doc.cardio.min) || 0;
+    var cardioHit = Math.round(Math.min(1, wantMin ? actualMin / wantMin : 0) * cardioW);
+    var liftHit = isLift ? Math.round((totalSets ? doneSets / totalSets : 0) * liftW) : 0;
+
+    var cal = 0, anyEst = false;
+    foodRows.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
+    var onPlan = anyEst && cal >= PLAN.floor && cal <= planIntake();
+    var mealHit = onPlan ? mealW : (foodRows.length ? Math.round(mealW * 0.45) : 0);
+    var weighHit = doc.weight != null ? weighW : 0;
+
+    var blows = [
+      { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + wantMin + " min" },
+      { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
+      { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (foodRows.length ? foodRows.length + " logged" : "none logged") },
+      { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" }
+    ].filter(function (b) { return b.max > 0; });
+
+    var score = blows.reduce(function (a, b) { return a + b.v; }, 0);
+    return { blows: blows, score: score, won: score >= WIN_AT, isLift: isLift,
+             totalSets: totalSets, doneSets: doneSets, doneReps: doneReps,
+             cal: cal, anyEst: anyEst, onPlan: onPlan };
+  }
+
   /* ---- what a day is worth ---- */
   var XP = { weigh: 20, meal: 15, mealCap: 4, onPlan: 40, cardio: 25, cardioPerMin: 0.6,
-             cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, perfect: 100 };
+             cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, won: 60, perfect: 100 };
 
   function dayXP(key, doc, prog, foodRows) {
     var xp = 0;
@@ -2542,7 +2596,14 @@
     var perfect = doc.weight != null && meals > 0 &&
       !!(doc.cardio && doc.cardio.min != null) && (!anyLift || allSets);
     if (perfect) xp += XP.perfect;
+
+    /* winning the day is the headline, so it pays -- and because the score is a pure
+       reading of what the day contains, a won day stays won when it is recomputed */
+    var bl = dayBlows(prog, doc, foodRows);
+    if (bl.won) xp += XP.won;
+
     return { xp: Math.round(xp), perfect: perfect, meals: meals, sessionDone: anyLift && allSets,
+             score: bl.score, won: bl.won, doneSets: bl.doneSets, doneReps: bl.doneReps,
              onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake() };
   }
 
@@ -2590,7 +2651,8 @@
     var totalSets = 0, totalCardioMin = 0, onPlanDays = 0, loggedDays = 0;
     var sessions = 0, streakWeeks = 0;
     var lastLift = null, lastCardio = null, lastAny = null, over = 0, under = 0, recentFood = 0;
-    var liftBest = {}, lastPR = null;
+    var bestDaySets = 0, lastPR = null, totalReps = 0;
+    var daysWon = 0, winRun = 0, bestWinRun = 0, lastWonKey = null, todayWon = false;
     var tKey = dateKey(new Date());
 
     for (var i = 0; i < keys.length; i++) {
@@ -2614,14 +2676,20 @@
       if (d.sessionDone) sessions++;
       if (run > 0 && run % 7 === 0) streakWeeks++;
       lastAny = k;
-      /* the day a lift went past everything before it */
-      if (doc.sets) Object.keys(doc.sets).forEach(function (en) {
-        if (!Array.isArray(doc.sets[en])) return;
-        doc.sets[en].forEach(function (r) {
-          if (!r || !r.done || r.weight == null) return;
-          if (liftBest[en] == null || r.weight > liftBest[en]) { liftBest[en] = r.weight; lastPR = k; }
-        });
-      });
+
+      /* won days, and how many in a row -- the record the whole thing is for */
+      if (d.won) {
+        daysWon++;
+        winRun = (lastWonKey && daysBetween(lastWonKey, k) === 1) ? winRun + 1 : 1;
+        if (winRun > bestWinRun) bestWinRun = winRun;
+        lastWonKey = k;
+        if (k === tKey) todayWon = true;
+      }
+
+      /* the day the work itself went past everything before it: most sets finished
+         in one day. Said in sets, because sets are what you actually did. */
+      totalReps += d.doneReps || 0;
+      if ((d.doneSets || 0) > bestDaySets) { bestDaySets = d.doneSets; lastPR = k; }
       if (prog && prog.type !== "cardio" && d.sessionDone) lastLift = k;
       if (doc.cardio && doc.cardio.min) lastCardio = k;
       /* the last week of eating, for the two food debuffs */
@@ -2663,8 +2731,11 @@
               over: over, under: under, recentFood: recentFood, everLogged: !!lastAny,
               daysSincePR: lastPR ? daysBetween(lastPR, tKey) : null },
       brokenRun: liveRun ? 0 : run, missedYesterday: missedYesterday,
-      stats: { sets: totalSets, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
+      daysWon: daysWon, winRun: (lastWonKey && daysBetween(lastWonKey, tKey) <= 1) ? winRun : 0,
+      bestWinRun: bestWinRun, todayWon: todayWon, bestDaySets: bestDaySets,
+      stats: { sets: totalSets, reps: totalReps, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
                perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
+               daysWon: daysWon, bestWinRun: bestWinRun,
                sessions: sessions, streakWeeks: streakWeeks }
     };
   }
@@ -2678,54 +2749,18 @@
      Nothing new is being measured. This is the same day score the app already keeps,
      given a shape you can win or lose. */
 
-  var FOES = {
-    "Upper A":     { name: "Warden of the Press", art: "press" },
-    "Upper B":     { name: "Herald of the Pull",  art: "pull" },
-    "Lower A":     { name: "Colossus of the Hill", art: "hill" },
-    "Lower B":     { name: "Titan of the Deep",   art: "deep" },
-    "Cardio only": { name: "The Long Road",       art: "road" }
-  };
-  var FOE_TIERS = [
-    { at: 110, name: "Champion", color: "#FF4FD8" },
-    { at: 80,  name: "Elite",    color: "#B06BFF" },
-    { at: 50,  name: "Standard", color: "#6FD0FF" },
-    { at: -1,  name: "Lesser",   color: "#9599AC" }
-  ];
-  var ENEMY_HP = 100;
-
-  function battle(prog, doc, dayFood, totalSets, doneSets, lo) {
-    var foe = FOES[prog.name] || { name: "The Day", art: "road" };
-    var demand = totalSets * 2 + (prog.cardio ? prog.cardio.min : 0);
-    var tier = FOE_TIERS.filter(function (t) { return demand >= t.at; })[0];
-
-    var isLift = prog.type !== "cardio";
-    var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0, mealW = isLift ? 25 : 30, weighW = 15;
-
-    var actualMin = (doc.cardio && doc.cardio.min) || 0;
-    var cardioHit = Math.round(Math.min(1, prog.cardio && prog.cardio.min ? actualMin / prog.cardio.min : 0) * cardioW);
-    var liftHit = isLift ? Math.round((totalSets ? doneSets / totalSets : 0) * liftW) : 0;
-
-    var cal = 0, anyEst = false;
-    dayFood.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
-    var onPlan = anyEst && cal >= PLAN.floor && cal <= planIntake();
-    var mealHit = onPlan ? mealW : (dayFood.length ? Math.round(mealW * 0.45) : 0);
-    var weighHit = doc.weight != null ? weighW : 0;
-
-    /* what everything you have already built is worth today, capped so it can never
-       win the day on its own -- past work helps, it does not excuse today */
-    var gearHit = lo ? Math.min(25, Math.round(lo.gearScore / 35)) : 0;
-
-    var blows = [
-      { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + (prog.cardio ? prog.cardio.min : 0) + " min" },
-      { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
-      { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (dayFood.length ? dayFood.length + " logged" : "none logged") },
-      { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" },
-      { k: "Built",    v: gearHit,   max: 25,      note: lo ? lo.equipped + " of " + lo.slots + " parts going" : "" }
-    ].filter(function (b) { return b.max > 0; });
-
-    var damage = blows.reduce(function (acc, b) { return acc + b.v; }, 0);
-    return { foe: foe, tier: tier, hp: ENEMY_HP, damage: damage, blows: blows,
-             won: damage >= ENEMY_HP, pct: Math.min(1, damage / ENEMY_HP) };
+  /* The day you are up against is the day the programme already asked for: so many
+     sets, so many minutes, a meal inside the window, a number on the scale. Named
+     monsters and tier words were a costume over that, and a costume you have to
+     translate is worse than no costume. What is left is the target itself. */
+  function battle(prog, doc, dayFood) {
+    var bl = dayBlows(prog, doc, dayFood);
+    var want = [];
+    if (bl.totalSets) want.push(bl.totalSets + " sets");
+    if (prog && prog.cardio && prog.cardio.min) want.push(prog.cardio.min + " min");
+    return { name: (prog && prog.name) || "The day", target: want.join(" \u00b7 "),
+             hp: 100, need: WIN_AT, damage: bl.score, blows: bl.blows,
+             won: bl.won, pct: Math.min(1, bl.score / 100) };
   }
 
   /* ---- what it costs to stop ---- */
@@ -2736,24 +2771,28 @@
 
      Levels and records are never touched. Those are the floor you keep. What suffers
      is current form: what the streak pays, and how built up a part counts as today. */
+  /* The names used to be words you had to learn -- Adrift, Detrained, Unbroken,
+     Forged. A name you have to look up is a name that explains nothing, so each one
+     is now the plain fact about you that turned it on. Read as a sentence it says
+     what it does: "Not logging, -20%". */
   var DEBUFFS = [
-    { id: "adrift",    name: "Adrift",    cost: 0.20,
+    { id: "adrift",    name: "Not logging",    cost: 0.20,
       test: function (g) { return g.everLogged && g.sinceLog >= 2; },
       why:  function (g) { return g.sinceLog + " days without logging anything"; },
       fix:  "Log anything at all" },
-    { id: "detrained", name: "Detrained", cost: 0.15,
+    { id: "detrained", name: "No sessions",  cost: 0.15,
       test: function (g) { return g.sinceLift >= 8; },
       why:  function (g) { return (g.sinceLift > 90 ? "no" : g.sinceLift + " days since a") + " finished session"; },
       fix:  "Finish every set of one session" },
-    { id: "sedentary", name: "Sedentary", cost: 0.10,
+    { id: "sedentary", name: "No cardio",    cost: 0.10,
       test: function (g) { return g.sinceCardio >= 4; },
       why:  function (g) { return (g.sinceCardio > 90 ? "no" : g.sinceCardio + " days since") + " cardio"; },
       fix:  "Log any cardio" },
-    { id: "overfed",   name: "Overfed",   cost: 0.10,
+    { id: "overfed",   name: "Eating over",  cost: 0.10,
       test: function (g) { return g.over >= 3; },
       why:  function (g) { return g.over + " of the last 7 days over target"; },
       fix:  "One day inside the window" },
-    { id: "underfed",  name: "Underfed",  cost: 0.10,
+    { id: "underfed",  name: "Eating under", cost: 0.10,
       test: function (g) { return g.under >= 3; },
       why:  function (g) { return g.under + " of the last 7 days under the floor"; },
       fix:  "Eat to the floor for one day" }
@@ -2761,21 +2800,21 @@
   /* The other side of the ledger. Curses take, blessings give, and both read off the
      same log -- nothing here is a mood, it is all countable. */
   var BUFFS = [
-    { id: "unbroken", name: "Unbroken",  gain: 0.15,
+    { id: "unbroken", name: "No days missed", gain: 0.15,
       test: function (g, pr) { return pr.run >= 14; },
       why:  function (g, pr) { return pr.run + " days without a gap"; } },
-    { id: "wellfed",  name: "Well Fed",  gain: 0.10,
+    { id: "wellfed",  name: "Eating in range", gain: 0.10,
       test: function (g) { return g.recentFood >= 5 && g.over === 0 && g.under === 0; },
       why:  function (g) { return g.recentFood + " of the last 7 days inside the window"; } },
-    { id: "conditioned", name: "Conditioned", gain: 0.10,
+    { id: "conditioned", name: "Cardio is recent", gain: 0.10,
       test: function (g) { return g.sinceCardio <= 1; },
       why:  function () { return "cardio logged today or yesterday"; } },
-    { id: "forged",   name: "Forged",    gain: 0.15,
+    { id: "forged",   name: "Record lately",   gain: 0.15,
       test: function (g) { return g.daysSincePR != null && g.daysSincePR <= 7; },
-      why:  function (g) { return g.daysSincePR === 0 ? "a new best today" : "a new best " + g.daysSincePR + " days ago"; } },
-    { id: "devoted",  name: "Devoted",   gain: 0.10,
+      why:  function (g) { return g.daysSincePR === 0 ? "your best day of sets, today" : "your best day of sets, " + g.daysSincePR + " days ago"; } },
+    { id: "devoted",  name: "All given away", gain: 0.10,
       test: function () { return givenTotal() > 0 && accruedOutstanding() <= 0; },
-      why:  function () { return "every pound earned has been given"; } }
+      why:  function () { return "every penny your work earned has been given"; } }
   ];
   function accruedOutstanding() {
     var pr = lastProg; if (!pr) return 1;
@@ -2863,6 +2902,9 @@
     { id: "cd2000",  name: "2000 Min",     test: function (p) { return p.stats.cardioMin >= 2000; } },
     { id: "plan7",   name: "7 On Plan",    test: function (p) { return p.stats.onPlanDays >= 7; } },
     { id: "perfect", name: "Flawless Day", test: function (p) { return p.stats.perfectDays >= 1; } },
+    { id: "won10",   name: "10 Days Won",  test: function (p) { return p.stats.daysWon >= 10; } },
+    { id: "won50",   name: "50 Days Won",  test: function (p) { return p.stats.daysWon >= 50; } },
+    { id: "wonrun7", name: "7 Won In A Row", test: function (p) { return p.stats.bestWinRun >= 7; } },
     { id: "lvl10",   name: "Level 10",     test: function (p) { return p.level >= 10; } },
     { id: "lvl25",   name: "Level 25",     test: function (p) { return p.level >= 25; } }
   ];
@@ -3151,9 +3193,9 @@
   /* ===================== WHAT YOU BUILD ===================== */
   /* Seven parts of one body, and each part is fed by exactly one thing you do:
 
-       Head   money given             Core   meals inside the eating window
+       Head   what you give away      Core   meals inside the eating window
        Arms   the streak you are on, and every day you have ever logged
-       Waist  weight on the bar       Legs   cardio minutes       Feet   weigh-ins
+       Waist  sets you finish         Legs   cardio minutes       Feet   weigh-ins
 
      Behind each part is one raw measure, scaled so all seven sit on the same ladder
      and a word means the same thing on the head as on the feet. Nothing is invented
@@ -3161,11 +3203,11 @@
      the only way to build a part up is to do the thing that feeds it. */
 
   var SLOTS = [
-    { key: "helmet", name: "Giving",     part: "Head",  fed: "money you give away",      icon: "helm" },
+    { key: "helmet", name: "Giving",     part: "Head",  fed: "giving away what you earned", icon: "helm" },
     { key: "chest",  name: "Food",       part: "Core",  fed: "meals inside your window", icon: "chest" },
     { key: "weapon", name: "Showing up", part: "Arm",   fed: "days in a row",            icon: "weapon" },
     { key: "shield", name: "History",    part: "Arm",   fed: "every day you logged",     icon: "shield" },
-    { key: "belt",   name: "Lifting",    part: "Waist", fed: "weight on the bar",        icon: "belt" },
+    { key: "belt",   name: "Lifting",    part: "Waist", fed: "sets you finish",          icon: "belt" },
     { key: "legs",   name: "Walking",    part: "Legs",  fed: "cardio minutes",           icon: "legs" },
     { key: "boots",  name: "Weighing",   part: "Feet",  fed: "times on the scale",       icon: "boots" }
   ];
@@ -3185,22 +3227,8 @@
     return BUILD_TIERS[BUILD_TIERS.length - 1];
   }
 
-  /* Detraining is not a punishment somebody invented, it is what happens. Strength
-     holds a couple of weeks and then goes; this models that and nothing harsher.
-     Ten days of grace on a lift, then two per cent of everything gained above its
-     starting weight falls away per day, stopping at the starting weight. The RECORD is
-     never touched -- what decays is the effective figure, and one session restores it. */
-  var DECAY_GRACE = 10, DECAY_PER_DAY = 0.02;
   function daysBetween(a, b) {
     return Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000);
-  }
-  function decayed(best, base, daysSince) {
-    if (best == null) return best;
-    if (daysSince == null || daysSince <= DECAY_GRACE) return best;
-    var gain = best - base;
-    if (gain <= 0) return best;
-    var keep = Math.max(0, 1 - (daysSince - DECAY_GRACE) * DECAY_PER_DAY);
-    return Math.round((base + gain * keep) * 10) / 10;
   }
 
   /* Every movement in the programme, with the weight it starts at. Still needed: the
@@ -3219,30 +3247,33 @@
 
   async function loadout(pr) {
     var lifts = allLifts();
-    var bestBy = {}, bestRepsBy = {}, lastBy = {};
+    var bestRepsBy = {}, lastBy = {};
     var keys = (await getAllDayKeys()).slice().sort();
     var cut = new Date(); cut.setDate(cut.getDate() - 29);
     var cutKey = dateKey(cut);
     var tKey = dateKey(new Date());
-    var volume = 0, cardioMin = 0, daysLogged = 0, onPlan = 0, mealDays = 0, weighDays = 0;
+    var sets30 = 0, reps30 = 0, setsAll = 0, repsAll = 0, bestDaySets = 0;
+    var cardioMin = 0, daysLogged = 0, onPlan = 0, mealDays = 0, weighDays = 0;
     var byDay = {};
     foodCache.forEach(function (f) { (byDay[f.date] = byDay[f.date] || []).push(f); });
 
     for (var i = 0; i < keys.length; i++) {
       var k = keys[i], doc = await getDayDoc(k);
       var recent = k >= cutKey;
-      var touched = false;
+      var touched = false, daySets = 0;
       Object.keys(doc.sets || {}).forEach(function (en) {
         if (!Array.isArray(doc.sets[en])) return;
         doc.sets[en].forEach(function (r) {
           if (!r || !r.done) return;
-          touched = true;
-          if (r.weight != null && (bestBy[en] == null || r.weight > bestBy[en])) bestBy[en] = r.weight;
+          touched = true; daySets++;
+          var rp = Number(r.reps) || 0;
+          setsAll++; repsAll += rp;
+          if (recent) { sets30++; reps30 += rp; }
           if (r.reps != null && (bestRepsBy[en] == null || r.reps > bestRepsBy[en])) bestRepsBy[en] = r.reps;
-          if (recent && r.weight != null && r.reps != null) volume += r.weight * r.reps;
           lastBy[en] = k;
         });
       });
+      if (daySets > bestDaySets) bestDaySets = daySets;
       var meals = byDay[k] || [];
       if (doc.weight != null || meals.length || (doc.cardio && doc.cardio.min != null)) touched = true;
       if (recent) {
@@ -3256,47 +3287,28 @@
       }
     }
 
-    /* the shield: the single heaviest set ever finished, decayed if that lift has
-       been left alone, because a record you cannot repeat is not armour */
-    var bestLift = null;
-    lifts.forEach(function (lf) {
-      var raw = lf.bodyweight ? bestRepsBy[lf.name] : bestBy[lf.name];
-      if (raw == null) return;
-      var base = lf.bodyweight ? 10 : lf.base;
-      var since = lastBy[lf.name] ? daysBetween(lastBy[lf.name], tKey) : null;
-      var eff = decayed(raw, base, since);
-      var il = lf.bodyweight ? Math.round(eff * 3) : Math.round(eff);
-      var recIl = lf.bodyweight ? Math.round(raw * 3) : Math.round(raw);
-      if (!bestLift || recIl > bestLift.recordBuilt) {
-        bestLift = { name: lf.name, raw: raw, eff: eff, built: il, recordBuilt: recIl,
-                     since: since, rusted: il < recIl, label: lf.label, bodyweight: lf.bodyweight };
-      }
-    });
-
-    /* the belt: every record added together, decayed where a lift has been left */
-    var beltBuilt = 0, beltRecord = 0, beltRusting = 0, beltCount = 0;
-    lifts.forEach(function (lf) {
-      var raw2 = lf.bodyweight ? bestRepsBy[lf.name] : bestBy[lf.name];
-      if (raw2 == null) return;
-      beltCount++;
-      var base2 = lf.bodyweight ? 10 : lf.base;
-      var since2 = lastBy[lf.name] ? daysBetween(lastBy[lf.name], tKey) : null;
-      var gainR = Math.max(0, raw2 - base2), gainE = Math.max(0, decayed(raw2, base2, since2) - base2);
-      beltRecord += Math.round(gainR * 1.4); beltBuilt += Math.round(gainE * 1.4);
-      if (gainE < gainR) beltRusting++;
-    });
-    /* the shield: every day you ever showed up is a plate in it */
+    /* Nothing here is measured in pounds. What the waist is built from is the work
+       itself -- sets finished and reps done -- which is both what you actually did and
+       the only honest way to compare a machine on one day to a dumbbell on another. A
+       thirty-day window does the forgetting on its own: stop lifting and it falls,
+       start again and it climbs, with no separate decay rule to explain. */
     var everLogged = keys.length;
-
     var run = pr ? pr.run : 0;
     var given = givenTotal();
+    var earned = pr ? accrued(pr) : 0;
+    var owed = Math.max(0, earned - given);
     /* `face` is what the socket shows: the real measurement, not the scaled level.
        `per` is what one more of that thing is worth, so the panel can say what the next
        tier actually costs rather than leaving you to guess. */
     var raw = {
+      /* Giving is the one part you cannot build by wanting to: the work has to earn
+         the money first. So the row says where it came from before it says what you
+         did with it. */
       helmet: { built: Math.round(given), face: money(given), per: 1,
-                step: function (n) { return money(n) + " more given"; },
-                detail: money(given) + " given to " + GOOD.cause },
+                step: function (n) { return "give " + money(n) + " of the " + money(owed) + " you have earned"; },
+                detail: owed > 0 ? money(earned) + " earned by your work \u00b7 " + money(given) + " of it given"
+                                 : (earned > 0 ? money(earned) + " earned and all of it given"
+                                               : "nothing earned to give yet") },
       chest:  { built: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " on plan"; },
                 detail: onPlan + " of the last 30 days inside the window" },
@@ -3306,10 +3318,10 @@
       shield: { built: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
                 detail: everLogged + " days logged, all time" },
-      belt:   { built: beltBuilt, face: beltCount + " PR", per: 1.4,
-                step: function (n) { return n + " lb more on any lift"; },
-                detail: bestLift ? beltCount + " lifts on record, best " + bestLift.name + " " + bestLift.raw + (bestLift.bodyweight ? " reps" : " lb")
-                                 : "no finished sets yet" },
+      belt:   { built: Math.round(sets30 * 0.9), face: sets30 + " sets", per: 0.9,
+                step: function (n) { return n + " more set" + (n === 1 ? "" : "s"); },
+                detail: sets30 ? fmtInt(sets30) + " sets and " + fmtInt(reps30) + " reps in 30 days"
+                               : "no finished sets in the last 30 days" },
       legs:   { built: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + "m", per: 1 / 8,
                 step: function (n) { return fmtInt(n) + " more cardio minutes"; },
                 detail: fmtInt(cardioMin) + " cardio minutes in 30 days" },
@@ -3318,13 +3330,11 @@
                 detail: weighDays + " weigh-ins in the last 30 days" }
     };
 
-    var gearScore = 0, equipped = 0, rusting = 0;
+    var gearScore = 0, equipped = 0;
     var rows = SLOTS.map(function (sl) {
       var r = raw[sl.key];
-      var rusted = (sl.key === "belt" && beltRusting > 0);
       gearScore += r.built;
       if (r.built > 0) equipped++;
-      if (rusted) rusting++;
       /* what the next rarity costs, in the units of the thing that feeds this slot */
       var tier = tierFor(r.built), nextT = null;
       for (var ti = BUILD_TIERS.length - 1; ti >= 0; ti--) {
@@ -3332,16 +3342,16 @@
       }
       var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.built) / r.per)) : null;
       return { key: sl.key, name: sl.name, part: sl.part, fed: sl.fed, icon: sl.icon,
-               built: r.built, recordBuilt: rusted ? beltRecord : r.built,
-               face: r.face, detail: r.detail, rusted: !!rusted,
-               since: rusted ? beltRusting + " lift" + (beltRusting === 1 ? "" : "s") : null,
+               built: r.built, face: r.face, detail: r.detail,
                rarity: tier, next: nextT, need: need,
                needText: nextT ? r.step(need) : "at the cap" };
     });
 
     return {
-      rows: rows, lifts: lifts, bestBy: bestBy, bestRepsBy: bestRepsBy, lastBy: lastBy,
-      gearScore: gearScore, equipped: equipped, slots: SLOTS.length, rusting: rusting
+      rows: rows, lifts: lifts, bestRepsBy: bestRepsBy, lastBy: lastBy,
+      sets30: sets30, reps30: reps30, setsAll: setsAll, repsAll: repsAll, bestDaySets: bestDaySets,
+      earned: earned, given: given, owed: owed,
+      gearScore: gearScore, equipped: equipped, slots: SLOTS.length
     };
   }
 
@@ -3377,18 +3387,18 @@
 
     /* six slots, each labelled with the one thing that feeds it */
     document.getElementById("charSlots").innerHTML = lo.rows.map(function (r) {
-      return '<div class="gear-row' + (r.rusted ? " rusted" : "") + '"' + (r.built ? "" : ' style="opacity:.5"') + '>' +
+      return '<div class="gear-row"' + (r.built ? "" : ' style="opacity:.5"') + '>' +
         '<span class="gear-level" style="color:' + r.rarity.color + ';box-shadow:inset 0 0 0 1.5px ' + r.rarity.color + '55">' +
           '<svg viewBox="0 0 24 24">' + SLOT_ART[r.icon] + '</svg>' +
           '<em>' + r.part + '</em>' +
-          (r.rusted ? '<i>' + r.recordBuilt + '</i>' : "") + '</span>' +
-        '<span class="gear-body"><b>' + r.name + (r.rusted ? ' <span class="rust-tag">Rusting</span>' : "") + '</b>' +
+          '</span>' +
+        '<span class="gear-body"><b>' + r.name + '</b>' +
           '<span class="gear-meta" style="color:' + r.rarity.color + '">' + r.rarity.name + '  ·  ' + r.fed + '</span>' +
-          '<span class="gear-meta">' + r.detail + (r.rusted ? "  ·  " + r.since + " rusting" : "") + '</span>' +
+          '<span class="gear-meta">' + r.detail + '</span>' +
         '</span></div>';
     }).join("");
 
-    /* blessings and curses together, because they are the same ledger */
+    /* helping and costing together, because they are the same ledger */
     var buffs = activeBuffs(pr), curses = activeDebuffs(pr);
     var eff = effectiveMult(pr);
     document.getElementById("charStates").innerHTML =
@@ -3405,7 +3415,7 @@
         : '<div class="empty" style="color:rgba(255,255,255,0.45)">Nothing active either way.</div>';
 
     document.getElementById("charFoot").innerHTML =
-      "Your streak pays <b>" + pr.mult + "×</b>, blessings and curses make it <b>" + eff + "×</b>. " +
+      "Your streak pays <b>" + pr.mult + "×</b>, and the list above takes it to <b>" + eff + "×</b>. " +
       "Each part is fed by one thing you do, and every number traces back to a row in the log.";
 
     ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal"].forEach(function (id) {
@@ -3415,42 +3425,48 @@
     document.getElementById("modalOverlay").classList.add("open");
   }
 
-  /* ---- upgrades: the moment the bar goes up ---- */
-  /* Bests are snapshotted when the day is drawn, so a set saved afterwards can be
-     compared against what stood before it. */
-  var bestBefore = {};
+  /* ---- records: the moment the work goes past anything you have done before ---- */
+  /* The record used to be the heaviest set, which meant the app's loudest moment was
+     a number in pounds. It is the work itself now: the most sets you have ever
+     finished in one day, and the reps that came with them. It keeps climbing for as
+     long as you keep showing up, it says nothing about what was on the bar, and a
+     machine on one day compares honestly with a dumbbell on another.
+
+     The standing record is snapshotted when the day is drawn, so a set ticked
+     afterwards can be measured against what stood before it. */
+  var bestBefore = { daySets: 0, reps: 0 };
   async function snapshotBests() {
     var lo = await loadout(lastProg);
-    bestBefore = {};
-    lo.lifts.forEach(function (lf) {
-      var best = lf.bodyweight ? lo.bestRepsBy[lf.name] : lo.bestBy[lf.name];
-      bestBefore[lf.name] = { best: best == null ? null : best, base: lf.bodyweight ? 10 : lf.base, bodyweight: lf.bodyweight };
-    });
+    bestBefore = { daySets: lo.bestDaySets || 0, reps: lo.repsAll || 0, hit: false };
   }
   function checkUpgrade(exName, weight, reps) {
-    var prev = bestBefore[exName];
-    if (!prev) return;
-    var isBw = prev.bodyweight;
-    var now = isBw ? reps : weight;
-    if (now == null || (prev.best != null && now <= prev.best)) return;
-    var firstTime = prev.best == null;
-    var newBuilt = isBw ? Math.round(now * 3) : Math.round(now);
-    var newRarity = tierFor(newBuilt);
-    var rankedUp = !firstTime && newRarity.name !== (prev.rarity || tierFor(prev.built || 0).name);
-    prev.best = now; prev.built = newBuilt;                 // so one session cannot fire twice
-    prev.rarity = newRarity.name;
-    showUpgrade(exName, newBuilt, newRarity, rankedUp, isBw ? now + " reps" : now + " lb", firstTime);
+    var key = dateKey(selectedDate);
+    getDayDoc(key).then(function (doc) {
+      var sets = 0, rp = 0;
+      Object.keys(doc.sets || {}).forEach(function (en) {
+        if (!Array.isArray(doc.sets[en])) return;
+        doc.sets[en].forEach(function (r) { if (r && r.done) { sets++; rp += Number(r.reps) || 0; } });
+      });
+      if (sets <= bestBefore.daySets) return;
+      var firstTime = !bestBefore.daySets;
+      bestBefore.daySets = sets;                 // so one session cannot fire twice
+      var tier = tierFor(Math.round(sets * 0.9));
+      showUpgrade(firstTime ? "First sets on the board" : "Best day you have had",
+                  tier, !firstTime && !bestBefore.hit,
+                  sets + " set" + (sets === 1 ? "" : "s") + "  \u00b7  " + fmtInt(rp) + " reps", firstTime);
+      bestBefore.hit = true;
+    });
   }
-  function showUpgrade(exName, built, rarity, rankedUp, valueText, firstTime) {
+  function showUpgrade(headline, rarity, rankedUp, valueText, firstTime) {
     var wrap = document.getElementById("feedbackWrap");
     var el = document.createElement("div");
     el.className = "gear-toast";
     el.style.setProperty("--gc", rarity.color);
-    el.innerHTML = '<div class="gt-tag">' + (firstTime ? "First one on the board" : rankedUp ? "Your waist just levelled up" : "New best") + '</div>' +
-      '<div class="gt-name">' + exName + '</div>' +
+    el.innerHTML = '<div class="gt-tag">' + (firstTime ? "A start" : rankedUp ? "A record, and your waist went up" : "A record") + '</div>' +
+      '<div class="gt-name">' + headline + '</div>' +
       '<div class="gt-row"><span class="gt-level">' + valueText + '</span>' +
       '<span class="gt-rar">' + rarity.name + '</span>' +
-      '<span class="gt-val">' + (firstTime ? "first time logged" : "beats your old best") + '</span></div>';
+      '<span class="gt-val">' + (firstTime ? "first sets logged" : "the most you have ever done in a day") + '</span></div>';
     wrap.innerHTML = ""; wrap.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("show"); });
     /* how big a noise to make: where the new tier sits on the one ladder */
@@ -3496,6 +3512,16 @@
     document.getElementById("rkXpRest").textContent =
       " points  ·  " + fmtInt(Math.max(0, pr.nextXP - pr.total)) + " to level " + (pr.level + 1) +
       (pr.todayXP ? "  ·  +" + fmtInt(pr.todayXP) + " today" : "");
+
+    /* the record that outlives the day: how many you have won */
+    var wonEl = document.getElementById("rkWon");
+    if (pr.daysWon > 0) {
+      wonEl.hidden = false;
+      wonEl.innerHTML = '<b>' + fmtInt(pr.daysWon) + '</b> day' + (pr.daysWon === 1 ? "" : "s") + ' won' +
+        (pr.winRun > 1 ? '<span class="rkw-hot">' + pr.winRun + ' IN A ROW</span>' : "") +
+        (pr.bestWinRun > 1 ? '<span>best run ' + pr.bestWinRun + '</span>' : "") +
+        '<span>' + (pr.todayWon ? "today is won" : "today needs 80 of 100") + '</span>';
+    } else { wonEl.hidden = false; wonEl.innerHTML = '<span>Score 80 of 100 today and it goes on the record as a day won.</span>'; }
 
     /* the streak line, and what the next tier is worth */
     var st = document.getElementById("rkStreak");
@@ -3551,6 +3577,7 @@
     else {
       dbWrap.hidden = false;
       dbWrap.innerHTML =
+        '<div class="rk-debuffs-note">Facts about your last few days. Together they change what today\'s points are worth.</div>' +
         goodOnes.map(function (b) {
           return '<div class="db-row good"><span class="db-name">' + b.name + '</span>' +
             '<span class="db-why">' + b.why(pr.gaps, pr) + '</span>' +
@@ -4223,7 +4250,7 @@
     ctx.textAlign = "left";
     rule(104);
 
-    var bt = battle(prog, doc, dayFood, totalSets, doneSets, lo);
+    var bt = battle(prog, doc, dayFood);
     var won = bt.won, nearly = !won && bt.pct >= 0.75;
     var vCol = won ? "#7DF0B8" : nearly ? "#FFD166" : "#FF8F6B";
 
@@ -4231,7 +4258,7 @@
     ctx.fillStyle = vCol; ctx.font = "600 68px Oswald, sans-serif";
     ctx.fillText(won ? "DAY WON" : nearly ? "ALMOST" : "DAY LOST", midX, 186);
     ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 22px Inter, sans-serif";
-    ctx.fillText(bt.damage + " of the " + bt.hp + " points today was worth", midX, 222);
+    ctx.fillText(bt.damage + " of 100 today  \u00b7  " + bt.need + " wins the day", midX, 222);
     ctx.textAlign = "left";
 
     var hbY = 246, hbW = W - pad * 2;
@@ -4245,15 +4272,34 @@
       ctx.fillStyle = "rgba(7,8,14,0.5)";
       ctx.fillRect(pad + hbW * Math.min(1, acc / bt.hp) - 1, hbY + 3, 2, 12);
     });
-    rule(300);
+    /* where the day is won, marked on the bar itself */
+    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.fillRect(pad + hbW * (bt.need / 100) - 1.5, hbY - 4, 3, 26);
+
+    /* A day won and then forgotten is a day that taught you nothing. This is the
+       record it goes into: how many you have won, how many in a row, and the level
+       the whole lot of them has added up to. */
+    ctx.textAlign = "center";
+    var ordinal = pr.daysWon + (pr.daysWon % 10 === 1 && pr.daysWon % 100 !== 11 ? "st"
+                 : pr.daysWon % 10 === 2 && pr.daysWon % 100 !== 12 ? "nd"
+                 : pr.daysWon % 10 === 3 && pr.daysWon % 100 !== 13 ? "rd" : "th");
+    var recParts = [];
+    if (won && pr.daysWon) recParts.push("your " + ordinal + " day won");
+    else recParts.push(fmtInt(pr.daysWon) + " day" + (pr.daysWon === 1 ? "" : "s") + " won so far");
+    if (pr.winRun > 1) recParts.push(pr.winRun + " in a row");
+    if (pr.bestWinRun > 1) recParts.push("best run " + pr.bestWinRun);
+    recParts.push("level " + pr.level);
+    cap(recParts.join("   \u00b7   "), midX, 292, 17, 0.5);
+    ctx.textAlign = "left";
+    rule(314);
 
     /* ---- 2. the tree: what you put in, and the part of you it builds ---- */
     var DMG = {};
     bt.blows.forEach(function (bl) { DMG[bl.k] = bl; });
-    var SOCKET_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in", shield: "Built" };
+    var SOCKET_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in" };
 
     ctx.textAlign = "center";
-    cap("what you put in  \u2192  what it builds", midX, 342, 16, 0.42);
+    cap("what you put in  \u2192  what it builds", midX, 350, 16, 0.42);
     ctx.textAlign = "left";
 
     var SZ = 64;
@@ -4270,7 +4316,7 @@
       if (!r) return;
       var sx = cx - SZ / 2, sy = cy - SZ / 2;
       var filled = r.built > 0;
-      var col = filled ? (r.rusted ? "#FF8F6B" : r.rarity.color) : "rgba(255,255,255,0.22)";
+      var col = filled ? r.rarity.color : "rgba(255,255,255,0.22)";
       roundRect(ctx, sx, sy, SZ, SZ, 10);
       ctx.fillStyle = filled ? r.rarity.color + "14" : "rgba(7,8,14,0.9)"; ctx.fill();
       roundRect(ctx, sx, sy, SZ, SZ, 10);
@@ -4298,19 +4344,37 @@
       ctx.fillText(r.part + " \u00b7 " + r.rarity.name.toLowerCase(), x, yy + 46);
       if (bl) {
         var t2 = "+" + bl.v + " today";
+        var full = bl.v >= bl.max, any = bl.v > 0;
         ctx.font = "600 15px Oswald, sans-serif";
         var w = ctx.measureText(t2).width + 18;
         var bxx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
         roundRect(ctx, bxx, yy + 56, w, 24, 12);
-        ctx.fillStyle = bl.v >= bl.max ? "rgba(125,240,184,0.9)" : (bl.v > 0 ? vCol : "rgba(40,44,58,0.95)");
+        ctx.fillStyle = full ? "rgba(125,240,184,0.9)" : (any ? vCol : "rgba(40,44,58,0.95)");
         ctx.fill();
-        ctx.fillStyle = bl.v > 0 ? INK : "rgba(255,255,255,0.45)";
+        ctx.fillStyle = any ? INK : "rgba(255,255,255,0.45)";
         ctx.textAlign = "center"; ctx.fillText(t2, bxx + w / 2, yy + 73);
       }
       ctx.textAlign = "left";
     }
 
+    /* The head is the one part today cannot build directly: the work earns the money
+       first, and giving it is the separate act. So its badge says what today EARNED,
+       which is the link that was missing. */
+    var gr = GOOD.rates || {};
+    var earnedToday = (bt.blows.filter(function (b) { return b.k === "Training" && b.v >= b.max; }).length ? (gr.session || 0) : 0) +
+                      (dayBlows(prog, doc, dayFood).onPlan ? (gr.onPlan || 0) : 0);
+    DMG.Giving = earnedToday > 0 ? { v: money(earnedToday) } : null;
     node(midX, Y_HEAD, rowFor("helmet"));   leaf(rowFor("helmet"), midX + 52, Y_HEAD - 14, "left");
+    if (DMG.Giving) {
+      var gt = DMG.Giving.v + " earned today";
+      ctx.font = "600 15px Oswald, sans-serif";
+      var gw = ctx.measureText(gt).width + 18;
+      roundRect(ctx, midX - 52 - gw, Y_HEAD - 12, gw, 24, 12);
+      ctx.fillStyle = "rgba(125,240,184,0.9)"; ctx.fill();
+      ctx.fillStyle = INK; ctx.textAlign = "center";
+      ctx.fillText(gt, midX - 52 - gw / 2, Y_HEAD + 5);
+      ctx.textAlign = "left";
+    }
     node(midX - FLANK, Y_CORE, rowFor("weapon"));
     leaf(rowFor("weapon"), midX - FLANK, Y_CORE + 40, "center");
     node(midX + FLANK, Y_CORE, rowFor("shield"));
@@ -4379,10 +4443,12 @@
       ctx.fillText("and your " + upg.part.toLowerCase() + " goes from " + upg.rarity.name.toLowerCase(), pad, uY + 54);
       ctx.fillText("to " + upg.next.name.toLowerCase(), pad, uY + 76);
     }
-    rule(1092);
+    rule(1096);
 
-    /* blessings and curses as chips on one line, not a table */
-    var chY = 1132, chX = pad;
+    /* what is helping and what is costing, on one line, with the sentence that makes
+       the percentages mean something */
+    cap("why today's points are worth " + effMult + "\u00d7", pad, 1120, 15, 0.42);
+    var chY = 1160, chX = pad;
     var multText = "everything counts " + effMult + "×";
     chip(chX, chY, multText, effMult < pr.mult ? "#FF8F6B" : "#FFD166");
     chX += ctx.measureText(multText).width + 36;
@@ -4396,11 +4462,11 @@
       if (chX + ctx.measureText(t2).width + 40 > W - pad) return;
       chX += chip(chX, chY, t2, "#FF8F6B") + 10;
     });
-    rule(1172);
+    rule(1190);
 
     /* ---- 4. the plates, or the week that produced them ---- */
     var footY = H - 64;
-    var gTop = 1196, gap = 14;
+    var gTop = 1214, gap = 14;
     var avail = footY - 46 - gTop;
     var cellW = (W - pad * 2 - gap) / 2;
     var rowsN = Math.floor((avail + gap) / (cellW + gap));
@@ -4674,23 +4740,17 @@
       var fprog = PROGRAM[selectedDate.getDay()];
       var fdoc = await getDayDoc(key);
       var ffood = foodCache.filter(function (f) { return f.date === key; });
-      var fts = 0, fds = 0;
-      fprog.ex.forEach(function (exx) {
-        fts += exx.sets;
-        ((fdoc.sets && Array.isArray(fdoc.sets[exx.name])) ? fdoc.sets[exx.name] : []).forEach(function (r) { if (r && r.done) fds++; });
-      });
-      if (!lastLoadout) lastLoadout = await loadout(lastProg);
-      var bt = battle(fprog, fdoc, ffood, fts, fds, lastLoadout);
+      var bt = battle(fprog, fdoc, ffood);
       var fr = document.getElementById("fightRow");
       fr.hidden = false;
-      document.getElementById("ftFoe").textContent = bt.tier.name + " \u00b7 " + bt.foe.name;
+      document.getElementById("ftFoe").textContent = bt.name + (bt.target ? " \u00b7 " + bt.target : "");
       var vd = document.getElementById("ftVerdict");
-      vd.textContent = bt.won ? "Victory" : (bt.pct >= 0.75 ? "Still standing" : "Losing");
-      vd.className = "ft-verdict " + (bt.won ? "win" : bt.pct >= 0.75 ? "hold" : "lose");
+      vd.textContent = bt.won ? "Day won" : (bt.damage >= WIN_AT - 20 ? "Nearly" : "Not yet");
+      vd.className = "ft-verdict " + (bt.won ? "win" : bt.damage >= WIN_AT - 20 ? "hold" : "lose");
       var ff = document.getElementById("ftFill");
       ff.style.width = (bt.pct * 100) + "%";
       ff.style.background = bt.won ? "#12B886" : rank.color;
-      document.getElementById("ftDmg").textContent = bt.damage + " / " + bt.hp + " damage";
+      document.getElementById("ftDmg").textContent = bt.damage + " of 100  \u00b7  " + bt.need + " wins the day";
       document.getElementById("ftBlows").innerHTML = bt.blows.map(function (bl) {
         var p2 = Math.round((bl.v / bl.max) * 100);
         return '<div class="ft-blow"><div class="ft-bar"><i style="width:' + p2 + '%;background:' +
