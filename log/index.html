@@ -296,8 +296,12 @@
   .t9-tog[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,0.32);
     background: rgba(255,255,255,0.09); }
   .t9-coach.off { display: none; }
-  .c9-compact .t9-tog { width: 34px; }
-  .c9-compact .t9-tog svg { width: 14px; height: 14px; }
+  /* Three toggles plus two buttons is a lot of row on a small card, and the reward
+     button -- the one with the variable text -- was the one that lost. */
+  .c9-compact .t9-tog { width: 29px; }
+  .c9-compact .t9-tog svg { width: 13px; height: 13px; }
+  .c9-compact .t9-actions { gap: 5px; }
+  .c9-compact .t9-btn.share { padding-left: 11px; padding-right: 11px; }
   .c9-compact .t9-weight { font-size: 11px; padding: 3px 6px; }
   .c9-compact .t9-weight b { font-size: 12.5px; }
   .t9-week { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
@@ -327,7 +331,9 @@
   .t9-btn.drop:disabled { animation: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); }
 
   /* a short phone: same card, tighter type, and the body keeps the room */
-  .c9-compact .card9 { padding: 11px; gap: 7px; }
+  /* Tightening the card's own frame gives the figure its last ten pixels back without
+     shrinking anything inside it, which is the better trade on a small screen. */
+  .c9-compact .card9 { padding: 9px; gap: 6px; }
   .c9-compact .t9-verdict { font-size: 23px; }
   .c9-compact .t9-score { font-size: 11px; }
   .c9-compact .t9-record { font-size: 10px; }
@@ -443,6 +449,37 @@
     justify-content: center; text-align: center; padding: 26px 10px 22px;
     font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.8);
     background: linear-gradient(160deg, #2A2142, #1B1630); overflow: hidden; }
+  .t9-food { flex: 0 0 auto; display: flex; gap: 5px; overflow: hidden; }
+  /* An explicit display beats the hidden attribute, so the empty strip was still
+     taking a row's gap out of the figure while showing nothing. */
+  .t9-food[hidden] { display: none; }
+  /* A band across the card, not a gallery: at one-to-one these filled a third of it. */
+  .t9-food .t9-f { flex: 1 1 0; min-width: 0; height: 62px; border-radius: 9px;
+    background: #241C3C center/cover no-repeat; position: relative; overflow: hidden; }
+  .c9-compact .t9-food .t9-f { height: 48px; }
+  .c9-roomy .t9-food .t9-f { height: 72px; }
+  .t9-food .t9-f span { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px;
+    font-size: 8.5px; line-height: 1.2; color: #fff; background: rgba(8,4,20,0.66);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t9-food .t9-f.words { display: flex; align-items: center; justify-content: center;
+    text-align: center; font-size: 9px; color: rgba(255,255,255,0.72); padding: 3px; }
+  .c9-compact .t9-food .t9-f span { font-size: 7.5px; }
+  .redeem-meter { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  .rm-top { display: flex; align-items: baseline; gap: 7px; }
+  .rm-top b { font-family: var(--font-head); font-size: 26px; color: var(--teal); }
+  .rm-top span { font-size: 12px; color: var(--ink-dim); }
+  .rm-track { height: 8px; border-radius: 20px; background: rgba(255,255,255,0.1); margin: 8px 0 7px; overflow: hidden; }
+  .rm-track i { display: block; height: 100%; border-radius: 20px; background: var(--teal); width: 0; }
+  .rm-note { font-size: 11.5px; color: var(--ink-faint); line-height: 1.45; }
+  .rd-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .rd-row:first-child { border-top: none; }
+  .rd-when { flex: 1 1 auto; min-width: 0; }
+  .rd-when b { display: block; font-family: var(--font-head); font-size: 13.5px; }
+  .rd-when span { font-size: 11.5px; color: var(--ink-faint); }
+  .rd-go { flex: 0 0 auto; border: 1px solid var(--teal); background: rgba(125,240,184,0.14);
+    color: var(--teal); border-radius: 9px; padding: 7px 11px; font-size: 12px;
+    font-family: var(--font-head); cursor: pointer; }
+  .rd-go:disabled { border-color: var(--line); background: rgba(255,255,255,0.04); color: var(--ink-faint); cursor: default; }
   .again-scroll { max-height: 54vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .meal-reassign { display: flex; gap: 6px; flex-wrap: wrap; }
   .meal-reassign button { flex: 1 1 0; min-width: 62px; border: 1px solid rgba(255,255,255,0.14);
@@ -1083,6 +1120,7 @@
         <div class="t9-note" id="t9Note" hidden></div>
         <div class="t9-coach" id="scCoach" hidden></div>
         <div class="t9-weight" id="t9Weight" hidden></div>
+        <div class="t9-food" id="t9Food" hidden></div>
         <!-- These two lived on the share screen and decided what went into a picture
              you could not see until it was made. They belong here, where they change
              the card you are looking at -- and the picture is that card. -->
@@ -1099,6 +1137,13 @@
               <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
               <path id="t9WeightSlash" d="M3 3l18 18"/>
             </svg><span class="sr-only" id="t9WeightLabel">Bodyweight</span>
+          </button>
+          <button class="t9-tog" id="t9FoodBtn" type="button" aria-pressed="false"
+                  aria-label="What you ate on the card" title="What you ate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 3v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3"/><path d="M6 13v8"/>
+              <path d="M17 3c-1.5 2-2 4-2 6s.5 3 2 3 2-1 2-3-.5-4-2-6z"/><path d="M17 12v9"/>
+            </svg><span class="sr-only" id="t9FoodLabel">What you ate</span>
           </button>
           <button class="t9-btn drop" id="rkDropBtn" type="button" hidden></button>
           <button class="t9-btn share" id="scOpenBtn" type="button">Share</button>
@@ -1344,6 +1389,20 @@
     <h3 id="exHistoryTitle">Exercise history</h3>
     <div id="exHistoryList"></div>
     <div class="modal-actions"><button class="close-btn" id="closeExHistoryBtn" style="width:100%;">Close</button></div>
+  </div>
+
+  <!-- Make up a missed walk with minutes walked since -->
+  <div class="modal-inner" id="redeemModal" style="display:none;">
+    <h3>Make up a missed walk</h3>
+    <div class="redeem-meter">
+      <div class="rm-top"><b id="redeemSpare">0</b><span>spare minutes today</span></div>
+      <div class="rm-track"><i id="redeemFill"></i></div>
+      <div class="rm-note" id="redeemNote"></div>
+    </div>
+    <div id="redeemList"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="redeemCloseBtn">Close</button>
+    </div>
   </div>
 
   <!-- Pick a meal from the past week and log it again -->
@@ -2941,6 +3000,58 @@
      perfect is a bar you stop aiming at, and the whole problem this is here to solve
      is wanting to stop. */
   var WIN_AT = 80;
+  /* ---- making up a missed walk ----
+     A day you did not walk is a day you did not walk, and nothing here pretends
+     otherwise: the only thing that can pay for it is minutes you actually walked, on
+     another day, over and above what that day already asked of you. The record lives in
+     the day being made up -- a map of which day the minutes came from to how many -- so
+     the ledger is readable from the data alone and no minute can be spent twice.
+     Cardio only. Sets are not minutes and cannot be moved around like this. */
+  var REDEEM_SLOT = "__redeem";
+  var REDEEM_WINDOW = 7;
+  function redeemMap(doc) {
+    var m = doc && doc.sets && doc.sets[REDEEM_SLOT];
+    return (m && typeof m === "object" && !Array.isArray(m)) ? m : null;
+  }
+  function redeemedMinutes(doc) {
+    var m = redeemMap(doc), n = 0;
+    if (m) Object.keys(m).forEach(function (k) { n += Number(m[k]) || 0; });
+    return n;
+  }
+
+  /* What today has spare, and which days could use it. Spare is the walking done over
+     and above what today itself asked for, less anything already given away today. */
+  async function redeemState() {
+    var now = new Date(), todayK = dateKey(now);
+    var tdoc = await getDayDoc(todayK);
+    var tprog = PROGRAM[now.getDay()];
+    var want = (tprog && tprog.cardio && tprog.cardio.min) || 0;
+    var walked = (tdoc.cardio && tdoc.cardio.min) || 0;
+    var given = 0, days = [];
+    for (var i = 1; i <= REDEEM_WINDOW; i++) {
+      var d = new Date(now); d.setDate(d.getDate() - i);
+      var k = dateKey(d), doc = await getDayDoc(k);
+      var m = redeemMap(doc);
+      if (m) given += Number(m[todayK]) || 0;
+      var pg = PROGRAM[d.getDay()];
+      var w = (pg && pg.cardio && pg.cardio.min) || 0;
+      if (!w) continue;                                   // a day that asked for none cannot be short
+      var got = ((doc.cardio && doc.cardio.min) || 0) + redeemedMinutes(doc);
+      if (got < w) days.push({ key: k, date: new Date(d), want: w, got: got, short: w - got });
+    }
+    return { todayK: todayK, want: want, walked: walked, given: given,
+             spare: Math.max(0, walked - want - given), days: days };
+  }
+  async function redeemDay(key, minutes) {
+    var todayK = dateKey(new Date());
+    var doc = await getDayDoc(key);
+    if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
+    var m = redeemMap(doc) || {};
+    m[todayK] = (Number(m[todayK]) || 0) + minutes;
+    doc.sets[REDEEM_SLOT] = m;
+    await saveDayDoc(key, doc);
+  }
+
   function dayBlows(prog, doc, foodRows) {
     var isLift = !!(prog && prog.type !== "cardio");
     var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0,
@@ -2954,7 +3065,14 @@
     });
 
     var wantMin = (prog && prog.cardio && prog.cardio.min) || 0;
-    var actualMin = (doc.cardio && doc.cardio.min) || 0;
+    var walkedMin = (doc.cardio && doc.cardio.min) || 0;
+    /* Minutes walked on a later day and credited back to this one. They live in the
+       day's own record, so the score stays what it has always been -- a pure function
+       of what the day holds, rebuildable from the log and not from a history of
+       events. Each minute is stamped with the day it was walked, which is what stops
+       the same surplus being spent twice. */
+    var madeUp = redeemedMinutes(doc);
+    var actualMin = walkedMin + madeUp;
     var cardioHit = Math.round(Math.min(1, wantMin ? actualMin / wantMin : 0) * cardioW);
     var liftHit = isLift ? Math.round((totalSets ? doneSets / totalSets : 0) * liftW) : 0;
 
@@ -2965,7 +3083,8 @@
     var weighHit = doc.weight != null ? weighW : 0;
 
     var blows = [
-      { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + wantMin + " min" },
+      { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + wantMin + " min" +
+          (madeUp ? " (" + madeUp + " made up)" : "") },
       { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
       { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (foodRows.length ? foodRows.length + " logged" : "none logged") },
       { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" }
@@ -4083,7 +4202,8 @@
   var lastProg = null, rankTicker = null;
   /* Off by default on both counts: a picture of your day should not carry your
      bodyweight out into the world unless you decide it should. */
-  var summaryShowCoach = true, summaryShowWeight = false, lastWeightLine = "", coachAsked = false;
+  var summaryShowCoach = true, summaryShowWeight = false, summaryShowFood = false;
+  var lastWeightLine = "", lastFoodStrip = "", coachAsked = false;
 
   /* The whole of today on one screen. It is rebuilt from the log every time anything
      lands -- a set, a photo, a number on the scale -- so there is never a stale number
@@ -4262,6 +4382,9 @@
         '<b>' + (w.won ? "✓" : (w.score || "—")) + '</b>' +
         '<span>' + ["S", "M", "T", "W", "T", "F", "S"][w.d.getDay()] + '</span></div>';
     }).join("");
+    /* The strip is the meter: tap it and it says what today has spare and which days
+       could use it. */
+    document.getElementById("t9Week").onclick = function () { openRedeem(); };
 
     /* what is helping and what is costing, in one line of chips */
     /* One line, and a chip cut in half by the card edge looks like a fault rather
@@ -4311,6 +4434,16 @@
       lastWeightLine = "<b>" + doc.weight.toFixed(1) + " lb</b>" +
         (dW == null ? "" : " \u00b7 " + (dW > 0 ? "+" : "") + dW.toFixed(1) + " since last");
     } else { lastWeightLine = ""; }
+
+    /* Built whether or not it is showing, for the same reason the weight line is: the
+       toggle has to be able to turn it on without going back for the data. */
+    lastFoodStrip = dayRows.slice(0, 5).map(function (f) {
+      var kcal = (f.estimate && f.estimate.calories) ? "~" + f.estimate.calories : "";
+      var words = esc(f.userNote || (f.estimate && f.estimate.food) || "meal");
+      return f.url
+        ? '<span class="t9-f" style="background-image:url(' + esc(f.url) + ')"><span>' + kcal + '</span></span>'
+        : '<span class="t9-f words">' + words + (kcal ? "<br>" + kcal : "") + '</span>';
+    }).join("");
     applyCardToggles();
 
     tickRank();
@@ -4687,6 +4820,9 @@
     document.getElementById("againCancelBtn").onclick = function () {
       document.getElementById("modalOverlay").classList.remove("open");
     };
+    document.getElementById("redeemCloseBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
 
     document.getElementById("foodWriteBtn").onclick = async function () {
       var d = document.getElementById("foodDetailsInput");
@@ -4895,6 +5031,50 @@
     return shareFontCss;
   }
 
+  /* XML 1.0 has no way to represent most control characters -- not raw, not escaped --
+     and a serialiser emits whatever is in the DOM without checking. One stray character
+     in a coach line or a meal description is therefore enough to make the whole picture
+     unparseable, which is what "the card did not serialise cleanly" was. Lone halves of
+     surrogate pairs are the same story. They are dropped rather than escaped, because
+     there is nothing to escape them to. */
+  function xmlSafe(str) {
+    return String(str)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, "")
+      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, "")
+      .replace(/(^|[^\uD800-\uDBFF])([\uDC00-\uDFFF])/g, "$1");
+  }
+  function attrSafe(str) {
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function xmlError(str) {
+    try {
+      var d = new DOMParser().parseFromString(str, "application/xml");
+      var e = d.getElementsByTagName("parsererror")[0];
+      return e ? e.textContent.replace(/\s+/g, " ").slice(0, 160) : null;
+    } catch (e) { return null; }
+  }
+
+  /* Photos live on Supabase, and an SVG rasterised through an <img> cannot fetch
+     anything, so a referenced photo would come out as a hole. Each one is read back and
+     carried inline instead. A photo that will not come back is dropped rather than
+     failing the whole picture. */
+  async function inlineImages(root) {
+    var imgs = Array.prototype.slice.call(root.querySelectorAll("img[src]"));
+    for (var i = 0; i < imgs.length; i++) {
+      var src = imgs[i].getAttribute("src") || "";
+      if (!src || src.slice(0, 5) === "data:") continue;
+      try {
+        var blob = await (await fetch(src, { mode: "cors" })).blob();
+        imgs[i].setAttribute("src", await new Promise(function (res, rej) {
+          var fr = new FileReader();
+          fr.onload = function () { res(fr.result); };
+          fr.onerror = rej; fr.readAsDataURL(blob);
+        }));
+      } catch (e) { imgs[i].parentNode && imgs[i].parentNode.removeChild(imgs[i]); }
+    }
+  }
+
   async function cardSvg() {
     var card = document.querySelector("#panel-summary .card9");
     if (!card) throw new Error("there is no card to draw");
@@ -4930,6 +5110,7 @@
     Array.prototype.forEach.call(clone.querySelectorAll("svg"), function (g) {
       g.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     });
+    await inlineImages(clone);
     var body = new XMLSerializer().serializeToString(clone);
     var css = Array.prototype.map.call(document.querySelectorAll("style"), function (t) {
       return t.textContent; }).join("\n");
@@ -4940,12 +5121,14 @@
       if (rootCS[i].slice(0, 2) === "--") vars.push(rootCS[i] + ":" + rootCS.getPropertyValue(rootCS[i]));
     }
     var fonts = await embeddedFontCss();
+    /* The stylesheet goes in as character data: CSS is not XML, and a stylesheet is
+       free to contain characters that would otherwise have to be escaped. */
     return { W: W, H: H,
-      svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' +
+      svg: xmlSafe('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' +
         '<foreignObject x="0" y="0" width="' + W + '" height="' + H + '">' +
-        '<div xmlns="http://www.w3.org/1999/xhtml" class="' + document.documentElement.className +
-        '" style="' + vars.join(";") + '">' +
-        "<style>" + fonts + "\n" + css + "</style>" + body + "</div></foreignObject></svg>" };
+        '<div xmlns="http://www.w3.org/1999/xhtml" class="' + attrSafe(document.documentElement.className) +
+        '" style="' + attrSafe(vars.join(";")) + '">' +
+        "<style><![CDATA[" + fonts + "\n" + css + "]]></style>" + body + "</div></foreignObject></svg>") };
   }
 
   /* Rasterise at twice the card's size so the picture holds up full screen on a phone.
@@ -4954,12 +5137,18 @@
      a blank square arriving in somebody's messages. */
   async function cardToBlob() {
     var made = await cardSvg();
-    var check = new DOMParser().parseFromString(made.svg, "application/xml");
-    if (check.getElementsByTagName("parsererror").length) throw new Error("the card did not serialise cleanly");
+    /* The parse is a diagnosis, not a gate. It used to refuse outright on anything it
+       did not like, which meant a card that the browser would have drawn perfectly well
+       produced no picture at all. Now it only decides what to SAY if the drawing then
+       fails -- the real test is whether an image comes back. */
+    var why = xmlError(made.svg);
     var img = new Image();
     await new Promise(function (res, rej) {
       img.onload = res;
-      img.onerror = function () { rej(new Error("the picture could not be drawn")); };
+      img.onerror = function () {
+        rej(new Error(why ? "the card did not serialise cleanly \u2014 " + why
+                          : "the picture could not be drawn"));
+      };
       img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(made.svg)));
     });
     var SC = 2, c = document.createElement("canvas");
@@ -4995,6 +5184,11 @@
     document.getElementById("t9WeightBtn").onclick = function () {
       summaryShowWeight = !summaryShowWeight;
       this.setAttribute("aria-pressed", summaryShowWeight ? "true" : "false");
+      applyCardToggles();
+    };
+    document.getElementById("t9FoodBtn").onclick = function () {
+      summaryShowFood = !summaryShowFood;
+      this.setAttribute("aria-pressed", summaryShowFood ? "true" : "false");
       applyCardToggles();
     };
 
@@ -5092,6 +5286,49 @@
 
   /* Both toggles only ever show or hide something already on the card, so one function
      puts the card in the state the toggles describe, and the share image inherits it. */
+  /* The meter is the week strip: a day you walked short is tappable, and this is what
+     it opens. One button per short day, each offering what today can actually cover. */
+  async function openRedeem() {
+    var st = await redeemState();
+    document.getElementById("redeemSpare").textContent = st.spare;
+    var pct = st.want ? Math.min(100, Math.round(st.walked / st.want * 100)) : (st.walked ? 100 : 0);
+    document.getElementById("redeemFill").style.width = pct + "%";
+    document.getElementById("redeemNote").innerHTML = st.want
+      ? "Today you have walked <b>" + st.walked + "</b> of the <b>" + st.want + "</b> minutes today asks for" +
+        (st.given ? ", and given <b>" + st.given + "</b> away" : "") + ". Anything past today's own target can make up a missed walk from the last week."
+      : "Today asks for no walk, so every minute you walk is spare" +
+        (st.given ? ", less the <b>" + st.given + "</b> already given away" : "") + ".";
+    var list = document.getElementById("redeemList");
+    if (!st.days.length) {
+      list.innerHTML = '<div class="empty">No short walks in the last week. Nothing to make up.</div>';
+    } else {
+      list.innerHTML = st.days.map(function (d) {
+        var can = Math.min(st.spare, d.short);
+        return '<div class="rd-row"><span class="rd-when"><b>' + fmtLabel(d.date) + '</b>' +
+          '<span>' + d.got + " of " + d.want + ' min \u00b7 ' + d.short + ' short</span></span>' +
+          '<button class="rd-go" type="button" data-k="' + d.key + '" data-m="' + can + '"' +
+          (can > 0 ? "" : " disabled") + '>' + (can > 0 ? "Make up " + can + " min" : "No spare") + '</button></div>';
+      }).join("");
+      Array.prototype.forEach.call(list.querySelectorAll(".rd-go"), function (b) {
+        b.onclick = async function () {
+          var mins = Number(b.getAttribute("data-m")) || 0;
+          if (mins <= 0) return;
+          b.disabled = true; b.textContent = "Making up\u2026";
+          await redeemDay(b.getAttribute("data-k"), mins);
+          sfx("logged"); vibrate([12, 30, 12]);
+          burstFrom(b, ["#7DF0B8", "#FFFFFF"], 16);
+          await openRedeem();
+          renderAll();
+        };
+      });
+    }
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "giveModal", "againModal"].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.style.display = "none";
+    });
+    document.getElementById("redeemModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+
   function applyCardToggles() {
     var coach = document.getElementById("scCoach");
     if (coach) {
@@ -5100,13 +5337,18 @@
          for it explicitly brings it back, and the figure gives up the room. */
       coach.classList.toggle("on", summaryShowCoach && coachAsked);
     }
-    var w = document.getElementById("t9Weight");
     var slash = document.getElementById("t9WeightSlash");
     if (slash) slash.style.display = summaryShowWeight ? "none" : "";
-    if (!w) return;
-    if (!summaryShowWeight || !lastWeightLine) { w.hidden = true; return; }
-    w.hidden = false;
-    w.innerHTML = lastWeightLine;
+    var w = document.getElementById("t9Weight");
+    if (w) {
+      if (!summaryShowWeight || !lastWeightLine) { w.hidden = true; }
+      else { w.hidden = false; w.innerHTML = lastWeightLine; }
+    }
+    var fd = document.getElementById("t9Food");
+    if (fd) {
+      if (!summaryShowFood || !lastFoodStrip) { fd.hidden = true; }
+      else { fd.hidden = false; fd.innerHTML = lastFoodStrip; }
+    }
     prepareShare();
   }
 
