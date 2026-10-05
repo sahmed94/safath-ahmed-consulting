@@ -3511,6 +3511,40 @@
      lights up red rather than a chip somewhere else on the card. */
   var WARN_SLOT = { adrift: "shield", detrained: "belt", sedentary: "legs",
                     overfed: "chest", underfed: "chest" };
+  /* Which quest feeds which part. */
+  var PART_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in" };
+  function partWarnMap(pr) {
+    var w = {};
+    activeDebuffs(pr).forEach(function (d) { if (WARN_SLOT[d.id]) w[WARN_SLOT[d.id]] = d.name; });
+    if (pr && pr.gaps && pr.gaps.everLogged && !pr.run) w.weapon = "Run broken";
+    return w;
+  }
+  /* One answer for both renderers. The card and the share image drew the same seven
+     parts from the same data and disagreed about them, because each worked it out for
+     itself; whatever is lit on screen is lit on the image because this says so once.
+       full   today fed it to the cap          part  it started
+       todo   waiting on you                   warn  a penalty is live on it
+       ready  money earned and not yet given
+     Showing up and History have no quest feeding them, so they read off the run and
+     off whether today has been logged at all. Money owed outranks money earned today:
+     the point of the head is the giving still outstanding. */
+  function partState(key, o) {
+    if (key === "helmet") return o.owed > 0 ? "ready" : (o.earnedToday > 0 ? "full" : "todo");
+    if (key === "weapon") return o.run > 0 ? "full" : (o.warn.weapon ? "warn" : "todo");
+    if (key === "shield") return o.score > 0 ? "full" : (o.warn.shield ? "warn" : "todo");
+    var b = o.dmg[PART_FEEDS[key]];
+    if (b && b.v >= b.max) return "full";
+    if (o.warn[key]) return "warn";
+    if (b && b.v > 0) return "part";
+    return "todo";
+  }
+  var WARN_INK = "#FF6B6B";
+  /* The colour a part draws itself in, once its state is known. */
+  function partInk(r, st) {
+    if (st === "warn") return WARN_INK;
+    if (st === "todo") return "rgba(255,255,255,0.28)";
+    return r.hue;
+  }
   /* One ladder for all seven, in words that need no glossary: they say how built up
      a part is, which is the only thing anybody wanted to know. */
   var BUILD_TIERS = [
@@ -3604,8 +3638,10 @@
       /* Giving is the one part you cannot build by wanting to: the work has to earn
          the money first. So the row says where it came from before it says what you
          did with it. */
-      helmet: { built: Math.round(given), face: money(given), per: 1,
-                step: function (n) { return "give " + money(n) + " of the " + money(owed) + " you have earned"; },
+      helmet: { built: Math.round(given), face: money(given), per: 1, blocked: owed <= 0,
+                step: function (n) { return owed > 0
+                  ? "give " + money(Math.min(n, owed)) + " of the " + money(owed) + " you have earned"
+                  : "earn first \u2014 finish a session or eat on plan"; },
                 detail: owed > 0 ? money(earned) + " earned by your work \u00b7 " + money(given) + " of it given"
                                  : (earned > 0 ? money(earned) + " earned and all of it given"
                                                : "nothing earned to give yet") },
@@ -3642,6 +3678,7 @@
       }
       var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.built) / r.per)) : null;
       return { key: sl.key, name: sl.name, part: sl.part, fed: sl.fed, icon: sl.icon, hue: sl.hue,
+               blocked: !!r.blocked,
                built: r.built, face: r.face, detail: r.detail,
                rarity: tier, next: nextT, need: need,
                needText: nextT ? r.step(need) : "at the cap" };
@@ -4008,25 +4045,10 @@
        give away. Showing up and History have no quest feeding them, so they read off
        the run and off whether today has been logged at all -- which is what makes the
        figure light up piece by piece as the day goes on. */
-    var warnOn = {};
-    activeDebuffs(pr).forEach(function (d) { if (WARN_SLOT[d.id]) warnOn[WARN_SLOT[d.id]] = d.name; });
-    if (pr.gaps && pr.gaps.everLogged && !pr.run) warnOn.weapon = "Run broken";
-    function stateOf(r) {
-      /* Money already earned and not yet given outranks money earned today: the whole
-         point of the head is that the giving is the thing still owed, so while any is
-         owed it is the part that breathes and asks to be tapped. */
-      if (r.key === "helmet") return lo.owed > 0 ? "ready" : (earnedToday > 0 ? "full" : "todo");
-      if (r.key === "weapon") return pr.run > 0 ? "full" : (warnOn.weapon ? "warn" : "todo");
-      if (r.key === "shield") return bl.score > 0 ? "full" : (warnOn.shield ? "warn" : "todo");
-      var b = DMG[FEED[r.key]];
-      if (b && b.v >= b.max) return "full";
-      if (warnOn[r.key]) return "warn";
-      if (b && b.v > 0) return "part";
-      return "todo";
-    }
+    var stateCtx = { warn: partWarnMap(pr), dmg: DMG, owed: lo.owed, earnedToday: earnedToday,
+                     run: pr.run, score: bl.score };
     function paint(r) {
-      var st = stateOf(r);
-      return ' data-state="' + st + '" style="--h:' + r.hue + ';--hb:' + r.hue + '1F"';
+      return ' data-state="' + partState(r.key, stateCtx) + '" style="--h:' + r.hue + ';--hb:' + r.hue + '1F"';
     }
     function badge(r) {
       var b = DMG[FEED[r.key]];
@@ -4782,32 +4804,40 @@
     /* ---- 2. the tree: what you put in, and the part of you it builds ---- */
     var DMG = {};
     bt.blows.forEach(function (bl) { DMG[bl.k] = bl; });
-    var SOCKET_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in" };
 
     ctx.textAlign = "center";
     cap("what you put in  \u2192  what it builds", midX, 350, 16, 0.42);
     ctx.textAlign = "left";
 
+    /* Waist, legs and feet stood in a column down the spine here while the card had
+       put them across its base, so the image did not show what the app shows. Three
+       across, on the same flanks as the arms, is the card's figure at card scale. */
     var SZ = 64;
-    var Y_HEAD = 412, Y_CORE = 580, Y_WAIST = 802, Y_LEGS = 914, Y_FEET = 1026;
+    var Y_HEAD = 412, Y_CORE = 580, Y_BASE = 836;
     var FLANK = 212, ringR = 80;
 
     ctx.strokeStyle = "rgba(255,255,255,0.13)"; ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(midX, Y_HEAD); ctx.lineTo(midX, Y_FEET);
+    ctx.moveTo(midX, Y_HEAD); ctx.lineTo(midX, Y_BASE);
     ctx.moveTo(midX - FLANK, Y_CORE); ctx.lineTo(midX + FLANK, Y_CORE);
+    ctx.moveTo(midX - FLANK, Y_BASE); ctx.lineTo(midX + FLANK, Y_BASE);
     ctx.stroke();
 
+    /* Lit, dim, grey or red, by the same rule the card uses. The card breathes and a
+       still image cannot, so a lit part carries a wider glow instead. */
     function node(cx, cy, r) {
       if (!r) return;
       var sx = cx - SZ / 2, sy = cy - SZ / 2;
-      var filled = r.built > 0;
-      var col = filled ? r.hue : "rgba(255,255,255,0.22)";
+      var st = stateOf(r), lit = st === "full" || st === "ready" || st === "warn";
+      var col = partInk(r, st);
       roundRect(ctx, sx, sy, SZ, SZ, 10);
-      ctx.fillStyle = filled ? r.hue + "1F" : "rgba(7,8,14,0.9)"; ctx.fill();
-      if (filled) { ctx.save(); ctx.shadowColor = r.hue; ctx.shadowBlur = 18; ctx.fill(); ctx.restore(); }
+      ctx.fillStyle = st === "todo" ? "rgba(7,8,14,0.9)"
+                    : st === "warn" ? "rgba(255,107,107,0.12)"
+                    : r.hue + (st === "part" ? "16" : "1F"); ctx.fill();
+      if (lit) { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 24; ctx.fill(); ctx.fill(); ctx.restore(); }
+      else if (st === "part") { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 10; ctx.fill(); ctx.restore(); }
       roundRect(ctx, sx, sy, SZ, SZ, 10);
-      if (filled) { ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); }
+      if (st !== "todo") { ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.stroke(); }
       else { ctx.setLineDash([4, 5]); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
       ctx.save();
       ctx.translate(cx - 15, sy + 17); ctx.scale(30 / 24, 30 / 24);
@@ -4816,17 +4846,24 @@
       ctx.restore();
     }
     function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
+    var shareState = { warn: partWarnMap(pr), dmg: DMG, owed: lo.owed, earnedToday: 0,
+                       run: pr.run, score: bt.damage };   // battle() calls the score "damage"
+    function stateOf(r) { return partState(r.key, shareState); }
 
     /* the reading beside a node: what went in, the part it feeds, and today's points */
-    function leaf(r, x, yy, align) {
+    function leaf(r, x, yy, align, brief) {
       if (!r) return;
-      var bl = DMG[SOCKET_FEEDS[r.key]];
+      var bl = DMG[PART_FEEDS[r.key]];
+      var st = stateOf(r), col = partInk(r, st);
       ctx.textAlign = align;
-      ctx.fillStyle = "#fff"; ctx.font = "600 21px Oswald, sans-serif";
+      /* The name carries the colour when the part is lit, the same as on the card, so
+         the image reads at a glance instead of asking to be studied. */
+      ctx.fillStyle = (st === "full" || st === "ready" || st === "warn") ? col : "#fff";
+      ctx.font = "600 21px Oswald, sans-serif";
       ctx.fillText(r.name.toUpperCase(), x, yy);
       ctx.fillStyle = "rgba(255,255,255,0.75)"; ctx.font = "500 17px Inter, sans-serif";
-      ctx.fillText(r.detail, x, yy + 24);
-      ctx.fillStyle = r.built ? r.hue : "rgba(255,255,255,0.3)";
+      ctx.fillText(brief ? r.face : r.detail, x, yy + 24);
+      ctx.fillStyle = st === "todo" ? "rgba(255,255,255,0.3)" : col;
       ctx.font = "500 14px Inter, sans-serif";
       ctx.fillText(r.part + " \u00b7 " + r.rarity.name.toLowerCase(), x, yy + 46);
       if (bl) {
@@ -4836,7 +4873,7 @@
         var w = ctx.measureText(t2).width + 18;
         var bxx = align === "right" ? x - w : align === "center" ? x - w / 2 : x;
         roundRect(ctx, bxx, yy + 56, w, 24, 12);
-        ctx.fillStyle = full ? "rgba(125,240,184,0.9)" : (any ? vCol : "rgba(40,44,58,0.95)");
+        ctx.fillStyle = full ? r.hue : (any ? vCol : "rgba(40,44,58,0.95)");
         ctx.fill();
         ctx.fillStyle = any ? INK : "rgba(255,255,255,0.45)";
         ctx.textAlign = "center"; ctx.fillText(t2, bxx + w / 2, yy + 73);
@@ -4851,6 +4888,7 @@
     var earnedToday = (bt.blows.filter(function (b) { return b.k === "Training" && b.v >= b.max; }).length ? (gr.session || 0) : 0) +
                       (dayBlows(prog, doc, dayFood).onPlan ? (gr.onPlan || 0) : 0);
     DMG.Giving = earnedToday > 0 ? { v: money(earnedToday) } : null;
+    shareState.earnedToday = earnedToday;
     node(midX, Y_HEAD, rowFor("helmet"));   leaf(rowFor("helmet"), midX + 52, Y_HEAD - 14, "left");
     if (DMG.Giving) {
       var gt = DMG.Giving.v + " earned today";
@@ -4866,9 +4904,10 @@
     leaf(rowFor("weapon"), midX - FLANK, Y_CORE + 56, "center");
     node(midX + FLANK, Y_CORE, rowFor("shield"));
     leaf(rowFor("shield"), midX + FLANK, Y_CORE + 56, "center");
-    node(midX, Y_WAIST, rowFor("belt"));    leaf(rowFor("belt"),   midX + 52, Y_WAIST - 14, "left");
-    node(midX, Y_LEGS, rowFor("legs"));     leaf(rowFor("legs"),   midX + 52, Y_LEGS - 14, "left");
-    node(midX, Y_FEET, rowFor("boots"));    leaf(rowFor("boots"),  midX + 52, Y_FEET - 14, "left");
+    [["belt", midX - FLANK], ["legs", midX], ["boots", midX + FLANK]].forEach(function (b2) {
+      node(b2[1], Y_BASE, rowFor(b2[0]));
+      leaf(rowFor(b2[0]), b2[1], Y_BASE + 56, "center", 1);
+    });
 
     /* the core is the food: the rings are the part, the calories are the input */
     var rings = [
@@ -4920,15 +4959,21 @@
     });
 
     /* the one thing worth doing next, in the room the spine leaves */
-    var upg = lo.rows.filter(function (r) { return r.next; }).sort(function (a, b) { return a.need - b.need; })[0];
+    var upg = lo.rows.filter(function (r) { return r.next && !r.blocked; })
+                     .sort(function (a, b) { return a.need - b.need; })[0];
     if (upg) {
-      var uY = Y_WAIST + 4;
-      cap("easiest win left", pad, uY, 14, 0.42);
-      ctx.fillStyle = "#fff"; ctx.font = "600 19px Oswald, sans-serif";
-      ctx.fillText(upg.needText, pad, uY + 30);
+      /* It used to sit in the margin the old spine left beside the stacked column.
+         With the base across there is no margin, so it takes the full width under
+         the figure and is centred on it. */
+      var uY = Y_BASE + 176;
+      ctx.textAlign = "center";
+      cap("easiest win left", midX, uY, 14, 0.42);
+      ctx.fillStyle = "#fff"; ctx.font = "600 21px Oswald, sans-serif";
+      ctx.fillText(upg.needText, midX, uY + 32);
       ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "500 15px Inter, sans-serif";
-      ctx.fillText("and your " + upg.part.toLowerCase() + " goes from " + upg.rarity.name.toLowerCase(), pad, uY + 54);
-      ctx.fillText("to " + upg.next.name.toLowerCase(), pad, uY + 76);
+      ctx.fillText("and your " + upg.part.toLowerCase() + " goes from " +
+                   upg.rarity.name.toLowerCase() + " to " + upg.next.name.toLowerCase(), midX, uY + 56);
+      ctx.textAlign = "left";
     }
     rule(1096);
 
