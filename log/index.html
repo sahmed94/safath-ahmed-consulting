@@ -121,15 +121,7 @@
   .card9 .field label, .modal-inner .field label { color: rgba(255,255,255,0.5); }
   .card9 .empty, .modal-inner .empty { color: rgba(255,255,255,0.4); }
 
-  /* the sheets are the same surface, so opening one is not a change of scene */
-  .modal-inner { background: linear-gradient(162deg, #140D26 0%, #1B1035 48%, #251038 100%);
-    border: 1px solid rgba(255,255,255,0.12); }
-  .modal-inner h3 { color: #fff; }
-  #modalOverlay, #shareModal { background: rgba(8,4,20,0.78); }
   .close-btn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.16); }
-  .give-why { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); }
-  .give-why b { color: #fff; }
-  .give-sec { color: var(--ink-faint); }
 
   /* TODAY */
   .today9 { gap: 8px; }
@@ -374,7 +366,6 @@
   @media (prefers-reduced-motion: reduce) { .power-fill::after { animation: none; } }
   .quest-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
   .quest-row { display: flex; align-items: center; gap: 10px; }
-  .quest-icon { width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto; background: #fff; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; transition: transform .3s cubic-bezier(.34,1.56,.64,1), background .3s, border-color .3s; }
   .quest-icon svg { width: 16px; height: 16px; stroke: var(--ink-faint); transition: stroke .3s; }
   .quest-row.done .quest-icon { background: var(--teal); border-color: var(--teal); transform: scale(1.12) rotate(-6deg); }
   .quest-row.done .quest-icon svg { stroke: #fff; }
@@ -862,12 +853,17 @@
   /* The share sheet had no styles at all: it was a plain div sitting at the bottom of
      every page, which only passed for a modal while the page was long enough to hide
      it. With one card per screen there is nothing below to hide it in. */
-  #shareModal { position: fixed; inset: 0; z-index: 60; background: rgba(20,20,35,0.72);
+  #shareModal { position: fixed; inset: 0; z-index: 60; background: rgba(8,4,20,0.78);
     display: none; align-items: center; justify-content: center; padding: 20px; }
   #shareModal.open { display: flex; }
-  #modalOverlay { position: fixed; inset: 0; z-index: 60; background: rgba(20,20,35,0.72); display: none; align-items: center; justify-content: center; padding: 20px; }
+  #modalOverlay { position: fixed; inset: 0; z-index: 60; background: rgba(8,4,20,0.78); display: none; align-items: center; justify-content: center; padding: 20px; }
   #modalOverlay.open { display: flex; }
-  .modal-inner { background: #fff; border-radius: 16px; padding: 16px; max-width: 420px; width: 100%; max-height: 88vh; overflow-y: auto; }
+  /* The sheets are the same surface as the cards. This is the only rule that sets it:
+     a second, earlier copy of it was overridden by this one and the sheets opened
+     white, which is the thing that made the app look broken. One rule, no cascade. */
+  .modal-inner { background: linear-gradient(162deg, #140D26 0%, #1B1035 48%, #251038 100%);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px;
+    max-width: 420px; width: 100%; max-height: 88vh; overflow-y: auto; }
   .modal-inner h3 { font-family: var(--font-head); font-size: 15px; margin: 0 0 12px; color: var(--ink); }
   .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
   .modal-actions button { flex: 1; font-family: var(--font-head); font-size: 13px; padding: 11px; border-radius: 10px; cursor: pointer; border: 1.5px solid var(--line); }
