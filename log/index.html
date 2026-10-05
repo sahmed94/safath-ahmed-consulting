@@ -14,7 +14,7 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
     --bg: #0E0A1C; --surface: #1A1430; --surface-2: rgba(255,255,255,0.07);
     --line: rgba(255,255,255,0.13);
-    --ink: #FFFFFF; --ink-dim: rgba(255,255,255,0.7); --ink-faint: rgba(255,255,255,0.45);
+    --ink: #FFFFFF; --ink-dim: rgba(255,255,255,0.72); --ink-faint: rgba(255,255,255,0.58);
     --blue: #6E9BFF; --blue-soft: rgba(110,155,255,0.18);
     --coral: #FF8F6B; --coral-soft: rgba(255,143,107,0.18);
     --teal: #3FE0A8; --teal-soft: rgba(63,224,168,0.17);
@@ -29,11 +29,25 @@
   html, body { height: 100%; }
   body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
 
-  #authScreen { position: fixed; inset: 0; z-index: 50; background: linear-gradient(160deg, #2E6BFF 0%, #6B3FFF 55%, #E0417C 100%); display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .lock-card { width: 100%; max-width: 340px; text-align: center; background: rgba(255,255,255,0.97); border-radius: 20px; padding: 32px 26px; box-shadow: 0 20px 60px rgba(20,10,60,0.35); }
+  /* The first screen of the app is a screen of the app. It kept a white card from
+     before the dark theme, and because --ink went from near-black to white, every
+     piece of text on that card -- the title, the field labels, the note -- turned
+     white on white and vanished. It is the same surface as the cards now, which fixes
+     the text and means signing in and landing in the app are one continuous thing. */
+  #authScreen { position: fixed; inset: 0; z-index: 50; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; padding: 24px; }
+  #authScreen::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(90% 50% at 50% 0%, rgba(110,155,255,0.22), transparent 70%),
+                radial-gradient(80% 45% at 50% 100%, rgba(255,92,150,0.18), transparent 70%); }
+  .lock-card { position: relative; width: 100%; max-width: 340px; text-align: center;
+    background: linear-gradient(162deg, #140D26 0%, #1B1035 48%, #251038 100%);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 32px 26px;
+    box-shadow: 0 20px 60px rgba(8,4,24,0.55); }
   .lock-mark { font-family: var(--font-head); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; color: var(--blue); margin-bottom: 6px; }
-  .lock-title { font-family: var(--font-head); font-weight: 600; font-size: 26px; margin: 0 0 24px; color: var(--ink); }
-  .lock-input { width: 100%; background: var(--surface-2); border: 1.5px solid var(--line); color: var(--ink); font-size: 22px; letter-spacing: 0.3em; text-align: center; padding: 14px 10px; border-radius: 10px; font-family: var(--font-body); }
+  .lock-title { font-family: var(--font-head); font-weight: 600; font-size: 26px; margin: 0 0 24px; color: #fff; }
+  .lock-card .field label { color: rgba(255,255,255,0.5); }
+  .lock-input { width: 100%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.14); color: #fff; font-size: 22px; letter-spacing: 0.3em; text-align: center; padding: 14px 10px; border-radius: 10px; font-family: var(--font-body); }
+  .lock-input::placeholder { color: rgba(255,255,255,0.33); }
   .lock-input:focus { outline: none; border-color: var(--blue); }
   .lock-btn { margin-top: 14px; width: 100%; background: linear-gradient(90deg, var(--blue), var(--magenta)); color: #fff; border: none; font-family: var(--font-head); font-weight: 600; letter-spacing: 0.04em; font-size: 15px; padding: 13px; border-radius: 10px; cursor: pointer; }
   .lock-btn:active { transform: translateY(1px); }
@@ -77,7 +91,7 @@
   .card9, .modal-inner {
     --surface: #1A1430; --surface-2: rgba(255,255,255,0.07);
     --line: rgba(255,255,255,0.13);
-    --ink: #FFFFFF; --ink-dim: rgba(255,255,255,0.7); --ink-faint: rgba(255,255,255,0.45);
+    --ink: #FFFFFF; --ink-dim: rgba(255,255,255,0.72); --ink-faint: rgba(255,255,255,0.58);
     --blue: #6E9BFF; --blue-soft: rgba(110,155,255,0.18);
     --coral: #FF8F6B; --coral-soft: rgba(255,143,107,0.18);
     --teal: #3FE0A8; --teal-soft: rgba(63,224,168,0.17);
@@ -119,7 +133,7 @@
     box-shadow: 0 0 0 3px rgba(110,155,255,0.18); }
   .card9 .field input::placeholder, .modal-inner input::placeholder { color: rgba(255,255,255,0.33); }
   .card9 .field label, .modal-inner .field label { color: rgba(255,255,255,0.5); }
-  .card9 .empty, .modal-inner .empty { color: rgba(255,255,255,0.4); }
+  .card9 .empty, .modal-inner .empty { color: rgba(255,255,255,0.58); }
 
   .close-btn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.16); }
 
@@ -173,12 +187,12 @@
     box-shadow: inset 0 0 0 1.5px currentColor; }
   .fg-node svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8;
     stroke-linecap: round; stroke-linejoin: round; }
-  .fg-node em { font-style: normal; font-family: var(--font-head); font-size: 7px; letter-spacing: .07em; }
+  .fg-node em { font-style: normal; font-family: var(--font-head); font-size: 7.5px; letter-spacing: .07em; opacity: .92; }
   .fg-n { display: block; font-family: var(--font-head); font-size: 13px; line-height: 1.2; }
   .fg-d { display: block; font-size: 9.5px; line-height: 1.3; color: rgba(255,255,255,0.5);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fg-add { display: inline-block; font-family: var(--font-head); font-size: 11px; padding: 2px 7px;
-    border-radius: 20px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.4); }
+    border-radius: 20px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.62); }
   .fg-add.part { background: rgba(255,209,102,0.2); color: #FFD166; }
   .fg-add.full { background: rgba(125,240,184,0.9); color: #07301F; }
 
@@ -200,7 +214,7 @@
   .fg-kcal { position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; pointer-events: none; }
   .fg-kcal b { font-family: var(--font-head); font-size: 18px; line-height: 1; }
-  .fg-kcal span { font-size: 8px; letter-spacing: .1em; color: rgba(255,255,255,0.45); }
+  .fg-kcal span { font-size: 8px; letter-spacing: .1em; color: rgba(255,255,255,0.6); }
   .fg-macros { display: flex; justify-content: center; gap: 9px; font-size: 8.5px;
     color: rgba(255,255,255,0.5); }
   .fg-macros i { font-style: normal; font-weight: 700; }
@@ -210,7 +224,7 @@
   .t9-wd.near { box-shadow: inset 0 0 0 1.3px rgba(255,209,102,0.55); }
   .t9-wd b { display: block; font-family: var(--font-head); font-size: 14px; line-height: 1.1; }
   .t9-wd.won b { color: #7DF0B8; } .t9-wd.near b { color: #FFD166; } .t9-wd b { color: rgba(255,255,255,0.35); }
-  .t9-wd span { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: .06em; }
+  .t9-wd span { font-size: 9px; color: rgba(255,255,255,0.62); letter-spacing: .06em; }
 
   .t9-chips { flex: 0 0 auto; display: flex; gap: 5px; flex-wrap: nowrap; overflow: hidden; cursor: pointer; }
   .t9-chip { font-family: var(--font-head); font-size: 10.5px; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
@@ -390,7 +404,10 @@
   .field input, .field select { width: 100%; background: var(--surface-2); border: 1.5px solid var(--line); color: var(--ink); padding: 10px 11px; border-radius: 10px; font-size: 15px; font-family: var(--font-body); }
   .field input:focus, .field select:focus { outline: none; border-color: var(--blue); }
   .save-chip { font-family: var(--font-head); font-size: 12px; letter-spacing: .03em; background: var(--surface-2); border: 1.5px solid var(--line); color: var(--ink-dim); padding: 10px 16px; border-radius: 10px; cursor: pointer; }
-  .save-chip.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  /* On the light theme these accents were dark enough to carry white text. Lifting
+     them for the dark surface left white on near-pastel, around 1.7:1. The ink that
+     sits ON an accent is the page's own near-black. */
+  .save-chip.primary { background: var(--blue); color: #0E0A1C; border-color: var(--blue); font-weight: 700; }
   .saved-tick { font-size: 11px; color: var(--teal); margin-top: 6px; min-height: 14px; font-weight: 600; }
 
   .plan-hero { display: flex; gap: 14px; align-items: center; }
@@ -405,7 +422,7 @@
   .timer-edit { font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; width: 100%; background: var(--surface-2); border: 1.5px solid var(--blue); border-radius: 8px; padding: 1px 7px; }
   .timer-edit:focus { outline: none; }
   .timer-btn { font-family: var(--font-head); font-size: 12px; padding: 9px 16px; border-radius: 9px; border: none; cursor: pointer; letter-spacing: .03em; }
-  .timer-btn.start { background: var(--teal); color: #fff; }
+  .timer-btn.start { background: var(--teal); color: #0E0A1C; font-weight: 700; }
   .timer-btn.stop { background: var(--coral); color: #fff; }
   .timer-btn.pause { background: var(--amber); color: #fff; }
   .timer-state { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
@@ -429,11 +446,11 @@
     font-family: var(--font-head); font-size: 12px; letter-spacing: .02em; }
   .mp-chip .mp-mark { font-size: 12px; width: 13px; flex: 0 0 auto; text-align: center; }
   .mp-chip .mp-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mp-chip.sel.breakfast { background: var(--amber-soft); border-color: var(--amber); color: #A66600; }
-  .mp-chip.sel.lunch     { background: var(--teal-soft); border-color: var(--teal); color: #0B7A56; }
+  .mp-chip.sel.breakfast { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+  .mp-chip.sel.lunch     { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
   .mp-chip.sel.dinner    { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
   .mp-chip.sel.snack     { background: var(--magenta-soft); border-color: var(--magenta); color: var(--magenta); }
-  .mp-chip.done { border-color: var(--teal); color: #0B7A56; }
+  .mp-chip.done { border-color: var(--teal); color: var(--teal); }
   .mp-chip.done .mp-mark { color: var(--teal); }
   .mp-chip.skip { opacity: .62; }
   .mp-chip.skip .mp-name { text-decoration: line-through; }
@@ -515,7 +532,7 @@
   .mini-field:focus { outline: none; border-color: var(--blue); }
   .set-split-row.done-row .mini-field { background: var(--teal-soft); border-color: var(--teal); }
   .mini-done { width: 40px; height: 40px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink-faint); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-  .mini-done.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .mini-done.on { background: var(--teal); border-color: var(--teal); color: #0E0A1C; }
 
   /* rest timer floating bar */
   #restBarWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + 50px + env(safe-area-inset-bottom, 0px)); z-index: 41; display: none; justify-content: center; padding: 0 16px; }
@@ -558,7 +575,7 @@
   .food-grid { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .food-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--surface-2); cursor: pointer; }
   .food-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .food-tag { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; letter-spacing: .02em; padding: 3px 7px; border-radius: 20px; color: #fff; text-transform: uppercase; }
+  .food-tag { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; letter-spacing: .02em; padding: 3px 7px; border-radius: 20px; color: #0E0A1C; text-transform: uppercase; }
   .food-tag.breakfast { background: var(--amber); } .food-tag.lunch { background: var(--teal); }
   .food-tag.dinner { background: var(--blue); } .food-tag.snack { background: var(--magenta); }
   .food-cal-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color:#fff; font-size: 9px; font-weight:700; padding: 3px 7px; border-radius: 20px; }
@@ -867,7 +884,7 @@
   .modal-inner h3 { font-family: var(--font-head); font-size: 15px; margin: 0 0 12px; color: var(--ink); }
   .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
   .modal-actions button { flex: 1; font-family: var(--font-head); font-size: 13px; padding: 11px; border-radius: 10px; cursor: pointer; border: 1.5px solid var(--line); }
-  .modal-actions .primary-btn { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .modal-actions .primary-btn { background: var(--blue); color: #0E0A1C; border-color: var(--blue); font-weight: 700; }
   .modal-actions .danger-btn { background: var(--coral-soft); color: var(--coral); border-color: var(--coral); }
   .modal-actions .close-btn { background: var(--surface-2); color: var(--ink-dim); }
   .exh-row { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
@@ -3868,7 +3885,7 @@
       return '<span class="fg-add ' + (b.v >= b.max ? "full" : b.v > 0 ? "part" : "") + '">+' + b.v + '</span>';
     }
     function node(r) {
-      return '<span class="fg-node" style="color:' + (r.built ? r.rarity.color : "rgba(255,255,255,0.28)") + '">' +
+      return '<span class="fg-node" style="color:' + (r.built ? r.rarity.color : "rgba(255,255,255,0.46)") + '">' +
         '<svg viewBox="0 0 24 24">' + SLOT_ART[r.icon] + '</svg><em>' + r.part.toUpperCase() + '</em></span>';
     }
     function spine(k) {
