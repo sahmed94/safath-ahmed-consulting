@@ -304,6 +304,29 @@
   .c9-compact .t9-btn.share { padding-left: 11px; padding-right: 11px; }
   .c9-compact .t9-weight { font-size: 11px; padding: 3px 6px; }
   .c9-compact .t9-weight b { font-size: 12.5px; }
+  .t9-redeem { flex: 0 0 auto; display: block; width: 100%; text-align: left; cursor: pointer;
+    border: 1px solid rgba(125,240,184,0.45); background: rgba(125,240,184,0.12);
+    color: var(--ink); border-radius: 11px; padding: 6px 11px; font-size: 11.5px;
+    line-height: 1.3; font-family: inherit;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t9-redeem[hidden] { display: none; }
+  .t9-redeem b { font-family: var(--font-head); font-size: 14px; color: #7DF0B8; }
+  /* Spare minutes are the one thing on this card that expires, so this is the one thing
+     that moves. The nudge to go and earn some does not pulse -- nothing is waiting. */
+  .t9-redeem.ready { animation: redeemGlow 1.8s ease-in-out infinite; }
+  @keyframes redeemGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(125,240,184,0); border-color: rgba(125,240,184,0.45); }
+    50%      { box-shadow: 0 0 16px -2px rgba(125,240,184,0.75); border-color: rgba(125,240,184,0.95); }
+  }
+  .t9-redeem.ready b { animation: redeemNum 1.8s ease-in-out infinite; }
+  @keyframes redeemNum { 0%, 100% { opacity: .78; } 50% { opacity: 1; text-shadow: 0 0 10px rgba(125,240,184,0.8); } }
+  .t9-redeem.earn { border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.1); }
+  .t9-redeem.earn b { color: #FFD166; }
+  @media (prefers-reduced-motion: reduce) {
+    .t9-redeem.ready, .t9-redeem.ready b { animation: none; }
+  }
+  .c9-compact .t9-redeem { font-size: 10.5px; padding: 5px 9px; }
+  .c9-compact .t9-redeem b { font-size: 12.5px; }
   .t9-week { flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
   .t9-wd { border-radius: 9px; padding: 5px 0 4px; text-align: center; box-shadow: inset 0 0 0 1.2px rgba(255,255,255,0.16); }
   .t9-wd.won { background: rgba(125,240,184,0.18); box-shadow: inset 0 0 0 1.4px rgba(125,240,184,0.6); }
@@ -339,8 +362,6 @@
   .c9-compact .t9-record { font-size: 10px; }
   .c9-compact .t9-record b { font-size: 12px; }
   .c9-compact .t9-bar { height: 8px; margin: 6px 0 5px; }
-  .c9-compact .t9-coach { display: none; }
-  .c9-compact .t9-coach.on { display: block; }
   .c9-compact .t9-note { font-size: 10px; padding: 5px 8px; }
   .c9-compact .t9-wd { padding: 3px 0 2px; }
   .c9-compact .t9-wd b { font-size: 12px; }
@@ -455,7 +476,8 @@
   .t9-food[hidden] { display: none; }
   /* A band across the card, not a gallery: at one-to-one these filled a third of it. */
   .t9-food .t9-f { flex: 1 1 0; min-width: 0; height: 62px; border-radius: 9px;
-    background: #241C3C center/cover no-repeat; position: relative; overflow: hidden; }
+    background: #241C3C; position: relative; overflow: hidden; }
+  .t9-food .t9-f img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .c9-compact .t9-food .t9-f { height: 48px; }
   .c9-roomy .t9-food .t9-f { height: 72px; }
   .t9-food .t9-f span { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px;
@@ -1121,6 +1143,10 @@
         <div class="t9-coach" id="scCoach" hidden></div>
         <div class="t9-weight" id="t9Weight" hidden></div>
         <div class="t9-food" id="t9Food" hidden></div>
+        <!-- Spare minutes are worth nothing sitting there, and a ledger nobody opens is
+             a ledger nobody uses. This says so on the face of the card. It is chrome,
+             not a fact about the day, so it stays out of the picture. -->
+        <button class="t9-redeem" id="t9Redeem" type="button" data-noshare hidden></button>
         <!-- These two lived on the share screen and decided what went into a picture
              you could not see until it was made. They belong here, where they change
              the card you are looking at -- and the picture is that card. -->
@@ -4103,6 +4129,16 @@
     /* And above this height the opposite problem: the figure sat in the middle of
        its column with empty space top and bottom. Let it grow into that instead. */
     document.documentElement.classList.toggle("c9-roomy", h >= 680);
+    /* A short card cannot hold the coach band and the figure both. Rather than show the
+       toggle as on and then quietly drop the band -- which is a toggle that lies -- the
+       toggle itself starts off here, so the button and the card always agree. Turning it
+       on is still yours to do, and the figure gives up the room when you do. */
+    if (!coachTouched && h < 560 && summaryShowCoach) {
+      summaryShowCoach = false;
+      var cb = document.getElementById("t9CoachBtn");
+      if (cb) cb.setAttribute("aria-pressed", "false");
+      applyCardToggles();
+    }
     fitFigure();
   }
 
@@ -4203,7 +4239,7 @@
   /* Off by default on both counts: a picture of your day should not carry your
      bodyweight out into the world unless you decide it should. */
   var summaryShowCoach = true, summaryShowWeight = false, summaryShowFood = false;
-  var lastWeightLine = "", lastFoodStrip = "", coachAsked = false;
+  var lastWeightLine = "", lastFoodStrip = "", coachTouched = false;
 
   /* The whole of today on one screen. It is rebuilt from the log every time anything
      lands -- a set, a photo, a number on the scale -- so there is never a stale number
@@ -4385,6 +4421,9 @@
     /* The strip is the meter: tap it and it says what today has spare and which days
        could use it. */
     document.getElementById("t9Week").onclick = function () { openRedeem(); };
+    var rdb = document.getElementById("t9Redeem");
+    if (rdb) rdb.onclick = function () { openRedeem(); };
+    renderRedeemBanner();
 
     /* what is helping and what is costing, in one line of chips */
     /* One line, and a chip cut in half by the card edge looks like a fault rather
@@ -4441,8 +4480,9 @@
       var kcal = (f.estimate && f.estimate.calories) ? "~" + f.estimate.calories : "";
       var words = esc(f.userNote || (f.estimate && f.estimate.food) || "meal");
       return f.url
-        ? '<span class="t9-f" style="background-image:url(' + esc(f.url) + ')"><span>' + kcal + '</span></span>'
-        : '<span class="t9-f words">' + words + (kcal ? "<br>" + kcal : "") + '</span>';
+        ? '<span class="t9-f"><img src="' + esc(f.url) + '" alt="' + words + '"/>' +
+            (kcal ? '<span>' + kcal + '</span>' : "") + '</span>'
+        : '<span class="t9-f words">' + words + (kcal ? "<br/>" + kcal : "") + '</span>';
     }).join("");
     applyCardToggles();
 
@@ -5071,7 +5111,18 @@
           fr.onload = function () { res(fr.result); };
           fr.onerror = rej; fr.readAsDataURL(blob);
         }));
-      } catch (e) { imgs[i].parentNode && imgs[i].parentNode.removeChild(imgs[i]); }
+      } catch (e) {
+        /* Rather than a blank tile: keep whatever the picture was of. */
+        var alt = imgs[i].getAttribute("alt") || "";
+        var holder = imgs[i].parentNode;
+        if (holder) {
+          holder.removeChild(imgs[i]);
+          if (alt && !holder.textContent.trim()) {
+            holder.className += " words";
+            holder.appendChild(document.createTextNode(alt));
+          }
+        }
+      }
     }
   }
 
@@ -5177,7 +5228,7 @@
        makes you read it to find out which way it is set. */
     document.getElementById("t9CoachBtn").onclick = function () {
       summaryShowCoach = !summaryShowCoach;
-      coachAsked = true;
+      coachTouched = true;
       this.setAttribute("aria-pressed", summaryShowCoach ? "true" : "false");
       applyCardToggles();
     };
@@ -5233,12 +5284,20 @@
      it would mark the picture stale every minute and send the tap back down the slow
      path -- which is the path that loses the gesture. This covers everything the
      picture is actually about and leaves the ticking text out of it. */
+  /* Lengths collide: swap one meal photo for another and the string is the same size,
+     so the picture would be judged current when it is not. Cheap content hash instead. */
+  function hash32(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    return h.toString(36);
+  }
   function cardSig() {
     var card = document.querySelector("#panel-summary .card9");
     if (!card) return "";
-    function part(id) { var e = document.getElementById(id); return e ? e.innerHTML.length : 0; }
+    function part(id) { var e = document.getElementById(id); return e ? hash32(e.innerHTML) : "0"; }
     var v = document.getElementById("t9Verdict"), sc = document.getElementById("t9Score");
     return dateKey(selectedDate) + "|" + (summaryShowCoach ? 1 : 0) + (summaryShowWeight ? 1 : 0) +
+           (summaryShowFood ? 1 : 0) + "|" + hash32(lastFoodStrip + "\u0000" + lastWeightLine) +
            "|" + document.documentElement.className +
            "|" + (v ? v.textContent : "") + (sc ? sc.textContent : "") +
            "|" + part("t9Body") + "," + part("t9Week") + "," + part("t9Chips") + "," + part("scCoach") +
@@ -5288,6 +5347,29 @@
      puts the card in the state the toggles describe, and the share image inherits it. */
   /* The meter is the week strip: a day you walked short is tappable, and this is what
      it opens. One button per short day, each offering what today can actually cover. */
+  /* Two different messages, because there are two different situations: minutes sitting
+     unspent, which is a thing to go and do now; and a day that could still be saved if
+     you went for a walk, which is a reason to go for one. Both open the ledger. */
+  async function renderRedeemBanner() {
+    var el = document.getElementById("t9Redeem");
+    if (!el) return;
+    var st;
+    try { st = await redeemState(); } catch (e) { el.hidden = true; return; }
+    if (!st.days.length) { el.hidden = true; return; }
+    var nearest = st.days[0];                       // the most recent short day
+    /* One line, because the figure is what the card is for and this is a prompt, not a
+       paragraph. The ledger behind it has the full story. */
+    var when = DAY_ABBR[nearest.date.getDay()] + " " + nearest.date.getDate();
+    if (st.spare > 0) {
+      el.className = "t9-redeem ready";
+      el.innerHTML = "\u21ba <b>" + st.spare + " min spare</b> \u2192 make up " + when;
+    } else {
+      el.className = "t9-redeem earn";
+      el.innerHTML = "\u21ba Walk <b>" + nearest.short + " min</b> extra to make up " + when;
+    }
+    el.hidden = false;
+  }
+
   async function openRedeem() {
     var st = await redeemState();
     document.getElementById("redeemSpare").textContent = st.spare;
@@ -5318,6 +5400,7 @@
           sfx("logged"); vibrate([12, 30, 12]);
           burstFrom(b, ["#7DF0B8", "#FFFFFF"], 16);
           await openRedeem();
+          await renderRedeemBanner();
           renderAll();
         };
       });
@@ -5333,9 +5416,6 @@
     var coach = document.getElementById("scCoach");
     if (coach) {
       coach.classList.toggle("off", !summaryShowCoach);
-      /* On a short card the band is dropped by default for the figure's sake; asking
-         for it explicitly brings it back, and the figure gives up the room. */
-      coach.classList.toggle("on", summaryShowCoach && coachAsked);
     }
     var slash = document.getElementById("t9WeightSlash");
     if (slash) slash.style.display = summaryShowWeight ? "none" : "";
