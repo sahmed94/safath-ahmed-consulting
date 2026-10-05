@@ -443,6 +443,7 @@
     justify-content: center; text-align: center; padding: 26px 10px 22px;
     font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.8);
     background: linear-gradient(160deg, #2A2142, #1B1630); overflow: hidden; }
+  .again-scroll { max-height: 54vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .meal-reassign { display: flex; gap: 6px; flex-wrap: wrap; }
   .meal-reassign button { flex: 1 1 0; min-width: 62px; border: 1px solid rgba(255,255,255,0.14);
     background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-radius: 9px;
@@ -489,6 +490,7 @@
   .day-row::-webkit-scrollbar { display: none; }
   .day-chip { flex: 0 0 auto; font-family: var(--font-head); font-size: 12px; letter-spacing: 0.03em; padding: 8px 13px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink-dim); cursor: pointer; white-space: nowrap; }
   .day-chip.selected { border-color: var(--blue); color: #fff; background: var(--blue); }
+  .day-chip.today { font-weight: 600; }
 
   .session-label { font-family: var(--font-head); font-size: 21px; font-weight: 600; margin: 2px 0 2px; }
   .session-sub { font-size: 12px; color: var(--ink-faint); margin-bottom: 14px; }
@@ -1176,16 +1178,19 @@
           <label class="food-upload-btn" for="foodCameraInput">&#128247; Take photo</label>
           <label class="food-upload-btn" for="foodLibraryInput">&#128444;&#65039; Choose photo</label>
         </div>
-        <button class="food-upload-btn f9-write" id="foodWriteBtn" type="button">&#9998; Log it written, no photo</button>
+        <div class="f9-actions" style="margin-top:8px;">
+          <button class="food-upload-btn f9-write" id="foodWriteBtn" type="button">&#9998; Write it, no photo</button>
+          <button class="food-upload-btn f9-write" id="foodAgainBtn" type="button">&#8635; Had this again</button>
+        </div>
         <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
         <div class="f9-note">Estimates round up rather than down. Tap any meal to move it to another sitting, fix the numbers, or change the portion.</div>
+        <!-- Today only. The card is a true nine by sixteen now, and a fortnight of
+             thumbnails underneath made it a scroll with no bottom; last week's meals
+             are reachable where they are actually wanted, in "Had this again". -->
         <div class="f9-scroll">
           <div class="f9-sec">Today</div>
           <div id="foodToday"></div>
-          <div class="f9-sec">Earlier</div>
-          <div id="foodLog"></div>
-          <div class="empty" id="foodLogNote" hidden></div>
         </div>
         <button class="plan-btn" type="button" id="planBtn">Eating plan &middot; <span id="planBtnLabel">&mdash;</span></button>
       </div>
@@ -1341,6 +1346,16 @@
     <div class="modal-actions"><button class="close-btn" id="closeExHistoryBtn" style="width:100%;">Close</button></div>
   </div>
 
+  <!-- Pick a meal from the past week and log it again -->
+  <div class="modal-inner" id="againModal" style="display:none;">
+    <h3>Had this again</h3>
+    <div class="f9-note" style="margin-bottom:10px;">The last seven days. Tap one to log it again now, with its photo and its numbers, as your <b id="againMeal">meal</b>.</div>
+    <div id="againGrid" class="again-scroll"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="againCancelBtn">Cancel</button>
+    </div>
+  </div>
+
   <!-- Meal edit modal -->
   <div class="modal-inner" id="mealEditModal" style="display:none;">
     <h3>Edit meal</h3>
@@ -1400,6 +1415,7 @@
     5: { name: "Cardio only", type: "cardio", cardio: { min: 45, incline: 10, speed: 3.0 }, ex: [] }
   };
   var DAY_ABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   var LABS = [ { date: "2024-11-26", a1c: 6.2, ldl: 107, hdl: 38, trig: 87 }, { date: "2025-08-26", a1c: 5.5, ldl: 72, hdl: 48, trig: 61 }, { date: "2026-09-04", a1c: 5.1, ldl: 72, hdl: 46, trig: 65 } ];
   var SEED_WEIGHTS = [ { date: "2026-09-04", weight: 211.4 }, { date: "2026-09-06", weight: 209.2 } ];
   var DEFAULT_PROFILE_NAME = "Safath Ahmed";
@@ -1929,18 +1945,24 @@
   }
 
 
+  /* The week ran oldest first, which put today at the far right -- off the end of the
+     strip on a phone, so the day you are actually logging was the one chip you had to
+     scroll to find. Today leads, and says its date rather than just the word. */
   function renderDayRow() {
     var row = document.getElementById("dayRow"); row.innerHTML = "";
     var base = new Date();
-    for (var i = -6; i <= 0; i++) {
+    for (var i = 0; i >= -6; i--) {
       var d = new Date(base); d.setDate(base.getDate() + i);
-      (function(d){
+      (function(d, i){
         var chip = document.createElement("div");
-        chip.className = "day-chip" + (dateKey(d) === dateKey(selectedDate) ? " selected" : "");
-        chip.textContent = (i === 0 ? "Today" : DAY_ABBR[d.getDay()] + " " + d.getDate());
+        chip.className = "day-chip" + (dateKey(d) === dateKey(selectedDate) ? " selected" : "") +
+          (i === 0 ? " today" : "");
+        chip.textContent = (i === 0
+          ? "Today \u00b7 " + DAY_ABBR[d.getDay()] + " " + MONTH_ABBR[d.getMonth()] + " " + d.getDate()
+          : DAY_ABBR[d.getDay()] + " " + d.getDate());
         chip.onclick = function () { selectedDate = d; stopSessionTimerUI(); renderAll(); };
         row.appendChild(chip);
-      })(d);
+      })(d, i);
     }
   }
 
@@ -3527,7 +3549,7 @@
     document.getElementById("giveOnPlan").value = GOOD.rates.onPlan;
     document.getElementById("giveWeek").value = GOOD.rates.streakWeek;
     renderGivenList();
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal"].forEach(function (id) {
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "againModal"].forEach(function (id) {
       document.getElementById(id).style.display = "none";
     });
     document.getElementById("giveModal").style.display = "block";
@@ -3854,7 +3876,7 @@
       "Your streak pays <b>" + pr.mult + "×</b>, and the list above takes it to <b>" + eff + "×</b>. " +
       "Each part is fed by one thing you do, and every number traces back to a row in the log.";
 
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal"].forEach(function (id) {
+    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal", "againModal"].forEach(function (id) {
       document.getElementById(id).style.display = "none";
     });
     document.getElementById("charModal").style.display = "block";
@@ -3943,13 +3965,16 @@
     var maxW = panel.clientWidth;
     if (!(maxW > 120)) maxW = Math.min(612, (window.innerWidth || 390) - 28);
     if (!(avail > 200)) avail = (window.innerHeight || 700) - 210;
-    /* Nine by sixteen is the shape to aim at, not a rule to obey into absurdity. On a
-       short phone a true 9:16 card can only be as wide as the height allows, which on
-       a 375x667 screen meant a 269px stamp adrift in the middle of the screen with its
-       contents piled on top of each other. The width is the screen's; the height is
-       whatever is left, capped at 9:16 so a tall screen does not stretch it. */
-    var w = Math.round(maxW);
-    var h = Math.round(Math.min(avail, maxW * 16 / 9));
+    /* Nine by sixteen exactly, where the screen can carry one: the card takes the
+       lesser of the width it is given and the width that height allows, and its height
+       follows from that. On a short screen a true 9:16 card can only be as wide as the
+       height allows, which on 375x667 meant a 269px stamp adrift in the middle with its
+       contents piled on top of each other -- so below four fifths of the available
+       width it stops obeying the ratio and takes the width, capping the height instead.
+       Phone-shaped screens get the exact ratio; short and wide ones stay usable. */
+    var w = Math.round(Math.min(maxW, avail * 9 / 16));
+    var h = Math.round(w * 16 / 9);
+    if (w < maxW * 0.8) { w = Math.round(maxW); h = Math.round(Math.min(avail, maxW * 16 / 9)); }
     document.documentElement.style.setProperty("--c9h", h + "px");
     document.documentElement.style.setProperty("--c9w", w + "px");
     /* On a short phone the fixed blocks eat the figure. Below this height the card
@@ -4294,6 +4319,7 @@
     /* The figure only exists once this has run, so the tier it needs can only be
        measured here -- sizeCards on its own has nothing to measure. */
     fitFigure();
+    prepareShare();
   }
   /* every call site still says renderRank; there is only one card to draw now */
   function renderRank() { return renderTodayCard(); }
@@ -4559,20 +4585,6 @@
     var todayKey = dateKey(new Date());
     var todayItems = items.filter(function(it){ return it.date === todayKey; });
     renderFoodGrid(document.getElementById("foodToday"), todayItems);
-    /* The earlier list used to print every photo ever taken, which on a long streak
-       is a thousand thumbnails nobody scrolls to the end of. A fortnight is as far
-       back as anyone looks for a meal, and the rest is in the trends. */
-    var earlier = items.filter(function (it) { return it.date !== todayKey; });
-    var cut = new Date(); cut.setDate(cut.getDate() - 14);
-    var cutK = dateKey(cut);
-    var recent = earlier.filter(function (it) { return it.date >= cutK; });
-    renderFoodGrid(document.getElementById("foodLog"), recent);
-    var older = earlier.length - recent.length;
-    var note = document.getElementById("foodLogNote");
-    if (note) {
-      note.hidden = older <= 0;
-      note.textContent = older > 0 ? fmtInt(older) + " more photo" + (older === 1 ? "" : "s") + " before this, kept but not listed." : "";
-    }
     var cal = 0, prot = 0, any = false;
     todayItems.forEach(function(it){ if (it.estimate) { any = true; cal += it.estimate.calories || 0; prot += it.estimate.protein_g || 0; } });
     var totalsEl = document.getElementById("todayEstTotals");
@@ -4617,6 +4629,65 @@
     }
     document.getElementById("foodCameraInput").addEventListener("change", handleFoodFile);
     document.getElementById("foodLibraryInput").addEventListener("change", handleFoodFile);
+    /* Most days repeat. Re-photographing the same breakfast to log the same numbers is
+       work for nothing, so the week's meals are offered back: tapping one writes a new
+       entry for today pointing at the same photo and carrying the same estimate. The
+       photo is referenced, not re-uploaded -- it is the same file. */
+    function openAgain() {
+      var since = new Date(); since.setDate(since.getDate() - 7);
+      var sinceK = dateKey(since), todayK = dateKey(new Date());
+      var seen = {}, pool = [];
+      foodCache.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).forEach(function (f) {
+        if (f.date < sinceK || f.date === todayK) return;
+        /* The same meal logged five days running is one choice, not five, so the list
+           shows each distinct thing once, most recent first. */
+        var sig = (f.userNote || (f.estimate && f.estimate.food) || "") + "|" +
+                  ((f.estimate && f.estimate.calories) || 0);
+        if (seen[sig]) return;
+        seen[sig] = 1; pool.push(f);
+      });
+      var grid = document.getElementById("againGrid");
+      if (!pool.length) {
+        grid.innerHTML = '<div class="empty">Nothing logged in the last seven days yet.</div>';
+      } else {
+        grid.innerHTML = "";
+        renderFoodGrid(grid, pool);
+        Array.prototype.forEach.call(grid.querySelectorAll(".food-item"), function (cell, i) {
+          cell.onclick = function () { logAgain(pool[i]); };
+        });
+      }
+      document.getElementById("againMeal").textContent = selectedMeal;
+      ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "giveModal"].forEach(function (id) {
+        var el = document.getElementById(id); if (el) el.style.display = "none";
+      });
+      document.getElementById("againModal").style.display = "block";
+      document.getElementById("modalOverlay").classList.add("open");
+    }
+    async function logAgain(src) {
+      document.getElementById("modalOverlay").classList.remove("open");
+      var now = new Date(), key = dateKey(now);
+      var time = now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      var note = src.userNote || (src.estimate && src.estimate.food) || "";
+      var row = null;
+      try {
+        var ins = await supabase.from("food").insert({
+          user_id: currentProfileId, date: key, time: time, meal: selectedMeal,
+          user_note: note, photo_url: src.url || null, estimate: src.estimate || null
+        }).select().single();
+        row = { id: ins.data ? ins.data.id : null, date: key, time: time, meal: selectedMeal,
+                userNote: note, url: src.url || null, estimate: src.estimate || null };
+        foodCache.push(row);
+      } catch (e) {}
+      if (!row) { showProblem("Could not log that again \u2014 try once more."); return; }
+      sfx("logged"); vibrate([12, 30, 12]);
+      burstFrom(document.querySelector(".f9-actions"), ["#FFC247", "#FF8F6B", "#FFFFFF"], 18);
+      renderFood(); renderQuests(); liveRefresh();
+    }
+    document.getElementById("foodAgainBtn").onclick = openAgain;
+    document.getElementById("againCancelBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+
     document.getElementById("foodWriteBtn").onclick = async function () {
       var d = document.getElementById("foodDetailsInput");
       var note = d ? d.value.trim() : "";
@@ -4930,30 +5001,93 @@
     /* Share hands the picture to whatever the phone offers -- Messages, Photos, AirDrop.
        Where that is not available (a desktop browser, mostly) it saves the file, which
        is the same outcome by the only other route there is. */
-    async function shareCard(btn) {
+    document.getElementById("scOpenBtn").onclick = function () {
+      var btn = this, sig = cardSig();
+      if (prepared && prepared.sig === sig) { handoff(prepared.blob, btn).catch(shareFailed); return; }
+      /* Nothing ready yet -- make it, then try. The gesture may well have lapsed by the
+         time it is made, so a phone that refuses gets told why rather than navigated. */
       var label = btn.textContent;
-      btn.textContent = "Making…"; btn.disabled = true;
-      try {
-        var blob = await cardToBlob();
-        var name = "aas-log-" + dateKey(selectedDate) + ".jpg";
-        var file = new File([blob], name, { type: "image/jpeg" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
-        } else {
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement("a");
-          a.href = url; a.download = name;
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-        }
-        sfx("tick");
-      } catch (e) {
-        /* Backing out of the phone's own share sheet is not a failure. */
-        if (!e || e.name !== "AbortError") showProblem("Couldn't make the picture. " + ((e && e.message) || ""));
-      }
-      btn.textContent = label; btn.disabled = false;
+      btn.textContent = "Making\u2026"; btn.disabled = true;
+      cardToBlob().then(function (blob) {
+        prepared = { sig: sig, blob: blob };
+        return handoff(blob, btn);
+      }).catch(function (e) {
+        if (e && e.name === "NotAllowedError") {
+          showProblem("The picture is ready \u2014 tap Share again to send it.");
+        } else { shareFailed(e); }
+      }).then(function () { btn.textContent = label; btn.disabled = false; });
+    };
+  }
+
+  /* Why this is built the way it is, rather than the obvious way:
+
+     Safari will only open the share sheet from inside a user gesture, and it counts
+     the gesture as spent once you await something slow. Making the picture takes a
+     second or so, so "tap -> build -> share" built the picture and then found the
+     gesture gone: on a phone it fell out of the share branch and into the download
+     branch, where iOS does not download but NAVIGATES to the blob -- which is the
+     screen that appeared instead of the share sheet. On a desktop the same code took
+     the download branch on purpose and saved the file, which is why it looked right
+     there and wrong on a phone.
+
+     So the picture is made ahead of the tap, while nothing is waiting on it, and the
+     tap hands over a picture that already exists -- no await before navigator.share,
+     gesture intact. */
+  var prepared = null, prepTimer = null;
+
+  /* Deliberately not the whole card: the close-out line counts down, so hashing all of
+     it would mark the picture stale every minute and send the tap back down the slow
+     path -- which is the path that loses the gesture. This covers everything the
+     picture is actually about and leaves the ticking text out of it. */
+  function cardSig() {
+    var card = document.querySelector("#panel-summary .card9");
+    if (!card) return "";
+    function part(id) { var e = document.getElementById(id); return e ? e.innerHTML.length : 0; }
+    var v = document.getElementById("t9Verdict"), sc = document.getElementById("t9Score");
+    return dateKey(selectedDate) + "|" + (summaryShowCoach ? 1 : 0) + (summaryShowWeight ? 1 : 0) +
+           "|" + document.documentElement.className +
+           "|" + (v ? v.textContent : "") + (sc ? sc.textContent : "") +
+           "|" + part("t9Body") + "," + part("t9Week") + "," + part("t9Chips") + "," + part("scCoach") +
+           "|" + Math.round(card.getBoundingClientRect().width);
+  }
+  function prepareShare() {
+    clearTimeout(prepTimer);
+    prepTimer = setTimeout(async function () {
+      if (document.querySelector("#panel-summary") &&
+          !document.querySelector("#panel-summary").classList.contains("active")) return;
+      var sig = cardSig();
+      if (!sig || (prepared && prepared.sig === sig)) return;
+      try { prepared = { sig: sig, blob: await cardToBlob() }; } catch (e) { prepared = null; }
+    }, 700);
+  };
+
+  function handoff(blob, btn) {
+    var name = "aas-log-" + dateKey(selectedDate) + ".jpg";
+    var file = new File([blob], name, { type: "image/jpeg" });
+    /* Reached with the gesture still live, so this is the line that must not be
+       preceded by an await. */
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator.share({ files: [file] }).then(function () { sfx("tick"); });
     }
-    document.getElementById("scOpenBtn").onclick = function () { shareCard(this); };
+    /* No share sheet that takes files. On a desktop a download is exactly right; on a
+       phone an <a download> navigates away instead, so there it is better to say so
+       than to throw the person out of the app. */
+    if (navigator.share) {
+      showProblem("This browser will not hand pictures to the share sheet. Press and hold the card to save it instead.");
+      return Promise.resolve();
+    }
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    sfx("tick");
+    return Promise.resolve();
+  }
+  function shareFailed(e) {
+    /* Backing out of the phone's own share sheet is not a failure. */
+    if (!e || e.name === "AbortError") return;
+    showProblem("Couldn't share the picture. " + (e.message || ""));
   }
 
   /* Both toggles only ever show or hide something already on the card, so one function
@@ -4973,6 +5107,7 @@
     if (!summaryShowWeight || !lastWeightLine) { w.hidden = true; return; }
     w.hidden = false;
     w.innerHTML = lastWeightLine;
+    prepareShare();
   }
 
   /* The old curve was a band centred on maintenance with falloff on BOTH sides, so a
@@ -5147,7 +5282,7 @@
         var which = btn.getAttribute("data-panel");
         if (which === "weight") renderHistory();
         if (which === "food") renderFood();
-        if (which === "summary") { renderRank(); renderInlineScore(); }
+        if (which === "summary") { renderRank(); renderInlineScore(); prepareShare(); }
         window.scrollTo({ top: 0, behavior: "instant" });
       };
     });
