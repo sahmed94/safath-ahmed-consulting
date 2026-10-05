@@ -169,25 +169,34 @@
 
 
   /* The body, laid out as a body: the head over the core, the arms either side of it,
-     and the waist, legs and feet down the spine below. A list of seven rows said the
-     same words and none of the same thing -- where on you the work lands. Each row is
-     a grid of three so the spine stays dead centre whatever the labels do. */
+     and the waist, legs and feet across its base. A list of seven rows said the same
+     words and none of the same thing -- where on you the work lands. Each row is a
+     grid of three so the spine stays dead centre whatever the labels do.
+     space-between pushed the parts to the edges and turned the height saved by the
+     base row into three thirty-pixel holes, so the figure is one centred group with an
+     even gap. "safe" matters: plain centring overflows at BOTH ends, which hid the top
+     row with no way to scroll back to it, where safe centring falls out to the top. */
   .t9-fig { flex: 1 1 auto; min-height: 0; position: relative; display: flex;
-    flex-direction: column; justify-content: space-between; gap: 3px; padding: 1px 0;
+    flex-direction: column; justify-content: safe center; gap: 7px; padding: 1px 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .fg-spine { position: absolute; left: 50%; top: 26px; bottom: 26px; width: 2px;
+  .fg-spine { position: absolute; left: 50%; top: 26px; bottom: 62px; width: 2px;
     margin-left: -1px; background: rgba(255,255,255,0.12); }
-  .fg-row { position: relative; display: grid; grid-template-columns: 1fr 40px 1fr;
+  .fg-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 40px minmax(0,1fr);
     align-items: center; gap: 8px; border: 0; background: transparent; color: #fff;
     padding: 0; cursor: pointer; text-align: left; width: 100%; }
   .fg-row:active { opacity: .7; }
   .fg-row .fg-l { text-align: right; }
+  .fg-row > span:last-child { min-width: 0; }
   .fg-node { width: 40px; height: 40px; border-radius: 11px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 1px; background: rgba(7,8,14,0.55);
     box-shadow: inset 0 0 0 1.5px currentColor; }
   .fg-node svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8;
     stroke-linecap: round; stroke-linejoin: round; }
-  .fg-node em { font-style: normal; font-family: var(--font-head); font-size: 7.5px; letter-spacing: .07em; opacity: .92; }
+  /* WEAPON is the longest part word and at the old size it ran edge to edge inside
+     a forty-pixel node, touching the border on both sides. Smaller, with the
+     tracking nearly closed, every word clears the stroke. */
+  .fg-node em { font-style: normal; font-family: var(--font-head); font-size: 7px;
+    letter-spacing: .01em; opacity: .92; max-width: 100%; overflow: hidden; }
   .fg-n { display: block; font-family: var(--font-head); font-size: 13px; line-height: 1.2; }
   .fg-d { display: block; font-size: 9.5px; line-height: 1.3; color: rgba(255,255,255,0.5);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -201,20 +210,30 @@
      middle of the rings and the connector runs through all three. */
   .fg-core { position: relative; display: grid; grid-template-columns: 1fr auto 1fr;
     align-items: start; gap: 6px; }
-  .fg-core::before { content: ""; position: absolute; left: 14%; right: 14%; top: 50px;
+  .fg-core::before { content: ""; position: absolute; left: 14%; right: 14%; top: 44px;
     height: 2px; margin-top: -1px; background: rgba(255,255,255,0.12); }
   .fg-arm { position: relative; display: flex; flex-direction: column; align-items: center;
-    gap: 3px; border: 0; background: transparent; color: #fff; cursor: pointer; padding: 0; }
-  .fg-core > .fg-arm { padding-top: 30px; }
+    gap: 2px; border: 0; background: transparent; color: #fff; cursor: pointer; padding: 0; }
+  .fg-core > .fg-arm { padding-top: 24px; }
+  /* Waist, legs and feet were three stacked rows, each with an empty column beside
+     the badge: 146px of height for three short readings. Across, they take one row,
+     which is what closed the slack on a big phone and stopped the figure scrolling
+     on a small one. Same cell as an arm, so the figure keeps one vocabulary. */
+  .fg-base { position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .fg-base::before { content: ""; position: absolute; left: 17%; right: 17%; top: 20px;
+    height: 2px; background: rgba(255,255,255,0.12); }
+  .fg-base .fg-d { max-width: 100%; }
   .fg-core > .fg-arm:nth-child(2) { padding-top: 0; }
   .fg-arm .fg-n, .fg-arm .fg-d { text-align: center; }
   .fg-arm .fg-d { max-width: 108px; }
-  .fg-rings { position: relative; width: 100px; height: 100px; }
-  .fg-rings svg { width: 100px; height: 100px; transform: rotate(-90deg); }
+  .fg-rings { position: relative; width: 94px; height: 94px; }
+  .fg-rings svg { width: 94px; height: 94px; transform: rotate(-90deg); }
   .fg-kcal { position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; pointer-events: none; }
-  .fg-kcal b { font-family: var(--font-head); font-size: 18px; line-height: 1; }
-  .fg-kcal span { font-size: 8px; letter-spacing: .1em; color: rgba(255,255,255,0.6); }
+  .fg-kcal b { font-family: var(--font-head); font-size: 17px; line-height: 1; }
+  /* The word sits below the number, where the hole has already narrowed, so measuring
+     it against the full diameter said it fitted when it sat on the fibre stroke. */
+  .fg-kcal span { font-size: 5.8px; letter-spacing: .01em; color: rgba(255,255,255,0.6); }
   .fg-macros { display: flex; justify-content: center; gap: 9px; font-size: 8.5px;
     color: rgba(255,255,255,0.5); }
   .fg-macros i { font-style: normal; font-weight: 700; }
@@ -253,13 +272,42 @@
   .c9-compact .t9-wd { padding: 3px 0 2px; }
   .c9-compact .t9-wd b { font-size: 12px; }
   .c9-compact .t9-btn { padding: 9px; font-size: 11px; }
-  .c9-compact .fg-node { width: 38px; height: 38px; border-radius: 10px; }
-  .c9-compact .fg-node svg { width: 15px; height: 15px; }
-  .c9-compact .fg-row { grid-template-columns: 1fr 38px 1fr; }
-  .c9-compact .fg-rings, .c9-compact .fg-rings svg { width: 92px; height: 92px; }
-  .c9-compact .fg-kcal b { font-size: 17px; }
-  .c9-compact .fg-core::before { top: 46px; }
-  .c9-compact .fg-core > .fg-arm { padding-top: 27px; }
+  .c9-compact .fg-node { width: 34px; height: 34px; border-radius: 9px; }
+  .c9-compact .fg-node svg { width: 14px; height: 14px; }
+  .c9-compact .fg-node em { font-size: 6.2px; }
+  .c9-compact .fg-row { grid-template-columns: minmax(0,1fr) 34px minmax(0,1fr); }
+  .c9-compact .fg-rings, .c9-compact .fg-rings svg { width: 70px; height: 70px; }
+  .c9-compact .fg-kcal b { font-size: 12.5px; }
+  /* At compact ring size the hole the fibre ring leaves is thirty pixels across and
+     the word will not fit in it at any size still worth reading. The number keeps
+     the middle; the macro legend sits directly under it saying what the rings are. */
+  .c9-compact .fg-kcal span { display: none; }
+  .c9-compact .fg-core::before { top: 31px; }
+  .c9-compact .fg-core > .fg-arm { padding-top: 14px; }
+  .c9-compact .t9-fig { gap: 4px; }
+  .c9-compact .fg-base::before { top: 16px; }
+  .c9-compact .fg-macros { font-size: 8px; gap: 7px; }
+  .c9-compact .fg-n { font-size: 12px; }
+  .c9-compact .fg-d { font-size: 9px; }
+  .c9-compact .fg-add { font-size: 10px; padding: 1px 6px; }
+  .c9-compact .fg-arm { gap: 2px; }
+  /* The mirror of compact. A big phone left the figure centred in its own column
+     with thirty pixels of nothing above and below it; rather than pad it out, the
+     figure itself grows into the room -- bigger rings, bigger nodes, wider gaps. */
+  .c9-roomy .fg-node { width: 44px; height: 44px; border-radius: 12px; }
+  .c9-roomy .fg-node svg { width: 20px; height: 20px; }
+  .c9-roomy .fg-node em { font-size: 7.5px; }
+  .c9-roomy .fg-row { grid-template-columns: minmax(0,1fr) 44px minmax(0,1fr); }
+  .c9-roomy .fg-rings, .c9-roomy .fg-rings svg { width: 114px; height: 114px; }
+  .c9-roomy .fg-kcal b { font-size: 20px; }
+  .c9-roomy .fg-kcal span { font-size: 6.5px; letter-spacing: .01em; }
+  .c9-roomy .fg-core::before { top: 57px; }
+  .c9-roomy .fg-core > .fg-arm { padding-top: 37px; }
+  .c9-roomy .fg-base::before { top: 23px; }
+  .c9-roomy .fg-n { font-size: 14px; }
+  .c9-roomy .fg-d { font-size: 10.5px; }
+  .c9-roomy .fg-macros { font-size: 9.5px; gap: 11px; }
+  .c9-roomy .t9-fig { gap: 11px; }
   .c9-compact .t9-chip { font-size: 9.5px; padding: 2px 6px; }
   .c9-compact .weight9 .weight-chart { height: 74px; }
   .c9-compact .w9-big { font-size: 34px; }
@@ -3519,14 +3567,14 @@
       shield: { built: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
                 detail: everLogged + " days logged, all time" },
-      belt:   { built: Math.round(sets30 * 0.9), face: sets30 + " sets", per: 0.9,
+      belt:   { built: Math.round(sets30 * 0.9), face: fmtInt(sets30) + " sets", per: 0.9,
                 step: function (n) { return n + " more set" + (n === 1 ? "" : "s"); },
                 detail: sets30 ? fmtInt(sets30) + " sets and " + fmtInt(reps30) + " reps in 30 days"
                                : "no finished sets in the last 30 days" },
-      legs:   { built: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + "m", per: 1 / 8,
+      legs:   { built: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + " min", per: 1 / 8,
                 step: function (n) { return fmtInt(n) + " more cardio minutes"; },
                 detail: fmtInt(cardioMin) + " cardio minutes in 30 days" },
-      boots:  { built: Math.round(weighDays * 5), face: weighDays + "/30", per: 5,
+      boots:  { built: Math.round(weighDays * 5), face: weighDays + " of 30", per: 5,
                 step: function (n) { return n + " more weigh-in" + (n === 1 ? "" : "s"); },
                 detail: weighDays + " weigh-ins in the last 30 days" }
     };
@@ -3700,11 +3748,17 @@
     var tabs = document.querySelector("nav.tabbar");
     if (!panel || !tabs) return;
     var pr = panel.getBoundingClientRect(), tr = tabs.getBoundingClientRect();
-    /* Measuring beats arithmetic here: the gap between where the panel starts and
-       where the tab bar begins already has the header, the date row and the safe
-       areas taken out of it. When the app is still hidden those rects are zero, so
-       fall back to the window and let the next call correct it. */
-    var avail = tr.top - pr.top - 12;
+    /* Measuring beats arithmetic here: the gap between where the card starts and where
+       the tab bar begins already has the header, the date row and the safe areas taken
+       out of it. When the app is still hidden those rects are zero, so fall back to the
+       window and let the next call correct it.
+       The panel's own top is not the card's: there are thirty-two pixels of panel above
+       it, so sizing to the panel put the bottom of every card twenty pixels underneath
+       the tab bar -- the reward and share buttons sat behind it on a short phone. */
+    var card = panel.querySelector(".card9");
+    var cTop = card ? card.getBoundingClientRect().top : pr.top;
+    if (!(cTop > 0)) cTop = pr.top;
+    var avail = tr.top - cTop - 12;
     var maxW = panel.clientWidth;
     if (!(maxW > 120)) maxW = Math.min(612, (window.innerWidth || 390) - 28);
     if (!(avail > 200)) avail = (window.innerHeight || 700) - 210;
@@ -3721,6 +3775,27 @@
        drops to a tighter set of type sizes and lets the coach line go -- it is in the
        share sheet too -- so the body still gets most of the card. */
     document.documentElement.classList.toggle("c9-compact", h < 560);
+    /* And above this height the opposite problem: the figure sat in the middle of
+       its column with empty space top and bottom. Let it grow into that instead. */
+    document.documentElement.classList.toggle("c9-roomy", h >= 680);
+    fitFigure();
+  }
+
+  /* The card height picks a tier, but what actually has to fit is the body figure, and
+     the figure gets whatever the fixed blocks leave over -- which is not a fixed share
+     of the card. A 414x896 phone lands in the same tier as a 430x932 one and gives the
+     figure twenty-nine fewer pixels to do it in, so it spilled. The height chooses; the
+     measurement demotes until the figure stops spilling. */
+  function fitFigure() {
+    var root = document.documentElement;
+    var fig = document.getElementById("t9Body");
+    if (!fig || !fig.children.length) return;
+    for (var i = 0; i < 2; i++) {
+      if (fig.scrollHeight <= fig.clientHeight + 1) return;
+      if (root.classList.contains("c9-roomy")) { root.classList.remove("c9-roomy"); continue; }
+      if (!root.classList.contains("c9-compact")) { root.classList.add("c9-compact"); continue; }
+      return;
+    }
   }
 
   /* ---- where you are in the session ----
@@ -3895,11 +3970,11 @@
         '<span><span class="fg-n">' + r.name + '</span>' +
         '<span class="fg-d">' + r.detail + '</span></span></button>';
     }
-    function arm(k) {
+    function arm(k, brief) {
       var r = rowFor(k); if (!r) return "";
       return '<button class="fg-arm" type="button" data-slot="' + k + '">' + node(r) +
         '<span class="fg-n">' + r.name + '</span>' +
-        '<span class="fg-d">' + r.detail + '</span>' + badge(r) + '</button>';
+        '<span class="fg-d">' + (brief ? r.face : r.detail) + '</span>' + badge(r) + '</button>';
     }
 
     /* the core is the food: three rings against their targets, calories in the middle */
@@ -3912,16 +3987,16 @@
     });
     var RINGS = [
       { r: 50, v: pro, t: PLAN.protein, c: "#5BE1A8", n: "protein" },
-      { r: 39, v: fat, t: PLAN.fat,     c: "#FFD666", n: "fat" },
-      { r: 28, v: fib, t: PLAN.fiber,   c: "#6FD0FF", n: "fibre" }
+      { r: 40, v: fat, t: PLAN.fat,     c: "#FFD666", n: "fat" },
+      { r: 30, v: fib, t: PLAN.fiber,   c: "#6FD0FF", n: "fibre" }
     ];
     var ringSvg = RINGS.map(function (g) {
       var circ = 2 * Math.PI * g.r;
       var frac = g.t ? Math.min(1, g.v / g.t) : 0;
-      var track = '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>';
+      var track = '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="7"/>';
       if (frac <= 0) return track;      // a round cap on a zero-length dash still paints a dot
       return track +
-        '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="' + g.c + '" stroke-width="8" stroke-linecap="round"' +
+        '<circle cx="56" cy="56" r="' + g.r + '" fill="none" stroke="' + g.c + '" stroke-width="7" stroke-linecap="round"' +
         ' stroke-dasharray="' + (circ * frac).toFixed(1) + ' ' + circ.toFixed(1) + '"/>';
     }).join("");
     var core = rowFor("chest");
@@ -3941,7 +4016,7 @@
       '<div class="fg-macros">' + RINGS.map(function (g) {
         return '<span style="color:' + g.c + '">\u25CF</span> <i>' + Math.round(g.v) + 'g</i> of ' + g.t;
       }).join("") + '</div>' +
-      spine("belt") + spine("legs") + spine("boots");
+      '<div class="fg-base">' + arm("belt", 1) + arm("legs", 1) + arm("boots", 1) + '</div>';
 
     Array.from(body.querySelectorAll("[data-slot]")).forEach(function (el) {
       el.onclick = function () {
@@ -4010,6 +4085,9 @@
     tickRank();
     clearInterval(rankTicker);
     rankTicker = setInterval(tickRank, 1000);
+    /* The figure only exists once this has run, so the tier it needs can only be
+       measured here -- sizeCards on its own has nothing to measure. */
+    fitFigure();
   }
   /* every call site still says renderRank; there is only one card to draw now */
   function renderRank() { return renderTodayCard(); }
@@ -5157,6 +5235,14 @@
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
     sizeCards();
+    /* The figure's column shrinks for reasons that are not a resize: the evening
+       close-out line appearing on the first tick takes forty pixels out of it a second
+       after the card draws. Watching the figure itself catches every such cause, and
+       fitFigure only ever steps down, so it settles rather than oscillates. */
+    if (window.ResizeObserver) {
+      var figBox = document.getElementById("t9Body");
+      if (figBox) new ResizeObserver(function () { fitFigure(); }).observe(figBox);
+    }
     window.addEventListener("resize", sizeCards);
     window.addEventListener("orientationchange", function () { setTimeout(sizeCards, 120); });
     wirePager();
