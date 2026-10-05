@@ -434,6 +434,25 @@
   .f9-targets b { display: block; font-family: var(--font-head); font-size: 13px; }
   .f9-targets span { font-size: 9px; color: var(--ink-faint); letter-spacing: .03em; }
   .f9-actions { display: flex; gap: 8px; }
+  /* A written meal counts the same as a photographed one, so its button looks like
+     the others rather than like an afterthought -- just quieter, and on its own line. */
+  .f9-write { margin-top: 8px; padding: 11px 12px; font-size: 12.5px; border-style: solid;
+    border-color: rgba(255,255,255,0.12); font-family: inherit; }
+  /* A written meal's tile shows its words where a photo would be. */
+  .food-written { position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; text-align: center; padding: 26px 10px 22px;
+    font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.8);
+    background: linear-gradient(160deg, #2A2142, #1B1630); overflow: hidden; }
+  .meal-reassign { display: flex; gap: 6px; flex-wrap: wrap; }
+  .meal-reassign button { flex: 1 1 0; min-width: 62px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-radius: 9px;
+    padding: 7px 4px; font-size: 12px; font-family: var(--font-head); cursor: pointer; }
+  .meal-reassign button.on { color: #0A0712; background: var(--amber); border-color: var(--amber); }
+  .portion-row { display: flex; align-items: center; gap: 9px; }
+  .portion-step { width: 36px; height: 34px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.06); color: var(--ink); font-size: 17px; cursor: pointer; line-height: 1; }
+  .portion-now { font-family: var(--font-head); font-size: 17px; min-width: 46px; text-align: center; }
+  .portion-note { font-size: 11.5px; color: var(--ink-faint); }
   .f9-actions .food-upload-btn { flex: 1 1 0; margin: 0; }
   .f9-note { font-size: 9.5px; line-height: 1.4; color: var(--ink-faint); }
   .f9-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -1157,9 +1176,10 @@
           <label class="food-upload-btn" for="foodCameraInput">&#128247; Take photo</label>
           <label class="food-upload-btn" for="foodLibraryInput">&#128444;&#65039; Choose photo</label>
         </div>
+        <button class="food-upload-btn f9-write" id="foodWriteBtn" type="button">&#9998; Log it written, no photo</button>
         <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
-        <div class="f9-note">Estimates are a quick visual read of the photo, skewed to round up rather than down. Tap any photo to correct it.</div>
+        <div class="f9-note">Estimates round up rather than down. Tap any meal to move it to another sitting, fix the numbers, or change the portion.</div>
         <div class="f9-scroll">
           <div class="f9-sec">Today</div>
           <div id="foodToday"></div>
@@ -1325,7 +1345,19 @@
   <div class="modal-inner" id="mealEditModal" style="display:none;">
     <h3>Edit meal</h3>
     <img id="mealEditImg" style="width:100%; border-radius:10px; margin-bottom:12px;">
+    <div class="field" style="margin-bottom:8px;"><label>Which sitting</label>
+      <div class="meal-reassign" id="mealEditWhich"></div>
+    </div>
     <div class="field" style="margin-bottom:8px;"><label>Description</label><input type="text" id="mealEditDesc"></div>
+    <div class="field" style="margin-bottom:8px;">
+      <label>Portion &mdash; more of the same thing, macros follow</label>
+      <div class="portion-row">
+        <button type="button" class="portion-step" id="mealPortionDown">&minus;</button>
+        <span class="portion-now" id="mealPortionNow">1&times;</span>
+        <button type="button" class="portion-step" id="mealPortionUp">+</button>
+        <span class="portion-note" id="mealPortionNote"></span>
+      </div>
+    </div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Calories</label><input type="number" id="mealEditCal"></div>
       <div class="field"><label>Protein (g)</label><input type="number" id="mealEditProt"></div>
@@ -1686,20 +1718,38 @@
     } catch (e) { foodCache = []; }
     return foodCache;
   }
+  /* A meal is a row; the photo is optional. Passing no image writes the row without
+     one, which is what "just write it down" needs -- the estimate and the day's totals
+     come off the row either way, so a written meal counts exactly like a photographed
+     one. */
   async function addFoodEntry(dataUrlOrAsset, key, meal, time, userNote) {
     try {
-      var blob = await (await fetch(dataUrlOrAsset)).blob();
-      var path = currentProfileId + "/" + Date.now() + "-" + Math.floor(Math.random() * 1e6) + ".jpg";
-      var up = await supabase.storage.from("meal-photos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
-      if (up.error) throw up.error;
-      var pub = supabase.storage.from("meal-photos").getPublicUrl(path);
-      var url = pub.data.publicUrl;
+      var url = null;
+      if (dataUrlOrAsset) {
+        var blob = await (await fetch(dataUrlOrAsset)).blob();
+        var path = currentProfileId + "/" + Date.now() + "-" + Math.floor(Math.random() * 1e6) + ".jpg";
+        var up = await supabase.storage.from("meal-photos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
+        if (up.error) throw up.error;
+        url = supabase.storage.from("meal-photos").getPublicUrl(path).data.publicUrl;
+      }
       var ins = await supabase.from("food").insert({ user_id: currentProfileId, date: key, time: time, meal: meal, user_note: userNote || "", photo_url: url }).select().single();
-      return { id: ins.data ? ins.data.id : null, url: url };
+      var row = { id: ins.data ? ins.data.id : null, date: key, time: time, meal: meal, userNote: userNote || "", url: url, estimate: null };
+      foodCache.push(row);
+      return row;
     } catch (e) { return null; }
   }
-  async function setFoodEstimate(url, estimate) {
-    try { await supabase.from("food").update({ estimate: estimate }).eq("photo_url", url).eq("user_id", currentProfileId); } catch (e) {}
+  /* Rows used to be addressed by their photo's URL, which stops working the moment a
+     meal has no photo -- and never worked for moving a meal from lunch to dinner. The
+     id is the row, so everything is written through here. */
+  async function updateFoodRow(item, fields) {
+    if (!item || item.id == null) return;
+    try { await supabase.from("food").update(fields).eq("id", item.id).eq("user_id", currentProfileId); } catch (e) {}
+    var row = foodCache.filter(function (f) { return f.id === item.id; })[0];
+    if (row) {
+      if (fields.estimate !== undefined) row.estimate = fields.estimate;
+      if (fields.meal !== undefined) row.meal = fields.meal;
+      if (fields.user_note !== undefined) row.userNote = fields.user_note;
+    }
   }
   async function deleteFoodEntry(item) {
     try { await supabase.from("food").delete().eq("id", item.id).eq("user_id", currentProfileId); } catch (e) {}
@@ -1721,6 +1771,8 @@
       var cutKey = dateKey(cut);
       var { data } = await supabase.from("food").select("id,date,photo_url")
         .eq("user_id", currentProfileId).lt("date", cutKey).limit(200);
+      /* A written meal has no file behind it; the regex below already yields null for
+         those and they are filtered out, so only real paths reach storage. */
       if (!data || !data.length) return 0;
       var paths = data.map(function (r) {
         var m = /\/meal-photos\/(.+)$/.exec(r.photo_url || "");
@@ -1740,6 +1792,40 @@
     "Respond with ONLY a JSON object, no other text, in this exact shape: " +
     '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "confidence": "low"|"medium"|"high"}. ' +
     "Never comment on whether the meal is healthy or unhealthy, never mention body weight or appearance, just estimate.";
+  /* The same guardrails, minus the photo. Describing a meal in words is a weaker
+     signal than seeing it, so the instruction to round up matters more here, not less. */
+  async function estimateMealFromText(note) {
+    if (!note || !note.trim()) return null;
+    var promptText = ESTIMATE_GUARDRAILS.replace("from a photo of a meal", "from a written description of a meal") +
+      "\n\nThere is no photo. The user described the meal as: \"" + note.trim() + "\". " +
+      "Estimate from the description alone. Where the portion is not stated, assume a normal adult serving and round up rather than down.";
+    var text = await askClaude([{ role: "user", content: [{ type: "text", text: promptText }] }], 300);
+    if (!text) return null;
+    try {
+      var out = JSON.parse(text.replace(/^```json/i, "").replace(/```$/, "").trim());
+      if (out && typeof out.calories === "number") return out;
+    } catch (e) {}
+    return null;
+  }
+  /* "Two more spoonfuls of what I just logged" is one number -- the portion -- and
+     everything else follows it. Scaling always works from the estimate as first made
+     rather than from the last scaled figure, so stepping up and back down returns the
+     numbers you started with instead of drifting on rounding. */
+  var MACRO_KEYS = ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g"];
+  function baseOf(est) {
+    if (est && est.base) return est.base;
+    var b = {};
+    MACRO_KEYS.forEach(function (k) { b[k] = (est && typeof est[k] === "number") ? est[k] : 0; });
+    return b;
+  }
+  function scaleEstimate(est, portion) {
+    var base = baseOf(est), out = { base: base, portion: Math.round(portion * 100) / 100 };
+    Object.keys(est || {}).forEach(function (k) {
+      if (k !== "base" && k !== "portion") out[k] = est[k];
+    });
+    MACRO_KEYS.forEach(function (k) { out[k] = Math.round(base[k] * portion); });
+    return out;
+  }
   async function estimateMeal(imageDataUrl, userNote) {
     var promptText = ESTIMATE_GUARDRAILS;
     if (userNote && userNote.trim()) promptText += "\n\nThe user also described this meal: \"" + userNote.trim() + "\". Use these details (ingredients, portion, preparation) alongside the photo to make your estimate more accurate — trust the description over guesswork where the photo is ambiguous.";
@@ -4392,7 +4478,7 @@
   function wireMealTypes() { renderMealPicker([]); }
   function renderFoodGrid(container, items) {
     container.innerHTML = "";
-    if (items.length === 0) { container.innerHTML = '<div class="empty">No photos yet.</div>'; return; }
+    if (items.length === 0) { container.innerHTML = '<div class="empty">Nothing logged yet.</div>'; return; }
     var grouped = {};
     items.forEach(function(it) { grouped[it.date] = grouped[it.date] || []; grouped[it.date].push(it); });
     Object.keys(grouped).sort().reverse().forEach(function(dateStr) {
@@ -4401,9 +4487,18 @@
       grouped[dateStr].forEach(function(it) {
         var cell = document.createElement("div"); cell.className = "food-item";
         var meal = it.meal || "snack";
-        var calBadge = it.estimate ? '<span class="food-cal-badge">~' + it.estimate.calories + '</span>' : "";
+        var calBadge = it.estimate ? '<span class="food-cal-badge">~' + it.estimate.calories +
+          ((it.estimate.portion && it.estimate.portion !== 1) ? ' \u00b7 ' + it.estimate.portion + '\u00d7' : '') +
+          '</span>' : "";
         var noteAttr = it.userNote ? ' title="' + it.userNote.replace(/"/g, '&quot;') + '"' : '';
-        cell.innerHTML = '<img src="' + it.url + '" alt="Food photo"' + noteAttr + '><span class="food-tag ' + meal + '">' + meal + '</span>' + calBadge + '<span class="food-time-tag">' + (it.time || "") + '</span>';
+        /* A written meal has no picture to show, so the words take the tile. It is the
+           same cell otherwise -- same tags, same tap -- because it is the same meal. */
+        var face = it.url
+          ? '<img src="' + it.url + '" alt="Food photo"' + noteAttr + '>'
+          : '<span class="food-written"' + noteAttr + '>' +
+              esc(it.userNote || (it.estimate && it.estimate.food) || "Written down") + '</span>';
+        cell.innerHTML = face + '<span class="food-tag ' + meal + '">' + meal + '</span>' + calBadge +
+          '<span class="food-time-tag">' + (it.time || "") + '</span>';
         cell.onclick = function () { openMealEdit(it); };
         grid.appendChild(cell);
       });
@@ -4489,31 +4584,47 @@
     renderMealPicker(todayItems);
   }
   function wireFoodUpload() {
+    /* One path for both, because a meal is a row either way: with a photo the estimate
+       comes from the picture, without one it comes from the words. */
+    async function logMeal(dataUrl, userNote) {
+      var now = new Date(), key = dateKey(now);
+      var time = now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      var meal = selectedMeal;
+      var detailsInput = document.getElementById("foodDetailsInput");
+      var saved = await addFoodEntry(dataUrl, key, meal, time, userNote);
+      if (detailsInput) detailsInput.value = "";
+      sfx("logged"); vibrate([12, 30, 12]);
+      burstFrom(document.querySelector(".f9-actions"), ["#FFC247", "#FF8F6B", "#FFFFFF"], 18);
+      renderFood(); renderQuests(); liveRefresh();
+      var fbContext = "The user just logged their " + meal +
+        (dataUrl ? " with a photo" : " by describing it") +
+        (userNote ? " \u2014 they described it as: \"" + userNote + "\"" : "") +
+        (dataUrl ? ". React briefly to what you can see in the photo." : ". React briefly to what they ate.");
+      fireFeedback("food", fbContext, dataUrl || null);
+      var est = dataUrl ? await estimateMeal(dataUrl, userNote) : await estimateMealFromText(userNote);
+      if (est && saved) { await updateFoodRow(saved, { estimate: est }); renderFood(); liveRefresh(); }
+      else showProblem((dataUrl ? "Photo saved" : "Meal saved") + ", but no calorie estimate. " +
+        (askClaude.lastError || "The AI reply could not be read."));
+    }
     function handleFoodFile(e) {
       var file = e.target.files[0]; if (!file) return;
       var reader = new FileReader();
-      reader.onload = async function () {
-        var now = new Date(); var key = dateKey(now);
-        var time = now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-        var meal = selectedMeal;
-        var detailsInput = document.getElementById("foodDetailsInput");
-        var userNote = detailsInput ? detailsInput.value.trim() : "";
-        var saved = await addFoodEntry(reader.result, key, meal, time, userNote);
-        if (detailsInput) detailsInput.value = "";
-        sfx("logged"); vibrate([12, 30, 12]);
-        burstFrom(document.querySelector(".f9-actions"), ["#FFC247", "#FF8F6B", "#FFFFFF"], 18);
-        renderFood(); renderQuests(); liveRefresh();
-        var fbContext = "The user just logged a photo of their " + meal + (userNote ? " — they described it as: \"" + userNote + "\"" : "") + ". React briefly to what you can see in the photo.";
-        fireFeedback("food", fbContext, reader.result);
-        var est = await estimateMeal(reader.result, userNote);
-        if (est && saved) { await setFoodEstimate(saved.url, est); renderFood(); }
-        else showProblem("Photo saved, but no calorie estimate. " +
-          (askClaude.lastError || "The AI reply could not be read."));
+      reader.onload = function () {
+        var d = document.getElementById("foodDetailsInput");
+        logMeal(reader.result, d ? d.value.trim() : "");
       };
       reader.readAsDataURL(file); e.target.value = "";
     }
     document.getElementById("foodCameraInput").addEventListener("change", handleFoodFile);
     document.getElementById("foodLibraryInput").addEventListener("change", handleFoodFile);
+    document.getElementById("foodWriteBtn").onclick = async function () {
+      var d = document.getElementById("foodDetailsInput");
+      var note = d ? d.value.trim() : "";
+      if (!note) { showProblem("Write what you ate first, then log it."); if (d) d.focus(); return; }
+      var btn = this, label = btn.textContent;
+      btn.textContent = "Logging\u2026"; btn.disabled = true;
+      try { await logMeal(null, note); } finally { btn.textContent = label; btn.disabled = false; }
+    };
   }
   function wireCardioPhoto() {
     document.getElementById("cardioFileInput").addEventListener("change", async function (e) {
@@ -4539,22 +4650,78 @@
   }
 
   /* ===================== MEAL EDIT MODAL ===================== */
-  var editingMeal = null;
+  var editingMeal = null, editMealType = "snack", editPortion = 1, editBase = null;
+
+  function fillMealFields(est) {
+    document.getElementById("mealEditCal").value   = est.calories  != null ? est.calories  : "";
+    document.getElementById("mealEditProt").value  = est.protein_g != null ? est.protein_g : "";
+    document.getElementById("mealEditCarb").value  = est.carbs_g   != null ? est.carbs_g   : "";
+    document.getElementById("mealEditFat").value   = est.fat_g     != null ? est.fat_g     : "";
+    document.getElementById("mealEditFiber").value = est.fiber_g   != null ? est.fiber_g   : "";
+  }
+  /* The stepper and the calories box are two ways of saying the same thing: a portion
+     multiplier. Typing a bigger number in the box is "I had more of this", so the
+     macros move with it rather than being left behind to be fixed by hand. */
+  function applyPortion(portion, fromCalories) {
+    editPortion = Math.max(0.25, Math.round(portion * 4) / 4);
+    var scaled = scaleEstimate({ base: editBase }, editPortion);
+    if (fromCalories) {
+      ["protein_g", "carbs_g", "fat_g", "fiber_g"].forEach(function (k) {
+        var el = { protein_g: "mealEditProt", carbs_g: "mealEditCarb", fat_g: "mealEditFat", fiber_g: "mealEditFiber" }[k];
+        document.getElementById(el).value = scaled[k];
+      });
+    } else {
+      fillMealFields(scaled);
+    }
+    document.getElementById("mealPortionNow").textContent =
+      (editPortion % 1 === 0 ? editPortion : editPortion.toFixed(2).replace(/0$/, "")) + "\u00d7";
+    var note = document.getElementById("mealPortionNote");
+    note.textContent = editPortion === 1 ? "as estimated"
+      : (editPortion > 1 ? "+" : "") + Math.round((editPortion - 1) * 100) + "% \u00b7 " +
+        fmtInt(editBase.calories * editPortion) + " kcal";
+  }
+  function renderMealReassign() {
+    var row = document.getElementById("mealEditWhich");
+    row.innerHTML = "";
+    MEALS.forEach(function (m) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = editMealType === m ? "on" : "";
+      b.textContent = m.charAt(0).toUpperCase() + m.slice(1);
+      b.onclick = function () { editMealType = m; renderMealReassign(); };
+      row.appendChild(b);
+    });
+  }
   function openMealEdit(item) {
     editingMeal = item;
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
-    document.getElementById("mealEditImg").src = item.url;
+    var img = document.getElementById("mealEditImg");
+    /* A written meal has no photo, and an <img> with no src draws a broken icon. */
+    if (item.url) { img.src = item.url; img.style.display = "block"; }
+    else { img.removeAttribute("src"); img.style.display = "none"; }
     var est = item.estimate || {};
+    editMealType = item.meal || "snack";
+    renderMealReassign();
+    editBase = baseOf(est);
+    editPortion = est.portion || 1;
     document.getElementById("mealEditDesc").value = item.userNote || est.food || "";
-    document.getElementById("mealEditCal").value = est.calories != null ? est.calories : "";
-    document.getElementById("mealEditProt").value = est.protein_g != null ? est.protein_g : "";
-    document.getElementById("mealEditCarb").value = est.carbs_g != null ? est.carbs_g : "";
-    document.getElementById("mealEditFat").value = est.fat_g != null ? est.fat_g : "";
+    fillMealFields(est);
+    applyPortion(editPortion);
+    document.getElementById("mealRerunBtn").textContent = item.url ? "Estimate with AI" : "Estimate from the description";
   }
   function wireMealEditModal() {
     document.getElementById("mealCancelBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    document.getElementById("mealPortionUp").onclick = function () { applyPortion(editPortion + 0.25); };
+    document.getElementById("mealPortionDown").onclick = function () { applyPortion(editPortion - 0.25); };
+    /* Typing a calorie figure is the same statement as pressing +, so it moves the
+       macros too: the ratio against the estimate as first made is the portion. */
+    document.getElementById("mealEditCal").oninput = function () {
+      var cal = numOrNull(this.value);
+      if (!editBase || !editBase.calories || cal == null || cal <= 0) return;
+      applyPortion(cal / editBase.calories, true);
+    };
     document.getElementById("mealSaveBtn").onclick = async function () {
       if (!editingMeal) return;
       var est = {
@@ -4564,11 +4731,15 @@
         carbs_g: numOrNull(document.getElementById("mealEditCarb").value) || 0,
         fat_g: numOrNull(document.getElementById("mealEditFat").value) || 0,
         fiber_g: numOrNull(document.getElementById("mealEditFiber").value) || 0,
+        base: editBase, portion: editPortion,
         confidence: "manual"
       };
-      await setFoodEstimate(editingMeal.url, est);
+      await updateFoodRow(editingMeal, {
+        estimate: est, meal: editMealType,
+        user_note: document.getElementById("mealEditDesc").value || ""
+      });
       document.getElementById("modalOverlay").classList.remove("open");
-      renderFood();
+      renderFood(); renderQuests(); liveRefresh();
     };
     // A photo already in storage has only a public URL, but the function needs the
     // bytes inline, so fetch it back and re-encode before asking for an estimate.
@@ -4578,23 +4749,28 @@
       var btn = this, label = btn.textContent;
       btn.disabled = true; btn.textContent = "Estimating\u2026";
       try {
-        var blob = await (await fetch(editingMeal.url)).blob();
-        var dataUrl = await new Promise(function (resolve, reject) {
-          var fr = new FileReader();
-          fr.onload = function () { resolve(fr.result); };
-          fr.onerror = function () { reject(new Error("could not read the photo back")); };
-          fr.readAsDataURL(blob);
-        });
-        var est = await estimateMeal(dataUrl, document.getElementById("mealEditDesc").value || "");
+        var note = document.getElementById("mealEditDesc").value || "";
+        var est;
+        if (editingMeal.url) {
+          var blob = await (await fetch(editingMeal.url)).blob();
+          var dataUrl = await new Promise(function (resolve, reject) {
+            var fr = new FileReader();
+            fr.onload = function () { resolve(fr.result); };
+            fr.onerror = function () { reject(new Error("could not read the photo back")); };
+            fr.readAsDataURL(blob);
+          });
+          est = await estimateMeal(dataUrl, note);
+        } else {
+          est = await estimateMealFromText(note);
+        }
         if (!est) {
           showProblem("No estimate came back. " + (askClaude.lastError || "The AI reply could not be read."));
         } else {
-          document.getElementById("mealEditDesc").value = est.food || "";
-          document.getElementById("mealEditCal").value  = est.calories;
-          document.getElementById("mealEditProt").value = est.protein_g;
-          document.getElementById("mealEditCarb").value = est.carbs_g;
-          document.getElementById("mealEditFat").value  = est.fat_g;
-          document.getElementById("mealEditFiber").value = est.fiber_g != null ? est.fiber_g : "";
+          document.getElementById("mealEditDesc").value = est.food || note;
+          /* A fresh estimate is a fresh starting point, so the portion goes back to one
+             rather than silently multiplying the new numbers by the old multiplier. */
+          editBase = baseOf(est);
+          applyPortion(1);
         }
       } catch (err) {
         showProblem("Could not load that photo back from storage: " + err.message);
