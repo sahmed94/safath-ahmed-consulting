@@ -57,7 +57,7 @@
   /* 150px of padding existed to clear a floating share bar and a tab bar on a page
      that scrolled. The page does not scroll any more: the card owns the screen. */
   #app { display: none; min-height: 100%; padding-bottom: 0; }
-  header.top { position: sticky; top: 0; z-index: 10; background: rgba(14,10,28,0.82); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top,0px) + 14px) 18px 12px; display: flex; align-items: center; justify-content: space-between; }
+  header.top { position: sticky; top: 0; z-index: 10; background: rgba(14,10,28,0.82); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top,0px) + 14px) 18px 12px; display: flex; align-items: center; justify-content: space-between; }
   header.top .mark { font-family: var(--font-head); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; color: #fff; }
   header.top .mark span { background: linear-gradient(90deg, var(--blue), var(--magenta)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   header.top .date-pill { font-size: 12px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
@@ -502,6 +502,40 @@
     color: var(--teal); border-radius: 9px; padding: 7px 11px; font-size: 12px;
     font-family: var(--font-head); cursor: pointer; }
   .rd-go:disabled { border-color: var(--line); background: rgba(255,255,255,0.04); color: var(--ink-faint); cursor: default; }
+  .t2-edit { flex: 0 0 auto; width: 32px; height: 32px; display: inline-flex; align-items: center;
+    justify-content: center; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); cursor: pointer; }
+  .t2-edit svg { width: 15px; height: 15px; }
+  .prog-days { display: flex; gap: 5px; margin-bottom: 10px; }
+  .prog-days button { flex: 1 1 0; min-width: 0; border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-radius: 9px;
+    padding: 7px 2px; font-size: 11.5px; font-family: var(--font-head); cursor: pointer; }
+  .prog-days button.on { color: #0A0712; background: var(--blue); border-color: var(--blue); }
+  .prog-scroll { max-height: 38vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .prog-ex { border-top: 1px solid var(--line); padding: 9px 0; }
+  .prog-ex:first-child { border-top: none; }
+  .prog-ex .pe-top { display: flex; gap: 7px; align-items: center; margin-bottom: 6px; }
+  .prog-ex .pe-top input { flex: 1 1 auto; min-width: 0; }
+  .prog-ex .pe-del { flex: 0 0 auto; border: 1px solid var(--coral); background: var(--coral-soft);
+    color: var(--coral); border-radius: 8px; padding: 6px 9px; font-size: 12px; cursor: pointer; }
+  .prog-ex .pe-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .prog-ex .pe-nums label { display: block; font-size: 10px; color: var(--ink-faint); margin-bottom: 2px; }
+  .prog-ex .pe-nums input { width: 100%; }
+  .w9-actions { flex: 0 0 auto; display: flex; gap: 8px; }
+  .w9-actions .plan-btn { flex: 1 1 0; min-width: 0; margin: 0; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .track-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-dim); cursor: pointer; }
+  .track-row input { width: 17px; height: 17px; accent-color: var(--blue); flex: 0 0 auto; }
+  #bodyModal select, #labsModal select { width: 100%; }
+  .lab-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .lab-row:first-child { border-top: none; }
+  .lab-when { flex: 1 1 auto; min-width: 0; }
+  .lab-when b { display: block; font-family: var(--font-head); font-size: 13px; }
+  .lab-when span { font-size: 11.5px; color: var(--ink-faint); overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .lab-open, .lab-del { flex: 0 0 auto; border-radius: 9px; padding: 6px 10px; font-size: 12px;
+    font-family: var(--font-head); cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); }
+  .lab-del { border-color: var(--coral); color: var(--coral); background: var(--coral-soft); }
   .again-scroll { max-height: 54vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .again-scroll .food-item { height: 150px; }
   .meal-reassign { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -799,7 +833,7 @@
   .macro-row:first-child { border-top: none; }
   .macro-row .mk { color: var(--ink-dim); } .macro-row .mv { font-weight: 700; color: var(--ink); font-family: var(--font-head); }
 
-  nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(14,10,28,0.92); backdrop-filter: blur(10px); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(14,10,28,0.92); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom, 0px); }
   nav.tabbar button { flex: 1; background: none; border: none; color: var(--ink-faint); font-family: var(--font-head); font-size: 10.5px; letter-spacing: .02em; padding: 11px 2px 9px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   nav.tabbar button svg { width: 19px; height: 19px; stroke: var(--ink-faint); }
   nav.tabbar button.active { color: var(--blue); } nav.tabbar button.active svg { stroke: var(--blue); }
@@ -1014,7 +1048,7 @@
   /* lives inside #feedbackWrap, which already sits clear of the rest-timer bar --
      positioning it independently put it underneath one */
   .gear-toast { max-width: 460px; width: 100%; border-radius: 16px; padding: 14px 16px; color: #fff;
-    background: linear-gradient(120deg, #15102B, #241640); box-shadow: inset 0 0 0 1.5px var(--gc), 0 0 34px color-mix(in srgb, var(--gc) 45%, transparent);
+    background: linear-gradient(120deg, #15102B, #241640); box-shadow: inset 0 0 0 1.5px var(--gc), 0 0 34px var(--gc-glow, rgba(255,255,255,0.28));
     transform: translateY(16px) scale(.97); opacity: 0; pointer-events: auto;
     transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .3s; }
   .gear-toast.show { transform: none; opacity: 1; }
@@ -1022,7 +1056,7 @@
   .gt-name { font-family: var(--font-head); font-size: 18px; margin: 3px 0 7px; }
   .gt-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 12px; }
   .gt-level { font-family: var(--font-head); font-size: 13px; padding: 3px 9px; border-radius: 20px;
-    background: color-mix(in srgb, var(--gc) 22%, transparent); color: var(--gc); }
+    background: var(--gc-soft, rgba(255,255,255,0.14)); color: var(--gc); }
   .gt-rar { color: var(--gc); font-family: var(--font-head); letter-spacing: .05em; }
   .gt-val { color: rgba(255,255,255,0.6); }
   @media (prefers-reduced-motion: reduce) { .gear-toast { transition: none; } }
@@ -1209,6 +1243,11 @@
             <div class="t2-name" id="liftSessionName"></div>
             <div class="t2-sub" id="liftSessionSub"></div>
           </div>
+          <button class="t2-edit" type="button" id="progBtn" aria-label="Edit your week" title="Edit your week">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
+            </svg>
+          </button>
           <div class="timer-row" id="sessionTimerRow">
             <div class="timer-display" id="sessionTimerDisplay">0:00</div>
             <span class="timer-state" id="sessionTimerState"></span>
@@ -1306,6 +1345,10 @@
           <button class="save-chip primary" id="saveWeightBtn">Log</button>
         </div>
         <div class="saved-tick" id="weightSaved"></div>
+        <div class="w9-actions">
+          <button class="plan-btn" type="button" id="bodyBtn">Body &middot; <span id="bodyBtnLabel">&mdash;</span></button>
+          <button class="plan-btn" type="button" id="labsBtn">Blood work &middot; <span id="labsBtnLabel">&mdash;</span></button>
+        </div>
         <svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
         <div class="w9-scroll">
           <div class="wins-card" id="winsCard" hidden>
@@ -1434,6 +1477,64 @@
     <h3 id="exHistoryTitle">Exercise history</h3>
     <div id="exHistoryList"></div>
     <div class="modal-actions"><button class="close-btn" id="closeExHistoryBtn" style="width:100%;">Close</button></div>
+  </div>
+
+  <!-- The week itself: every day, every exercise, editable -->
+  <div class="modal-inner" id="progModal" style="display:none;">
+    <h3>Your week</h3>
+    <div class="prog-days" id="progDays"></div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Name for this day</label><input type="text" id="progName"></div>
+      <div class="field"><label>Cardio (min)</label><input type="number" id="progCardio" min="0" step="5"></div>
+    </div>
+    <div class="prog-scroll" id="progList"></div>
+    <button class="ghost-btn" id="progAddBtn" style="width:100%; margin-top:10px;">Add an exercise</button>
+    <div class="f9-note" style="margin-top:10px;">A day with no exercises is a cardio day. Leave a default weight empty and the app will ask for it the first time.</div>
+    <div class="modal-actions">
+      <button class="danger-btn" id="progResetBtn">Reset day</button>
+      <button class="close-btn" id="progCancelBtn">Cancel</button>
+      <button class="primary-btn" id="progSaveBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Height, birthday and how hard the week is: what a maintenance figure is made of -->
+  <div class="modal-inner" id="bodyModal" style="display:none;">
+    <h3>Your body</h3>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Height &mdash; feet</label><input type="number" id="bodyFt" min="3" max="8"></div>
+      <div class="field"><label>and inches</label><input type="number" id="bodyIn" min="0" max="11" step="0.5"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Date of birth</label><input type="date" id="bodyBorn"></div>
+      <div class="field"><label>Sex</label>
+        <select id="bodySex"><option value="male">Male</option><option value="female">Female</option></select>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:8px;"><label>How hard is your week</label>
+      <select id="bodyActivity"></select>
+    </div>
+    <div class="f9-note" id="bodyWorking" style="margin-bottom:10px;"></div>
+    <button class="ghost-btn" id="bodySuggestBtn" style="width:100%; margin-bottom:10px;">Work out my maintenance from this</button>
+    <label class="track-row" for="bodyTrack">
+      <input type="checkbox" id="bodyTrack">
+      <span>Move my maintenance as my weight changes</span>
+    </label>
+    <div class="modal-actions">
+      <button class="close-btn" id="bodyCancelBtn">Cancel</button>
+      <button class="primary-btn" id="bodySaveBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Blood work: files the owner uploads, listed by date -->
+  <div class="modal-inner" id="labsModal" style="display:none;">
+    <h3>Blood work</h3>
+    <div class="f9-note" style="margin-bottom:10px;">A PDF or a photo of a panel. Stored against your account only.</div>
+    <label class="food-upload-btn f9-write" for="labsFileInput" style="margin-bottom:10px;">&#128206; Add a file</label>
+    <input type="file" id="labsFileInput" accept="application/pdf,image/*" style="display:none;">
+    <div id="labsList" class="again-scroll"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="labsCloseBtn">Close</button>
+    </div>
   </div>
 
   <!-- Make up a missed walk with minutes walked since -->
@@ -1614,9 +1715,74 @@
   }
   /* Everything downstream reads TARGETS, so keep it as the derived view of the plan. */
   var TARGETS = { calories: 2300, protein: 170, fat: 80, fiber: 30 };
-  function planIntake() { return Math.max(PLAN.floor, PLAN.maintenance - PLAN.deficit); }
+  /* ---- the body behind the numbers ----
+     Height, birthday, sex and how hard the week is. They are here so a maintenance
+     figure can be worked out rather than guessed, and so it can follow the scales. */
+  var BODY_SLOT = "__body";
+  var DEFAULT_BODY = { heightIn: null, born: "", sex: "male", activity: 1.55 };
+  var BODY = Object.assign({}, DEFAULT_BODY);
+  var ACTIVITY = [
+    { v: 1.2,   label: "Desk job, no training" },
+    { v: 1.375, label: "Light \u2014 one to three days" },
+    { v: 1.55,  label: "Moderate \u2014 three to five days" },
+    { v: 1.725, label: "Hard \u2014 six or seven days" },
+    { v: 1.9,   label: "Very hard \u2014 physical job too" }
+  ];
+  var latestWeightLb = null;
+
+  function ageFrom(born) {
+    if (!born) return null;
+    var d = new Date(born + "T12:00:00");
+    if (isNaN(d.getTime())) return null;
+    var now = new Date(), a = now.getFullYear() - d.getFullYear();
+    var m = now.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) a--;
+    return (a >= 0 && a < 120) ? a : null;
+  }
+  /* Mifflin-St Jeor. Resting burn only -- the activity multiplier turns it into a day. */
+  function mifflinBmr(weightLb, heightIn, age, sex) {
+    if (!weightLb || !heightIn || age == null) return null;
+    return 10 * (weightLb / 2.20462) + 6.25 * (heightIn * 2.54) - 5 * age + (sex === "female" ? -161 : 5);
+  }
+  function suggestMaintenance(weightLb) {
+    var bmr = mifflinBmr(weightLb, BODY.heightIn, ageFrom(BODY.born), BODY.sex);
+    return bmr == null ? null : Math.round(bmr * (BODY.activity || 1.55) / 10) * 10;
+  }
+  /* What a pound is worth in a day. The weight term of Mifflin is 10 kcal per kilo of
+     resting burn and the activity multiplier applies to all of it, so in a moderate
+     week a pound is a little over seven calories a day. */
+  function kcalPerLb() { return 10 * (BODY.activity || 1.55) / 2.20462; }
+  /* The stored figure was calibrated at some weight; this is that figure carried to
+     today's. Calibrating rather than recomputing is deliberate: a number somebody set
+     on purpose -- Safath's is deliberately low -- keeps its meaning and still moves the
+     right way when the scales do. */
+  function effectiveMaintenance() {
+    var m = Number(PLAN.maintenance) || 0;
+    if (PLAN.trackWeight === false) return m;
+    if (PLAN.refWeight == null || latestWeightLb == null) return m;
+    return Math.max(1200, Math.round(m + (latestWeightLb - PLAN.refWeight) * kcalPerLb()));
+  }
+  function planIntake() { return Math.max(PLAN.floor, effectiveMaintenance() - PLAN.deficit); }
+  /* The most recent weight on record, read straight from the primed cache rather than
+     looked up day by day. It used to be found behind an await inside the stats render,
+     which meant everything that asks what maintenance is -- the food tiles, the plan
+     label -- had already painted with the previous weight by the time it arrived. One
+     synchronous pass, done before anything reads it. */
+  function recomputeLatestWeight() {
+    var best = null, bestKey = "";
+    Object.keys(cache).forEach(function (k) {
+      if (k === PLAN_ROW_DATE) return;
+      var d = cache[k];
+      if (d && d.weight != null && k > bestKey) { bestKey = k; best = d.weight; }
+    });
+    latestWeightLb = best;
+    /* The first weight an account logs is what the maintenance figure is pinned to,
+       unless one is pinned already. Without a pin the figure could never move. */
+    if (best != null && PLAN.refWeight == null) { PLAN.refWeight = best; savePlan(); }
+    return best;
+  }
   function applyPlan() {
-    TARGETS.calories = PLAN.maintenance;
+    TARGETS.calories = effectiveMaintenance();
     TARGETS.protein = PLAN.protein; TARGETS.fat = PLAN.fat; TARGETS.fiber = PLAN.fiber;
   }
 
@@ -1630,15 +1796,22 @@
       var sets = res && res.data && res.data.sets;
       var v = sets && sets[PLAN_SLOT];
       PLAN = Object.assign(planDefaults(), (v && typeof v === "object") ? v : {});
+      var bd = sets && sets[BODY_SLOT];
+      BODY = Object.assign({}, DEFAULT_BODY, (bd && typeof bd === "object") ? bd : {});
+      var lb = sets && sets[LABS_SLOT];
+      MY_LABS = Array.isArray(lb) ? lb : [];
+      var pg = sets && sets[PROG_SLOT];
+      MY_PROG = (pg && typeof pg === "object" && !Array.isArray(pg)) ? pg : null;
       GAME = gameFromPlanRow(sets);
       GOOD = goodFromPlanRow(sets);
     } catch (e) {}
+    applyProgram();
     applyPlan();
   }
   async function savePlan() {
     applyPlan();
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD; blob[BODY_SLOT] = BODY;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -1791,6 +1964,11 @@
   }
   async function saveDayDoc(key, data) {
     cache[key] = data;
+    /* Every weight written anywhere goes through here, so this is the one place that
+       cannot be forgotten. Without it, logging a weight left the maintenance figure --
+       and so the day's calorie target -- reading the previous one until something
+       else happened to redraw the whole app. */
+    recomputeLatestWeight();
     try {
       await supabase.from("days").upsert({
         user_id: currentProfileId, date: key, weight: data.weight, cardio: data.cardio, sets: data.sets,
@@ -2212,9 +2390,7 @@
 
   async function renderTopStats() {
     var keys = await getAllDayKeys();
-    var latest = null;
-    var sorted = keys.slice().sort().reverse();
-    for (var i = 0; i < sorted.length; i++) { var d = await getDayDoc(sorted[i]); if (d.weight != null) { latest = d.weight; break; } }
+    var latest = latestWeightLb;
     document.getElementById("statWeight").textContent = latest != null ? latest + " lb" : "—";
     document.getElementById("statWeightSub").textContent = latest != null ? "most recent log" : "not logged yet";
     var lossSub = document.getElementById("statTotalLossSub");
@@ -2247,6 +2423,8 @@
     var key = dateKey(selectedDate);
     var doc = await getDayDoc(key);
     if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
+    await primeDayCache();
+    recomputeLatestWeight();          // before anything asks what maintenance is
     renderQuests(); renderTopStats().then(renderWins); renderRank(); snapshotBests();
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
@@ -2994,7 +3172,8 @@
   function renderPlanLabels() {
     var set = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
     set("planIntakeLabel", fmtInt(planIntake()));
-    set("planMaintLabel", fmtInt(PLAN.maintenance));
+    set("planMaintLabel", fmtInt(effectiveMaintenance()));
+    setBodyLabel(); setLabsLabel();
     set("planBtnLabel", fmtInt(planIntake()) + " kcal/day, " +
       (PLAN.deficit > 0 ? (PLAN.deficit / 500).toFixed(1) + " lb/wk" : "holding steady"));
   }
@@ -3112,7 +3291,7 @@
   }
   async function saveGame() {
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD; blob[BODY_SLOT] = BODY;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -3766,7 +3945,7 @@
   }
   async function saveGood() {
     try {
-      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD;
+      var blob = {}; blob[PLAN_SLOT] = PLAN; blob[GAME_SLOT] = GAME; blob[GOOD_SLOT] = GOOD; blob[BODY_SLOT] = BODY;
       await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: blob }, { onConflict: "user_id,date" });
     } catch (e) {}
   }
@@ -4181,6 +4360,8 @@
     var el = document.createElement("div");
     el.className = "gear-toast";
     el.style.setProperty("--gc", rarity.color);
+    el.style.setProperty("--gc-glow", rarity.color + "73");   /* 45% */
+    el.style.setProperty("--gc-soft", rarity.color + "38");   /* 22% */
     el.innerHTML = '<div class="gt-tag">' + (firstTime ? "A start" : rankedUp ? "A record, and your waist went up" : "A record") + '</div>' +
       '<div class="gt-name">' + headline + '</div>' +
       '<div class="gt-row"><span class="gt-level">' + valueText + '</span>' +
@@ -4735,7 +4916,7 @@
         burstFrom(document.getElementById("saveWeightBtn"), ["#6E9BFF", "#B06BFF", "#FFFFFF"], 16);
         fireFeedback("weight", "Logged bodyweight of " + doc.weight + " lb for " + key + ". Give a brief, specific, encouraging reaction.");
       }
-      renderHistory(); renderQuests(); renderTopStats(); liveRefresh();
+      renderHistory(); renderQuests(); renderTopStats(); renderPlanLabels(); liveRefresh();
     };
     document.getElementById("saveCardioBtn").onclick = async function () {
       var key = dateKey(selectedDate); var doc = await getDayDoc(key);
@@ -5493,6 +5674,366 @@
     el.hidden = false;
   }
 
+  /* ---- the week, as something you can change ----
+     The programme used to be code, which meant a routine could only be altered by me.
+     It is a setting now: the coded one is the starting point and anything edited is
+     stored against the account, so each person's week is their own. Only the days you
+     actually change are stored, so a day left alone keeps following the original. */
+  var PROG_SLOT = "__prog";
+  var MY_PROG = null;
+  var progDay = 1, progDraft = null;
+
+  function baseProgram() {
+    var conf = profileConf();
+    return (conf && conf.program) || PROGRAM_SAFATH;
+  }
+  function applyProgram() {
+    var out = {};
+    var base = baseProgram();
+    Object.keys(base).forEach(function (d) { out[d] = base[d]; });
+    if (MY_PROG && typeof MY_PROG === "object") {
+      Object.keys(MY_PROG).forEach(function (d) {
+        var v = MY_PROG[d];
+        if (v && typeof v === "object" && Array.isArray(v.ex)) out[d] = v;
+      });
+    }
+    PROGRAM = out;
+  }
+  function dayDraft(d) {
+    var p = PROGRAM[d];
+    if (!p) return { name: "Rest day", type: "cardio", cardio: { min: 0 }, ex: [] };
+    return JSON.parse(JSON.stringify(p));
+  }
+  function renderProgDays() {
+    var row = document.getElementById("progDays");
+    row.innerHTML = [1,2,3,4,5,6,0].map(function (d) {
+      return '<button type="button" data-d="' + d + '"' + (d === progDay ? ' class="on"' : '') + '>' +
+        DAY_ABBR[d] + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(row.querySelectorAll("button"), function (b) {
+      b.onclick = function () {
+        stashProgDraft();
+        progDay = Number(b.getAttribute("data-d"));
+        progDraft = dayDraft(progDay);
+        renderProgDays(); renderProgDay();
+      };
+    });
+  }
+  function renderProgDay() {
+    document.getElementById("progName").value = progDraft.name || "";
+    document.getElementById("progCardio").value = (progDraft.cardio && progDraft.cardio.min) || 0;
+    var list = document.getElementById("progList");
+    if (!progDraft.ex.length) {
+      list.innerHTML = '<div class="empty">No exercises \u2014 this is a cardio day.</div>';
+      return;
+    }
+    list.innerHTML = progDraft.ex.map(function (e, i) {
+      return '<div class="prog-ex" data-i="' + i + '">' +
+        '<div class="pe-top"><input type="text" class="pe-name" value="' + esc(e.name || "") + '" placeholder="Exercise">' +
+          '<button type="button" class="pe-del">Remove</button></div>' +
+        '<div class="pe-nums">' +
+          '<div><label>Sets</label><input type="number" class="pe-sets" min="1" max="20" value="' + (e.sets || 3) + '"></div>' +
+          '<div><label>Reps from</label><input type="number" class="pe-lo" min="1" max="60" value="' + (e.repLo || 8) + '"></div>' +
+          '<div><label>to</label><input type="number" class="pe-hi" min="1" max="60" value="' + (e.repHi || 12) + '"></div>' +
+          '<div><label>Weight</label><input type="number" step="0.5" class="pe-w" value="' +
+            (e.weightDefault == null ? "" : e.weightDefault) + '"></div>' +
+        '</div></div>';
+    }).join("");
+    Array.prototype.forEach.call(list.querySelectorAll(".pe-del"), function (b) {
+      b.onclick = function () {
+        stashProgDraft();
+        progDraft.ex.splice(Number(b.closest(".prog-ex").getAttribute("data-i")), 1);
+        renderProgDay();
+      };
+    });
+  }
+  /* Read the fields back into the draft before anything redraws them, or a half-typed
+     change would be lost every time a row was added or a day switched. */
+  function stashProgDraft() {
+    if (!progDraft) return;
+    var nameEl = document.getElementById("progName");
+    if (nameEl) progDraft.name = nameEl.value.trim() || "Session";
+    var cm = Number(document.getElementById("progCardio").value) || 0;
+    progDraft.cardio = Object.assign({}, progDraft.cardio || {}, { min: Math.max(0, cm) });
+    var rows = document.querySelectorAll("#progList .prog-ex");
+    if (rows.length) {
+      progDraft.ex = Array.prototype.map.call(rows, function (r, i) {
+        var old = progDraft.ex[i] || {};
+        var lo = Number(r.querySelector(".pe-lo").value) || 8;
+        var hi = Number(r.querySelector(".pe-hi").value) || lo;
+        var w = r.querySelector(".pe-w").value;
+        return {
+          name: r.querySelector(".pe-name").value.trim() || ("Exercise " + (i + 1)),
+          sets: Math.max(1, Number(r.querySelector(".pe-sets").value) || 1),
+          repLo: lo, repHi: Math.max(lo, hi), repDefault: lo,
+          weightDefault: w === "" ? null : Number(w),
+          weightLabel: old.weightLabel || "lb",
+          div: !!old.div,
+          restSec: old.restSec || 60
+        };
+      });
+    }
+    progDraft.type = progDraft.ex.length ? "lift" : "cardio";
+  }
+  function openProg() {
+    progDay = (new Date()).getDay();
+    progDraft = dayDraft(progDay);
+    renderProgDays(); renderProgDay();
+    hideSheets("progModal");
+    document.getElementById("progModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  async function saveProgDay() {
+    stashProgDraft();
+    if (!MY_PROG || typeof MY_PROG !== "object") MY_PROG = {};
+    MY_PROG[progDay] = progDraft;
+    try {
+      var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
+      var sets = (res && res.data && res.data.sets) || {};
+      sets[PROG_SLOT] = MY_PROG;
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: sets },
+        { onConflict: "user_id,date" });
+    } catch (e) { showProblem("Could not save that. " + ((e && e.message) || "")); return false; }
+    applyProgram();
+    return true;
+  }
+  function wireProg() {
+    document.getElementById("progBtn").onclick = openProg;
+    document.getElementById("progCancelBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+    document.getElementById("progAddBtn").onclick = function () {
+      stashProgDraft();
+      progDraft.ex.push({ name: "", sets: 3, repLo: 8, repHi: 12, repDefault: 8,
+                          weightDefault: null, weightLabel: "lb", div: false, restSec: 60 });
+      renderProgDay();
+    };
+    document.getElementById("progResetBtn").onclick = async function () {
+      if (MY_PROG) delete MY_PROG[progDay];
+      applyProgram();
+      progDraft = dayDraft(progDay);
+      renderProgDay();
+      await saveProgDay.justPersist();
+    };
+    document.getElementById("progSaveBtn").onclick = async function () {
+      var btn = this, label = btn.textContent;
+      btn.textContent = "Saving\u2026"; btn.disabled = true;
+      var ok = await saveProgDay();
+      btn.textContent = label; btn.disabled = false;
+      if (!ok) return;
+      document.getElementById("modalOverlay").classList.remove("open");
+      renderAll();
+    };
+  }
+  /* Resetting a day is a write too -- the stored override has to go, not just the copy
+     in memory, or it would come back on the next load. */
+  saveProgDay.justPersist = async function () {
+    try {
+      var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
+      var sets = (res && res.data && res.data.sets) || {};
+      sets[PROG_SLOT] = MY_PROG || {};
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: sets },
+        { onConflict: "user_id,date" });
+    } catch (e) {}
+  };
+
+  /* ---- blood work ----
+     A panel is medical information, so none of this is ever handed a public URL the way
+     a meal photo is. The file goes to a private path under the account and is opened
+     through a short-lived signed link, minted on the tap and good for a few minutes.
+     If the bucket a deployment uses is a public one, the object is still reachable by
+     anyone who knows the exact path -- worth a private bucket, which is why "labs" is
+     tried first and the shared bucket is only the fallback. */
+  var LABS_SLOT = "__labs";
+  var LAB_BUCKETS = ["labs", "meal-photos"];
+  var MY_LABS = [];
+
+  async function labUpload(file) {
+    var stamp = Date.now() + "-" + Math.floor(Math.random() * 1e6);
+    var clean = (file.name || "panel").replace(/[^\w.\-]+/g, "_").slice(-60);
+    var path = currentProfileId + "/labs/" + stamp + "-" + clean;
+    var lastErr = "";
+    for (var i = 0; i < LAB_BUCKETS.length; i++) {
+      try {
+        var up = await supabase.storage.from(LAB_BUCKETS[i]).upload(path, file, {
+          contentType: file.type || "application/octet-stream" });
+        if (!up.error) return { bucket: LAB_BUCKETS[i], path: path };
+        lastErr = up.error.message || String(up.error);
+      } catch (e) { lastErr = (e && e.message) || String(e); }
+    }
+    throw new Error(lastErr || "the upload was refused");
+  }
+  async function labLink(rec) {
+    try {
+      var r = await supabase.storage.from(rec.bucket).createSignedUrl(rec.path, 300);
+      if (r && r.data && r.data.signedUrl) return r.data.signedUrl;
+    } catch (e) {}
+    return null;
+  }
+  async function saveLabs() {
+    try {
+      var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
+      var sets = (res && res.data && res.data.sets) || {};
+      sets[LABS_SLOT] = MY_LABS;
+      await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: sets },
+        { onConflict: "user_id,date" });
+    } catch (e) { showProblem("Could not save that. " + ((e && e.message) || "")); }
+  }
+  function renderLabs() {
+    var list = document.getElementById("labsList");
+    if (!list) return;
+    if (!MY_LABS.length) { list.innerHTML = '<div class="empty">Nothing uploaded yet.</div>'; }
+    else {
+      list.innerHTML = MY_LABS.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; })
+        .map(function (r, i) {
+          return '<div class="lab-row"><span class="lab-when"><b>' + esc(r.date) + '</b>' +
+            '<span>' + esc(r.name || "panel") + '</span></span>' +
+            '<button class="lab-open" type="button" data-i="' + i + '">Open</button>' +
+            '<button class="lab-del" type="button" data-i="' + i + '">Delete</button></div>';
+        }).join("");
+      var sorted = MY_LABS.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      Array.prototype.forEach.call(list.querySelectorAll(".lab-open"), function (b) {
+        b.onclick = async function () {
+          b.disabled = true; var was = b.textContent; b.textContent = "Opening\u2026";
+          var url = await labLink(sorted[Number(b.getAttribute("data-i"))]);
+          b.disabled = false; b.textContent = was;
+          if (url) window.open(url, "_blank", "noopener");
+          else showProblem("That file could not be opened.");
+        };
+      });
+      Array.prototype.forEach.call(list.querySelectorAll(".lab-del"), function (b) {
+        b.onclick = async function () {
+          var rec = sorted[Number(b.getAttribute("data-i"))];
+          try { await supabase.storage.from(rec.bucket).remove([rec.path]); } catch (e) {}
+          MY_LABS = MY_LABS.filter(function (x) { return x.path !== rec.path; });
+          await saveLabs(); renderLabs(); setLabsLabel();
+        };
+      });
+    }
+  }
+  function setLabsLabel() {
+    var el = document.getElementById("labsBtnLabel");
+    if (el) el.textContent = MY_LABS.length ? MY_LABS.length + " on file" : "none yet";
+  }
+  function wireLabs() {
+    document.getElementById("labsBtn").onclick = function () {
+      renderLabs();
+      hideSheets("labsModal");
+      document.getElementById("labsModal").style.display = "block";
+      document.getElementById("modalOverlay").classList.add("open");
+    };
+    document.getElementById("labsCloseBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+    document.getElementById("labsFileInput").addEventListener("change", async function (e) {
+      var file = e.target.files[0]; e.target.value = "";
+      if (!file) return;
+      if (file.size > 20 * 1024 * 1024) { showProblem("That file is over 20MB."); return; }
+      var list = document.getElementById("labsList");
+      list.innerHTML = '<div class="empty">Uploading\u2026</div>';
+      try {
+        var rec = await labUpload(file);
+        MY_LABS.push({ date: dateKey(new Date()), name: file.name || "panel",
+                       bucket: rec.bucket, path: rec.path, type: file.type || "" });
+        await saveLabs();
+        sfx("logged");
+      } catch (err) {
+        showProblem("Could not upload that. " + err.message);
+      }
+      renderLabs(); setLabsLabel();
+    });
+  }
+
+  /* ---- body sheet ---- */
+  function hideSheets(except) {
+    ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
+     "againModal","redeemModal","bodyModal","labsModal","progModal"].forEach(function (id) {
+      if (id === except) return;
+      var el = document.getElementById(id); if (el) el.style.display = "none";
+    });
+  }
+  function bodyWorking() {
+    var el = document.getElementById("bodyWorking");
+    if (!el) return;
+    var age = ageFrom(document.getElementById("bodyBorn").value);
+    var ft = Number(document.getElementById("bodyFt").value) || 0;
+    var inch = Number(document.getElementById("bodyIn").value) || 0;
+    var hIn = ft * 12 + inch;
+    var w = latestWeightLb;
+    if (!hIn || age == null || !w) {
+      el.textContent = "Fill in your height and birthday, and log a weight, and this will work the figure out for you.";
+      return;
+    }
+    var sex = document.getElementById("bodySex").value;
+    var act = Number(document.getElementById("bodyActivity").value) || 1.55;
+    var bmr = mifflinBmr(w, hIn, age, sex);
+    el.innerHTML = "At <b>" + w + " lb</b>, <b>" + (ft + "\u2032" + inch + "\u2033") + "</b> and <b>" + age +
+      "</b>, resting burn is about <b>" + fmtInt(bmr) + "</b>. Times " + act + " for the week, that is about <b>" +
+      fmtInt(Math.round(bmr * act / 10) * 10) + "</b> a day. A pound is worth about " +
+      (10 * act / 2.20462).toFixed(1) + " calories a day.";
+  }
+  function setBodyLabel() {
+    var el = document.getElementById("bodyBtnLabel");
+    if (!el) return;
+    var bits = [];
+    if (BODY.heightIn) bits.push(Math.floor(BODY.heightIn / 12) + "\u2032" + Math.round(BODY.heightIn % 12) + "\u2033");
+    var a = ageFrom(BODY.born); if (a != null) bits.push(a);
+    bits.push(fmtInt(effectiveMaintenance()) + " kcal");
+    el.textContent = bits.join(" \u00b7 ");
+  }
+  function openBody() {
+    var ftEl = document.getElementById("bodyFt"), inEl = document.getElementById("bodyIn");
+    if (BODY.heightIn) { ftEl.value = Math.floor(BODY.heightIn / 12); inEl.value = Math.round((BODY.heightIn % 12) * 2) / 2; }
+    else { ftEl.value = ""; inEl.value = ""; }
+    document.getElementById("bodyBorn").value = BODY.born || "";
+    document.getElementById("bodySex").value = BODY.sex || "male";
+    var sel = document.getElementById("bodyActivity");
+    sel.innerHTML = ACTIVITY.map(function (a) {
+      return '<option value="' + a.v + '"' + (Number(BODY.activity) === a.v ? " selected" : "") + '>' + a.label + '</option>';
+    }).join("");
+    document.getElementById("bodyTrack").checked = PLAN.trackWeight !== false;
+    bodyWorking();
+    hideSheets("bodyModal");
+    document.getElementById("bodyModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  function wireBody() {
+    ["bodyFt","bodyIn","bodyBorn","bodySex","bodyActivity"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.oninput = bodyWorking; el.onchange = bodyWorking; }
+    });
+    document.getElementById("bodyBtn").onclick = openBody;
+    document.getElementById("bodyCancelBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+    document.getElementById("bodySuggestBtn").onclick = function () {
+      readBodyFields();
+      var m = suggestMaintenance(latestWeightLb);
+      if (m == null) { showProblem("Height, birthday and a logged weight first."); return; }
+      PLAN.maintenance = m;
+      /* Calibrated here, so from now on it moves with the scales rather than drifting. */
+      PLAN.refWeight = latestWeightLb;
+      bodyWorking();
+      showToast("Maintenance set to " + fmtInt(m) + " a day at " + latestWeightLb + " lb.");
+    };
+    document.getElementById("bodySaveBtn").onclick = async function () {
+      readBodyFields();
+      PLAN.trackWeight = document.getElementById("bodyTrack").checked;
+      if (PLAN.trackWeight && PLAN.refWeight == null && latestWeightLb != null) PLAN.refWeight = latestWeightLb;
+      await savePlan();
+      document.getElementById("modalOverlay").classList.remove("open");
+      renderAll();
+    };
+  }
+  function readBodyFields() {
+    var ft = Number(document.getElementById("bodyFt").value) || 0;
+    var inch = Number(document.getElementById("bodyIn").value) || 0;
+    BODY.heightIn = (ft * 12 + inch) || null;
+    BODY.born = document.getElementById("bodyBorn").value || "";
+    BODY.sex = document.getElementById("bodySex").value || "male";
+    BODY.activity = Number(document.getElementById("bodyActivity").value) || 1.55;
+  }
+
   async function openRedeem() {
     var st = await redeemState();
     document.getElementById("redeemSpare").textContent = st.spare;
@@ -5600,7 +6141,7 @@
       if (hasEstimate) {
         mealsPct += Math.round(50 * calorieScore(calTotal));
         mealsDetail = todayFood.length + " meals logged, ~" + fmtInt(calTotal) + " kcal est. (aim " +
-          fmtInt(PLAN.floor) + "–" + fmtInt(planIntake()) + ", maintenance " + fmtInt(PLAN.maintenance) + ")";
+          fmtInt(PLAN.floor) + "–" + fmtInt(planIntake()) + ", maintenance " + fmtInt(effectiveMaintenance()) + ")";
       }
       else { mealsPct += 30; mealsDetail = todayFood.length + " meal photo(s) logged"; }
     }
@@ -5735,6 +6276,7 @@
 
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
+    wireBody(); wireLabs(); wireProg();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
