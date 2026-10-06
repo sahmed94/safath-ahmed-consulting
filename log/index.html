@@ -1549,6 +1549,23 @@
     0: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] }
   };
 
+  /* Ifhrad: 6'0", eighteen, lifting five days a week with two miles at the weekend.
+     Mifflin-St Jeor for a man of 182.9cm at eighteen gives a resting burn of about
+     1,806 at 165 lb, and 1.55 for training most days of the week puts the day at about
+     2,800. Two deliberate differences from the plan above it:
+
+     No five per cent trim. That trim exists because the formula runs high when more of
+     the weight is fat; on a lean eighteen-year-old it runs if anything low, so taking
+     five per cent off would be the wrong direction.
+
+     No deficit. A deficit is a decision about a goal, and nobody has told me his. The
+     plan therefore holds at maintenance rather than quietly putting a teenager on a
+     cut; the floor still stops the meal score rewarding eating less and leaves a band
+     of 2,300 to 2,800 that counts as on plan. Every figure is editable in the app.
+
+     The weight is the one number here that was assumed rather than given. At 150 lb the
+     day is about 2,650 and at 180 lb about 2,950, so it is worth correcting. */
+  var PLAN_IFHRAD = { maintenance: 2800, deficit: 0, floor: 2300, protein: 160, fat: 75, fiber: 38 };
   /* Everything that is one person's and not the app's lives here, keyed by the address
      they sign in with. The seed weights and the lab panel are somebody's medical
      history: they belong to the account they came from and must not appear in anyone
@@ -1556,8 +1573,8 @@
      that happen to be filtered later. A profile not listed gets the app with none of
      anybody's history in it. */
   var PROFILES = {
-    "ahmed.safath@gmail.com": { name: "Safath Ahmed", program: PROGRAM_SAFATH, startWeight: 218 },
-    "ijaman465@gmail.com":    { name: "Ifhrad Jaman", program: PROGRAM_IFHRAD, startWeight: null }
+    "ahmed.safath@gmail.com": { name: "Safath Ahmed", program: PROGRAM_SAFATH, startWeight: 218, plan: null },
+    "ijaman465@gmail.com":    { name: "Ifhrad Jaman", program: PROGRAM_IFHRAD, startWeight: null, plan: PLAN_IFHRAD }
   };
   var PROGRAM = PROGRAM_SAFATH;
   var currentProfileEmail = "";
@@ -1589,7 +1606,12 @@
      `floor` is the intake below which the meal score stops improving. Without one, a
      score that rewards eating less rewards eating nothing. */
   var DEFAULT_PLAN = { maintenance: 2300, deficit: 500, floor: 1500, protein: 170, fat: 80, fiber: 30 };
+
   var PLAN = Object.assign({}, DEFAULT_PLAN);
+  function planDefaults() {
+    var conf = profileConf();
+    return Object.assign({}, (conf && conf.plan) || DEFAULT_PLAN);
+  }
   /* Everything downstream reads TARGETS, so keep it as the derived view of the plan. */
   var TARGETS = { calories: 2300, protein: 170, fat: 80, fiber: 30 };
   function planIntake() { return Math.max(PLAN.floor, PLAN.maintenance - PLAN.deficit); }
@@ -1607,7 +1629,7 @@
       var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
       var sets = res && res.data && res.data.sets;
       var v = sets && sets[PLAN_SLOT];
-      if (v && typeof v === "object") PLAN = Object.assign({}, DEFAULT_PLAN, v);
+      PLAN = Object.assign(planDefaults(), (v && typeof v === "object") ? v : {});
       GAME = gameFromPlanRow(sets);
       GOOD = goodFromPlanRow(sets);
     } catch (e) {}
@@ -2025,6 +2047,7 @@
        its own gets nobody else's: it gets none. */
     var conf = profileConf();
     PROGRAM = (conf && conf.program) || PROGRAM_SAFATH;
+    PLAN = planDefaults();          // until loadPlan overlays anything stored
     if (conf && conf.name) displayName = conf.name;
     currentProfileName = displayName;
     cache = {}; foodCache = [];
@@ -2972,7 +2995,8 @@
     var set = function (id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; };
     set("planIntakeLabel", fmtInt(planIntake()));
     set("planMaintLabel", fmtInt(PLAN.maintenance));
-    set("planBtnLabel", fmtInt(planIntake()) + " kcal/day, " + (PLAN.deficit / 500).toFixed(1) + " lb/wk");
+    set("planBtnLabel", fmtInt(planIntake()) + " kcal/day, " +
+      (PLAN.deficit > 0 ? (PLAN.deficit / 500).toFixed(1) + " lb/wk" : "holding steady"));
   }
 
   function wireExerciseHistoryModal() {
