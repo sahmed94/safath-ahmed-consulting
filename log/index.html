@@ -1505,7 +1505,7 @@
   function ex(name, sets, repLo, repHi, weight, weightLabel, div, restSec) {
     return { name: name, sets: sets, repLo: repLo, repHi: repHi, repDefault: repLo, weightDefault: weight, weightLabel: weightLabel || "lb", div: !!div, restSec: restSec || 60 };
   }
-  var PROGRAM = {
+  var PROGRAM_SAFATH = {
     6: { name: "Upper A", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
       ex: [ ex("Flat DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 90), ex("Standing DB OHP", 4, 8, 12, 35, "lb/hand", false, 90), ex("DB Row", 4, 8, 12, 65, "lb", true, 90), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60), ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 60), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
     0: { name: "Lower A", type: "lift", cardio: { min: 80, incline: 10, speed: 3.0 },
@@ -1518,9 +1518,56 @@
       ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 90, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
     5: { name: "Cardio only", type: "cardio", cardio: { min: 45, incline: 10, speed: 3.0 }, ex: [] }
   };
+
+  /* Ifhrad's week: upper, lower, push, pull, legs from Monday, then the weekend walked
+     or run. Weights are left empty rather than guessed -- the first session he logs
+     sets them, and everything after that is measured against what he actually lifted.
+     No cardio is asked for on a lifting day, which the scoring has to cope with: see
+     the weight redistribution in dayBlows. */
+  var PROGRAM_IFHRAD = {
+    1: { name: "Upper", type: "lift", cardio: { min: 0 },
+      ex: [ ex("Bench Press", 4, 8, 12, null, "lb", false, 90), ex("Shoulder Press", 3, 8, 12, null, "lb", false, 90),
+            ex("Triceps Overhead", 3, 8, 12, null, "lb", false, 60), ex("Bicep Curls", 3, 8, 12, null, "lb", false, 60),
+            ex("Lat Pulldowns", 3, 8, 12, null, "lb", false, 60) ]},
+    2: { name: "Lower", type: "lift", cardio: { min: 0 },
+      ex: [ ex("Leg Press", 4, 8, 12, null, "lb", false, 90), ex("Leg Extension", 3, 8, 12, null, "lb", false, 60),
+            ex("Seated Leg Curls", 3, 8, 12, null, "lb", false, 60), ex("Hip Abductions", 3, 8, 12, null, "lb", false, 60),
+            ex("Hip Adductors", 3, 8, 12, null, "lb", false, 60) ]},
+    3: { name: "Push", type: "lift", cardio: { min: 0 },
+      ex: [ ex("Bench Press", 4, 8, 12, null, "lb", false, 90), ex("Shoulder Press", 3, 8, 12, null, "lb", false, 90),
+            ex("Lateral Raises", 3, 8, 12, null, "lb", false, 60), ex("Triceps Overhead", 3, 8, 12, null, "lb", false, 60),
+            ex("Triceps Pulldowns", 3, 8, 12, null, "lb", false, 60) ]},
+    4: { name: "Pull", type: "lift", cardio: { min: 0 },
+      ex: [ ex("Bicep Curls", 3, 8, 12, null, "lb", false, 60), ex("Lat Pulldowns", 3, 8, 12, null, "lb", false, 60),
+            ex("Seated Rows", 3, 8, 12, null, "lb", false, 60), ex("Hammer Curls", 3, 8, 12, null, "lb", false, 60),
+            ex("Assisted Pull-ups", 3, 8, 12, null, "lb assist", false, 90) ]},
+    5: { name: "Legs", type: "lift", cardio: { min: 0 },
+      ex: [ ex("Leg Press", 4, 8, 12, null, "lb", false, 90), ex("Leg Extension", 3, 8, 12, null, "lb", false, 60),
+            ex("Seated Leg Curls", 3, 8, 12, null, "lb", false, 60), ex("Hip Abductions", 3, 8, 12, null, "lb", false, 60),
+            ex("Hip Adductors", 3, 8, 12, null, "lb", false, 60) ]},
+    6: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] },
+    0: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] }
+  };
+
+  /* Everything that is one person's and not the app's lives here, keyed by the address
+     they sign in with. The seed weights and the lab panel are somebody's medical
+     history: they belong to the account they came from and must not appear in anyone
+     else's, which is why they are listed per profile rather than as app-wide constants
+     that happen to be filtered later. A profile not listed gets the app with none of
+     anybody's history in it. */
+  var PROFILES = {
+    "ahmed.safath@gmail.com": { name: "Safath Ahmed", program: PROGRAM_SAFATH, startWeight: 218 },
+    "ijaman465@gmail.com":    { name: "Ifhrad Jaman", program: PROGRAM_IFHRAD, startWeight: null }
+  };
+  var PROGRAM = PROGRAM_SAFATH;
+  var currentProfileEmail = "";
+  function profileConf() { return PROFILES[(currentProfileEmail || "").trim().toLowerCase()] || null; }
+  function isSafath() { return (currentProfileEmail || "").trim().toLowerCase() === "ahmed.safath@gmail.com"; }
   var DAY_ABBR = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   var MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  /* Safath's blood panels. Shown on his account alone. */
   var LABS = [ { date: "2024-11-26", a1c: 6.2, ldl: 107, hdl: 38, trig: 87 }, { date: "2025-08-26", a1c: 5.5, ldl: 72, hdl: 48, trig: 61 }, { date: "2026-09-04", a1c: 5.1, ldl: 72, hdl: 46, trig: 65 } ];
+  /* Safath's, and only ever written into Safath's account -- see seedHistoricalWeights. */
   var SEED_WEIGHTS = [ { date: "2026-09-04", weight: 211.4 }, { date: "2026-09-06", weight: 209.2 } ];
   var DEFAULT_PROFILE_NAME = "Safath Ahmed";
 
@@ -1822,7 +1869,7 @@
     } catch (e) { return []; }
   }
   async function seedHistoricalWeights() {
-    if (!currentProfileName || currentProfileName.trim().toLowerCase() !== DEFAULT_PROFILE_NAME.toLowerCase()) return;
+    if (!isSafath()) return;   // these are one account's recorded weights, not a default
     var keys = await getAllDayKeys();
     if (keys.length > 0) return; // only seed a brand-new account
     for (var i = 0; i < SEED_WEIGHTS.length; i++) {
@@ -1970,8 +2017,15 @@
     return fallbackName || "You";
   }
 
-  async function selectProfile(profileId, displayName) {
+  async function selectProfile(profileId, displayName, email) {
     currentProfileId = profileId;
+    currentProfileEmail = (email || "").trim().toLowerCase();
+    /* The programme is the one thing on this screen that is not read from the account's
+       own rows, so it is chosen here and nowhere else. An address with no programme of
+       its own gets nobody else's: it gets none. */
+    var conf = profileConf();
+    PROGRAM = (conf && conf.program) || PROGRAM_SAFATH;
+    if (conf && conf.name) displayName = conf.name;
     currentProfileName = displayName;
     cache = {}; foodCache = [];
     document.getElementById("authScreen").style.display = "none";
@@ -1988,7 +2042,7 @@
     clearInterval(restTimerInterval);
     var wrap = document.getElementById("restBarWrap"); if (wrap) wrap.classList.remove("show");
     try { await supabase.auth.signOut(); } catch (e) {}
-    currentProfileId = null; currentProfileName = null; cache = {}; foodCache = [];
+    currentProfileId = null; currentProfileName = null; currentProfileEmail = ""; cache = {}; foodCache = [];
     document.getElementById("app").style.display = "none";
     document.getElementById("authScreen").style.display = "flex";
     document.getElementById("authPassword").value = "";
@@ -2019,7 +2073,7 @@
       if (signInRes.data && signInRes.data.user) {
         var uid = signInRes.data.user.id;
         var dispName = await loadProfileName(uid, signInRes.data.user.user_metadata && signInRes.data.user.user_metadata.name);
-        await selectProfile(uid, dispName);
+        await selectProfile(uid, dispName, signInRes.data.user.email || email);
       } else {
         // Not an existing account (or wrong password).
         if (!SIGNUP_OPEN) {
@@ -2141,9 +2195,10 @@
     document.getElementById("statWeight").textContent = latest != null ? latest + " lb" : "—";
     document.getElementById("statWeightSub").textContent = latest != null ? "most recent log" : "not logged yet";
     var lossSub = document.getElementById("statTotalLossSub");
-    if (currentProfileName && currentProfileName.trim().toLowerCase() === DEFAULT_PROFILE_NAME.toLowerCase()) {
-      if (lossSub) lossSub.textContent = "since 218 lb start";
-      if (latest != null) { var loss = (218 - latest).toFixed(1); document.getElementById("statTotalLoss").textContent = (loss >= 0 ? "-" : "+") + Math.abs(loss) + " lb"; }
+    var conf = profileConf();
+    if (conf && conf.startWeight != null) {
+      if (lossSub) lossSub.textContent = "since " + conf.startWeight + " lb start";
+      if (latest != null) { var loss = (conf.startWeight - latest).toFixed(1); document.getElementById("statTotalLoss").textContent = (loss >= 0 ? "-" : "+") + Math.abs(loss) + " lb"; }
       else { document.getElementById("statTotalLoss").textContent = "—"; }
     } else {
       if (lossSub) lossSub.textContent = "vs. first logged weight";
@@ -2635,7 +2690,9 @@
     if (count) count.textContent = done + " / " + total;
   }
 
+  var REST_DAY = { name: "Rest day", type: "cardio", cardio: { min: 0 }, ex: [] };
   function renderLiftingPanel(prog, doc, key) {
+    prog = prog || REST_DAY;        // a programme need not name every day of the week
     document.getElementById("liftSessionName").textContent = prog.name;
     document.getElementById("liftSessionSub").textContent = prog.type === "cardio" ? "Rest from lifting — cardio only" : prog.ex.reduce(function(a,e){return a+e.sets;},0) + " total sets across " + prog.ex.length + " exercises";
     document.getElementById("liftHeroIcon").style.background = prog.type === "cardio" ? "var(--ink-faint)" : "var(--coral)";
@@ -2868,8 +2925,7 @@
   function renderWins(latestWeight) {
     var card = document.getElementById("winsCard");
     if (!card) return;
-    var mine = currentProfileName && currentProfileName.trim().toLowerCase() === DEFAULT_PROFILE_NAME.toLowerCase();
-    if (!mine || LABS.length < 2) { card.hidden = true; return; }
+    if (!isSafath() || LABS.length < 2) { card.hidden = true; return; }
     card.hidden = false;
 
     var first = LABS[0], last = LABS[LABS.length - 1];
@@ -3102,6 +3158,22 @@
     var isLift = !!(prog && prog.type !== "cardio");
     var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0,
         mealW   = isLift ? 25 : 35, weighW = isLift ? 15 : 20;
+    /* A programme is allowed to ask for no cardio on a lifting day. When it does, the
+       cardio share is unearnable, and a day done perfectly would score seventy against
+       a win line of eighty -- a day you could not win however well you did it. The
+       share goes to the parts the day actually asks for, so a hundred stays reachable
+       whatever the programme looks like. */
+    var wantMinEarly = (prog && prog.cardio && prog.cardio.min) || 0;
+    if (!wantMinEarly && cardioW) {
+      var rest = liftW + mealW + weighW;
+      if (rest > 0) {
+        var k = (rest + cardioW) / rest;
+        liftW = Math.round(liftW * k);
+        mealW = Math.round(mealW * k);
+        weighW = 100 - liftW - mealW;
+      }
+      cardioW = 0;
+    }
 
     var totalSets = 0, doneSets = 0, doneReps = 0;
     if (isLift) prog.ex.forEach(function (exx) {
@@ -5664,7 +5736,7 @@
       if (data && data.session && data.session.user) {
         var uid = data.session.user.id;
         var dispName = await loadProfileName(uid, data.session.user.user_metadata && data.session.user.user_metadata.name);
-        await selectProfile(uid, dispName);
+        await selectProfile(uid, dispName, data.session.user.email);
         return;
       }
     } catch (e) {
