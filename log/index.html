@@ -521,6 +521,22 @@
   .prog-ex .pe-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .prog-ex .pe-nums label { display: block; font-size: 10px; color: var(--ink-faint); margin-bottom: 2px; }
   .prog-ex .pe-nums input { width: 100%; }
+  /* One row that scrolls sideways rather than two that wrap: wrapping cost forty
+     pixels of card on a phone, which is forty pixels the day's meals wanted. */
+  .today-macros { flex: 0 0 auto; display: flex; flex-wrap: nowrap; gap: 6px; font-size: 10.5px;
+    color: var(--ink-faint); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  .today-macros::-webkit-scrollbar { display: none; }
+  .today-macros .tm { flex: 0 0 auto; }
+  .today-macros .tm { display: inline-flex; align-items: baseline; gap: 3px;
+    background: rgba(255,255,255,0.05); border-radius: 7px; padding: 2px 7px; }
+  .today-macros .tm b { font-family: var(--font-head); font-size: 12px; color: var(--ink); }
+  .today-macros .tm i { font-style: normal; }
+  .today-macros .tm.ok b { color: #7DF0B8; }
+  .today-macros .tm.warn b { color: #FFD166; }
+  .c9-compact .today-macros { font-size: 9.5px; }
+  .c9-compact .today-macros .tm b { font-size: 11px; }
+  /* Dropped, not squeezed, when the card is too short to hold it -- see fitFood. */
+  .c9-nomacros .today-macros { display: none; }
   .w9-actions { flex: 0 0 auto; display: flex; gap: 8px; }
   .w9-actions .plan-btn { flex: 1 1 0; min-width: 0; margin: 0; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; }
@@ -1298,6 +1314,7 @@
           <div><b id="todayProtein">&mdash;</b><span>protein</span></div>
           <div><b id="planMaintLabel">&mdash;</b><span>maintenance</span></div>
         </div>
+        <div class="today-macros" id="todayMacros"></div>
         <div class="meal-picker" id="mealPicker"></div>
         <div class="field">
           <label>Describe it &mdash; ingredients, portion, how it was cooked</label>
@@ -1461,10 +1478,16 @@
       <div class="field"><label>Floor — don't go below</label><input type="number" id="planFloor" step="50"></div>
       <div class="field"><label>Protein (g)</label><input type="number" id="planProtein"></div>
     </div>
-    <div class="field-row">
+    <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Fat cap (g)</label><input type="number" id="planFat"></div>
       <div class="field"><label>Fibre (g)</label><input type="number" id="planFiber"></div>
     </div>
+    <div class="field-row">
+      <div class="field"><label>Carbs (g)</label><input type="number" id="planCarbs"></div>
+      <div class="field"><label>Caffeine cap (mg)</label><input type="number" id="planCaffeine" step="10"></div>
+    </div>
+    <button class="ghost-btn" id="planSuggestBtn" style="width:100%; margin-top:10px;">Work out good targets for me</button>
+    <button class="ghost-btn" id="planBodyBtn" style="width:100%; margin-top:8px;">Height and date of birth &rarr;</button>
     <div class="plan-math" id="planMath"></div>
     <div class="plan-warn" id="planWarn" hidden></div>
     <div class="modal-actions">
@@ -1588,7 +1611,7 @@
     </div>
     <div class="field-row" style="margin-top:8px;">
       <div class="field"><label>Fibre (g)</label><input type="number" id="mealEditFiber"></div>
-      <div class="field"></div>
+      <div class="field"><label>Caffeine (mg)</label><input type="number" id="mealEditCaff" step="5"></div>
     </div>
     <button class="ghost-btn" id="mealRerunBtn" style="width:100%; margin-top:12px;">Estimate with AI</button>
     <div class="modal-actions">
@@ -1666,7 +1689,8 @@
 
      The weight is the one number here that was assumed rather than given. At 150 lb the
      day is about 2,650 and at 180 lb about 2,950, so it is worth correcting. */
-  var PLAN_IFHRAD = { maintenance: 2800, deficit: 0, floor: 2300, protein: 160, fat: 75, fiber: 38 };
+  var PLAN_IFHRAD = { maintenance: 2800, deficit: 0, floor: 2300, protein: 160, fat: 75, fiber: 38,
+                      carbs: 330, caffeine: 400 };
   /* Everything that is one person's and not the app's lives here, keyed by the address
      they sign in with. The seed weights and the lab panel are somebody's medical
      history: they belong to the account they came from and must not appear in anyone
@@ -1706,7 +1730,8 @@
 
      `floor` is the intake below which the meal score stops improving. Without one, a
      score that rewards eating less rewards eating nothing. */
-  var DEFAULT_PLAN = { maintenance: 2300, deficit: 500, floor: 1500, protein: 170, fat: 80, fiber: 30 };
+  var DEFAULT_PLAN = { maintenance: 2300, deficit: 500, floor: 1500, protein: 170, fat: 80, fiber: 30,
+                       carbs: 110, caffeine: 400 };
 
   var PLAN = Object.assign({}, DEFAULT_PLAN);
   function planDefaults() {
@@ -1752,6 +1777,25 @@
      resting burn and the activity multiplier applies to all of it, so in a moderate
      week a pound is a little over seven calories a day. */
   function kcalPerLb() { return 10 * (BODY.activity || 1.55) / 2.20462; }
+  /* Good starting targets, in the order they constrain each other: protein first,
+     because it is the one with a floor worth defending; then fat, which has a floor of
+     its own for hormones; then carbohydrate takes whatever calories are left, because
+     something has to and carbohydrate is the part that flexes. Fibre follows the size
+     of the day. Caffeine is a ceiling rather than a target -- 400mg is the usual adult
+     guidance and 100mg the usual figure for under-eighteens. */
+  function suggestedTargets(intake, weightLb, age) {
+    var round5 = function (x) { return Math.max(0, Math.round(x / 5) * 5); };
+    var protein = weightLb ? Math.min(0.8 * weightLb, 0.4 * intake / 4) : 0.25 * intake / 4;
+    protein = round5(Math.max(60, protein));
+    var fat = weightLb ? Math.max(0.3 * weightLb, 0.25 * intake / 9) : 0.28 * intake / 9;
+    fat = round5(Math.max(35, fat));
+    var carbs = round5(Math.max(50, (intake - protein * 4 - fat * 9) / 4));
+    return {
+      protein: protein, fat: fat, carbs: carbs,
+      fiber: Math.max(15, Math.round(intake * 14 / 1000)),
+      caffeine: (age != null && age < 18) ? 100 : 400
+    };
+  }
   /* The stored figure was calibrated at some weight; this is that figure carried to
      today's. Calibrating rather than recomputing is deliberate: a number somebody set
      on purpose -- Safath's is deliberately low -- keeps its meaning and still moves the
@@ -2158,7 +2202,8 @@
     "Estimate fibre from the visible vegetables, pulses, fruit and whole grains; a plate with none of those has close to zero. " +
     "When the true amount is uncertain, deliberately estimate toward the HIGHER end of the plausible range for calories, protein, carbs, and fat — it is better for this user to overestimate than underestimate, since they are tracking against a daily calorie target and underestimating would let them silently overeat. Do not lowball portion sizes or ingredient amounts. " +
     "Respond with ONLY a JSON object, no other text, in this exact shape: " +
-    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "confidence": "low"|"medium"|"high"}. ' +
+    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "caffeine_mg": <integer>, "confidence": "low"|"medium"|"high"}. ' +
+    "caffeine_mg is the caffeine in it: coffee, tea, energy drinks, cola, dark chocolate and pre-workout all carry some; anything else is 0. " +
     "Never comment on whether the meal is healthy or unhealthy, never mention body weight or appearance, just estimate.";
   /* The same guardrails, minus the photo. Describing a meal in words is a weaker
      signal than seeing it, so the instruction to round up matters more here, not less. */
@@ -2179,7 +2224,7 @@
      everything else follows it. Scaling always works from the estimate as first made
      rather than from the last scaled figure, so stepping up and back down returns the
      numbers you started with instead of drifting on rounding. */
-  var MACRO_KEYS = ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g"];
+  var MACRO_KEYS = ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg"];
   function baseOf(est) {
     if (est && est.base) return est.base;
     var b = {};
@@ -3049,11 +3094,22 @@
     var fl = Number(document.getElementById("planFloor").value) || 0;
     var eat = Math.max(fl, m - d);
     var lbWk = d / 500;
+    /* Protein, fat and carbohydrate are three numbers that have to agree with a fourth,
+       and nothing else in the sheet says whether they do. Four calories a gram for
+       protein and carbohydrate, nine for fat -- so the line can say what the three you
+       typed actually add up to, and by how much it misses the day. */
+    var g = function (id) { return Number(document.getElementById(id).value) || 0; };
+    var macroKcal = g("planProtein") * 4 + g("planFat") * 9 + g("planCarbs") * 4;
+    var off = macroKcal - eat;
     document.getElementById("planMath").innerHTML =
       "Eat <b>" + fmtInt(eat) + " kcal</b> a day. At a " + fmtInt(d) + " deficit that is about <b>" +
       lbWk.toFixed(1) + " lb a week</b>, or " + (lbWk * 4.33).toFixed(1) + " lb a month." +
       "<br>Scoring treats " + fmtInt(fl) + "–" + fmtInt(eat) + " as a full day. Above " + fmtInt(eat) +
-      " the score falls away; below " + fmtInt(fl) + " it falls away too.";
+      " the score falls away; below " + fmtInt(fl) + " it falls away too." +
+      "<br>Protein, fat and carbs as set come to <b>" + fmtInt(macroKcal) + " kcal</b>" +
+      (Math.abs(off) <= 60 ? ", which is the day."
+        : (off > 0 ? ", which is " + fmtInt(off) + " over the day."
+                   : ", leaving " + fmtInt(-off) + " kcal of the day unspoken for."));
     var warn = document.getElementById("planWarn");
     if (eat < 1500 || fl < 1500) {
       warn.hidden = false;
@@ -3073,31 +3129,53 @@
     document.getElementById("planProtein").value = PLAN.protein;
     document.getElementById("planFat").value = PLAN.fat;
     document.getElementById("planFiber").value = PLAN.fiber;
+    document.getElementById("planCarbs").value = PLAN.carbs;
+    document.getElementById("planCaffeine").value = PLAN.caffeine;
     planMathText();
-    document.getElementById("exHistoryModal").style.display = "none";
-    document.getElementById("mealEditModal").style.display = "none";
-    document.getElementById("dropModal").style.display = "none";
-    document.getElementById("charModal").style.display = "none";
-    document.getElementById("giveModal").style.display = "none";
+    hideSheets("planModal");
     document.getElementById("planModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
   function wirePlanSheet() {
     document.getElementById("planBtn").onclick = openPlanSheet;
-    ["planMaint","planDeficit","planFloor"].forEach(function (id) {
+    ["planMaint","planDeficit","planFloor","planProtein","planFat","planCarbs"].forEach(function (id) {
       document.getElementById(id).addEventListener("input", planMathText);
     });
+    document.getElementById("planSuggestBtn").onclick = function () {
+      var maint = Number(document.getElementById("planMaint").value) || effectiveMaintenance();
+      var def   = Number(document.getElementById("planDeficit").value) || 0;
+      var floor = Number(document.getElementById("planFloor").value) || 0;
+      var intake = Math.max(floor, maint - def);
+      var t = suggestedTargets(intake, latestWeightLb, ageFrom(BODY.born));
+      document.getElementById("planProtein").value = t.protein;
+      document.getElementById("planFat").value = t.fat;
+      document.getElementById("planCarbs").value = t.carbs;
+      document.getElementById("planFiber").value = t.fiber;
+      document.getElementById("planCaffeine").value = t.caffeine;
+      planMathText();
+      showToast("Filled in from " + fmtInt(intake) + " kcal" +
+        (latestWeightLb ? " and " + latestWeightLb + " lb" : "") + ". Change any of them.");
+    };
+    document.getElementById("planBodyBtn").onclick = function () { openBody(); };
     document.getElementById("planCancelBtn").onclick = function () {
       document.getElementById("modalOverlay").classList.remove("open");
     };
     document.getElementById("planSaveBtn").onclick = async function () {
       var n = function (id, dflt) { var v = Number(document.getElementById(id).value); return isFinite(v) && v > 0 ? Math.round(v) : dflt; };
+      var typedMaint = PLAN.maintenance;
       PLAN.maintenance = n("planMaint", DEFAULT_PLAN.maintenance);
       PLAN.deficit     = n("planDeficit", DEFAULT_PLAN.deficit);
       PLAN.floor       = n("planFloor", DEFAULT_PLAN.floor);
       PLAN.protein     = n("planProtein", DEFAULT_PLAN.protein);
       PLAN.fat         = n("planFat", DEFAULT_PLAN.fat);
       PLAN.fiber       = n("planFiber", DEFAULT_PLAN.fiber);
+      PLAN.carbs       = n("planCarbs", DEFAULT_PLAN.carbs);
+      PLAN.caffeine    = n("planCaffeine", DEFAULT_PLAN.caffeine);
+      /* A figure typed in here is meant to be today's figure. With the weight-tracking
+         on, an old pin would have shifted it the moment the sheet closed and the number
+         on the card would not have been the number typed. Re-pinning to today's weight
+         makes what you type what you get, and it still moves from here on. */
+      if (typedMaint !== PLAN.maintenance || PLAN.refWeight == null) PLAN.refWeight = latestWeightLb;
       await savePlan();
       document.getElementById("modalOverlay").classList.remove("open");
       lastScoreData = null;
@@ -4437,6 +4515,21 @@
       applyCardToggles();
     }
     fitFigure();
+    fitFood();
+  }
+
+  /* The macro strip is the first thing to go when the food card cannot hold its fixed
+     blocks. On a 320-wide phone the card is 370px tall and those blocks want 390, and
+     the strip is the only one of them that repeats itself elsewhere -- every number in
+     it is in the eating plan sheet, one tap below. Measured rather than tiered, because
+     the tier the height picks says nothing about what the type inside it costs: 375x667
+     sits in the same tier and has room for the strip. */
+  function fitFood() {
+    var card = document.querySelector("#panel-food .card9");
+    if (!card || !card.clientHeight) return;
+    var root = document.documentElement;
+    root.classList.remove("c9-nomacros");
+    if (card.scrollHeight > card.clientHeight + 1) root.classList.add("c9-nomacros");
   }
 
   /* The card height picks a tier, but what actually has to fit is the body figure, and
@@ -5055,14 +5148,38 @@
     var todayKey = dateKey(new Date());
     var todayItems = items.filter(function(it){ return it.date === todayKey; });
     renderFoodGrid(document.getElementById("foodToday"), todayItems);
-    var cal = 0, prot = 0, any = false;
-    todayItems.forEach(function(it){ if (it.estimate) { any = true; cal += it.estimate.calories || 0; prot += it.estimate.protein_g || 0; } });
+    var cal = 0, prot = 0, carb = 0, fat = 0, fib = 0, caff = 0, any = false;
+    todayItems.forEach(function (it) {
+      var e = it.estimate; if (!e) return;
+      any = true;
+      cal += e.calories || 0; prot += e.protein_g || 0; carb += e.carbs_g || 0;
+      fat += e.fat_g || 0; fib += e.fiber_g || 0; caff += e.caffeine_mg || 0;
+    });
     var totalsEl = document.getElementById("todayEstTotals");
     // Shown as a range: the estimates read a photo, so the top of the range carries
     // the same +150 margin the summary card uses rather than implying false precision.
     if (totalsEl) totalsEl.textContent = any ? cal.toLocaleString() : "\u2014";
     var protEl = document.getElementById("todayProtein");
     if (protEl) protEl.textContent = any ? prot + " / " + PLAN.protein : "\u2014";
+    /* Every target in one line, each saying how far through it the day is, so a target
+       nobody can see is not a target. Over the cap reads amber rather than green. */
+    var macEl = document.getElementById("todayMacros");
+    if (macEl) {
+      var bits = [
+        { n: "protein", v: prot, t: PLAN.protein, u: "g", over: false },
+        { n: "carbs",   v: carb, t: PLAN.carbs,   u: "g", over: false },
+        { n: "fat",     v: fat,  t: PLAN.fat,     u: "g", over: true },
+        { n: "fibre",   v: fib,  t: PLAN.fiber,   u: "g", over: false },
+        { n: "caffeine",v: caff, t: PLAN.caffeine,u: "mg", over: true }
+      ];
+      macEl.innerHTML = bits.map(function (b) {
+        var hit = b.t ? b.v / b.t : 0;
+        var cls = !b.t ? "" : (b.over ? (hit > 1 ? " warn" : (hit >= 0.6 ? " ok" : "")) : (hit >= 1 ? " ok" : ""));
+        return '<span class="tm' + cls + '"><b>' + Math.round(b.v) + '</b>' +
+          (b.t ? "/" + fmtInt(b.t) : "") + b.u + ' <i>' + b.n + '</i></span>';
+      }).join("");
+      fitFood();
+    }
     renderMealPicker(todayItems);
   }
   function wireFoodUpload() {
@@ -5209,6 +5326,7 @@
     document.getElementById("mealEditCarb").value  = est.carbs_g   != null ? est.carbs_g   : "";
     document.getElementById("mealEditFat").value   = est.fat_g     != null ? est.fat_g     : "";
     document.getElementById("mealEditFiber").value = est.fiber_g   != null ? est.fiber_g   : "";
+    document.getElementById("mealEditCaff").value  = est.caffeine_mg != null ? est.caffeine_mg : "";
   }
   /* The stepper and the calories box are two ways of saying the same thing: a portion
      multiplier. Typing a bigger number in the box is "I had more of this", so the
@@ -5217,8 +5335,8 @@
     editPortion = Math.max(0.25, Math.round(portion * 4) / 4);
     var scaled = scaleEstimate({ base: editBase }, editPortion);
     if (fromCalories) {
-      ["protein_g", "carbs_g", "fat_g", "fiber_g"].forEach(function (k) {
-        var el = { protein_g: "mealEditProt", carbs_g: "mealEditCarb", fat_g: "mealEditFat", fiber_g: "mealEditFiber" }[k];
+      ["protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg"].forEach(function (k) {
+        var el = { protein_g: "mealEditProt", carbs_g: "mealEditCarb", fat_g: "mealEditFat", fiber_g: "mealEditFiber", caffeine_mg: "mealEditCaff" }[k];
         document.getElementById(el).value = scaled[k];
       });
     } else {
@@ -5282,6 +5400,7 @@
         carbs_g: numOrNull(document.getElementById("mealEditCarb").value) || 0,
         fat_g: numOrNull(document.getElementById("mealEditFat").value) || 0,
         fiber_g: numOrNull(document.getElementById("mealEditFiber").value) || 0,
+        caffeine_mg: numOrNull(document.getElementById("mealEditCaff").value) || 0,
         base: editBase, portion: editPortion,
         confidence: "manual"
       };
