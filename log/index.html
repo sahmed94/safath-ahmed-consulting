@@ -467,8 +467,8 @@
     border-color: rgba(255,255,255,0.12); font-family: inherit; }
   /* A written meal's tile shows its words where a photo would be. */
   .food-written { position: absolute; inset: 0; display: flex; align-items: center;
-    justify-content: center; text-align: center; padding: 26px 10px 22px;
-    font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.8);
+    justify-content: center; text-align: center; padding: 30px 16px 26px;
+    font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.86);
     background: linear-gradient(160deg, #2A2142, #1B1630); overflow: hidden; }
   .t9-food { flex: 0 0 auto; display: flex; gap: 5px; overflow: hidden; }
   /* An explicit display beats the hidden attribute, so the empty strip was still
@@ -503,6 +503,7 @@
     font-family: var(--font-head); cursor: pointer; }
   .rd-go:disabled { border-color: var(--line); background: rgba(255,255,255,0.04); color: var(--ink-faint); cursor: default; }
   .again-scroll { max-height: 54vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .again-scroll .food-item { height: 150px; }
   .meal-reassign { display: flex; gap: 6px; flex-wrap: wrap; }
   .meal-reassign button { flex: 1 1 0; min-width: 62px; border: 1px solid rgba(255,255,255,0.14);
     background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); border-radius: 9px;
@@ -767,9 +768,27 @@
   /* a label is inline by default, so width:100% did nothing and it sat alongside
      whatever text came before it */
   .food-upload-btn { display: block; width: 100%; background: var(--surface-2); border: 1.5px dashed var(--line); color: var(--ink-dim); padding: 20px 12px; text-align: center; border-radius: 12px; font-size: 13px; cursor: pointer; font-weight: 500; }
-  .food-grid { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .food-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--surface-2); cursor: pointer; }
-  .food-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Three to a row, cropped square, inside a short scrolling box: the day's meals were
+     a keyhole you had to scroll a tiny window to see through, and a cropped square is
+     not the photo you took. They run sideways now, one at a time, each showing the
+     whole picture. The rail is as wide as the card and the card does not grow. */
+  .food-grid { margin-top: 10px; display: flex; gap: 9px; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .food-item { position: relative; flex: 0 0 68%; max-width: 280px; scroll-snap-align: center;
+    border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: #16102A; cursor: pointer; }
+  .food-item img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .food-grid::-webkit-scrollbar { height: 5px; }
+  .food-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 20px; }
+
+  /* The day's own rail takes the height that is left and sizes its meals to it, so the
+     whole of every picture is on screen and the only direction that ever scrolls is
+     sideways. Scrolling a short window up and down to see a cropped square was the
+     complaint; this removes both halves of it. */
+  .f9-scroll { display: flex; flex-direction: column; overflow: hidden; }
+  #foodToday { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #foodToday .food-grid { flex: 1 1 auto; min-height: 0; margin-top: 8px; padding-bottom: 7px; }
+  #foodToday .food-item { flex: 0 0 auto; height: 100%; width: auto; max-width: none; }
+  #foodToday .food-day-label { display: none; }   /* the section already says Today */
   .food-tag { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; letter-spacing: .02em; padding: 3px 7px; border-radius: 20px; color: #0E0A1C; text-transform: uppercase; }
   .food-tag.breakfast { background: var(--amber); } .food-tag.lunch { background: var(--teal); }
   .food-tag.dinner { background: var(--blue); } .food-tag.snack { background: var(--magenta); }
@@ -1833,11 +1852,12 @@
         if (up.error) throw up.error;
         url = supabase.storage.from("meal-photos").getPublicUrl(path).data.publicUrl;
       }
-      var ins = await supabase.from("food").insert({ user_id: currentProfileId, date: key, time: time, meal: meal, user_note: userNote || "", photo_url: url }).select().single();
-      var row = { id: ins.data ? ins.data.id : null, date: key, time: time, meal: meal, userNote: userNote || "", url: url, estimate: null };
+      var ins = await supabase.from("food").insert({ user_id: currentProfileId, date: key, time: time, meal: meal, user_note: userNote || "", photo_url: url || "" }).select().single();
+      if (ins.error) throw ins.error;
+      var row = { id: ins.data ? ins.data.id : null, date: key, time: time, meal: meal, userNote: userNote || "", url: url || "", estimate: null };
       foodCache.push(row);
       return row;
-    } catch (e) { return null; }
+    } catch (e) { addFoodEntry.lastError = (e && e.message) || String(e); return null; }
   }
   /* Rows used to be addressed by their photo's URL, which stops working the moment a
      meal has no photo -- and never worked for moving a meal from lunch to dinner. The
@@ -4786,8 +4806,14 @@
         (userNote ? " \u2014 they described it as: \"" + userNote + "\"" : "") +
         (dataUrl ? ". React briefly to what you can see in the photo." : ". React briefly to what they ate.");
       fireFeedback("food", fbContext, dataUrl || null);
+      /* "Saved, but no estimate" was the message even when the save itself had failed,
+         which is exactly the case where you then cannot find what you wrote. */
+      if (!saved) {
+        showProblem("That did not save. " + (addFoodEntry.lastError || "The log would not take it."));
+        return;
+      }
       var est = dataUrl ? await estimateMeal(dataUrl, userNote) : await estimateMealFromText(userNote);
-      if (est && saved) { await updateFoodRow(saved, { estimate: est }); renderFood(); liveRefresh(); }
+      if (est) { await updateFoodRow(saved, { estimate: est }); renderFood(); liveRefresh(); }
       else showProblem((dataUrl ? "Photo saved" : "Meal saved") + ", but no calorie estimate. " +
         (askClaude.lastError || "The AI reply could not be read."));
     }
@@ -4845,10 +4871,11 @@
       try {
         var ins = await supabase.from("food").insert({
           user_id: currentProfileId, date: key, time: time, meal: selectedMeal,
-          user_note: note, photo_url: src.url || null, estimate: src.estimate || null
+          user_note: note, photo_url: src.url || "", estimate: src.estimate || null
         }).select().single();
+        if (ins.error) throw ins.error;
         row = { id: ins.data ? ins.data.id : null, date: key, time: time, meal: selectedMeal,
-                userNote: note, url: src.url || null, estimate: src.estimate || null };
+                userNote: note, url: src.url || "", estimate: src.estimate || null };
         foodCache.push(row);
       } catch (e) {}
       if (!row) { showProblem("Could not log that again \u2014 try once more."); return; }
