@@ -451,7 +451,26 @@
   .t2-cardio-icon { flex: 0 0 56px; height: 56px; border-radius: 14px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; }
   .t2-cardio-icon svg { width: 26px; height: 26px; stroke: var(--teal); }
   .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+  /* A walk round the house has no incline and no speed to report. The grid closes up
+     rather than leaving two empty boxes to be stared at. */
+  .cp-fields.free { grid-template-columns: 1fr; }
+  .cp-fields.free .cp-tread { display: none; }
   .cp-burn { font-size: 12px; color: var(--ink-dim); margin: 12px 0 10px; }
+  /* On a programme that is cardio every day, the train card was one short panel and
+     two thirds empty. The week it is keeping goes in that space: seven days, minutes
+     each, so a run of them is something to see rather than something to remember. */
+  .cp-week { margin-top: 12px; }
+  .cp-week .cw-head { font-size: 10px; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 6px; }
+  .cp-week .cw-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cp-week .cw-d { border: 1px solid var(--line); border-radius: 9px; padding: 5px 2px;
+    text-align: center; background: rgba(255,255,255,0.03); }
+  .cp-week .cw-d em { display: block; font-style: normal; font-size: 9px; color: var(--ink-faint); }
+  .cp-week .cw-d b { display: block; font-family: var(--font-head); font-size: 12px; color: var(--ink-dim); }
+  .cp-week .cw-d.hit { border-color: rgba(18,184,134,0.55); background: rgba(18,184,134,0.12); }
+  .cp-week .cw-d.hit b { color: #7DF0B8; }
+  .cp-week .cw-d.today { box-shadow: 0 0 0 1px var(--blue) inset; }
+  .cp-week .cw-note { font-size: 10.5px; color: var(--ink-dim); margin-top: 7px; }
   .cardio-page .food-upload-btn { padding: 13px 12px; }
   .cp-burn b { color: var(--ink); font-family: var(--font-head); font-size: 15px; }
 
@@ -1284,17 +1303,18 @@
                 <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span></div>
               </div>
             </div>
-            <div class="cp-fields">
+            <div class="cp-fields" id="cardioFields">
               <div class="field"><label>Minutes</label><input type="number" id="cardioMin"></div>
-              <div class="field"><label>Incline %</label><input type="number" id="cardioIncline"></div>
-              <div class="field"><label>Speed mph</label><input type="number" step="0.1" id="cardioSpeed"></div>
+              <div class="field cp-tread"><label>Incline %</label><input type="number" id="cardioIncline"></div>
+              <div class="field cp-tread"><label>Speed mph</label><input type="number" step="0.1" id="cardioSpeed"></div>
             </div>
             <button class="save-chip primary" style="width:100%;" id="saveCardioBtn">Log cardio</button>
             <div class="saved-tick" id="cardioSaved"></div>
             <div class="cp-burn">Burned, roughly: <b id="cardioCalEst">&mdash;</b></div>
-            <label class="food-upload-btn" for="cardioFileInput">Add a photo of the screen</label>
+            <label class="food-upload-btn" id="cardioFileLabel" for="cardioFileInput">Add a photo of the screen</label>
             <input type="file" id="cardioFileInput" accept="image/*" capture="environment" style="display:none;">
             <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
+            <div class="cp-week" id="cardioWeek" hidden></div>
           </div>
         </div>
         <div class="pager-nav">
@@ -1525,6 +1545,33 @@
   </div>
 
   <!-- Height, birthday and how hard the week is: what a maintenance figure is made of -->
+  <!-- First sign-in: the three answers everything else is worked out from -->
+  <div class="modal-inner" id="setupModal" style="display:none;">
+    <h3 id="setupTitle">Welcome</h3>
+    <div class="f9-note" style="margin-bottom:10px;">Three answers and the app sets itself up:
+      your calories for the day, your protein, carbs, fat, fibre and caffeine, and the weight it
+      measures everything from. All of it editable afterwards.</div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Date of birth</label><input type="date" id="setupBorn"></div>
+      <div class="field"><label>Weight today (lb)</label><input type="number" id="setupWeight" step="0.1"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Height &mdash; feet</label><input type="number" id="setupFt" min="3" max="8"></div>
+      <div class="field"><label>and inches</label><input type="number" id="setupIn" min="0" max="11" step="0.5"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Sex</label>
+        <select id="setupSex"><option value="female">Female</option><option value="male">Male</option></select>
+      </div>
+      <div class="field"><label>How hard is your week</label><select id="setupActivity"></select></div>
+    </div>
+    <div class="f9-note" id="setupWorking" style="margin-bottom:10px;"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="setupLaterBtn">Later</button>
+      <button class="primary-btn" id="setupSaveBtn">Set me up</button>
+    </div>
+  </div>
+
   <div class="modal-inner" id="bodyModal" style="display:none;">
     <h3>Your body</h3>
     <div class="field-row" style="margin-bottom:8px;">
@@ -1695,6 +1742,26 @@
      day is about 2,650 and at 180 lb about 2,950, so it is worth correcting. */
   var PLAN_IFHRAD = { maintenance: 2800, deficit: 0, floor: 2300, protein: 160, fat: 75, fiber: 38,
                       carbs: 330, caffeine: 400 };
+  /* Farzana's week is the same every day, because that is what her week is: half an
+     hour on her feet. Housework counts as that half hour. It is the same moving, and a
+     programme that credited only a treadmill would have her log nothing on the days she
+     did the most of it -- so the cardio page drops incline and speed for her and
+     estimates from moderate effort instead. Walking at an easy pace and housework both
+     sit around three METs; 3.3 is the figure for walking at 3 mph on the flat, which is
+     the honest middle of the two. */
+  var PROGRAM_FARZANA = {};
+  [0, 1, 2, 3, 4, 5, 6].forEach(function (d) {
+    PROGRAM_FARZANA[d] = { name: "Walk or housework", type: "cardio",
+                           cardio: { min: 30, mode: "free", met: 3.3 }, ex: [] };
+  });
+
+  /* A profile that has not been through setup yet still needs a plan for the moment
+     between signing in and the welcome sheet saving one. These are round numbers that
+     belong to nobody -- not a body, not a goal -- and setup replaces every one of them
+     from what she actually answers. */
+  var PLAN_NEW = { maintenance: 2000, deficit: 0, floor: 1500, protein: 110, fat: 60,
+                   fiber: 28, carbs: 225, caffeine: 400 };
+
   /* Everything that is one person's and not the app's lives here, keyed by the address
      they sign in with. The seed weights and the lab panel are somebody's medical
      history: they belong to the account they came from and must not appear in anyone
@@ -1703,7 +1770,11 @@
      anybody's history in it. */
   var PROFILES = {
     "ahmed.safath@gmail.com": { name: "Safath Ahmed", program: PROGRAM_SAFATH, startWeight: 218, plan: null },
-    "ijaman465@gmail.com":    { name: "Ifhrad Jaman", program: PROGRAM_IFHRAD, startWeight: null, plan: PLAN_IFHRAD }
+    "ijaman465@gmail.com":    { name: "Ifhrad Jaman", program: PROGRAM_IFHRAD, startWeight: null, plan: PLAN_IFHRAD },
+    /* `onboard` is the only thing that differs in kind here: it says this account has
+       never been told whose body it belongs to, so the app asks before it assumes. */
+    "farzanajaman@yahoo.com": { name: "Farzana Fatema", program: PROGRAM_FARZANA, startWeight: null,
+                                plan: PLAN_NEW, body: { sex: "female", activity: 1.55 }, onboard: true }
   };
   var PROGRAM = PROGRAM_SAFATH;
   var currentProfileEmail = "";
@@ -1749,6 +1820,14 @@
      figure can be worked out rather than guessed, and so it can follow the scales. */
   var BODY_SLOT = "__body";
   var DEFAULT_BODY = { heightIn: null, born: "", sex: "male", activity: 1.55 };
+  /* Sex is the one body field that cannot be worked out from anything else and gets the
+     maintenance figure wrong by about 160 calories a day when it is wrong, so a profile
+     is allowed to say what it is rather than start everyone as male. Anything stored
+     still wins: this is only where a new account begins. */
+  function bodyDefaults() {
+    var conf = profileConf();
+    return Object.assign({}, DEFAULT_BODY, (conf && conf.body) || {});
+  }
   var BODY = Object.assign({}, DEFAULT_BODY);
   var ACTIVITY = [
     { v: 1.2,   label: "Desk job, no training" },
@@ -1845,7 +1924,7 @@
       var v = sets && sets[PLAN_SLOT];
       PLAN = Object.assign(planDefaults(), (v && typeof v === "object") ? v : {});
       var bd = sets && sets[BODY_SLOT];
-      BODY = Object.assign({}, DEFAULT_BODY, (bd && typeof bd === "object") ? bd : {});
+      BODY = Object.assign(bodyDefaults(), (bd && typeof bd === "object") ? bd : {});
       var lb = sets && sets[LABS_SLOT];
       MY_LABS = Array.isArray(lb) ? lb : [];
       var pg = sets && sets[PROG_SLOT];
@@ -2275,6 +2354,7 @@
     var conf = profileConf();
     PROGRAM = (conf && conf.program) || PROGRAM_SAFATH;
     PLAN = planDefaults();          // until loadPlan overlays anything stored
+    BODY = bodyDefaults();
     if (conf && conf.name) displayName = conf.name;
     currentProfileName = displayName;
     cache = {}; foodCache = [];
@@ -2285,6 +2365,9 @@
     await loadPlan();
     await seedHistoricalWeights();
     await renderAll();
+    /* After the first render, not before: the sheet shows what it is about to work out,
+       and that needs the weight the render has just primed. */
+    setupOpenIfNeeded();
   }
 
   async function signOut() {
@@ -2944,7 +3027,10 @@
   function renderLiftingPanel(prog, doc, key) {
     prog = prog || REST_DAY;        // a programme need not name every day of the week
     document.getElementById("liftSessionName").textContent = prog.name;
-    document.getElementById("liftSessionSub").textContent = prog.type === "cardio" ? "Rest from lifting — cardio only" : prog.ex.reduce(function(a,e){return a+e.sets;},0) + " total sets across " + prog.ex.length + " exercises";
+    document.getElementById("liftSessionSub").textContent = cardioFree(prog)
+      ? "Half an hour on your feet"
+      : (prog.type === "cardio" ? "Rest from lifting — cardio only"
+         : prog.ex.reduce(function (a, e) { return a + e.sets; }, 0) + " total sets across " + prog.ex.length + " exercises");
     document.getElementById("liftHeroIcon").style.background = prog.type === "cardio" ? "var(--ink-faint)" : "var(--coral)";
 
     /* The session is a sequence, so the screen is a pager: one exercise per page,
@@ -3264,27 +3350,73 @@
     document.getElementById("closeExHistoryBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
   }
 
+  /* A day whose cardio is "be on your feet for half an hour" rather than "this many
+     minutes at this incline and this speed". */
+  function cardioFree(prog) { return !!(prog && prog.cardio && prog.cardio.mode === "free"); }
+
   async function renderCardioPanel(prog, doc) {
+    var free = cardioFree(prog);
+    document.getElementById("cardioFields").classList.toggle("free", free);
     document.getElementById("cardioExpectedMin").textContent = prog.cardio.min + " min";
-    document.getElementById("cardioExpectedDetail").textContent = prog.cardio.incline + "% incline · " + prog.cardio.speed + " mph" + (prog.type === "cardio" ? " · dedicated cardio day" : " · after lifting");
+    document.getElementById("cardioExpectedDetail").textContent = free
+      ? "walking or housework — both count"
+      : (prog.cardio.incline + "% incline · " + prog.cardio.speed + " mph" + (prog.type === "cardio" ? " · dedicated cardio day" : " · after lifting"));
     document.getElementById("cardioMin").value = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : prog.cardio.min;
-    document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : prog.cardio.incline;
-    document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : prog.cardio.speed;
+    document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
+    document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : (prog.cardio.speed != null ? prog.cardio.speed : "");
     document.getElementById("cardioSaved").textContent = doc.cardio && doc.cardio.min != null ? "Logged" : "";
     var prev = document.getElementById("cardioPhotoPreview");
     if (doc.cardioPhoto && doc.cardioPhoto.url) { prev.src = doc.cardioPhoto.url; prev.style.display = "block"; }
     else { prev.style.display = "none"; prev.removeAttribute("src"); }
     document.getElementById("cardioCalEst").textContent = (doc.cardio && doc.cardio.calories != null) ? doc.cardio.calories + " kcal" : "—";
+    var lbl = document.getElementById("cardioFileLabel");
+    if (lbl) lbl.textContent = free ? "Add a photo" : "Add a photo of the screen";
+    await renderCardioWeek(free);
   }
 
-  // ACSM walking VO2 formula for calorie estimate: speed in m/min, grade as fraction
-  async function estimateCardioCalories(minutes, incline, speedMph) {
+  /* The last seven days of minutes, on the card that asks for them. Minutes made up
+     later count here the same way they count in the score, because the day they were
+     credited to is the day they belong to. */
+  async function renderCardioWeek(show) {
+    var el = document.getElementById("cardioWeek");
+    if (!el) return;
+    el.hidden = !show;
+    if (!show) { el.innerHTML = ""; return; }
+    var today = new Date(), cells = [], hits = 0, total = 0;
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+      var key = dateKey(d);
+      var dd = await getDayDoc(key);
+      var want = (PROGRAM[d.getDay()] && PROGRAM[d.getDay()].cardio && PROGRAM[d.getDay()].cardio.min) || 0;
+      var got = ((dd.cardio && dd.cardio.min) || 0) + redeemedMinutes(dd);
+      if (want && got >= want) hits++;
+      total += got;
+      cells.push('<div class="cw-d' + (want && got >= want ? " hit" : "") + (i === 0 ? " today" : "") +
+        '"><em>' + DAY_ABBR[d.getDay()].charAt(0) + '</em><b>' + (got || "\u2013") + '</b></div>');
+    }
+    el.innerHTML = '<div class="cw-head">This week</div><div class="cw-row">' + cells.join("") + '</div>' +
+      '<div class="cw-note">' + (total
+        ? "<b>" + total + "</b> minutes in seven days, " + hits + " of them full."
+        : "Nothing logged this week yet. Half an hour of anything on your feet starts it.") + '</div>';
+  }
+
+  // ACSM walking VO2 formula for calorie estimate: speed in m/min, grade as fraction.
+  // With no treadmill to read numbers off, a MET figure stands in for the pair of them
+  // -- the same arithmetic from the step the formula would have reached anyway.
+  async function estimateCardioCalories(minutes, incline, speedMph, metGiven) {
     var weightLb = await getLatestWeightLb();
+    if (!weightLb || !minutes) return null;
     var weightKg = weightLb * 0.453592;
-    var speedMmin = speedMph * 26.8224; // mph to m/min
-    var grade = (incline || 0) / 100;
-    var vo2 = 3.5 + 0.1 * speedMmin + 1.8 * speedMmin * grade; // ml/kg/min
-    var met = vo2 / 3.5;
+    var met;
+    if (metGiven != null) {
+      met = metGiven;
+    } else {
+      if (speedMph == null) return null;
+      var speedMmin = speedMph * 26.8224; // mph to m/min
+      var grade = (incline || 0) / 100;
+      var vo2 = 3.5 + 0.1 * speedMmin + 1.8 * speedMmin * grade; // ml/kg/min
+      met = vo2 / 3.5;
+    }
     var calPerMin = (met * 3.5 * weightKg) / 200;
     return Math.round(calPerMin * minutes);
   }
@@ -5022,16 +5154,22 @@
     };
     document.getElementById("saveCardioBtn").onclick = async function () {
       var key = dateKey(selectedDate); var doc = await getDayDoc(key);
+      var free = cardioFree(PROGRAM[selectedDate.getDay()]);
       var min = numOrNull(document.getElementById("cardioMin").value);
-      var incline = numOrNull(document.getElementById("cardioIncline").value);
-      var speed = numOrNull(document.getElementById("cardioSpeed").value);
-      var calories = (min != null && speed != null) ? await estimateCardioCalories(min, incline || 0, speed) : null;
+      var incline = free ? null : numOrNull(document.getElementById("cardioIncline").value);
+      var speed = free ? null : numOrNull(document.getElementById("cardioSpeed").value);
+      var calories = free
+        ? await estimateCardioCalories(min, null, null, 3.3)
+        : ((min != null && speed != null) ? await estimateCardioCalories(min, incline || 0, speed) : null);
       doc.cardio = { min: min, incline: incline, speed: speed, calories: calories };
       await saveDayDoc(key, doc);
       document.getElementById("cardioSaved").textContent = "Logged";
       sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
       document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
-      if (doc.cardio.min != null) fireFeedback("cardio", "Logged " + doc.cardio.min + " minutes of incline cardio at " + (doc.cardio.incline || "?") + "% incline, " + (doc.cardio.speed || "?") + " mph, roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction.");
+      if (doc.cardio.min != null) fireFeedback("cardio", free
+        ? "Logged " + doc.cardio.min + " minutes on her feet -- a walk or housework, which count the same here -- roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction."
+        : "Logged " + doc.cardio.min + " minutes of incline cardio at " + (doc.cardio.incline || "?") + "% incline, " + (doc.cardio.speed || "?") + " mph, roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction.");
+      renderCardioWeek(free);   // the strip is the day's own record; it moves when the day does
       renderHistory(); renderQuests(); liveRefresh();
     };
   }
@@ -6075,7 +6213,7 @@
   /* ---- body sheet ---- */
   function hideSheets(except) {
     ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
-     "againModal","redeemModal","bodyModal","labsModal","progModal"].forEach(function (id) {
+     "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal"].forEach(function (id) {
       if (id === except) return;
       var el = document.getElementById(id); if (el) el.style.display = "none";
     });
@@ -6125,6 +6263,105 @@
     document.getElementById("bodyModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
+  /* ---- first sign-in ----
+     An account the app has never been told anything about gets asked rather than
+     assumed at. Three answers -- born, height, weight -- and every number the app
+     scores against is worked out from them with the same two functions the settings
+     sheets use, so there is one way of arriving at a maintenance figure in this file
+     and not two.
+
+     Two deliberate omissions. No deficit: a deficit is a decision about a goal and
+     nobody has stated one, so the plan holds at maintenance and the eating plan sheet
+     is one tap away for the day that changes. And nothing is guessed in the gaps --
+     "Later" leaves the account unset and asks again next time rather than inventing a
+     body to get the sheet off the screen. */
+  function setupOpenIfNeeded() {
+    var conf = profileConf();
+    if (!conf || !conf.onboard || PLAN.setupDone) return;
+    openSetup();
+  }
+  function openSetup() {
+    var t = document.getElementById("setupTitle");
+    if (t) t.textContent = "Welcome, " + (currentProfileName || "").split(" ")[0];
+    document.getElementById("setupBorn").value = BODY.born || "";
+    document.getElementById("setupWeight").value = latestWeightLb != null ? latestWeightLb : "";
+    var ft = document.getElementById("setupFt"), inch = document.getElementById("setupIn");
+    if (BODY.heightIn) { ft.value = Math.floor(BODY.heightIn / 12); inch.value = Math.round((BODY.heightIn % 12) * 2) / 2; }
+    else { ft.value = ""; inch.value = ""; }
+    document.getElementById("setupSex").value = BODY.sex || "female";
+    document.getElementById("setupActivity").innerHTML = ACTIVITY.map(function (a) {
+      return '<option value="' + a.v + '"' + (Number(BODY.activity) === a.v ? " selected" : "") + '>' + a.label + '</option>';
+    }).join("");
+    setupWorking();
+    hideSheets("setupModal");
+    document.getElementById("setupModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  /* The same arithmetic the sheet is about to save, shown while it is still a draft, so
+     nothing lands as a number out of nowhere. */
+  function setupWorking() {
+    var el = document.getElementById("setupWorking");
+    if (!el) return;
+    var f = setupFields();
+    if (!f.ok) { el.textContent = "Fill in all four and this will show what it works out."; return; }
+    var bmr = mifflinBmr(f.weight, f.heightIn, f.age, f.sex);
+    var maint = Math.round(bmr * f.activity / 10) * 10;
+    var t = suggestedTargets(maint, f.weight, f.age);
+    el.innerHTML = "At <b>" + f.weight + " lb</b>, <b>" + f.ftIn + "</b> and <b>" + f.age +
+      "</b>, resting burn is about <b>" + fmtInt(bmr) + "</b>. Times " + f.activity +
+      " for the week, that is <b>" + fmtInt(maint) + " kcal</b> a day to hold steady, with <b>" +
+      t.protein + "g</b> protein, <b>" + t.carbs + "g</b> carbs, <b>" + t.fat + "g</b> fat and <b>" +
+      t.fiber + "g</b> fibre.";
+  }
+  function setupFields() {
+    var born = document.getElementById("setupBorn").value || "";
+    var age = ageFrom(born);
+    var ft = Number(document.getElementById("setupFt").value) || 0;
+    var inch = Number(document.getElementById("setupIn").value) || 0;
+    var heightIn = ft * 12 + inch;
+    var weight = Number(document.getElementById("setupWeight").value) || 0;
+    var sex = document.getElementById("setupSex").value || "female";
+    var activity = Number(document.getElementById("setupActivity").value) || 1.55;
+    return { born: born, age: age, heightIn: heightIn, weight: weight, sex: sex, activity: activity,
+             ftIn: ft + "\u2032" + inch + "\u2033",
+             ok: !!(born && age != null && heightIn > 0 && weight > 0) };
+  }
+  function wireSetup() {
+    ["setupBorn","setupWeight","setupFt","setupIn","setupSex","setupActivity"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.oninput = setupWorking; el.onchange = setupWorking; }
+    });
+    document.getElementById("setupLaterBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+    };
+    document.getElementById("setupSaveBtn").onclick = async function () {
+      var f = setupFields();
+      if (!f.ok) { showProblem("Date of birth, height and today's weight, please."); return; }
+      BODY.born = f.born; BODY.heightIn = f.heightIn; BODY.sex = f.sex; BODY.activity = f.activity;
+      /* The weight goes in as today's weigh-in rather than being kept in the plan: it is
+         a weigh-in, the first point of the graph, and everything that reads a weight
+         reads it from the day's own row. */
+      var key = dateKey(new Date());
+      var doc = await getDayDoc(key);
+      doc.weight = f.weight;
+      await saveDayDoc(key, doc);
+      var maint = suggestMaintenance(f.weight);
+      PLAN.maintenance = maint;
+      PLAN.refWeight = f.weight;       // calibrated here, so it moves with the scales
+      PLAN.trackWeight = true;
+      PLAN.deficit = 0;
+      PLAN.floor = Math.max(1200, Math.round((maint - 500) / 50) * 50);
+      var t = suggestedTargets(maint, f.weight, f.age);
+      PLAN.protein = t.protein; PLAN.fat = t.fat; PLAN.carbs = t.carbs;
+      PLAN.fiber = t.fiber; PLAN.caffeine = t.caffeine;
+      PLAN.setupDone = true;
+      await savePlan();
+      document.getElementById("modalOverlay").classList.remove("open");
+      await renderAll();
+      showToast("All set: " + fmtInt(maint) + " kcal a day, " + t.protein + "g protein. Change any of it in the eating plan.");
+    };
+  }
+
   function wireBody() {
     ["bodyFt","bodyIn","bodyBorn","bodySex","bodyActivity"].forEach(function (id) {
       var el = document.getElementById(id);
@@ -6404,7 +6641,7 @@
 
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
-    wireBody(); wireLabs(); wireProg();
+    wireBody(); wireLabs(); wireProg(); wireSetup();
     wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
