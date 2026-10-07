@@ -1561,7 +1561,7 @@
     </div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Sex</label>
-        <select id="setupSex"><option value="female">Female</option><option value="male">Male</option></select>
+        <select id="setupSex"><option value="">Choose</option><option value="female">Female</option><option value="male">Male</option></select>
       </div>
       <div class="field"><label>How hard is your week</label><select id="setupActivity"></select></div>
     </div>
@@ -1752,7 +1752,20 @@
   var PROGRAM_FARZANA = {};
   [0, 1, 2, 3, 4, 5, 6].forEach(function (d) {
     PROGRAM_FARZANA[d] = { name: "Walk or housework", type: "cardio",
-                           cardio: { min: 30, mode: "free", met: 3.3 }, ex: [] };
+                           cardio: { min: 30, mode: "free", met: 3.3,
+                                     note: "walking or housework — both count" }, ex: [] };
+  });
+
+  /* An address the app has never been told about used to be handed Safath's week --
+     his belt squats, at his weights -- which is somebody else's programme and the wrong
+     answer in the same way his calories would be. A new account gets this instead: half
+     an hour of moving a day and nothing assumed about a gym, editable into whatever the
+     week really is through the programme editor on the Train card. */
+  var PROGRAM_NEW = {};
+  [0, 1, 2, 3, 4, 5, 6].forEach(function (d) {
+    PROGRAM_NEW[d] = { name: "Move", type: "cardio",
+                       cardio: { min: 30, mode: "free", met: 3.3,
+                                 note: "a walk, the stairs, the housework — it all counts" }, ex: [] };
   });
 
   /* A profile that has not been through setup yet still needs a plan for the moment
@@ -1811,7 +1824,10 @@
   var PLAN = Object.assign({}, DEFAULT_PLAN);
   function planDefaults() {
     var conf = profileConf();
-    return Object.assign({}, (conf && conf.plan) || DEFAULT_PLAN);
+    /* DEFAULT_PLAN was worked out for one particular body and reads as the app's
+       default only by accident of being first. An address with no entry of its own gets
+       the numbers that belong to nobody, and the welcome sheet replaces them. */
+    return Object.assign({}, (conf && conf.plan) || (conf ? DEFAULT_PLAN : PLAN_NEW));
   }
   /* Everything downstream reads TARGETS, so keep it as the derived view of the plan. */
   var TARGETS = { calories: 2300, protein: 170, fat: 80, fiber: 30 };
@@ -1917,14 +1933,20 @@
      so it rides the table that is already there rather than needing a migration. */
   var PLAN_ROW_DATE = "1900-01-01";
   var PLAN_SLOT = "__plan";
+  /* Whether this account has ever had a plan or a body of its own written down. It is
+     the difference between "not set up yet" and "set up to look like the defaults",
+     which is the only thing that can decide whether asking again is helpful or rude. */
+  var planStored = false, bodyStored = false;
   async function loadPlan() {
     try {
       var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
       var sets = res && res.data && res.data.sets;
       var v = sets && sets[PLAN_SLOT];
-      PLAN = Object.assign(planDefaults(), (v && typeof v === "object") ? v : {});
+      planStored = !!(v && typeof v === "object");
+      PLAN = Object.assign(planDefaults(), planStored ? v : {});
       var bd = sets && sets[BODY_SLOT];
-      BODY = Object.assign(bodyDefaults(), (bd && typeof bd === "object") ? bd : {});
+      bodyStored = !!(bd && typeof bd === "object");
+      BODY = Object.assign(bodyDefaults(), bodyStored ? bd : {});
       var lb = sets && sets[LABS_SLOT];
       MY_LABS = Array.isArray(lb) ? lb : [];
       var pg = sets && sets[PROG_SLOT];
@@ -2352,9 +2374,10 @@
        own rows, so it is chosen here and nowhere else. An address with no programme of
        its own gets nobody else's: it gets none. */
     var conf = profileConf();
-    PROGRAM = (conf && conf.program) || PROGRAM_SAFATH;
+    PROGRAM = (conf && conf.program) || PROGRAM_NEW;
     PLAN = planDefaults();          // until loadPlan overlays anything stored
     BODY = bodyDefaults();
+    planStored = false; bodyStored = false;
     if (conf && conf.name) displayName = conf.name;
     currentProfileName = displayName;
     cache = {}; foodCache = [];
@@ -3359,7 +3382,7 @@
     document.getElementById("cardioFields").classList.toggle("free", free);
     document.getElementById("cardioExpectedMin").textContent = prog.cardio.min + " min";
     document.getElementById("cardioExpectedDetail").textContent = free
-      ? "walking or housework — both count"
+      ? (prog.cardio.note || "anything on your feet counts")
       : (prog.cardio.incline + "% incline · " + prog.cardio.speed + " mph" + (prog.type === "cardio" ? " · dedicated cardio day" : " · after lifting"));
     document.getElementById("cardioMin").value = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : prog.cardio.min;
     document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
@@ -5951,7 +5974,7 @@
 
   function baseProgram() {
     var conf = profileConf();
-    return (conf && conf.program) || PROGRAM_SAFATH;
+    return (conf && conf.program) || PROGRAM_NEW;
   }
   function applyProgram() {
     var out = {};
@@ -6275,9 +6298,16 @@
      is one tap away for the day that changes. And nothing is guessed in the gaps --
      "Later" leaves the account unset and asks again next time rather than inventing a
      body to get the sheet off the screen. */
+  /* Who gets asked: anybody the app has not already been written a plan for. An address
+     with an entry in the profile table above has had one thought about by hand and is
+     left alone -- unless that entry asks to be onboarded anyway -- and an account that
+     has saved a plan of its own has answered the question already, whatever it answered.
+     Everybody else is new, and new is the whole point of the sheet. */
   function setupOpenIfNeeded() {
     var conf = profileConf();
-    if (!conf || !conf.onboard || PLAN.setupDone) return;
+    if (PLAN.setupDone) return;
+    if (conf && !conf.onboard) return;
+    if (planStored) return;
     openSetup();
   }
   function openSetup() {
@@ -6288,7 +6318,12 @@
     var ft = document.getElementById("setupFt"), inch = document.getElementById("setupIn");
     if (BODY.heightIn) { ft.value = Math.floor(BODY.heightIn / 12); inch.value = Math.round((BODY.heightIn % 12) * 2) / 2; }
     else { ft.value = ""; inch.value = ""; }
-    document.getElementById("setupSex").value = BODY.sex || "female";
+    /* Sex changes the figure by about a hundred and sixty calories a day, so it is asked
+       rather than presumed: pre-filled only where the profile or a saved body already
+       says, and otherwise left on "Choose" until somebody chooses. */
+    var conf = profileConf();
+    var known = bodyStored || !!(conf && conf.body && conf.body.sex);
+    document.getElementById("setupSex").value = known ? (BODY.sex || "") : "";
     document.getElementById("setupActivity").innerHTML = ACTIVITY.map(function (a) {
       return '<option value="' + a.v + '"' + (Number(BODY.activity) === a.v ? " selected" : "") + '>' + a.label + '</option>';
     }).join("");
@@ -6303,7 +6338,7 @@
     var el = document.getElementById("setupWorking");
     if (!el) return;
     var f = setupFields();
-    if (!f.ok) { el.textContent = "Fill in all four and this will show what it works out."; return; }
+    if (!f.ok) { el.textContent = "Fill these in and this will show what it works out."; return; }
     var bmr = mifflinBmr(f.weight, f.heightIn, f.age, f.sex);
     var maint = Math.round(bmr * f.activity / 10) * 10;
     var t = suggestedTargets(maint, f.weight, f.age);
@@ -6320,11 +6355,11 @@
     var inch = Number(document.getElementById("setupIn").value) || 0;
     var heightIn = ft * 12 + inch;
     var weight = Number(document.getElementById("setupWeight").value) || 0;
-    var sex = document.getElementById("setupSex").value || "female";
+    var sex = document.getElementById("setupSex").value || "";
     var activity = Number(document.getElementById("setupActivity").value) || 1.55;
     return { born: born, age: age, heightIn: heightIn, weight: weight, sex: sex, activity: activity,
              ftIn: ft + "\u2032" + inch + "\u2033",
-             ok: !!(born && age != null && heightIn > 0 && weight > 0) };
+             ok: !!(born && age != null && heightIn > 0 && weight > 0 && sex) };
   }
   function wireSetup() {
     ["setupBorn","setupWeight","setupFt","setupIn","setupSex","setupActivity"].forEach(function (id) {
@@ -6336,7 +6371,7 @@
     };
     document.getElementById("setupSaveBtn").onclick = async function () {
       var f = setupFields();
-      if (!f.ok) { showProblem("Date of birth, height and today's weight, please."); return; }
+      if (!f.ok) { showProblem("Date of birth, height, today's weight and sex, please."); return; }
       BODY.born = f.born; BODY.heightIn = f.heightIn; BODY.sex = f.sex; BODY.activity = f.activity;
       /* The weight goes in as today's weigh-in rather than being kept in the plan: it is
          a weigh-in, the first point of the graph, and everything that reads a weight
