@@ -3594,6 +3594,40 @@
     await saveDayDoc(key, doc);
   }
 
+  /* How much of the meals share a day has earned.
+
+     This was a cliff: inside the window or forty-five per cent of it, full stop. Two
+     things were wrong with that. A day two hundred calories over scored exactly the
+     same as a day two thousand over, so once you were out of the window there was
+     nothing left to play for and the rest of the day's eating stopped counting. And a
+     day UNDER the floor -- a day of eating less, which is the whole point -- scored the
+     same as a day of not trying at all.
+
+     So: over the target it slides rather than drops, because three hundred over is a
+     near miss and nine hundred over is a different day. Under the floor it keeps most
+     of the credit, and keeps exactly the same amount however far under it goes. That
+     last part is deliberate. The floor exists so that a score which rewards eating less
+     cannot end up rewarding eating nothing, and a share that climbed as the calories
+     fell would be precisely that. Eating low is worth points. Eating lower is not worth
+     more points. */
+  var MEAL_OVER_SOFT = 300;      // a near miss: still most of the credit
+  var MEAL_OVER_HARD = 900;      // past here it is a different day
+  var MEAL_UNDER_SHARE = 0.8;    // flat, on purpose
+  function mealShare(cal, anyEst, logged) {
+    if (!logged) return { share: 0, why: "none logged" };
+    if (!anyEst) return { share: 0.45, why: "logged, not counted" };
+    var eat = planIntake();
+    if (cal > eat) {
+      var over = cal - eat;
+      if (over <= MEAL_OVER_SOFT) {
+        return { share: 1 - 0.45 * (over / MEAL_OVER_SOFT), why: fmtInt(over) + " over" };
+      }
+      var t = Math.min(1, (over - MEAL_OVER_SOFT) / (MEAL_OVER_HARD - MEAL_OVER_SOFT));
+      return { share: 0.55 - 0.35 * t, why: fmtInt(over) + " over" };
+    }
+    if (cal >= PLAN.floor) return { share: 1, why: "inside the window" };
+    return { share: MEAL_UNDER_SHARE, why: fmtInt(PLAN.floor - cal) + " under the floor" };
+  }
   function dayBlows(prog, doc, foodRows) {
     var isLift = !!(prog && prog.type !== "cardio");
     var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0,
@@ -3637,26 +3671,35 @@
     var cal = 0, anyEst = false;
     foodRows.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
     var onPlan = anyEst && cal >= PLAN.floor && cal <= planIntake();
-    var mealHit = onPlan ? mealW : (foodRows.length ? Math.round(mealW * 0.45) : 0);
+    var ms = mealShare(cal, anyEst, foodRows.length > 0);
+    var mealHit = Math.round(ms.share * mealW);
     var weighHit = doc.weight != null ? weighW : 0;
 
     var blows = [
       { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + wantMin + " min" +
           (madeUp ? " (" + madeUp + " made up)" : "") },
       { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
-      { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal" : (foodRows.length ? foodRows.length + " logged" : "none logged") },
+      { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal \u00b7 " + ms.why : (foodRows.length ? foodRows.length + " logged" : "none logged") },
       { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" }
     ].filter(function (b) { return b.max > 0; });
 
     var score = blows.reduce(function (a, b) { return a + b.v; }, 0);
+    /* What share of the training the day asked for actually got done -- sets on a
+       lifting day, minutes on a cardio one. The ledger and the card both pay on this
+       rather than on a finished session, so half a session is half the credit instead
+       of none, and both of them read it from here rather than working it out again. */
+    var trainShare = isLift ? (totalSets ? doneSets / totalSets : 0)
+                            : (wantMin ? Math.min(1, actualMin / wantMin) : 0);
     return { blows: blows, score: score, won: score >= WIN_AT, isLift: isLift,
              totalSets: totalSets, doneSets: doneSets, doneReps: doneReps,
-             cal: cal, anyEst: anyEst, onPlan: onPlan };
+             cal: cal, anyEst: anyEst, onPlan: onPlan, mealShare: ms.share, mealWhy: ms.why,
+             trainShare: trainShare };
   }
 
   /* ---- what a day is worth ---- */
   var XP = { weigh: 20, meal: 15, mealCap: 4, onPlan: 40, cardio: 25, cardioPerMin: 0.6,
-             cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, won: 60, perfect: 100 };
+             cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, sessionPart: 0.6,
+             won: 60, perfect: 100 };
 
   function dayXP(key, doc, prog, foodRows) {
     var xp = 0;
@@ -3666,23 +3709,30 @@
     xp += Math.min(meals, XP.mealCap) * XP.meal;
     var cal = 0, anyEst = false;
     foodRows.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
-    if (anyEst && cal >= PLAN.floor && cal <= planIntake()) xp += XP.onPlan;
+    /* Graded, so a day spent eating low is paid for rather than written off. */
+    var ms = mealShare(cal, anyEst, meals > 0);
+    if (anyEst) xp += Math.round(XP.onPlan * ms.share);
 
     if (doc.cardio && doc.cardio.min) {
       xp += Math.min(XP.cardioCap, XP.cardio + doc.cardio.min * XP.cardioPerMin);
     }
 
-    var allSets = true, anyLift = false;
+    var allSets = true, anyLift = false, setsDone = 0, setsAsked = 0;
     if (prog && prog.type !== "cardio") {
       anyLift = true;
       prog.ex.forEach(function (exx) {
         var rows = (doc.sets && Array.isArray(doc.sets[exx.name])) ? doc.sets[exx.name] : [];
         var done = 0;
         rows.forEach(function (r) { if (r && r.done) done++; });
+        setsDone += done; setsAsked += exx.sets;
         xp += done * XP.set;
         if (done >= exx.sets && exx.sets > 0) xp += XP.exerciseDone; else allSets = false;
       });
+      /* The finishing bonus used to be all or nothing, so nineteen sets of twenty paid
+         the same as none of them. Most of it still waits for the last set -- finishing
+         should be worth something -- but the part you did now pays for itself. */
       if (allSets) xp += XP.sessionDone;
+      else if (setsAsked) xp += Math.round(XP.sessionDone * XP.sessionPart * (setsDone / setsAsked));
     }
 
     var perfect = doc.weight != null && meals > 0 &&
@@ -3696,7 +3746,9 @@
 
     return { xp: Math.round(xp), perfect: perfect, meals: meals, sessionDone: anyLift && allSets,
              score: bl.score, won: bl.won, doneSets: bl.doneSets, doneReps: bl.doneReps,
-             onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake() };
+             onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake(),
+             /* what the ledger pays on: the part of the day that was actually done */
+             mealShare: anyEst ? ms.share : 0, trainShare: bl.trainShare };
   }
 
   function addDaysKey(key, n) {
@@ -3742,6 +3794,8 @@
     var total = 0, run = 0, prevKey = null, todayXP = 0, todayRaw = 0, perfectDays = 0;
     var totalSets = 0, totalCardioMin = 0, onPlanDays = 0, loggedDays = 0;
     var sessions = 0, streakWeeks = 0;
+    /* The same two things the ledger used to count whole, counted in parts. */
+    var sessionCredit = 0, onPlanCredit = 0;
     var lastLift = null, lastCardio = null, lastAny = null, over = 0, under = 0, recentFood = 0;
     var bestDaySets = 0, lastPR = null, totalReps = 0;
     var daysWon = 0, winRun = 0, bestWinRun = 0, lastWonKey = null, todayWon = false;
@@ -3766,6 +3820,10 @@
       if (d.perfect) perfectDays++;
       if (d.onPlan) onPlanDays++;
       if (d.sessionDone) sessions++;
+      sessionCredit += d.trainShare || 0;
+      /* A day has to be in the neighbourhood before it pays: well under the target
+         counts, a little over counts, and a day that gave up on the window does not. */
+      if ((d.mealShare || 0) >= 0.5) onPlanCredit += d.mealShare;
       if (run > 0 && run % 7 === 0) streakWeeks++;
       lastAny = k;
 
@@ -3828,7 +3886,8 @@
       stats: { sets: totalSets, reps: totalReps, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
                perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
                daysWon: daysWon, bestWinRun: bestWinRun,
-               sessions: sessions, streakWeeks: streakWeeks }
+               sessions: sessions, streakWeeks: streakWeeks,
+               sessionCredit: sessionCredit, onPlanCredit: onPlanCredit }
     };
   }
 
@@ -4192,17 +4251,46 @@
   function money(n) {
     return GOOD.currency + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, "");
   }
+  /* Paid on the work done, not on the work finished. Half a session used to be worth
+     nothing at all, which meant the day you got through four exercises of six and then
+     had to leave gave the same as the day you did not go -- and that is the day the
+     ledger should be arguing hardest to keep. Finishing still pays the most, because
+     finishing is still a whole unit; it just is not the only thing that pays.
+     `sessionCredit` and `onPlanCredit` are the same two counts carried in parts, so a
+     week of finished sessions and days inside the window earns exactly what it always
+     did, to the penny. */
   function accrued(pr) {
     var r = GOOD.rates;
-    return pr.stats.sessions * (r.session || 0) +
-           pr.stats.onPlanDays * (r.onPlan || 0) +
-           pr.stats.streakWeeks * (r.streakWeek || 0);
+    var st = pr.stats;
+    var sess = st.sessionCredit != null ? st.sessionCredit : st.sessions;
+    var plan = st.onPlanCredit != null ? st.onPlanCredit : st.onPlanDays;
+    return sess * (r.session || 0) +
+           plan * (r.onPlan || 0) +
+           st.streakWeeks * (r.streakWeek || 0);
   }
   function givenTotal() {
     return GOOD.given.reduce(function (a, g) { return a + (Number(g.amount) || 0); }, 0);
   }
 
 
+  /* The sheet used to say "4 sessions finished" because that was the only thing that
+     could earn. Now that part sessions earn too, it says the whole truth: what was
+     finished, and what the parts added up to. */
+  function tenth(n) { return Math.round(n * 10) / 10; }
+  function trainingSaid(st) {
+    var cr = st.sessionCredit || 0, whole = st.sessions || 0;
+    var extra = Math.max(0, cr - whole);
+    if (!whole) return "training part-done, worth " + tenth(cr) + " of a session";
+    return whole + " session" + (whole === 1 ? "" : "s") + " finished" +
+      (extra >= 0.05 ? ", plus part-sessions worth " + tenth(extra) + " more" : "");
+  }
+  function eatingSaid(st) {
+    var cr = st.onPlanCredit || 0, whole = st.onPlanDays || 0;
+    var extra = Math.max(0, cr - whole);
+    if (!whole) return "eating near the window, worth " + tenth(cr) + " of a day";
+    return whole + " day" + (whole === 1 ? "" : "s") + " inside the window" +
+      (extra >= 0.05 ? ", plus near misses worth " + tenth(extra) + " more" : "");
+  }
   function openGiveSheet(pr) {
     var acc = accrued(pr), out = Math.max(0, acc - givenTotal());
     document.getElementById("giveAmount").value = out > 0 ? (Math.round(out * 100) / 100) : "";
@@ -4211,13 +4299,13 @@
     var why = document.getElementById("giveWhy"), r = GOOD.rates, st = pr.stats || {};
     if (why) {
       var bits = [];
-      if (r.session > 0 && st.sessions) bits.push(st.sessions + " sessions finished");
-      if (r.onPlan > 0 && st.onPlanDays) bits.push(st.onPlanDays + " days inside the window");
+      if (r.session > 0 && st.sessionCredit) bits.push(trainingSaid(st));
+      if (r.onPlan > 0 && st.onPlanCredit) bits.push(eatingSaid(st));
       if (r.streakWeek > 0 && st.streakWeeks) bits.push(st.streakWeeks + " weeks the streak survived");
       why.innerHTML = out > 0
         ? "<b>" + money(out) + "</b> earned and not yet given" + (bits.length ? " \u2014 " + bits.join(", ") : "") + "."
         : (acc > 0 ? "Everything your work has earned has been given. " + money(acc) + " so far."
-                   : "Nothing earned yet. Finish a session or eat inside the window and it starts.");
+                   : "Nothing earned yet. Any part of a session, or a day's eating near the window, starts it.");
     }
     document.getElementById("giveNote").value = "";
     document.getElementById("giveCause").value = GOOD.cause;
@@ -4864,8 +4952,10 @@
     var lo = await loadout(pr);
     lastLoadout = lo;
     var gr = GOOD.rates || {};
-    var earnedToday = ((DMG.Training && DMG.Training.v >= DMG.Training.max) ? (gr.session || 0) : 0) +
-                      (bl.onPlan ? (gr.onPlan || 0) : 0);
+    /* The same arithmetic the ledger uses, or the head of the figure would promise a
+       pound the giving sheet then disagreed with. */
+    var earnedToday = (gr.session || 0) * bl.trainShare +
+                      ((bl.mealShare >= 0.5) ? (gr.onPlan || 0) * bl.mealShare : 0);
 
     function rowFor(k) { return lo.rows.filter(function (q) { return q.key === k; })[0]; }
 
