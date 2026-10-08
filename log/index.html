@@ -3704,6 +3704,7 @@
   var MEAL_OVER_SOFT = 300;      // a near miss: still most of the credit
   var MEAL_OVER_HARD = 900;      // past here it is a different day
   var MEAL_UNDER_SHARE = 0.8;    // flat, on purpose
+  var PLAN_RUN_SHARE = 0.8;      // what a day's eating has to be worth to keep the run
   function mealShare(cal, anyEst, logged) {
     if (!logged) return { share: 0, why: "none logged" };
     if (!anyEst) return { share: 0.45, why: "logged, not counted" };
@@ -3890,6 +3891,10 @@
     var lastLift = null, lastCardio = null, lastAny = null, over = 0, under = 0, recentFood = 0;
     var bestDaySets = 0, lastPR = null, totalReps = 0;
     var daysWon = 0, winRun = 0, bestWinRun = 0, lastWonKey = null, todayWon = false;
+    /* Days of eating well, back to back. Counted here beside the won-day run because it
+       is the same question asked of a different column, and because the one pass over the
+       log is where every other streak is already worked out. */
+    var planRun = 0, bestPlanRun = 0, lastPlanKey = null;
     var tKey = dateKey(new Date());
 
     for (var i = 0; i < keys.length; i++) {
@@ -3925,6 +3930,18 @@
         if (winRun > bestWinRun) bestWinRun = winRun;
         lastWonKey = k;
         if (k === tKey) todayWon = true;
+      }
+
+      /* Eating well, back to back. What keeps the run is the day's own meal share, not
+         the strict window: inside the window keeps it, under the floor keeps it, and a
+         near miss over the target keeps it, because a run you lose for eating less is a
+         run that argues with the rest of the scoring. A day that genuinely went past the
+         target ends it, which is the point of having it. The run survives a day you have
+         not logged yet -- that is checked against today further down. */
+      if ((d.mealShare || 0) >= PLAN_RUN_SHARE) {
+        planRun = (lastPlanKey && daysBetween(lastPlanKey, k) === 1) ? planRun + 1 : 1;
+        if (planRun > bestPlanRun) bestPlanRun = planRun;
+        lastPlanKey = k;
       }
 
       /* the day the work itself went past everything before it: most sets finished
@@ -3974,9 +3991,13 @@
       brokenRun: liveRun ? 0 : run, missedYesterday: missedYesterday,
       daysWon: daysWon, winRun: (lastWonKey && daysBetween(lastWonKey, tKey) <= 1) ? winRun : 0,
       bestWinRun: bestWinRun, todayWon: todayWon, bestDaySets: bestDaySets,
+      /* Alive if the last on-plan day was today or yesterday, the same rule the won-day
+         run uses: a morning before you have eaten is not a broken streak. */
+      planRun: (lastPlanKey && daysBetween(lastPlanKey, tKey) <= 1) ? planRun : 0,
+      bestPlanRun: bestPlanRun,
       stats: { sets: totalSets, reps: totalReps, cardioMin: totalCardioMin, onPlanDays: onPlanDays,
                perfectDays: perfectDays, loggedDays: loggedDays, bestRun: run,
-               daysWon: daysWon, bestWinRun: bestWinRun,
+               daysWon: daysWon, bestWinRun: bestWinRun, bestPlanRun: bestPlanRun,
                sessions: sessions, streakWeeks: streakWeeks,
                sessionCredit: sessionCredit, onPlanCredit: onPlanCredit }
     };
@@ -4048,9 +4069,15 @@
     { id: "unbroken", name: "No days missed", gain: 0.15,
       test: function (g, pr) { return pr.run >= 14; },
       why:  function (g, pr) { return pr.run + " days without a gap"; } },
+    /* This used to want five of the last seven days logged with not one of them over
+       and not one under -- a single big meal in a week wiped it, and it could not be
+       rebuilt for seven days however well you ate in the meantime. That is a rule that
+       punishes a slip twice and never rewards starting again, which is the opposite of
+       what a run is for. Three days back to back earns it, and the next three after a
+       slip earn it back. */
     { id: "wellfed",  name: "Eating in range", gain: 0.10,
-      test: function (g) { return g.recentFood >= 5 && g.over === 0 && g.under === 0; },
-      why:  function (g) { return g.recentFood + " of the last 7 days inside the window"; } },
+      test: function (g, pr) { return pr.planRun >= 3; },
+      why:  function (g, pr) { return pr.planRun + " days of eating well, back to back"; } },
     { id: "conditioned", name: "Cardio is recent", gain: 0.10,
       test: function (g) { return g.sinceCardio <= 1; },
       why:  function () { return "cardio logged today or yesterday"; } },
@@ -4146,6 +4173,7 @@
     { id: "cd500",   name: "500 Min",      test: function (p) { return p.stats.cardioMin >= 500; } },
     { id: "cd2000",  name: "2000 Min",     test: function (p) { return p.stats.cardioMin >= 2000; } },
     { id: "plan7",   name: "7 On Plan",    test: function (p) { return p.stats.onPlanDays >= 7; } },
+    { id: "planrun7", name: "7 Clean In A Row", test: function (p) { return p.stats.bestPlanRun >= 7; } },
     { id: "perfect", name: "Flawless Day", test: function (p) { return p.stats.perfectDays >= 1; } },
     { id: "won10",   name: "10 Days Won",  test: function (p) { return p.stats.daysWon >= 10; } },
     { id: "won50",   name: "50 Days Won",  test: function (p) { return p.stats.daysWon >= 50; } },
@@ -5028,6 +5056,10 @@
     rec.innerHTML =
       "<b id=\"t9Won\">" + fmtInt(pr.daysWon) + "</b> days won" +
       (pr.winRun > 1 ? "  \u00b7  " + pr.winRun + " in a row" : "") +
+      /* The eating run sits next to the won-day run because it is the same kind of
+         fact and the same thing to protect. Two in a row is not a streak worth a
+         headline, so it starts at three. */
+      (pr.planRun > 2 ? "  \u00b7  <b>" + pr.planRun + "</b> days eating well" : "") +
       "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points";
     /* a number that lands rather than appears: on the day you win it, you watch it go */
     if (renderTodayCard._shownWon != null && pr.daysWon > renderTodayCard._shownWon) {
