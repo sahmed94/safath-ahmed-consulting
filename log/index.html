@@ -231,9 +231,9 @@
   [data-state="full"] .fg-add.full, [data-state="ready"] .fg-add.full {
     background: var(--h); color: #0A0712; }
   [data-state="warn"] .fg-add { background: rgba(255,107,107,0.2); color: #FF8F8F; }
-  /* Showing up and History have no quest feeding them, so their chip is the build
-     level rather than today's points. It takes the hue too, or it is the one grey
-     thing left on a lit part. */
+  /* The two runs have no quest feeding them, so their chip is the build level rather
+     than today's points. It takes the hue too, or it is the one grey thing left on a
+     lit part. */
   [data-state="full"] .fg-add:not(.full):not(.part),
   [data-state="ready"] .fg-add:not(.full):not(.part) { background: var(--hb); color: var(--h); }
   /* The core has rings where the others have a node, so the light goes on the rings. */
@@ -410,6 +410,11 @@
   .c9-roomy .fg-base::before { top: 23px; }
   .c9-roomy .fg-n { font-size: 14px; }
   .c9-roomy .fg-d { font-size: 10.5px; }
+  /* The arms either side of the rings are capped at 108px so they cannot reach the
+     core. On a big phone the card is wide enough that the cap, not the layout, is what
+     cuts a line short -- and both of them now carry two numbers. Scoped to the core
+     row, so the three cells along the base keep sizing themselves. */
+  .c9-roomy .fg-core > .fg-arm .fg-d { max-width: 132px; }
   .c9-roomy .fg-macros { font-size: 9.5px; gap: 11px; }
   .c9-roomy .t9-fig { gap: 11px; }
   .c9-compact .t9-chip { font-size: 9.5px; padding: 2px 6px; }
@@ -4480,9 +4485,16 @@
   /* ===================== WHAT YOU BUILD ===================== */
   /* Seven parts of one body, and each part is fed by exactly one thing you do:
 
-       Head    what you give away     Core    meals inside the eating window
-       Weapon  the streak you are on  Shield  every day you have ever logged
+       Head    what you give away     Core    how much you ate, against the window
+       Weapon  the run of days logged Shield  the run of days you ate well
        Waist  sets you finish         Legs   cardio minutes       Feet   weigh-ins
+
+     Showing up and History used to be two parts, and they were two readings of the
+     same column: the run of logged days, and the count of them. Nobody could say what
+     the second one was for. They are one part now -- the run is the number, the all-
+     time count is the depth behind it -- and the shield that came free went to the
+     thing the figure had no room for: the run of days eating well. So the two parts
+     either side of the core are both runs, which is also why they look alike.
 
      Behind each part is one raw measure, scaled so all seven sit on the same ladder
      and a word means the same thing on the head as on the feet. Nothing is invented
@@ -4497,15 +4509,16 @@
   var SLOTS = [
     { key: "helmet", name: "Giving",     part: "Head",  fed: "giving away what you earned", icon: "helm",   hue: "#FFD166" },
     { key: "chest",  name: "Food",       part: "Core",  fed: "meals inside your window", icon: "chest",  hue: "#7DF0B8" },
-    { key: "weapon", name: "Showing up", part: "Weapon", fed: "days in a row",           icon: "weapon", hue: "#FF4FD8" },
-    { key: "shield", name: "History",    part: "Shield", fed: "every day you logged",    icon: "shield", hue: "#B06BFF" },
+    { key: "weapon", name: "Showing up", part: "Weapon", fed: "days logged in a row",   icon: "weapon", hue: "#FF4FD8" },
+    { key: "shield", name: "Eating well", part: "Shield", fed: "days eating well in a row", icon: "shield", hue: "#B06BFF" },
     { key: "belt",   name: "Lifting",    part: "Waist", fed: "sets you finish",          icon: "belt",   hue: "#FF8A5B" },
     { key: "legs",   name: "Walking",    part: "Legs",  fed: "cardio minutes",           icon: "legs",   hue: "#6FD0FF" },
     { key: "boots",  name: "Weighing",   part: "Feet",  fed: "times on the scale",       icon: "boots",  hue: "#5B8CFF" }
   ];
   /* Which part a penalty lands on, so the thing that is wrong is the thing that
      lights up red rather than a chip somewhere else on the card. */
-  var WARN_SLOT = { adrift: "shield", detrained: "belt", sedentary: "legs",
+  /* Not logging is a fact about the run, so it lands on the part the run lives on. */
+  var WARN_SLOT = { adrift: "weapon", detrained: "belt", sedentary: "legs",
                     overfed: "chest", underfed: "chest" };
   /* Which quest feeds which part. */
   var PART_FEEDS = { legs: "Cardio", belt: "Training", chest: "Meals", boots: "Weigh-in" };
@@ -4513,6 +4526,9 @@
     var w = {};
     activeDebuffs(pr).forEach(function (d) { if (WARN_SLOT[d.id]) w[WARN_SLOT[d.id]] = d.name; });
     if (pr && pr.gaps && pr.gaps.everLogged && !pr.run) w.weapon = "Run broken";
+    /* A run you have had and lost is worth marking. One you have never had is not a
+       fault, it is a thing you have not started, which is what "todo" already says. */
+    if (pr && !pr.planRun && pr.bestPlanRun) w.shield = "Run broken";
     return w;
   }
   /* One answer for both renderers. The card and the share image drew the same seven
@@ -4521,13 +4537,12 @@
        full   today fed it to the cap          part  it started
        todo   waiting on you                   warn  a penalty is live on it
        ready  money earned and not yet given
-     Showing up and History have no quest feeding them, so they read off the run and
-     off whether today has been logged at all. Money owed outranks money earned today:
-     the point of the head is the giving still outstanding. */
+     Neither run has a quest feeding it, so each reads off itself. Money owed outranks
+     money earned today: the point of the head is the giving still outstanding. */
   function partState(key, o) {
     if (key === "helmet") return o.owed > 0 ? "ready" : (o.earnedToday > 0 ? "full" : "todo");
     if (key === "weapon") return o.run > 0 ? "full" : (o.warn.weapon ? "warn" : "todo");
-    if (key === "shield") return o.score > 0 ? "full" : (o.warn.shield ? "warn" : "todo");
+    if (key === "shield") return o.planRun > 0 ? "full" : (o.warn.shield ? "warn" : "todo");
     var b = o.dmg[PART_FEEDS[key]];
     if (b && b.v >= b.max) return "full";
     if (o.warn[key]) return "warn";
@@ -4624,6 +4639,7 @@
        start again and it climbs, with no separate decay rule to explain. */
     var everLogged = keys.length;
     var run = pr ? pr.run : 0;
+    var planRun = (pr && pr.planRun) || 0, bestPlanRun = (pr && pr.bestPlanRun) || 0;
     var given = givenTotal();
     var earned = pr ? accrued(pr) : 0;
     var owed = Math.max(0, earned - given);
@@ -4644,12 +4660,21 @@
       chest:  { built: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " on plan"; },
                 detail: onPlan + " of the last 30 days inside the window" },
-      weapon: { built: Math.round(run * 4), face: run + "d", per: 4,
-                step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " unbroken"; },
-                detail: run ? run + " days without a gap" : "no streak yet" },
-      shield: { built: Math.round(everLogged * 2.5), face: fmtInt(everLogged) + "d", per: 2.5,
+      /* Both runs are built the same way: the live run, plus the permanent thing
+         behind it. The second term is what stops the part emptying out the morning
+         after a slip, when the work behind it has not gone anywhere. */
+      weapon: { built: Math.round(run * 4 + everLogged * 1.5), face: run + "d", per: 5.5,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " logged"; },
-                detail: everLogged + " days logged, all time" },
+                /* The arm these sit on clips to one line, so both runs say their two
+                   numbers in as few words as they can and still mean something. */
+                detail: run ? run + " in a row \u00b7 " + fmtInt(everLogged) + " total"
+                            : (everLogged ? "no run \u00b7 " + fmtInt(everLogged) + " days total"
+                                          : "nothing logged yet") },
+      shield: { built: Math.round(planRun * 4 + bestPlanRun * 2.5), face: planRun + "d", per: 4,
+                step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " eating well"; },
+                detail: planRun ? planRun + " in a row \u00b7 best " + bestPlanRun
+                                : (bestPlanRun ? "no run \u00b7 best " + bestPlanRun + " days"
+                                               : "no clean run yet") },
       belt:   { built: Math.round(sets30 * 0.9), face: fmtInt(sets30) + " sets", per: 0.9,
                 step: function (n) { return n + " more set" + (n === 1 ? "" : "s"); },
                 detail: sets30 ? fmtInt(sets30) + " sets and " + fmtInt(reps30) + " reps in 30 days"
@@ -5083,11 +5108,10 @@
     /* What state each part is in, which is the whole point of the colour: "full" means
        today already fed it, "part" means it started, "todo" means it is waiting on you,
        "warn" means a penalty is live on it, "ready" means money is sitting there to
-       give away. Showing up and History have no quest feeding them, so they read off
-       the run and off whether today has been logged at all -- which is what makes the
-       figure light up piece by piece as the day goes on. */
+       give away. Neither run has a quest feeding it, so each reads off itself -- which
+       is what makes the figure light up piece by piece as the day goes on. */
     var stateCtx = { warn: partWarnMap(pr), dmg: DMG, owed: lo.owed, earnedToday: earnedToday,
-                     run: pr.run, score: bl.score };
+                     run: pr.run, planRun: pr.planRun || 0 };
     function paint(r) {
       return ' data-state="' + partState(r.key, stateCtx) + '" style="--h:' + r.hue + ';--hb:' + r.hue + '1F"';
     }
