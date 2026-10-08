@@ -215,6 +215,14 @@
     50%      { box-shadow: inset 0 0 0 1.5px currentColor, 0 0 19px 0 currentColor, 0 0 38px -6px currentColor; }
   }
   @media (prefers-reduced-motion: reduce) { .fg-node { animation: none !important; } }
+  /* In the picture, not on the card. A still has nothing to gain from an animation and
+     everything to lose: the clone is taken at whatever frame it happened to be on. And
+     a blurred, spread box-shadow is the one thing a renderer is most likely to get
+     wrong -- the export came back with a hard bright rectangle sitting beside every lit
+     part, which is the glow painted with the blur dropped. So the picture keeps the
+     ring that draws the part and gives up the halo around it. */
+  .c9-export *, .c9-export *::before, .c9-export *::after { animation: none !important; }
+  .c9-export [data-state] .fg-node { box-shadow: inset 0 0 0 1.5px currentColor !important; }
   /* The name carries the colour too, so the figure reads at arm's length without
      having to pick out which small box is lit. */
   [data-state="full"] .fg-n, [data-state="ready"] .fg-n { color: var(--h); }
@@ -4523,7 +4531,7 @@
                 step: function (n) { return owed > 0
                   ? "give " + money(Math.min(n, owed)) + " of the " + money(owed) + " you have earned"
                   : "earn first \u2014 finish a session or eat on plan"; },
-                detail: owed > 0 ? money(earned) + " earned by your work \u00b7 " + money(given) + " of it given"
+                detail: owed > 0 ? money(earned) + " earned \u00b7 " + money(given) + " given"
                                  : (earned > 0 ? money(earned) + " earned and all of it given"
                                                : "nothing earned to give yet") },
       chest:  { built: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
@@ -5784,27 +5792,69 @@
      anything, so a referenced photo would come out as a hole. Each one is read back and
      carried inline instead. A photo that will not come back is dropped rather than
      failing the whole picture. */
+  /* The card shows the photo by putting its URL in an <img>, which is a plain request
+     with no CORS on it. The picture needs the bytes, which is a fetch, and a fetch is
+     only allowed to read them when the response says so. If the browser has already
+     cached the no-CORS copy from the <img>, the fetch can be handed that same cached
+     response and refuse it -- the photo is on the card, in front of you, and will not
+     come down. So a refusal is tried once more with the cache stepped over, which asks
+     the server again and gets the headers with it. Eight seconds each, because a photo
+     that will not arrive must not hold up the picture: there is a tile waiting to say
+     what the meal was instead. */
+  async function fetchPhoto(src) {
+    var tries = [{ mode: "cors" }, { mode: "cors", cache: "reload" }];
+    var last;
+    for (var t = 0; t < tries.length; t++) {
+      var ctl = (typeof AbortController === "function") ? new AbortController() : null;
+      var timer = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : null;
+      try {
+        var opt = Object.assign({}, tries[t]);
+        if (ctl) opt.signal = ctl.signal;
+        var r = await fetch(src, opt);
+        if (!r.ok) throw new Error("photo came back " + r.status);
+        var b = await r.blob();
+        if (timer) clearTimeout(timer);
+        if (!b || !b.size) throw new Error("photo came back empty");
+        return b;
+      } catch (e) {
+        if (timer) clearTimeout(timer);
+        last = e;
+      }
+    }
+    throw last || new Error("photo could not be read");
+  }
+
   async function inlineImages(root) {
     var imgs = Array.prototype.slice.call(root.querySelectorAll("img[src]"));
     for (var i = 0; i < imgs.length; i++) {
       var src = imgs[i].getAttribute("src") || "";
       if (!src || src.slice(0, 5) === "data:") continue;
       try {
-        var blob = await (await fetch(src, { mode: "cors" })).blob();
+        var blob = await fetchPhoto(src);
         imgs[i].setAttribute("src", await new Promise(function (res, rej) {
           var fr = new FileReader();
           fr.onload = function () { res(fr.result); };
           fr.onerror = rej; fr.readAsDataURL(blob);
         }));
       } catch (e) {
-        /* Rather than a blank tile: keep whatever the picture was of. */
+        /* A photo that will not come down must not leave a hole. It used to check that
+           the tile had no text before writing the description in -- but a photographed
+           meal already carries its calories in a caption, so the check was always false
+           and the tile went into the picture as an empty box with a number on it. That
+           is the bug this is: not the fetch failing, which it is allowed to do, but the
+           failing being invisible. The tile becomes the words tile it would have been
+           if the meal had been written rather than photographed. */
         var alt = imgs[i].getAttribute("alt") || "";
         var holder = imgs[i].parentNode;
         if (holder) {
-          holder.removeChild(imgs[i]);
-          if (alt && !holder.textContent.trim()) {
-            holder.className += " words";
-            holder.appendChild(document.createTextNode(alt));
+          var cap = holder.querySelector("span");
+          var kcal = cap ? cap.textContent.trim() : "";
+          holder.innerHTML = "";
+          holder.className = (holder.className.replace(/\bwords\b/g, "").trim() + " words").trim();
+          holder.appendChild(document.createTextNode(alt || "meal"));
+          if (kcal) {
+            holder.appendChild(document.createElement("br"));
+            holder.appendChild(document.createTextNode(kcal));
           }
         }
       }
@@ -5862,7 +5912,8 @@
     return { W: W, H: H,
       svg: xmlSafe('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '">' +
         '<foreignObject x="0" y="0" width="' + W + '" height="' + H + '">' +
-        '<div xmlns="http://www.w3.org/1999/xhtml" class="' + attrSafe(document.documentElement.className) +
+        '<div xmlns="http://www.w3.org/1999/xhtml" class="' +
+          attrSafe((document.documentElement.className + " c9-export").trim()) +
         '" style="' + attrSafe(vars.join(";")) + '">' +
         "<style><![CDATA[" + fonts + "\n" + css + "]]></style>" + body + "</div></foreignObject></svg>") };
   }
