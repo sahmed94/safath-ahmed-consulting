@@ -296,6 +296,8 @@
   .t9-tog[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,0.32);
     background: rgba(255,255,255,0.09); }
   .t9-coach.off { display: none; }
+  /* The line the day has outgrown, on its way to being replaced. */
+  .t9-coach.stale { opacity: 0.42; transition: opacity .25s ease; }
   /* Three toggles plus two buttons is a lot of row on a small card, and the reward
      button -- the one with the variable text -- was the one that lost. */
   .c9-compact .t9-tog { width: 29px; }
@@ -6677,8 +6679,23 @@
       return (v && v.text) ? v : null;
     } catch (e) { return null; }
   }
-  function writeCoach(dayKey, text, overall) {
-    try { localStorage.setItem(coachKeyFor(dayKey), JSON.stringify({ text: text, overall: overall, at: Date.now() })); } catch (e) {}
+  function writeCoach(dayKey, text, overall, sig) {
+    try { localStorage.setItem(coachKeyFor(dayKey),
+      JSON.stringify({ text: text, overall: overall, sig: sig, at: Date.now() })); } catch (e) {}
+  }
+  /* The line is cached so that reading a day back costs nothing. What it was cached
+     against used to be the date, which meant it was written once -- the first moment
+     the day had any score at all -- and then never again. Log the session after that,
+     log the food after that, and the card went on telling you that you had not done
+     anything, because by the only test it had, the line was still fresh.
+
+     So cache it against the thing it was actually written from: the prompt. Same facts,
+     same line, no request. Any change the coach would have something to say about
+     changes the prompt, which changes this, which fetches a new one. */
+  function coachSig(sd) {
+    var str = scoreContext(sd), h = 5381;
+    for (var i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+    return h.toString(36);
   }
 
   var inlineScoreToken = 0;
@@ -6696,22 +6713,34 @@
        one line nothing else says -- somebody reading the day back to you. */
     var coachEl = document.getElementById("scCoach");
     if (!coachEl) return;
+    var sig = coachSig(sd);
     var cached = readCoach(key);
-    if (cached) { coachEl.textContent = cached.text; coachEl.hidden = false; }
-    else { coachEl.hidden = true; coachEl.textContent = ""; }
+    var fresh = !!(cached && cached.sig === sig);
+    /* A stale line still goes up rather than leaving a hole -- but dimmed, so the card
+       says "this is being rewritten" instead of quietly lying for a second and a half.
+       Except on a day that now has nothing in it at all: there is no reading to give,
+       so the old reading goes rather than hanging around describing a day that has
+       been emptied. */
+    if (cached && (fresh || sd.overall > 0)) {
+      coachEl.textContent = cached.text; coachEl.hidden = false;
+      coachEl.classList.toggle("stale", !fresh);
+    } else {
+      coachEl.hidden = true; coachEl.textContent = ""; coachEl.classList.remove("stale");
+    }
 
-    /* Fetch the coach line for a day worth talking about, once, after the date has
-       settled -- flicking through the week should not fire a request per chip. */
+    /* Fetch once the day has settled -- flicking through the week should not fire a
+       request per chip, and neither should four taps in a row on the same card. */
     clearTimeout(inlineCoachTimer);
-    if (!cached && sd.overall > 0) {
+    if (!fresh && sd.overall > 0) {
       inlineCoachTimer = setTimeout(async function () {
         if (token !== inlineScoreToken) return;
         var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
         if (token !== inlineScoreToken) return;
         var msg = (text && text.trim()) || fallbackNarrative(sd);
-        writeCoach(key, msg, sd.overall);
+        writeCoach(key, msg, sd.overall, sig);
         coachEl.textContent = msg; coachEl.hidden = false;
-      }, 900);
+        coachEl.classList.remove("stale");
+      }, 1100);
     }
   }
 
@@ -6726,9 +6755,9 @@
     var msg = fallbackNarrative(sd);
     var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
     if (text) msg = text.trim();
-    writeCoach(dateKey(selectedDate), msg, sd.overall);
+    writeCoach(dateKey(selectedDate), msg, sd.overall, coachSig(sd));
     var inline = document.getElementById("scCoach");
-    if (inline) { inline.textContent = msg; inline.hidden = false; applyCardToggles(); }
+    if (inline) { inline.textContent = msg; inline.hidden = false; inline.classList.remove("stale"); applyCardToggles(); }
   }
   function scoreContext(sd) {
     return "Overall score: " + sd.overall + "/100. " +
