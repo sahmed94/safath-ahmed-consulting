@@ -878,7 +878,33 @@
      whole of every picture is on screen and the only direction that ever scrolls is
      sideways. Scrolling a short window up and down to see a cropped square was the
      complaint; this removes both halves of it. */
-  .f9-scroll { display: flex; flex-direction: column; overflow: hidden; }
+  /* The day's meals are the only thing on this tab that is a record rather than a
+     control, and they were last in the column, so they got whatever was left -- which
+     on a phone with Safari's two bars up was nothing at all. A floor under the rail,
+     and the controls above it give the room back instead, in the order they can best
+     afford to: the macro strip first (every number of it is in the eating plan), then
+     the sittings go to one sideways row, then the labels that the placeholders already
+     say. Only if all of that is not enough does the rail give up its floor. */
+  /* Everything above the rail keeps the height it asks for. They were all shrinkable,
+     so the moment the rail was given a floor the flex row took the difference out of
+     the sittings instead and squashed four chips into a two-pixel band. Nothing here
+     shrinks now; when it does not fit, the ladder below takes a whole step out rather
+     than everything being quietly compressed. */
+  .food9 > * { flex: 0 0 auto; }
+  .food9 > .f9-scroll { flex: 1 1 auto; }
+  .f9-scroll { display: flex; flex-direction: column; overflow: hidden; min-height: 104px; }
+  .c9-tightfood #mealPicker { grid-template-columns: repeat(4, minmax(104px, 1fr));
+    overflow-x: auto; overflow-y: hidden; scrollbar-width: none; margin-bottom: 9px; }
+  .c9-tightfood #mealPicker::-webkit-scrollbar { display: none; }
+  .c9-tightfood .mp-chip { padding: 7px 22px 7px 9px; font-size: 11.5px; }
+  .c9-tightfood #panel-food .field label { display: none; }
+  .c9-tightfood #panel-food .f9-actions { margin-top: 6px !important; }
+  .c9-tightfood #panel-food .food-upload-btn { padding: 9px 8px; font-size: 12px; }
+  /* The last whole block that can go: the four figures at the top are the same four
+     on the Today card and in the eating plan sheet, and the meals are not anywhere
+     else. Only after this does the rail give up its floor. */
+  .c9-notargets .f9-targets { display: none; }
+  .c9-noroom .f9-scroll { min-height: 0; }
   #foodToday { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
   #foodToday .food-grid { flex: 1 1 auto; min-height: 0; margin-top: 8px; padding-bottom: 7px; }
   #foodToday .food-item { flex: 0 0 auto; height: 100%; width: auto; max-width: none; }
@@ -4832,13 +4858,15 @@
     var card = document.querySelector("#panel-food .card9");
     if (!card || !card.clientHeight) return;
     var root = document.documentElement;
-    var over = function () { return card.scrollHeight > card.clientHeight + 1; };
-    root.classList.remove("c9-strip1");
-    root.classList.remove("c9-nomacros");
-    if (!over()) return;
-    root.classList.add("c9-strip1");
-    if (!over()) return;
-    root.classList.add("c9-nomacros");
+    /* The card is a fixed shape with nothing to scroll, so every pixel the rail is
+       given has to be taken from something above it. These are the steps, cheapest
+       first, and each one is only taken if the one before it was not enough. */
+    var steps = ["c9-strip1", "c9-nomacros", "c9-tightfood", "c9-notargets", "c9-noroom"];
+    steps.forEach(function (c) { root.classList.remove(c); });
+    for (var i = 0; i < steps.length; i++) {
+      if (card.scrollHeight <= card.clientHeight + 1) return;
+      root.classList.add(steps[i]);
+    }
   }
 
   /* The card height picks a tier, but what actually has to fit is the body figure, and
