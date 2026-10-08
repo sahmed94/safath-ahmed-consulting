@@ -502,6 +502,17 @@
   .t9-food { flex: 0 0 auto; display: flex; gap: 5px; overflow: hidden; }
   /* An explicit display beats the hidden attribute, so the empty strip was still
      taking a row's gap out of the figure while showing nothing. */
+  /* Changing the picture is part of changing the meal, so it sits with the rest of it
+     rather than meaning "delete this and log it again". */
+  /* Capped, because a tall photo pushed the controls that change it off the bottom of
+     the sheet -- the picture is there to say which meal this is, not to be looked at. */
+  .meal-edit-img { width: 100%; max-height: 30vh; object-fit: contain; border-radius: 10px;
+    margin-bottom: 8px; background: #16102A; }
+  .meal-photo-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .meal-photo-row .food-upload-btn { flex: 1 1 0; min-width: 0; padding: 9px 6px; font-size: 11.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meal-photo-row .meal-photo-drop { border-color: var(--coral); color: var(--coral); }
+  .meal-photo-row .meal-photo-drop[hidden] { display: none; }
   .t9-food[hidden] { display: none; }
   /* A band across the card, not a gallery: at one-to-one these filled a third of it. */
   .t9-food .t9-f { flex: 1 1 0; min-width: 0; height: 62px; border-radius: 9px;
@@ -877,6 +888,13 @@
   .food-tag.dinner { background: var(--blue); } .food-tag.snack { background: var(--magenta); }
   .food-cal-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); color:#fff; font-size: 9px; font-weight:700; padding: 3px 7px; border-radius: 20px; }
   .food-time-tag { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: #fff; font-size: 9.5px; padding: 14px 6px 5px; }
+  /* Bottom right, over the time gradient, where it does not cover any of the food. */
+  .food-edit-dot { position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(10,6,22,0.72); color: rgba(255,255,255,0.88);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22); pointer-events: none; }
+  .food-edit-dot svg { width: 13px; height: 13px; }
+  .food-item:active .food-edit-dot { background: var(--blue); color: #0A0712; }
   .food-day-label { font-size: 12px; color: var(--ink-dim); margin: 18px 0 8px; font-family: var(--font-head); letter-spacing: .03em; text-transform: uppercase; font-weight: 600; }
   .macro-row { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
   .macro-row:first-child { border-top: none; }
@@ -1364,7 +1382,7 @@
         </div>
         <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
-        <div class="f9-note">Estimates round up rather than down. Tap any meal to move it to another sitting, fix the numbers, or change the portion.</div>
+        <div class="f9-note">Estimates round up rather than down. Tap any meal \u2014 the pencil on it \u2014 to change the picture, the words, the numbers, the portion or which sitting it belongs to.</div>
         <!-- Today only. The card is a true nine by sixteen now, and a fortnight of
              thumbnails underneath made it a scroll with no bottom; last week's meals
              are reachable where they are actually wanted, in "Had this again". -->
@@ -1648,7 +1666,14 @@
   <!-- Meal edit modal -->
   <div class="modal-inner" id="mealEditModal" style="display:none;">
     <h3>Edit meal</h3>
-    <img id="mealEditImg" style="width:100%; border-radius:10px; margin-bottom:12px;">
+    <img id="mealEditImg" class="meal-edit-img">
+    <div class="meal-photo-row">
+      <label class="food-upload-btn" for="mealEditCamera">&#128247; <span id="mealPhotoCamLabel">Take photo</span></label>
+      <label class="food-upload-btn" for="mealEditLibrary">&#128444;&#65039; <span id="mealPhotoLibLabel">Choose photo</span></label>
+      <button type="button" class="food-upload-btn meal-photo-drop" id="mealPhotoRemoveBtn">&#10005; Remove</button>
+    </div>
+    <input type="file" id="mealEditCamera" accept="image/*" capture="environment" style="display:none;">
+    <input type="file" id="mealEditLibrary" accept="image/*" style="display:none;">
     <div class="field" style="margin-bottom:8px;"><label>Which sitting</label>
       <div class="meal-reassign" id="mealEditWhich"></div>
     </div>
@@ -2276,7 +2301,33 @@
       if (fields.estimate !== undefined) row.estimate = fields.estimate;
       if (fields.meal !== undefined) row.meal = fields.meal;
       if (fields.user_note !== undefined) row.userNote = fields.user_note;
+      if (fields.photo_url !== undefined) row.url = fields.photo_url || "";
     }
+    if (fields.photo_url !== undefined) item.url = fields.photo_url || "";
+  }
+  /* The path inside the bucket, read back out of the public URL -- the only handle we
+     keep on the file once the row has the link. */
+  function mealPhotoPath(url) {
+    var m = /\/meal-photos\/(.+)$/.exec(url || "");
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  /* Put a new picture on a meal, or take the picture off it. The old file goes only
+     after the row no longer points at it, which is the same order the purge uses: an
+     orphaned file is a tidying job, a row pointing at a file that is gone is a hole in
+     somebody's log. */
+  async function setMealPhoto(item, dataUrl) {
+    var old = item.url || "";
+    var url = "";
+    if (dataUrl) {
+      var blob = await (await fetch(dataUrl)).blob();
+      var path = currentProfileId + "/" + Date.now() + "-" + Math.floor(Math.random() * 1e6) + ".jpg";
+      var up = await supabase.storage.from("meal-photos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
+      if (up.error) throw up.error;
+      url = supabase.storage.from("meal-photos").getPublicUrl(path).data.publicUrl;
+    }
+    await updateFoodRow(item, { photo_url: url });
+    var dead = mealPhotoPath(old);
+    if (dead && old !== url) { try { await supabase.storage.from("meal-photos").remove([dead]); } catch (e) {} }
   }
   async function deleteFoodEntry(item) {
     try { await supabase.from("food").delete().eq("id", item.id).eq("user_id", currentProfileId); } catch (e) {}
@@ -3179,8 +3230,8 @@
     document.getElementById("exHistoryTitle").textContent = exName + " — history";
     var listEl = document.getElementById("exHistoryList");
     listEl.innerHTML = '<div class="empty">Loading…</div>';
+    hideSheets("exHistoryModal");
     document.getElementById("exHistoryModal").style.display = "block";
-    document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("modalOverlay").classList.add("open");
 
     var hist = await getExerciseHistory(exName, 12);
@@ -4324,9 +4375,7 @@
     document.getElementById("giveOnPlan").value = GOOD.rates.onPlan;
     document.getElementById("giveWeek").value = GOOD.rates.streakWeek;
     renderGivenList();
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "againModal"].forEach(function (id) {
-      document.getElementById(id).style.display = "none";
-    });
+    hideSheets("giveModal");
     document.getElementById("giveModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -4651,9 +4700,7 @@
       "Your streak pays <b>" + pr.mult + "×</b>, and the list above takes it to <b>" + eff + "×</b>. " +
       "Each part is fed by one thing you do, and every number traces back to a row in the log.";
 
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "giveModal", "againModal"].forEach(function (id) {
-      document.getElementById(id).style.display = "none";
-    });
+    hideSheets("charModal");
     document.getElementById("charModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
@@ -5356,8 +5403,21 @@
           ? '<img src="' + it.url + '" alt="Food photo"' + noteAttr + '>'
           : '<span class="food-written"' + noteAttr + '>' +
               esc(it.userNote || (it.estimate && it.estimate.food) || "Written down") + '</span>';
+        /* The tile has always opened the editor; nothing on it said so. The note that
+           explained it is the first thing to go on a small card, so on a phone there
+           was no way to find out but to try. A pencil in the corner is the whole fix. */
         cell.innerHTML = face + '<span class="food-tag ' + meal + '">' + meal + '</span>' + calBadge +
-          '<span class="food-time-tag">' + (it.time || "") + '</span>';
+          '<span class="food-time-tag">' + (it.time || "") + '</span>' +
+          '<span class="food-edit-dot" aria-hidden="true">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+            'stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></svg></span>';
+        cell.setAttribute("role", "button");
+        cell.setAttribute("tabindex", "0");
+        cell.setAttribute("aria-label", "Edit " + meal + (it.time ? " at " + it.time : ""));
+        cell.onkeydown = function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openMealEdit(it); }
+        };
         cell.onclick = function () { openMealEdit(it); };
         grid.appendChild(cell);
       });
@@ -5520,9 +5580,7 @@
         });
       }
       document.getElementById("againMeal").textContent = selectedMeal;
-      ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "giveModal"].forEach(function (id) {
-        var el = document.getElementById(id); if (el) el.style.display = "none";
-      });
+      hideSheets("againModal");
       document.getElementById("againModal").style.display = "block";
       document.getElementById("modalOverlay").classList.add("open");
     }
@@ -5631,15 +5689,32 @@
       row.appendChild(b);
     });
   }
-  function openMealEdit(item) {
-    editingMeal = item;
-    document.getElementById("exHistoryModal").style.display = "none";
-    document.getElementById("mealEditModal").style.display = "block";
-    document.getElementById("modalOverlay").classList.add("open");
+  /* undefined: leave the picture alone. A data URL: put this one on it. null: take the
+     picture off. Nothing is uploaded or deleted until Save, so backing out of the sheet
+     leaves the meal exactly as it was. */
+  var editPhotoNext;
+  function mealPhotoShown() {
+    return editPhotoNext === undefined ? (editingMeal && editingMeal.url) || "" : (editPhotoNext || "");
+  }
+  function paintMealPhoto() {
+    var src = mealPhotoShown();
     var img = document.getElementById("mealEditImg");
     /* A written meal has no photo, and an <img> with no src draws a broken icon. */
-    if (item.url) { img.src = item.url; img.style.display = "block"; }
+    if (src) { img.src = src; img.style.display = "block"; }
     else { img.removeAttribute("src"); img.style.display = "none"; }
+    document.getElementById("mealPhotoRemoveBtn").hidden = !src;
+    var verb = src ? "Replace" : "Add";
+    document.getElementById("mealPhotoCamLabel").textContent = verb === "Add" ? "Take photo" : "Retake";
+    document.getElementById("mealPhotoLibLabel").textContent = verb === "Add" ? "Choose photo" : "Change";
+    document.getElementById("mealRerunBtn").textContent = src ? "Estimate with AI" : "Estimate from the description";
+  }
+  function openMealEdit(item) {
+    editingMeal = item;
+    editPhotoNext = undefined;
+    hideSheets("mealEditModal");
+    document.getElementById("mealEditModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+    paintMealPhoto();
     var est = item.estimate || {};
     editMealType = item.meal || "snack";
     renderMealReassign();
@@ -5648,10 +5723,23 @@
     document.getElementById("mealEditDesc").value = item.userNote || est.food || "";
     fillMealFields(est);
     applyPortion(editPortion);
-    document.getElementById("mealRerunBtn").textContent = item.url ? "Estimate with AI" : "Estimate from the description";
   }
   function wireMealEditModal() {
     document.getElementById("mealCancelBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
+    ["mealEditCamera", "mealEditLibrary"].forEach(function (id) {
+      document.getElementById(id).onchange = function (e) {
+        var file = e.target.files && e.target.files[0];
+        e.target.value = "";                       // so the same file can be picked twice
+        if (!file) return;
+        var fr = new FileReader();
+        fr.onload = function () { editPhotoNext = fr.result; paintMealPhoto(); };
+        fr.onerror = function () { showProblem("That picture could not be read."); };
+        fr.readAsDataURL(file);
+      };
+    });
+    document.getElementById("mealPhotoRemoveBtn").onclick = function () {
+      editPhotoNext = null; paintMealPhoto();
+    };
     document.getElementById("mealPortionUp").onclick = function () { applyPortion(editPortion + 0.25); };
     document.getElementById("mealPortionDown").onclick = function () { applyPortion(editPortion - 0.25); };
     /* Typing a calorie figure is the same statement as pressing +, so it moves the
@@ -5674,10 +5762,22 @@
         base: editBase, portion: editPortion,
         confidence: "manual"
       };
+      var btn = this, label = btn.textContent;
+      if (editPhotoNext !== undefined) {
+        btn.disabled = true; btn.textContent = "Saving\u2026";
+        try { await setMealPhoto(editingMeal, editPhotoNext); }
+        catch (e) {
+          btn.disabled = false; btn.textContent = label;
+          showProblem("The picture could not be saved. " + ((e && e.message) || "Try again."));
+          return;
+        }
+        btn.disabled = false; btn.textContent = label;
+      }
       await updateFoodRow(editingMeal, {
         estimate: est, meal: editMealType,
         user_note: document.getElementById("mealEditDesc").value || ""
       });
+      editPhotoNext = undefined;
       document.getElementById("modalOverlay").classList.remove("open");
       renderFood(); renderQuests(); liveRefresh();
     };
@@ -5691,8 +5791,11 @@
       try {
         var note = document.getElementById("mealEditDesc").value || "";
         var est;
-        if (editingMeal.url) {
-          var blob = await (await fetch(editingMeal.url)).blob();
+        var shown = mealPhotoShown();
+        if (shown && shown.slice(0, 5) === "data:") {
+          est = await estimateMeal(shown, note);     // a picture just chosen, still in hand
+        } else if (shown) {
+          var blob = await (await fetch(shown)).blob();
           var dataUrl = await new Promise(function (resolve, reject) {
             var fr = new FileReader();
             fr.onload = function () { resolve(fr.result); };
@@ -6378,6 +6481,11 @@
 
   /* ---- body sheet ---- */
   function hideSheets(except) {
+    /* Every sheet there is. Six openers used to carry their own copy of this list and
+       every copy was written before the last few sheets existed, so opening a meal
+       after the "had this again" sheet left both of them in the overlay at once and the
+       flex row squeezed the controls off the side of the screen. One list, and adding a
+       sheet means adding it here and nowhere else. */
     ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
      "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal"].forEach(function (id) {
       if (id === except) return;
@@ -6612,9 +6720,7 @@
         };
       });
     }
-    ["exHistoryModal", "mealEditModal", "planModal", "dropModal", "charModal", "giveModal", "againModal"].forEach(function (id) {
-      var el = document.getElementById(id); if (el) el.style.display = "none";
-    });
+    hideSheets("redeemModal");
     document.getElementById("redeemModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
