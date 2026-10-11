@@ -445,24 +445,30 @@
   /* The dots are buttons: a 7px circle is a fine thing to look at and a terrible
      thing to hit, so each one carries a 28px invisible target, and each is reachable
      by keyboard with the arrows on either side for a mouse. */
-  .pager-nav { display: flex; align-items: center; justify-content: center; gap: 2px; }
-  .pager-dots { display: flex; justify-content: center; align-items: center; gap: 0; flex-wrap: wrap; }
-  .pg-dot { appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
-    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border-radius: 8px; }
-  .pg-dot i { display: block; width: 7px; height: 7px; border-radius: 50%; background: var(--line);
-    transition: width .22s ease, background .22s ease; }
-  .pg-dot[aria-current="true"] i { background: var(--blue); width: 20px; border-radius: 4px; }
-  .pg-dot.done i { background: var(--teal); }
-  .pg-arrow { appearance: none; border: 0; background: transparent; color: var(--ink-faint);
-    width: 30px; height: 28px; border-radius: 9px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; }
-  .pg-arrow svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.2;
-    stroke-linecap: round; stroke-linejoin: round; }
-  .pg-arrow:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
-  .pg-arrow:disabled { opacity: .3; cursor: default; }
-  .pg-dot:focus-visible, .pg-arrow:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
-  @media (hover: none) { .pg-arrow { display: none; } }
+  /* The session, as a row of tabs. Five identical dots and two arrows told you how
+     many exercises there were and nothing else, and they sat at the foot of the card
+     -- exactly where the rest timer floats, so finishing a set covered the only way
+     to move. Names you can read, above the pager, where nothing floating can reach. */
+  .pager-nav { position: relative; margin-bottom: 9px; }
+  .ex-tabs { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    margin: 0 -14px; padding: 0 14px 3px; }
+  .ex-tabs::-webkit-scrollbar { display: none; }
+  /* a strip that runs off the edge has to look like it runs off the edge */
+  .pager-nav::after { content: ""; position: absolute; right: -14px; top: 0; bottom: 3px;
+    width: 26px; pointer-events: none; background: linear-gradient(90deg, rgba(26,20,48,0), var(--surface)); }
+  .ex-tab { flex: 0 0 auto; appearance: none; cursor: pointer; text-align: left;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.03); border-radius: 12px;
+    padding: 6px 11px 7px; color: var(--ink-faint); font-family: var(--font-body);
+    line-height: 1.15; position: relative; overflow: hidden; }
+  .ex-tab b { display: block; font-weight: 600; font-size: 12.5px; color: var(--ink-dim); white-space: nowrap; }
+  .ex-tab i { font-style: normal; font-size: 10px; opacity: .72; letter-spacing: .04em; }
+  .ex-tab-bar { position: absolute; left: 0; bottom: 0; height: 2.5px; background: var(--th);
+    transition: width .3s cubic-bezier(.22,1,.36,1); }
+  .ex-tab[aria-current="true"] { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.32); }
+  .ex-tab[aria-current="true"] b { color: var(--ink); }
+  .ex-tab.done b { color: var(--th); }
+  .ex-tab:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
   .t2-cardio-icon { flex: 0 0 56px; height: 56px; border-radius: 14px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; }
   .t2-cardio-icon svg { width: 26px; height: 26px; stroke: var(--teal); }
   .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
@@ -1357,6 +1363,9 @@
             <button class="timer-btn stop" id="sessionFinishBtn" style="display:none;">Finish</button>
           </div>
         </div>
+        <div class="pager-nav">
+          <div class="ex-tabs" id="exDots" role="tablist" aria-label="Exercises in this session"></div>
+        </div>
         <div class="pager" id="exerciseList">
           <div class="page cardio-page" id="cardioPage">
             <div class="ex-head" style="--tier:#12B886">
@@ -1379,15 +1388,6 @@
             <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
             <div class="cp-week" id="cardioWeek" hidden></div>
           </div>
-        </div>
-        <div class="pager-nav">
-          <button class="pg-arrow" id="exPrev" type="button" aria-label="Previous exercise">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-          </button>
-          <div class="pager-dots" id="exDots" role="tablist" aria-label="Exercises in this session"></div>
-          <button class="pg-arrow" id="exNext" type="button" aria-label="Next exercise">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-          </button>
         </div>
       </div>
     </section>
@@ -2171,29 +2171,120 @@
     }, 9000);
   }
 
-  async function getDayDoc(key) {
-    if (cache[key]) return cache[key];
-    var doc = { weight: null, cardio: null, sets: {}, sessionSeconds: null };
+  function blankDoc() { return { weight: null, cardio: null, sets: {}, sessionSeconds: null }; }
+  function rowToDoc(r) {
+    if (!r) return blankDoc();
+    return { weight: r.weight, cardio: r.cardio, sets: r.sets || {},
+             sessionSeconds: r.session_seconds,
+             cardioPhoto: r.cardio_photo_url ? { url: r.cardio_photo_url } : null };
+  }
+  /* Straight from the server, past the cache. A write has to know what it is about to
+     replace, and the cache is exactly the thing that does not. */
+  async function readDayRow(key) {
     try {
       var { data } = await supabase.from("days").select("*").eq("user_id", currentProfileId).eq("date", key).maybeSingle();
-      if (data) doc = { weight: data.weight, cardio: data.cardio, sets: data.sets || {}, sessionSeconds: data.session_seconds, cardioPhoto: data.cardio_photo_url ? { url: data.cardio_photo_url } : null };
-    } catch (e) {}
+      return data || null;
+    } catch (e) { return null; }
+  }
+  async function getDayDoc(key) {
+    if (cache[key]) return cache[key];
+    var doc = rowToDoc(await readDayRow(key));
     cache[key] = doc;
     return doc;
   }
-  async function saveDayDoc(key, data) {
-    cache[key] = data;
-    /* Every weight written anywhere goes through here, so this is the one place that
-       cannot be forgotten. Without it, logging a weight left the maintenance figure --
-       and so the day's calorie target -- reading the previous one until something
-       else happened to redraw the whole app. */
-    recomputeLatestWeight();
+
+  /* ---- one day row, more than one device ----
+     A day is a single row with the whole day inside it, so every write replaces the
+     lot. That was fine while one screen was open. It is not: a laptop left on the
+     Train tab with the session clock running flushed the entire row every five
+     seconds, from whatever that tab happened to remember, and a set logged on the
+     phone survived until the laptop's next tick and then did not.
+
+     So nothing writes a row it remembered. A write re-reads the row it is about to
+     replace, applies only the fields it was actually asked to change, and sends that.
+     Writes to the same day queue behind each other, because two of them interleaving
+     their own read-then-write is the same bug on one device. */
+  var writeChain = {};
+  function queueDayWrite(key, job) {
+    var next = (writeChain[key] || Promise.resolve()).catch(function () {}).then(job);
+    writeChain[key] = next;
+    return next;
+  }
+  async function mutateDay(key, change) {
+    return queueDayWrite(key, async function () {
+      var doc = rowToDoc(await readDayRow(key));
+      change(doc);
+      cache[key] = doc;
+      /* Every weight written anywhere comes through here, so this is the one place
+         that cannot be forgotten. Without it, logging a weight left the maintenance
+         figure -- and so the day's calorie target -- reading the previous one until
+         something else happened to redraw the whole app. */
+      recomputeLatestWeight();
+      try {
+        await supabase.from("days").upsert({
+          user_id: currentProfileId, date: key, weight: doc.weight, cardio: doc.cardio, sets: doc.sets,
+          session_seconds: doc.sessionSeconds, cardio_photo_url: doc.cardioPhoto ? doc.cardioPhoto.url : null
+        }, { onConflict: "user_id,date" });
+      } catch (e) {}
+      return doc;
+    });
+  }
+  /* Drop a day and draw it again from the server. This is what makes two screens
+     agree without either being refreshed by hand: the tab you come back to asks what
+     happened while it was away. A write still in flight is waited for first, and a
+     half-typed field is left alone -- a redraw that eats what you are typing is
+     worse than a number that is a few seconds old. */
+  /* What the day actually says, for comparing one copy against another. The reserved
+     slots are left out on purpose: the session clock rewrites its own slot every five
+     seconds on whichever screen is running it, and a redraw every five seconds because
+     a clock ticked is not news. */
+  function daySig(doc) {
+    if (!doc) return "";
+    var sets = doc.sets || {}, out = [];
+    Object.keys(sets).sort().forEach(function (k) {
+      if (!Array.isArray(sets[k])) return;
+      out.push(k + ":" + sets[k].map(function (r) {
+        return r ? (r.done ? 1 : 0) + "/" + (r.reps == null ? "" : r.reps) + "/" + (r.weight == null ? "" : r.weight) : "-";
+      }).join(","));
+    });
     try {
-      await supabase.from("days").upsert({
-        user_id: currentProfileId, date: key, weight: data.weight, cardio: data.cardio, sets: data.sets,
-        session_seconds: data.sessionSeconds, cardio_photo_url: data.cardioPhoto ? data.cardioPhoto.url : null
-      }, { onConflict: "user_id,date" });
-    } catch (e) {}
+      return out.join("|") + "#" + doc.weight + "#" + JSON.stringify(doc.cardio || null) +
+             "#" + ((doc.cardioPhoto && doc.cardioPhoto.url) || "");
+    } catch (e) { return out.join("|"); }
+  }
+  /* While the page is up and in front, ask every so often whether the other screen has
+     logged anything. The clock already did exactly this for itself -- which is why it
+     stayed in step while the sets did not -- so the sets get the same treatment. */
+  var DAY_POLL_MS = 20000;
+  async function pollSelectedDay() {
+    if (document.hidden || !currentProfileId || dayRefreshing) return;
+    var key = dateKey(selectedDate);
+    if (writeChain[key]) { try { await writeChain[key]; } catch (e) {} }
+    var fresh = rowToDoc(await readDayRow(key));
+    if (daySig(cache[key]) === daySig(fresh)) return;
+    await refreshSelectedDay();
+  }
+  var dayRefreshing = false;
+  async function refreshSelectedDay() {
+    if (dayRefreshing || !currentProfileId) return;
+    var el = document.activeElement;
+    if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+    if (document.querySelector("#modalOverlay.open")) return;
+    dayRefreshing = true;
+    try {
+      var key = dateKey(selectedDate);
+      await (writeChain[key] || Promise.resolve()).catch(function () {});
+      delete cache[key];
+      /* A redraw rebuilds the pager and sends it back to the first exercise. Coming
+         back to the phone on exercise four and finding yourself on exercise one is
+         its own small theft, so the page you were on is put back. */
+      var page = currentPage();
+      await renderAll();
+      await renderHistory();
+      var list = document.getElementById("exerciseList");
+      if (list && list.children[page]) list.scrollLeft = page * (list.children[0].offsetWidth + 12);
+      markPagerDot();
+    } catch (e) {} finally { dayRefreshing = false; }
   }
   /* computeStreak, the previous-weight lookup and the summary card all walk backwards
      through dates, and each was doing a round trip per day -- sixty queries to draw one
@@ -2294,7 +2385,7 @@
     for (var i = 0; i < SEED_WEIGHTS.length; i++) {
       var s = SEED_WEIGHTS[i];
       var existing = await getDayDoc(s.date);
-      if (existing.weight == null) { existing.weight = s.weight; await saveDayDoc(s.date, existing); }
+      if (existing.weight == null) await mutateDay(s.date, function (d) { d.weight = s.weight; });
     }
   }
   async function loadFoodLog() {
@@ -2783,13 +2874,15 @@
     }
     return st;
   }
+  /* The clock touches the clock. It used to send the whole day every five seconds,
+     which is how it came to own everybody else's sets. */
   async function persistSession(dayKey, st) {
     try {
-      var doc = await getDayDoc(dayKey);
-      doc.sets = doc.sets || {};
-      doc.sets[SESSION_SLOT] = { acc: st.acc, startedAt: st.startedAt, finished: st.finished, at: st.at };
-      doc.sessionSeconds = st.acc;
-      await saveDayDoc(dayKey, doc);
+      await mutateDay(dayKey, function (doc) {
+        doc.sets = doc.sets || {};
+        doc.sets[SESSION_SLOT] = { acc: st.acc, startedAt: st.startedAt, finished: st.finished, at: st.at };
+        doc.sessionSeconds = st.acc;
+      });
     } catch (e) {}
   }
   /* Read past the day cache for the session slot alone, so the other device's clock
@@ -2970,7 +3063,12 @@
       var key = dateKey(selectedDate);
       if (document.visibilityState === "hidden") { bankSessionQuietly(); return; }
       adoptRemoteSession(key);
+      /* Coming back to a tab is the moment it is most likely to be wrong: the other
+         screen has had it all to itself. */
+      pollSelectedDay();
     });
+    window.addEventListener("focus", function () { pollSelectedDay(); });
+    setInterval(pollSelectedDay, DAY_POLL_MS);
   }
 
   /* ===================== REST TIMER ===================== */
@@ -3140,6 +3238,7 @@
     if (meter) meter.style.width = (pct * 100) + "%";
     var count = block.querySelector(".ex-count");
     if (count) count.textContent = done + " / " + total;
+    paintPagerTabs();
   }
 
   var REST_DAY = { name: "Rest day", type: "cardio", cardio: { min: 0 }, ex: [] };
@@ -3481,6 +3580,12 @@
       ? (prog.cardio.note || "anything on your feet counts")
       : (prog.cardio.incline + "% incline · " + prog.cardio.speed + " mph" + (prog.type === "cardio" ? " · dedicated cardio day" : " · after lifting"));
     document.getElementById("cardioMin").value = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : prog.cardio.min;
+    /* The minutes box is pre-filled with what the day asks for, so reading it back
+       would say every cardio was finished before it was started. What the tab wants
+       is the saved number, which is the only one that means anything. */
+    var cpg = document.getElementById("cardioPage");
+    cpg.dataset.ask = prog.cardio.min || 0;
+    cpg.dataset.logged = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : "";
     document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
     document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : (prog.cardio.speed != null ? prog.cardio.speed : "");
     document.getElementById("cardioSaved").textContent = doc.cardio && doc.cardio.min != null ? "Logged" : "";
@@ -3541,15 +3646,20 @@
   }
 
   async function persistSet(key, exName, row) {
-    var doc = await getDayDoc(key);
-    doc.sets = doc.sets || {}; doc.sets[exName] = doc.sets[exName] || [];
     var setIdx = parseInt(row.getAttribute("data-set"), 10);
     var reps = row.querySelector(".reps-input").value;
     var wtInput = row.querySelector(".wt-input");
     var weight = wtInput.disabled ? null : wtInput.value;
     var done = row.querySelector(".mini-done").getAttribute("data-done") === "1";
-    doc.sets[exName][setIdx] = { reps: reps === "" ? null : Number(reps), weight: weight === "" || weight === null ? null : Number(weight), done: done };
-    await saveDayDoc(key, doc);
+    /* One set, by name and index, into whatever the row says right now. Everything
+       else in the day -- including sets of this same exercise logged on the other
+       screen a moment ago -- is left exactly as it was found. */
+    var doc = await mutateDay(key, function (d) {
+      d.sets = d.sets || {};
+      if (!Array.isArray(d.sets[exName])) d.sets[exName] = [];
+      d.sets[exName][setIdx] = { reps: reps === "" ? null : Number(reps),
+        weight: weight === "" || weight === null ? null : Number(weight), done: done };
+    });
     if (done) checkUpgrade(exName, weight === "" || weight === null ? null : Number(weight), reps === "" ? null : Number(reps));
     renderQuests();
     liveRefresh();
@@ -3682,12 +3792,12 @@
   }
   async function redeemDay(key, minutes) {
     var todayK = dateKey(new Date());
-    var doc = await getDayDoc(key);
-    if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
-    var m = redeemMap(doc) || {};
-    m[todayK] = (Number(m[todayK]) || 0) + minutes;
-    doc.sets[REDEEM_SLOT] = m;
-    await saveDayDoc(key, doc);
+    await mutateDay(key, function (doc) {
+      if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
+      var m = redeemMap(doc) || {};
+      m[todayK] = (Number(m[todayK]) || 0) + minutes;
+      doc.sets[REDEEM_SLOT] = m;
+    });
   }
 
   /* How much of the meals share a day has earned.
@@ -4965,21 +5075,59 @@
     var step = Math.max(1, list.children[0].offsetWidth + 12);
     return Math.max(0, Math.min(list.children.length - 1, Math.round(list.scrollLeft / step)));
   }
+  /* How far through a page you are, read off the page itself rather than kept
+     anywhere: whatever the set rows say is the truth, so a tab can never disagree
+     with the exercise it names. Cardio counts minutes because cardio has no sets. */
+  function pageProgress(pg) {
+    var head = pg.querySelector(".ex-head");
+    var hue = (head && head.style.getPropertyValue("--tier")) || "#6E9BFF";
+    if (pg.id === "cardioPage") {
+      var ask = parseInt(pg.dataset.ask, 10) || 0;
+      var got = pg.dataset.logged === "" || pg.dataset.logged == null ? null : parseInt(pg.dataset.logged, 10);
+      if (got == null) return { hue: hue, frac: 0, full: false,
+                                sub: ask ? "0 of " + ask + " min" : "not logged" };
+      return { hue: hue, frac: ask ? Math.min(1, got / ask) : 1,
+               full: ask > 0 ? got >= ask : got > 0,
+               sub: ask ? got + " of " + ask + " min" : got + " min" };
+    }
+    var rows = Array.from(pg.querySelectorAll(".set-split-row"));
+    var done = rows.filter(function (r) {
+      return r.querySelector(".mini-done").getAttribute("data-done") === "1";
+    }).length;
+    return { hue: hue, frac: rows.length ? done / rows.length : 0,
+             full: rows.length > 0 && done === rows.length,
+             sub: done + " of " + rows.length };
+  }
   function renderPagerDots() {
     var list = document.getElementById("exerciseList");
     var dots = document.getElementById("exDots");
     if (!list || !dots) return;
-    var pages = Array.from(list.children);
-    dots.innerHTML = pages.map(function (pg, i) {
-      var done = !!pg.querySelector(".ex-crest.complete");
-      return '<button type="button" role="tab" class="pg-dot' + (done ? " done" : "") +
-        '" data-i="' + i + '" aria-label="' + esc(pageName(pg, i)) + (done ? ", finished" : "") +
-        '" aria-current="false"><i></i></button>';
+    dots.innerHTML = Array.from(list.children).map(function (pg, i) {
+      var pr = pageProgress(pg), nm = pageName(pg, i);
+      return '<button type="button" role="tab" class="ex-tab' + (pr.full ? " done" : "") +
+        '" data-i="' + i + '" style="--th:' + attrSafe(pr.hue) + '"' +
+        ' aria-label="' + esc(nm) + ', ' + esc(pr.sub) + '" aria-current="false">' +
+        '<b>' + esc(nm) + '</b><i>' + esc(pr.sub) + '</i>' +
+        '<span class="ex-tab-bar" style="width:' + Math.round(pr.frac * 100) + '%"></span></button>';
     }).join("");
     Array.from(dots.children).forEach(function (d, i) {
       d.onclick = function () { gotoPage(i); };
     });
     markPagerDot();
+  }
+  /* Repaint the counts without rebuilding the strip, so a tab you are looking at does
+     not jump out from under your thumb when a set lands. */
+  function paintPagerTabs() {
+    var list = document.getElementById("exerciseList");
+    var dots = document.getElementById("exDots");
+    if (!list || !dots || dots.children.length !== list.children.length) return;
+    Array.from(list.children).forEach(function (pg, i) {
+      var pr = pageProgress(pg), tab = dots.children[i];
+      tab.classList.toggle("done", pr.full);
+      var sub = tab.querySelector("i"), bar = tab.querySelector(".ex-tab-bar");
+      if (sub) sub.textContent = pr.sub;
+      if (bar) bar.style.width = Math.round(pr.frac * 100) + "%";
+    });
   }
   function markPagerDot() {
     var list = document.getElementById("exerciseList");
@@ -4989,9 +5137,14 @@
     Array.from(dots.children).forEach(function (d, j) {
       d.setAttribute("aria-current", j === i ? "true" : "false");
     });
-    var prev = document.getElementById("exPrev"), next = document.getElementById("exNext");
-    if (prev) prev.disabled = i <= 0;
-    if (next) next.disabled = i >= list.children.length - 1;
+    /* the tab for the page you are on has to be a tab you can see */
+    var here = dots.children[i];
+    if (here) {
+      var l = here.offsetLeft, r = l + here.offsetWidth;
+      if (l < dots.scrollLeft + 8) dots.scrollTo({ left: Math.max(0, l - 14), behavior: "smooth" });
+      else if (r > dots.scrollLeft + dots.clientWidth - 8)
+        dots.scrollTo({ left: r - dots.clientWidth + 14, behavior: "smooth" });
+    }
   }
   function wirePager() {
     var list = document.getElementById("exerciseList");
@@ -4999,11 +5152,10 @@
     list.addEventListener("scroll", function () {
       clearTimeout(list._t); list._t = setTimeout(markPagerDot, 80);
     });
-    var prev = document.getElementById("exPrev"), next = document.getElementById("exNext");
-    if (prev) prev.onclick = function () { gotoPage(currentPage() - 1); };
-    if (next) next.onclick = function () { gotoPage(currentPage() + 1); };
-    /* Arrows step through the session, but only when they are not being used to move
-       a caret: typing reps into a set must never jump you to the next exercise. */
+    /* The arrow keys step through the session, but only when they are not being used
+       to move a caret: typing reps into a set must never jump you to the next
+       exercise. The on-screen arrows are gone -- the tabs name every page, so a
+       control whose whole job was "the one after this" had nothing left to say. */
     document.addEventListener("keydown", function (e) {
       var panel = document.getElementById("panel-train");
       if (!panel || !panel.classList.contains("active")) return;
@@ -5396,10 +5548,9 @@
 
   function wireQuickSaves() {
     document.getElementById("saveWeightBtn").onclick = async function () {
-      var key = dateKey(selectedDate); var doc = await getDayDoc(key);
+      var key = dateKey(selectedDate);
       var val = document.getElementById("weightInput").value;
-      doc.weight = val === "" ? null : Number(val);
-      await saveDayDoc(key, doc);
+      var doc = await mutateDay(key, function (d) { d.weight = val === "" ? null : Number(val); });
       document.getElementById("weightSaved").textContent = "Logged";
       /* Three of the four cards made a noise when you logged something and this one
          did not, which made the weigh-in feel like the one that did not count. */
@@ -5411,7 +5562,7 @@
       renderHistory(); renderQuests(); renderTopStats(); renderPlanLabels(); liveRefresh();
     };
     document.getElementById("saveCardioBtn").onclick = async function () {
-      var key = dateKey(selectedDate); var doc = await getDayDoc(key);
+      var key = dateKey(selectedDate);
       var free = cardioFree(PROGRAM[selectedDate.getDay()]);
       var min = numOrNull(document.getElementById("cardioMin").value);
       var incline = free ? null : numOrNull(document.getElementById("cardioIncline").value);
@@ -5419,9 +5570,13 @@
       var calories = free
         ? await estimateCardioCalories(min, null, null, 3.3)
         : ((min != null && speed != null) ? await estimateCardioCalories(min, incline || 0, speed) : null);
-      doc.cardio = { min: min, incline: incline, speed: speed, calories: calories };
-      await saveDayDoc(key, doc);
+      var doc = await mutateDay(key, function (d) {
+        d.cardio = { min: min, incline: incline, speed: speed, calories: calories };
+      });
       document.getElementById("cardioSaved").textContent = "Logged";
+      var cpg = document.getElementById("cardioPage");
+      cpg.dataset.logged = min == null ? "" : min;
+      paintPagerTabs();
       sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
       document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
       if (doc.cardio.min != null) fireFeedback("cardio", free
@@ -5716,7 +5871,6 @@
       var reader = new FileReader();
       reader.onload = async function () {
         var key = dateKey(selectedDate);
-        var doc = await getDayDoc(key);
         var url = reader.result;
         try {
           var blob = await (await fetch(reader.result)).blob();
@@ -5724,8 +5878,7 @@
           var up = await supabase.storage.from("meal-photos").upload(path, blob, { contentType: blob.type || "image/jpeg" });
           if (!up.error) { var pub = supabase.storage.from("meal-photos").getPublicUrl(path); url = pub.data.publicUrl; }
         } catch (err) {}
-        doc.cardioPhoto = { url: url };
-        await saveDayDoc(key, doc);
+        await mutateDay(key, function (d) { d.cardioPhoto = { url: url }; });
         var prev = document.getElementById("cardioPhotoPreview");
         prev.src = url; prev.style.display = "block";
       };
@@ -6716,9 +6869,7 @@
          a weigh-in, the first point of the graph, and everything that reads a weight
          reads it from the day's own row. */
       var key = dateKey(new Date());
-      var doc = await getDayDoc(key);
-      doc.weight = f.weight;
-      await saveDayDoc(key, doc);
+      await mutateDay(key, function (d) { d.weight = f.weight; });
       var maint = suggestMaintenance(f.weight);
       PLAN.maintenance = maint;
       PLAN.refWeight = f.weight;       // calibrated here, so it moves with the scales
