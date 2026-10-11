@@ -304,8 +304,36 @@
   .t9-tog[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,0.32);
     background: rgba(255,255,255,0.09); }
   .t9-coach.off { display: none; }
+  /* ---- the seven-day read ---- */
+  .wk-tot { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+  .wk-tot div { border: 1px solid var(--line); border-radius: 11px; padding: 7px 4px; text-align: center; }
+  .wk-tot b { display: block; font-family: var(--font-head); font-size: 17px; }
+  .wk-tot span { display: block; font-size: 9px; letter-spacing: .07em; color: var(--ink-faint); margin-top: 2px; }
+  .wk-table { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 11px; }
+  .wk-row { display: grid; grid-template-columns: 38px 1fr 1fr 1fr 34px; gap: 4px; align-items: center;
+    padding: 6px 9px; font-size: 11px; border-top: 1px solid var(--line); }
+  .wk-row:first-child { border-top: 0; }
+  .wk-row.head { font-size: 9px; letter-spacing: .07em; color: var(--ink-faint);
+    background: rgba(255,255,255,0.04); }
+  .wk-row.won { background: rgba(63,224,168,0.08); }
+  .wk-row.blank { opacity: .45; }
+  .wk-row b { font-family: var(--font-head); font-weight: 400; font-size: 12px; }
+  .wk-row .wk-sc { text-align: right; font-family: var(--font-head); font-size: 13px; }
+  .wk-row.won .wk-sc { color: var(--teal); }
+  .wk-miss { color: rgba(255,255,255,0.3); }
+  .wk-read { font-size: 12.5px; line-height: 1.55; color: var(--ink-dim); }
+  .wk-read p { margin: 0 0 9px; }
+  .wk-read p:last-child { margin-bottom: 0; }
+  .wk-read.waiting { opacity: .5; }
   /* The line the day has outgrown, on its way to being replaced. */
   .t9-coach.stale { opacity: 0.42; transition: opacity .25s ease; }
+  /* The read is three paragraphs and the card has room for about two lines, so the
+     card carries the part worth two lines: what to do tomorrow. Tapping opens the
+     whole thing next to the seven days it came from. max-height backs the clamp up,
+     because a clamp alone is one -webkit- prefix away from being ignored. */
+  .t9-coach { cursor: pointer; display: -webkit-box; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; overflow: hidden; max-height: calc(2 * 11px * 1.45 + 14px); }
+  .t9-coach[hidden] { display: none; }
   /* Three toggles plus two buttons is a lot of row on a small card, and the reward
      button -- the one with the variable text -- was the one that lost. */
   .c9-compact .t9-tog { width: 29px; }
@@ -394,10 +422,6 @@
   .c9-compact .fg-n { font-size: 12px; }
   .c9-compact .fg-d { font-size: 9px; }
   .c9-compact .fg-add { font-size: 10px; padding: 1px 6px; }
-  .c9-compact .fg-arm { gap: 2px; }
-  /* The mirror of compact. A big phone left the figure centred in its own column
-     with thirty pixels of nothing above and below it; rather than pad it out, the
-     figure itself grows into the room -- bigger rings, bigger nodes, wider gaps. */
   .c9-roomy .fg-node { width: 44px; height: 44px; border-radius: 12px; }
   .c9-roomy .fg-node svg { width: 20px; height: 20px; }
   .c9-roomy .fg-node em { font-size: 7.5px; }
@@ -1425,6 +1449,12 @@
               <path d="M17 3c-1.5 2-2 4-2 6s.5 3 2 3 2-1 2-3-.5-4-2-6z"/><path d="M17 12v9"/>
             </svg><span class="sr-only" id="t9FoodLabel">What you ate</span>
           </button>
+          <button class="t9-tog" id="t9WeekBtn" type="button"
+                  aria-label="The last seven days" title="The last seven days">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/>
+            </svg><span class="sr-only">The last seven days</span>
+          </button>
           <button class="t9-btn drop" id="rkDropBtn" type="button" hidden></button>
           <button class="t9-btn share" id="scOpenBtn" type="button">Share</button>
         </div>
@@ -1661,6 +1691,17 @@
     <div class="modal-actions">
       <button class="close-btn" id="planCancelBtn">Cancel</button>
       <button class="primary-btn" id="planSaveBtn">Save plan</button>
+    </div>
+  </div>
+
+  <!-- Seven days, and what they add up to -->
+  <div class="modal-inner" id="weekModal" style="display:none;">
+    <h3 id="weekTitle">The last seven days</h3>
+    <div class="wk-tot" id="weekTotals"></div>
+    <div class="wk-table" id="weekTable"></div>
+    <div class="wk-read" id="weekRead"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="weekCloseBtn" style="width:100%;">Close</button>
     </div>
   </div>
 
@@ -2176,7 +2217,6 @@
   function dateKey(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
   function fmtLabel(d) { return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); }
   function isToday(d) { return dateKey(d) === dateKey(new Date()); }
-  var lastScoreData = null;
   function vibrate(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch(e) {} }
 
   // Calls our Netlify function, which calls Claude's API server-side (see netlify/functions/ask-claude.js)
@@ -3836,7 +3876,6 @@
       if (typedMaint !== PLAN.maintenance || PLAN.refWeight == null) PLAN.refWeight = latestWeightLb;
       await savePlan();
       document.getElementById("modalOverlay").classList.remove("open");
-      lastScoreData = null;
       await renderAll();
       showToast("Plan saved — eat " + fmtInt(planIntake()) + " kcal a day.", false);
     };
@@ -6677,17 +6716,20 @@
       summaryShowCoach = !summaryShowCoach;
       coachTouched = true;
       this.setAttribute("aria-pressed", summaryShowCoach ? "true" : "false");
-      applyCardToggles();
+      /* The band takes its room from the figure, so the card has to be measured
+         again -- and measured from scratch, so turning it back off gives the room
+         back instead of leaving the figure small for the rest of the session. */
+      applyCardToggles(); sizeCards();
     };
     document.getElementById("t9WeightBtn").onclick = function () {
       summaryShowWeight = !summaryShowWeight;
       this.setAttribute("aria-pressed", summaryShowWeight ? "true" : "false");
-      applyCardToggles();
+      applyCardToggles(); sizeCards();
     };
     document.getElementById("t9FoodBtn").onclick = function () {
       summaryShowFood = !summaryShowFood;
       this.setAttribute("aria-pressed", summaryShowFood ? "true" : "false");
-      applyCardToggles();
+      applyCardToggles(); sizeCards();
     };
 
     /* Share hands the picture to whatever the phone offers -- Messages, Photos, AirDrop.
@@ -7096,7 +7138,7 @@
        sheet means adding it here and nowhere else. */
     ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
      "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal",
-     "setEditModal"].forEach(function (id) {
+     "setEditModal", "weekModal"].forEach(function (id) {
       if (id === except) return;
       var el = document.getElementById(id); if (el) el.style.display = "none";
     });
@@ -7369,45 +7411,6 @@
     return Math.max(0, 1 - (PLAN.floor - cal) / 400);
   }
 
-  async function computeDailyScore() {
-    var key = dateKey(selectedDate);
-    var doc = await getDayDoc(key);
-    var prog = PROGRAM[selectedDate.getDay()];
-    if (foodCache.length === 0) { try { await loadFoodLog(); } catch(e){} }
-    var todayFood = foodCache.filter(function (f) { return f.date === key; });
-    var weightsPct = null, weightsDetail = "";
-    if (prog.type === "lift") {
-      var totalSets = 0, doneSets = 0;
-      prog.ex.forEach(function (exx) { totalSets += exx.sets; var s = (doc.sets && doc.sets[exx.name]) || []; s.forEach(function (r) { if (r && r.done) doneSets++; }); });
-      weightsPct = totalSets > 0 ? Math.round((doneSets / totalSets) * 100) : 0;
-      weightsDetail = doneSets + " / " + totalSets + " sets";
-    } else { weightsDetail = "rest day — no lifting scheduled"; }
-    var actualMin = (doc.cardio && doc.cardio.min) || 0;
-    var cardioPct = Math.round(Math.min(1, actualMin / prog.cardio.min) * 100);
-    var cardioDetail = actualMin + " / " + prog.cardio.min + " min";
-    var skipped = readSkipped(key);
-    var mealsPct = 0, mealsDetail = "no meals logged";
-    if (todayFood.length === 0 && skipped.length) {
-      mealsDetail = "no meals logged; " + skipped.join(", ") + " deliberately skipped";
-    }
-    if (todayFood.length > 0) {
-      var calTotal = 0, hasEstimate = false;
-      todayFood.forEach(function (f) { if (f.estimate) { hasEstimate = true; calTotal += f.estimate.calories || 0; } });
-      mealsPct = 50;
-      if (hasEstimate) {
-        mealsPct += Math.round(50 * calorieScore(calTotal));
-        mealsDetail = todayFood.length + " meals logged, ~" + fmtInt(calTotal) + " kcal est. (aim " +
-          fmtInt(PLAN.floor) + "–" + fmtInt(planIntake()) + ", maintenance " + fmtInt(effectiveMaintenance()) + ")";
-      }
-      else { mealsPct += 30; mealsDetail = todayFood.length + " meal photo(s) logged"; }
-    }
-    /* The card used to carry two numbers for the same day -- a weighted average here
-       and the out-of-a-hundred reading on the bar below it -- and they never agreed.
-       There is one reading now, and it is the one that decides whether the day is won. */
-    var overall = dayBlows(prog, doc, todayFood).score;
-    return { overall: overall, dayType: prog.type, weightLogged: doc.weight != null, skipped: skipped,
-      weights: { pct: weightsPct, detail: weightsDetail }, cardio: { pct: cardioPct, detail: cardioDetail }, meals: { pct: mealsPct, detail: mealsDetail } };
-  }
   /* The fight, the score and the gear all move as you log, but each walks the whole
      history to do it, so a flurry of taps coalesces into one redraw. */
   var liveTimer = null;
@@ -7416,24 +7419,6 @@
     liveTimer = setTimeout(function () { renderInlineScore(); renderRank(); }, 450);
   }
 
-  /* The score used to exist only behind a button and only for whichever day you were
-     on when you pressed it, so walking back through the week meant pressing it again on
-     every single day and waiting for the coach each time. It is now part of the day: it
-     redraws with everything else whenever the date changes, and the coach line is kept
-     per day so a day you have already read costs nothing to read again. */
-  var RANKS = [
-    { min: 90, letter: "S", color: "#FFD166", glow: "rgba(255,209,102,0.55)", word: "Flawless" },
-    { min: 80, letter: "A", color: "#12B886", glow: "rgba(18,184,134,0.5)",  word: "Strong" },
-    { min: 70, letter: "B", color: "#3DD6D0", glow: "rgba(61,214,208,0.45)", word: "Solid" },
-    { min: 58, letter: "C", color: "#2E6BFF", glow: "rgba(46,107,255,0.45)", word: "Holding" },
-    { min: 42, letter: "D", color: "#E0417C", glow: "rgba(224,65,124,0.4)",  word: "Slipping" },
-    { min: 20, letter: "E", color: "#FF6B4A", glow: "rgba(255,107,74,0.4)",  word: "Thin" },
-    { min: -1, letter: "F", color: "#9599AC", glow: "rgba(149,153,172,0.3)", word: "Empty" }
-  ];
-  function rankFor(score) {
-    for (var i = 0; i < RANKS.length; i++) if (score >= RANKS[i].min) return RANKS[i];
-    return RANKS[RANKS.length - 1];
-  }
   function coachKeyFor(dayKey) { return "aaslog:coach:" + (currentProfileId || "anon") + ":" + dayKey; }
   function readCoach(dayKey) {
     try {
@@ -7456,87 +7441,255 @@
      So cache it against the thing it was actually written from: the prompt. Same facts,
      same line, no request. Any change the coach would have something to say about
      changes the prompt, which changes this, which fetches a new one. */
-  function coachSig(sd) {
-    var str = scoreContext(sd), h = 5381;
+  /* ===================== THE WEEK, READ BACK ===================== */
+  /* One honest line per day for the last seven, and then the things only a week can
+     say: which weekday keeps costing you, whether the weight is actually moving, and
+     which of the four parts is the lever rather than the loudest. A day at a time
+     cannot see any of that, which is why the coach kept saying the same three things
+     every evening. Everything here is read off the same day records the score is, so
+     the read and the card can never disagree. */
+  async function weekDigest(end) {
+    var days = [], d = new Date(end);
+    d.setDate(d.getDate() - 6);
+    for (var i = 0; i < 7; i++) {
+      var k = dateKey(d);
+      var doc = await getDayDoc(k);
+      var prog = PROGRAM[d.getDay()] || REST_DAY;
+      var rows = foodCache.filter(function (f) { return f.date === k; });
+      var bl = dayBlows(prog, doc, rows);
+      var cal = 0, pro = 0, est = 0;
+      rows.forEach(function (f) {
+        var e = f.estimate; if (!e || !e.calories) return;
+        est++; cal += e.calories; pro += e.protein_g || 0;
+      });
+      var walked = ((doc.cardio && doc.cardio.min) || 0) + redeemedMinutes(doc);
+      days.push({
+        blows: bl.blows, key: k, dow: d.getDay(),
+        label: d.toLocaleDateString(undefined, { weekday: "short" }),
+        name: prog.name, isLift: bl.isLift, score: bl.score, won: bl.won,
+        doneSets: bl.doneSets, totalSets: bl.totalSets,
+        cardioMin: walked, cardioWant: (prog.cardio && prog.cardio.min) || 0,
+        cal: est ? Math.round(cal) : null, protein: est ? Math.round(pro) : null,
+        meals: rows.length, mealWhy: bl.mealWhy, weight: doc.weight,
+        touched: bl.score > 0 || rows.length > 0 || doc.weight != null
+      });
+      d.setDate(d.getDate() + 1);
+    }
+
+    var t = { won: 0, logged: 0, score: 0, setsDone: 0, setsAsked: 0, liftDays: 0,
+              cardioDone: 0, cardioAsked: 0, calDays: 0, calSum: 0, proSum: 0,
+              over: 0, under: 0, inWindow: 0, weighed: 0, noFood: 0 };
+    var eat = planIntake();
+    days.forEach(function (x) {
+      if (x.touched) { t.logged++; t.score += x.score; }
+      if (x.won) t.won++;
+      if (x.isLift) { t.liftDays++; t.setsDone += x.doneSets; t.setsAsked += x.totalSets; }
+      t.cardioDone += x.cardioMin; t.cardioAsked += x.cardioWant;
+      if (x.cal == null) { if (x.touched) t.noFood++; }
+      else {
+        t.calDays++; t.calSum += x.cal; t.proSum += x.protein || 0;
+        if (x.cal > eat) t.over++; else if (x.cal < PLAN.floor) t.under++; else t.inWindow++;
+      }
+      if (x.weight != null) t.weighed++;
+    });
+    t.avgScore = t.logged ? Math.round(t.score / t.logged) : 0;
+    t.avgCal = t.calDays ? Math.round(t.calSum / t.calDays) : null;
+    t.avgProtein = t.calDays ? Math.round(t.proSum / t.calDays) : null;
+
+    /* Where the week actually leaked. Each part's shortfall is counted in the points
+       it was worth, so "cardio" and "meals" can be compared instead of argued about. */
+    var gapBy = { Cardio: 0, Training: 0, Meals: 0, "Weigh-in": 0 };
+    days.forEach(function (dd) {
+      dd.blows.forEach(function (b) {
+        if (gapBy[b.k] == null) gapBy[b.k] = 0;
+        gapBy[b.k] += Math.max(0, b.max - b.v);
+      });
+    });
+    var worst = Object.keys(gapBy).sort(function (a, b) { return gapBy[b] - gapBy[a]; })[0];
+
+    /* The weekday that keeps going wrong, which is a habit rather than a bad day. */
+    var weakest = null;
+    days.slice().sort(function (a, b) { return a.score - b.score; }).some(function (x) {
+      if (x.touched) { weakest = x; return true; }
+      return false;
+    });
+
+    var weighed = days.filter(function (x) { return x.weight != null; });
+    var wt = weighed.length >= 2
+      ? { first: weighed[0].weight, last: weighed[weighed.length - 1].weight,
+          change: Math.round((weighed[weighed.length - 1].weight - weighed[0].weight) * 10) / 10 }
+      : null;
+
+    return { days: days, t: t, gapBy: gapBy, worst: worst, weakest: weakest, weight: wt,
+             eat: eat, floor: PLAN.floor, protein: PLAN.protein };
+  }
+
+  /* The digest as something a reader can reason over: the table first, because the
+     days are the evidence, then the totals, then the targets they are measured
+     against. Nothing is interpreted here -- interpreting it is the coach's job. */
+  function weekContext(w) {
+    var rows = w.days.map(function (x) {
+      if (!x.touched) return x.label + " (" + x.name + "): nothing logged at all.";
+      return x.label + " (" + x.name + "): score " + x.score + "/100" + (x.won ? " WON" : "") +
+        "; lifting " + (x.isLift ? x.doneSets + "/" + x.totalSets + " sets" : "none scheduled") +
+        "; cardio " + x.cardioMin + "/" + x.cardioWant + " min" +
+        "; food " + (x.cal == null ? "nothing logged"
+            : x.cal + " kcal across " + x.meals + " meals (" + x.mealWhy + "), " + x.protein + "g protein") +
+        "; weight " + (x.weight != null ? x.weight + " lb" : "not weighed") + ".";
+    }).join("\n");
+    var t = w.t;
+    return "THEIR TARGETS: eat " + fmtInt(w.eat) + " kcal a day with a floor of " +
+      fmtInt(w.floor) + " kcal, " + w.protein + "g protein. A day scores out of 100 and " +
+      WIN_AT + " wins it.\n\nTHE LAST SEVEN DAYS, oldest first:\n" + rows +
+      "\n\nTOTALS FOR THE WEEK: " + t.won + " of 7 days won, average score " + t.avgScore +
+      " across " + t.logged + " logged days. Lifting: " + t.setsDone + " of " + t.setsAsked +
+      " sets over " + t.liftDays + " lifting days. Cardio: " + t.cardioDone + " of " +
+      t.cardioAsked + " minutes asked for. Food logged on " + t.calDays + " of 7 days" +
+      (t.noFood ? " (" + t.noFood + " logged days had no food recorded at all)" : "") +
+      (t.avgCal != null ? ", averaging " + fmtInt(t.avgCal) + " kcal and " + t.avgProtein +
+        "g protein; " + t.inWindow + " days inside the window, " + t.under +
+        " under the floor, " + t.over + " over the target" : "") +
+      ". Weighed in on " + t.weighed + " of 7 days" +
+      (w.weight ? ", " + w.weight.first + " lb to " + w.weight.last + " lb (" +
+        (w.weight.change > 0 ? "+" : "") + w.weight.change + " lb)" : "") +
+      ".\n\nWHERE THE POINTS WENT MISSING, worst first: " +
+      Object.keys(w.gapBy).sort(function (a, b) { return w.gapBy[b] - w.gapBy[a]; })
+        .map(function (k) { return k + " " + Math.round(w.gapBy[k]) + " points"; }).join(", ") +
+      ".\n\nTheir weakest logged day was " + (w.weakest ? w.weakest.label + " (" +
+        w.weakest.name + ", " + w.weakest.score + "/100)" : "none") + ".";
+  }
+
+  var WEEK_GUARDRAILS =
+    "You are a direct, experienced strength and nutrition coach reading back someone's last seven days. " +
+    "You are given their real logged data and their own targets. Use only those numbers; never invent one. " +
+    "Write exactly three short paragraphs, plain text, no markdown, no headings, no lists:\n" +
+    "1. WHAT THE DATA SAYS: the pattern across the week, not a day. Name the specific numbers. Prefer a pattern they could not have seen from one day -- a weekday that keeps failing, a part they always finish and a part they never do, eating that is fine on training days and not on rest days, weight moving or not moving against what they are eating.\n" +
+    "2. WHAT IS COSTING THEM MOST: the single biggest leak, named with the figure, and why it is costing more than the others. Be honest. If they are logging food on three days out of seven, say that the problem is the logging, not the eating.\n" +
+    "3. WHAT TO DO TOMORROW: one concrete, specific action tied to tomorrow's actual programme. Not 'stay consistent'. Something they can do or not do, and will know by tomorrow night whether they did.\n" +
+    "Never comment on body size, shape or appearance. Never moralize about food. " +
+    "This person is in a deliberate calorie deficit to lose weight: a day under the target is the plan working, not a shortfall, and you never tell them to eat more to hit a number. The one exception is a day under the stated floor, which you may note once as a sustainability point. " +
+    "If a week has very little logged in it, say that plainly and make the action about logging rather than inventing a pattern from three data points.";
+
+  function weekFallback(w) {
+    var t = w.t;
+    return "Seven days: " + t.won + " won, average " + t.avgScore + "/100 across " +
+      t.logged + " logged days. " + t.setsDone + " of " + t.setsAsked + " sets, " +
+      t.cardioDone + " of " + t.cardioAsked + " cardio minutes, food logged on " +
+      t.calDays + " days. The biggest gap was " + w.worst.toLowerCase() +
+      " — that is the one worth attacking tomorrow.";
+  }
+  function weekSig(w) {
+    var str = weekContext(w), h = 5381;
     for (var i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
     return h.toString(36);
   }
 
   var inlineScoreToken = 0;
   var inlineCoachTimer = null;
+  var lastWeek = null, lastWeekRead = "";
+  /* The card carries the last paragraph -- what to do tomorrow -- because that is the
+     part worth two lines on a card you look at before you decide anything. The
+     pattern and the leak are the other two, and they are a tap away. */
+  function paras(t) {
+    return String(t || "").split(/\n\s*\n|\n/).filter(function (x) { return x.trim(); })
+      .map(function (x) { return x.trim(); });
+  }
+  function actionPara(t) { var p = paras(t); return p.length ? p[p.length - 1] : ""; }
   async function renderInlineScore() {
     var token = ++inlineScoreToken;
     var key = dateKey(selectedDate);
-    var sd;
-    try { sd = await computeDailyScore(); } catch (e) { return; }
+    var w;
+    try { w = await weekDigest(selectedDate); } catch (e) { return; }
     if (token !== inlineScoreToken) return;      // the date moved on while we were working
-    lastScoreData = sd;
+    lastWeek = w;
 
-    /* The score, the fight and the three bars all said the same thing in three
-       shapes, on three cards. The today card says it once; what is left here is the
-       one line nothing else says -- somebody reading the day back to you. */
+    /* There used to be a line about today here, written fresh every evening, and it
+       could only ever say the same three things: what went well, what slipped, try
+       again tomorrow. One day cannot show a habit. This is the week instead -- the
+       same coach, reading seven days, which is the shortest run that can tell a bad
+       day from a pattern. */
     var coachEl = document.getElementById("scCoach");
     if (!coachEl) return;
-    var sig = coachSig(sd);
+    var sig = weekSig(w);
     var cached = readCoach(key);
     var fresh = !!(cached && cached.sig === sig);
-    /* A stale line still goes up rather than leaving a hole -- but dimmed, so the card
-       says "this is being rewritten" instead of quietly lying for a second and a half.
-       Except on a day that now has nothing in it at all: there is no reading to give,
-       so the old reading goes rather than hanging around describing a day that has
-       been emptied. */
-    if (cached && (fresh || sd.overall > 0)) {
-      coachEl.textContent = cached.text; coachEl.hidden = false;
+    /* A stale read still goes up rather than leaving a hole -- but dimmed, so the card
+       says "this is being rewritten" instead of quietly describing a week that has
+       moved on. A week with nothing in it has no reading to give. */
+    if (cached && (fresh || w.t.logged > 0)) {
+      lastWeekRead = cached.text;
+      coachEl.textContent = actionPara(cached.text);
+      coachEl.hidden = false;
       coachEl.classList.toggle("stale", !fresh);
     } else {
+      lastWeekRead = "";
       coachEl.hidden = true; coachEl.textContent = ""; coachEl.classList.remove("stale");
     }
+    paintWeekSheet();
 
     /* Fetch once the day has settled -- flicking through the week should not fire a
        request per chip, and neither should four taps in a row on the same card. */
     clearTimeout(inlineCoachTimer);
-    if (!fresh && sd.overall > 0) {
+    if (!fresh && w.t.logged > 0) {
       inlineCoachTimer = setTimeout(async function () {
         if (token !== inlineScoreToken) return;
-        var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
+        var text = await askClaude([{ role: "user", content: WEEK_GUARDRAILS + "\n\n" + weekContext(w) }], 700);
         if (token !== inlineScoreToken) return;
-        var msg = (text && text.trim()) || fallbackNarrative(sd);
-        writeCoach(key, msg, sd.overall, sig);
-        coachEl.textContent = msg; coachEl.hidden = false;
+        var msg = (text && text.trim()) || weekFallback(w);
+        writeCoach(key, msg, w.t.avgScore, sig);
+        lastWeekRead = msg;
+        coachEl.textContent = actionPara(msg); coachEl.hidden = false;
         coachEl.classList.remove("stale");
+        paintWeekSheet();
       }, 1100);
     }
   }
 
-  var SCORE_GUARDRAILS = "You are a warm, direct fitness accountability coach reviewing someone's day against their own program. " +
-    "You're given their actual scored breakdown for today (weight training / cardio / meals) as real numbers — use them, don't invent anything. " +
-    "Write 2-3 short sentences: (1) what went well, (2) the ONE area they slipped most, named plainly and specifically using the numbers given, (3) one encouraging, concrete nudge to get back on track — not generic cheerleading. " +
-    "Never comment on body size, shape, or appearance. Never moralize about food. Keep it warm but honest — this is meant to hold them accountable, not just flatter them. Plain text, no markdown. " +
-    "If a meal is listed as deliberately skipped, that is a choice they made and recorded, not a lapse in logging. Do not tell them they forgot to log it, do not ask them to log it, and do not count it against them. " +
-    "This person is in a deliberate calorie deficit to lose weight. A day BELOW the calorie target is the plan working, not a shortfall -- never suggest they eat more to reach a number, and never treat being under as the area they slipped in. " +
-    "The one exception: if the day came in under the stated floor, say so plainly and once, as a note about sustainability, and move on.";
-  async function fetchScoreNarrative(sd) {
-    var msg = fallbackNarrative(sd);
-    var text = await askClaude([{ role: "user", content: SCORE_GUARDRAILS + "\n\n" + scoreContext(sd) }], 250);
-    if (text) msg = text.trim();
-    writeCoach(dateKey(selectedDate), msg, sd.overall, coachSig(sd));
-    var inline = document.getElementById("scCoach");
-    if (inline) { inline.textContent = msg; inline.hidden = false; inline.classList.remove("stale"); applyCardToggles(); }
+  /* ---- the sheet: the seven days, then what they add up to ---- */
+  function paintWeekSheet() {
+    var tbl = document.getElementById("weekTable");
+    if (!tbl || !lastWeek) return;
+    var w = lastWeek, t = w.t;
+    document.getElementById("weekTotals").innerHTML =
+      '<div><b>' + t.won + '<span style="opacity:.45">/7</span></b><span>WON</span></div>' +
+      '<div><b>' + t.avgScore + '</b><span>AVG SCORE</span></div>' +
+      '<div><b>' + (t.setsAsked ? Math.round(100 * t.setsDone / t.setsAsked) : 0) + '%</b><span>SETS DONE</span></div>' +
+      '<div><b>' + (w.weight ? (w.weight.change > 0 ? "+" : "") + w.weight.change : "\u2014") +
+        '</b><span>LB THIS WK</span></div>';
+    tbl.innerHTML =
+      '<div class="wk-row head"><span>DAY</span><span>LIFT</span><span>CARDIO</span>' +
+        '<span>FOOD</span><span class="wk-sc">PTS</span></div>' +
+      w.days.map(function (x) {
+        if (!x.touched) return '<div class="wk-row blank"><b>' + esc(x.label) + '</b>' +
+          '<span class="wk-miss">\u2014</span><span class="wk-miss">\u2014</span>' +
+          '<span class="wk-miss">\u2014</span><span class="wk-sc">\u2014</span></div>';
+        return '<div class="wk-row' + (x.won ? " won" : "") + '"><b>' + esc(x.label) + '</b>' +
+          '<span>' + (x.isLift ? x.doneSets + "/" + x.totalSets : '<i class="wk-miss">rest</i>') + '</span>' +
+          '<span>' + (x.cardioWant ? x.cardioMin + "/" + x.cardioWant : x.cardioMin || 0) + ' min</span>' +
+          '<span>' + (x.cal == null ? '<i class="wk-miss">none</i>' : fmtInt(x.cal)) + '</span>' +
+          '<span class="wk-sc">' + x.score + '</span></div>';
+      }).join("");
+    var read = document.getElementById("weekRead");
+    var ps = paras(lastWeekRead);
+    read.classList.toggle("waiting", !ps.length);
+    read.innerHTML = ps.length
+      ? ps.map(function (x) { return "<p>" + esc(x) + "</p>"; }).join("")
+      : "<p>" + esc(t.logged ? "Reading the week\u2026" : "Nothing logged in the last seven days yet.") + "</p>";
   }
-  function scoreContext(sd) {
-    return "Overall score: " + sd.overall + "/100. " +
-      (sd.weights.pct != null ? "Weight training: " + sd.weights.pct + "% (" + sd.weights.detail + "). " : "Rest day, no lifting scheduled. ") +
-      "Cardio: " + sd.cardio.pct + "% (" + sd.cardio.detail + "). " +
-      "Meals: " + sd.meals.pct + "% (" + sd.meals.detail + "). " +
-      "Bodyweight logged today: " + (sd.weightLogged ? "yes" : "no") + ". " +
-      (sd.skipped && sd.skipped.length
-        ? "Meals they deliberately skipped and marked as skipped today: " + sd.skipped.join(", ") +
-          ". Treat these as an intentional choice, not a missed log."
-        : "No meals were marked as skipped.");
+  function openWeekSheet() {
+    hideSheets("weekModal");
+    paintWeekSheet();
+    document.getElementById("weekModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
   }
-  function fallbackNarrative(sd) {
-    var lowest = sd.meals.pct <= sd.cardio.pct && (sd.weights.pct == null || sd.meals.pct <= sd.weights.pct) ? "meals" : (sd.cardio.pct <= (sd.weights.pct == null ? 101 : sd.weights.pct) ? "cardio" : "weight training");
-    return "Today landed at " + sd.overall + "/100. The softest spot was " + lowest + " — worth prioritizing that one tomorrow. Keep logging consistently and the trend will keep moving the right way.";
+  function wireWeek() {
+    document.getElementById("weekCloseBtn").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+      document.getElementById("weekModal").style.display = "none";
+    };
+    document.getElementById("t9WeekBtn").onclick = openWeekSheet;
+    var coachEl = document.getElementById("scCoach");
+    if (coachEl) coachEl.onclick = openWeekSheet;
   }
 
   function wireTabs() {
@@ -7560,7 +7713,7 @@
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireBody(); wireLabs(); wireProg(); wireSetup();
-    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireWeek(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
