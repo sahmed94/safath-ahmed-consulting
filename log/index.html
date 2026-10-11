@@ -471,7 +471,30 @@
   .ex-tab:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
   .t2-cardio-icon { flex: 0 0 56px; height: 56px; border-radius: 14px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; }
   .t2-cardio-icon svg { width: 26px; height: 26px; stroke: var(--teal); }
-  .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+  /* ---- cardio is not a set of anything, so it is not a shape ----
+     It is minutes against an incline, and the honest picture of that is the hill
+     itself: the slope IS the incline you set, the walker stands at the minutes you
+     have put in, and the ground colours in behind them. Every line on it is a number
+     you typed. */
+  .hill9 { position: relative; height: clamp(140px, 27vh, 250px); margin: 8px 0 2px; }
+  .hill-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .hill-ground { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 2.5; stroke-linecap: round; }
+  .hill-done { fill: none; stroke: var(--teal); stroke-width: 4; stroke-linecap: round;
+    filter: drop-shadow(0 0 7px rgba(63,224,168,0.5)); }
+  .hill-under { fill: var(--teal); opacity: .13; }
+  .hill-tick { stroke: rgba(255,255,255,0.13); stroke-width: 1.5; }
+  .hill-ticklab { fill: rgba(255,255,255,0.38); font-size: 10px; font-family: var(--font-body); text-anchor: middle; }
+  .hill-walker { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  .hill-walker circle { fill: var(--ink); stroke: none; }
+  .hill-big { position: absolute; left: 2px; top: 0; text-align: left; pointer-events: none; line-height: 1; }
+  .hill-big b { font-family: var(--font-head); font-size: 44px; font-weight: 400; }
+  .hill-big em { font-style: normal; font-family: var(--font-head); font-size: 21px; opacity: .45; }
+  .hill-big span { display: block; font-size: 10px; letter-spacing: .1em; color: var(--ink-faint); margin-top: 4px; }
+  .c9-compact .hill-big b { font-size: 34px; }
+  .cp-fields .field input { text-align: center; font-family: var(--font-head); font-size: 20px; }
+  .cp-fields .field label { display: block; text-align: center; font-size: 9.5px;
+    letter-spacing: .08em; color: var(--ink-faint); margin: 3px 0 0; }
+  .cp-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 4px 0 10px; }
   /* A walk round the house has no incline and no speed to report. The grid closes up
      rather than leaving two empty boxes to be stared at. */
   .cp-fields.free { grid-template-columns: 1fr; }
@@ -577,11 +600,27 @@
      wraps by default and every target is on the card; where wrapping costs the card
      more than it has, fitFood takes it back to one sideways row, and where even that
      does not fit it drops the strip rather than push the eating plan button off. */
-  .today-macros { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 5px 6px; font-size: 10.5px;
+  .f9-macrowrap { flex: 0 0 auto; }
+  .today-macros { display: flex; flex-wrap: wrap; gap: 5px 6px; font-size: 10.5px;
     color: var(--ink-faint); overflow-y: hidden; scrollbar-width: none; }
   .today-macros::-webkit-scrollbar { display: none; }
   .today-macros .tm { flex: 0 0 auto; }
+  /* Before giving up the wrap, give up some type. Two tight wrapped lines cost less
+     height than one line costs in a target you cannot see, and on a 390 phone this
+     rung alone is enough -- the strip never has to go sideways. */
+  .c9-tinymacros .today-macros { font-size: 9px; gap: 3px 4px; }
+  .c9-tinymacros .today-macros .tm { padding: 1px 5px; gap: 2px; }
+  .c9-tinymacros .today-macros .tm b { font-size: 10.5px; }
+  .today-macros .tm-short { display: none; }
   .c9-strip1 .today-macros { flex-wrap: nowrap; overflow-x: auto; }
+  .c9-strip1 .today-macros .tm-long { display: none; }
+  .c9-strip1 .today-macros .tm-short { display: inline; }
+  /* And when it does have to go sideways, it has to look like it: a row that runs off
+     the edge with no sign of it is how caffeine read as missing in the first place. */
+  .c9-strip1 .f9-macrowrap { position: relative; }
+  .c9-strip1 .f9-macrowrap::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0;
+    width: 24px; pointer-events: none;
+    background: linear-gradient(90deg, rgba(26,20,48,0), var(--surface)); }
   .today-macros .tm { display: inline-flex; align-items: baseline; gap: 3px;
     background: rgba(255,255,255,0.05); border-radius: 7px; padding: 2px 7px; }
   .today-macros .tm b { font-family: var(--font-head); font-size: 12px; color: var(--ink); }
@@ -775,43 +814,68 @@
   .ex-meta { flex: 1; min-width: 0; }
   .ex-name { font-size: 16px; font-weight: 700; color: var(--ink); cursor: pointer; line-height: 1.2; }
   .ex-target { font-size: 11.5px; color: var(--ink-faint); margin-top: 3px; }
-  .ex-meter { height: 6px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 9px; }
-  .ex-meter-fill { height: 100%; border-radius: 4px; background: var(--tier); width: 0; transition: width .45s cubic-bezier(.22,1,.36,1); }
-  .ex-count { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; color: var(--ink-dim); margin-top: 5px; }
 
-  /* the crest: hexagon, equipment inside, one node per set around the rim */
-  .ex-crest { position: relative; flex: 0 0 148px; width: 148px; height: 148px; }
-  .crest-art { position: absolute; left: 50%; top: 50%; width: 104px; height: 104px; margin: -52px 0 0 -52px; overflow: visible; }
-  .crest-hex-bg { fill: rgba(255,255,255,0.05); }
-  .crest-hex-line { fill: none; stroke: rgba(255,255,255,0.22); stroke-width: 2.5; }
-  .ex-crest.complete .crest-hex-line { stroke: var(--tier); }
-  .crest-flood { transition: y .55s cubic-bezier(.22,1,.36,1); }
-  .crest-glyph { fill: none; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
-  .crest-glyph.dim { stroke: rgba(255,255,255,0.5); opacity: .5; }
-  .crest-glyph.lit { stroke: #fff; }
-  .ex-crest.complete .crest-art { filter: drop-shadow(0 0 10px var(--tier-glow)); }
-  .ex-node { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; padding: 0; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65); font-family: var(--font-head);
-    font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .18s; }
-  .ex-node.on { background: var(--tier); border-color: var(--tier); color: #0E0A1C;
-    box-shadow: 0 0 0 4px var(--tier-soft), 0 0 12px var(--tier-glow); transform: scale(1.08); }
-  .ex-node:active { transform: scale(.9); }
-  .crest-stamp { position: absolute; left: 50%; top: 74%; transform: translate(-50%,-50%) rotate(-8deg) scale(.7);
-    font-family: var(--font-head); font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: #0E0A1C; background: var(--tier); padding: 3px 9px; border-radius: 6px; white-space: nowrap;
-    opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
-    box-shadow: 0 2px 10px var(--tier-glow); }
-  .ex-crest.complete .crest-stamp { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
-  @media (max-width: 400px) {
-    .ex-crest { flex-basis: 128px; width: 128px; height: 128px; }
-    .crest-art { width: 88px; height: 88px; margin: -44px 0 0 -44px; }
-    .ex-node { width: 28px; height: 28px; margin: -14px 0 0 -14px; font-size: 12px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .crest-flood, .ex-meter-fill, .ex-node, .crest-stamp { transition: none; }
-  }
-  .same-last-btn { flex: 0 0 auto; font-family: var(--font-head); font-size: 10.5px; letter-spacing: .02em; padding: 6px 10px; border-radius: 20px; border: 1.5px solid var(--blue); background: var(--blue-soft); color: var(--blue); cursor: pointer; white-space: nowrap; }
+  /* ---- the exercise as a shape ----
+     One corner per set, in the order you do them, clockwise from the top. A triangle
+     is three sets and a hexagon is six, so the shape says how much work an exercise is
+     before you have read a word of it; tap a corner and it lands, and the shape fills
+     behind you. Everything here is positioned from JavaScript against the box it is
+     actually given, because the only honest size for it is whatever is left over. */
+  .ex-block.page { display: flex; flex-direction: column; min-height: 0; padding: 0; border-top: 0; }
+  .ring-title { flex: 0 0 auto; text-align: center; padding: 2px 0 0; }
+  .ring-title .ex-name { font-family: var(--font-head); font-size: 23px; font-weight: 400;
+    letter-spacing: .01em; line-height: 1.1; }
+  .ring-title .ex-target { font-size: 11.5px; margin-top: 3px; }
+  .ring9 { flex: 1 1 auto; position: relative; min-height: 110px; }
+  .ring-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .ring-poly { fill: rgba(255,255,255,0.035); stroke: rgba(255,255,255,0.14); stroke-width: 2; }
+  .ring-flood { fill: var(--tier); opacity: .16; transition: none; }
+  .ring-edge { stroke: rgba(255,255,255,0.15); stroke-width: 3; stroke-linecap: round; }
+  .ring-edge.on { stroke: var(--tier); filter: drop-shadow(0 0 6px var(--tier-glow)); }
+  /* The equipment, from the crest this replaced: large, faint, behind the count, so
+     the middle of the shape is the movement rather than a hole. */
+  .ring-glyph { fill: none; stroke: #fff; stroke-width: 3.2; stroke-linecap: round;
+    stroke-linejoin: round; opacity: .05; }
+  .ring9.full .ring-glyph { stroke: var(--tier); opacity: .11; }
+  .ring-node { position: absolute; padding: 0; border-radius: 30%; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.55); font-family: var(--font-head); font-weight: 400;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .22s, border-color .22s, color .22s, box-shadow .22s, transform .16s; }
+  .ring-node.next { border-color: rgba(255,255,255,0.5); color: var(--ink); }
+  .ring-node.on { background: var(--tier); border-color: var(--tier); color: #fff;
+    box-shadow: 0 0 16px -2px var(--tier-glow); }
+  .ring-node:active { transform: scale(.9); }
+  .ring-node:focus-visible, .ring-lab:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  /* What the set was, right under the set, and tapping it is how you change it. */
+  .ring-lab { position: absolute; transform: translate(-50%, 0); white-space: nowrap;
+    border: 0; background: transparent; padding: 2px 4px; border-radius: 7px; cursor: pointer;
+    font-family: var(--font-body); font-size: 11.5px; color: var(--ink-faint);
+    font-variant-numeric: tabular-nums; }
+  .ring-lab b { font-weight: 600; color: var(--ink-dim); }
+  .ring-lab.pending { opacity: .42; }
+  .ring-lab.on b { color: var(--tier); }
+  .ring-mid { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    text-align: center; pointer-events: none; line-height: 1; }
+  .ring-count { font-family: var(--font-head); font-size: 40px; }
+  .ring-count em { font-style: normal; font-size: 21px; opacity: .45; }
+  .ring-cap { font-size: 10px; letter-spacing: .1em; color: var(--ink-faint); margin-top: 4px; }
+  .ring-rest { font-family: var(--font-head); font-size: 15px; color: var(--tier); margin-top: 7px; min-height: 15px; }
+  .ring-rest:empty { display: none; }
+  .ring-acts { flex: 0 0 auto; display: flex; gap: 7px; justify-content: center;
+    flex-wrap: wrap; padding: 6px 0 2px; }
+  .ring-act { font-size: 11.5px; font-family: var(--font-body); color: var(--ink-faint);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; cursor: pointer; }
+  .ring-act:hover { color: var(--ink); border-color: rgba(255,255,255,0.3); }
+  /* The set rows are still the record every write reads. They are not the view. */
+  .ex-block .set-grid { display: none; }
+  .c9-compact .ring-title .ex-name { font-size: 19px; }
+  .c9-compact .ring-count { font-size: 32px; }
+  .c9-compact .ring-lab { font-size: 10.5px; }
+  .c9-compact .ring-act { font-size: 10.5px; padding: 5px 10px; }
+  @media (prefers-reduced-motion: reduce) { .ring-node, .ring-edge { transition: none; } }
+
   .set-grid { margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
 
   .split-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
@@ -834,16 +898,6 @@
   .set-split-row.done-row .mini-field { background: var(--teal-soft); border-color: var(--teal); }
   .mini-done { width: 40px; height: 40px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink-faint); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
   .mini-done.on { background: var(--teal); border-color: var(--teal); color: #0E0A1C; }
-
-  /* rest timer floating bar */
-  #restBarWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + 50px + env(safe-area-inset-bottom, 0px)); z-index: 41; display: none; justify-content: center; padding: 0 16px; }
-  #restBarWrap.show { display: flex; }
-  .rest-bar { max-width: 460px; width: 100%; background: #221A3C; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(20,10,60,0.3); }
-  .rest-ring-wrap { position: relative; width: 40px; height: 40px; flex: 0 0 auto; }
-  .rest-ring-wrap svg { transform: rotate(-90deg); }
-  .rest-time { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-head); font-size: 11px; font-weight: 700; }
-  .rest-label { flex: 1; color: #fff; font-size: 13px; font-weight: 600; }
-  .rest-skip { background: rgba(255,255,255,0.14); border: none; color: #fff; font-family: var(--font-head); font-size: 11px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 
   .trend-pane { display: none; } .trend-pane.active { display: block; }
   .weight-chart { width: 100%; height: 150px; display: block; }
@@ -1367,18 +1421,20 @@
           <div class="ex-tabs" id="exDots" role="tablist" aria-label="Exercises in this session"></div>
         </div>
         <div class="pager" id="exerciseList">
-          <div class="page cardio-page" id="cardioPage">
-            <div class="ex-head" style="--tier:#12B886">
-              <div class="t2-cardio-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg></div>
-              <div class="ex-meta">
-                <div class="ex-name">Cardio</div>
-                <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span></div>
-              </div>
+          <div class="page cardio-page" id="cardioPage" style="--tier:#12B886;">
+            <div class="ring-title">
+              <div class="ex-name">Cardio</div>
+              <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span></div>
+            </div>
+            <div class="hill9" id="cardioHill">
+              <svg class="hill-art" aria-hidden="true"></svg>
+              <div class="hill-big"><b id="cardioBigMin">0</b><em id="cardioBigAsk"></em>
+                <span id="cardioBigCap">MINUTES</span></div>
             </div>
             <div class="cp-fields" id="cardioFields">
-              <div class="field"><label>Minutes</label><input type="number" id="cardioMin"></div>
-              <div class="field cp-tread"><label>Incline %</label><input type="number" id="cardioIncline"></div>
-              <div class="field cp-tread"><label>Speed mph</label><input type="number" step="0.1" id="cardioSpeed"></div>
+              <div class="field"><input type="number" id="cardioMin" inputmode="numeric"><label>MINUTES</label></div>
+              <div class="field cp-tread"><input type="number" id="cardioIncline" inputmode="numeric"><label>INCLINE %</label></div>
+              <div class="field cp-tread"><input type="number" step="0.1" id="cardioSpeed" inputmode="decimal"><label>MPH</label></div>
             </div>
             <button class="save-chip primary" style="width:100%;" id="saveCardioBtn">Log cardio</button>
             <div class="saved-tick" id="cardioSaved"></div>
@@ -1401,7 +1457,7 @@
           <div><b id="todayProtein">&mdash;</b><span>protein</span></div>
           <div><b id="planMaintLabel">&mdash;</b><span>maintenance</span></div>
         </div>
-        <div class="today-macros" id="todayMacros"></div>
+        <div class="f9-macrowrap"><div class="today-macros" id="todayMacros"></div></div>
         <div class="meal-picker" id="mealPicker"></div>
         <div class="field">
           <label>Describe it &mdash; ingredients, portion, how it was cooked</label>
@@ -1417,7 +1473,7 @@
         </div>
         <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
-        <div class="f9-note">Estimates round up rather than down. Tap any meal \u2014 the pencil on it \u2014 to change the picture, the words, the numbers, the portion or which sitting it belongs to.</div>
+        <div class="f9-note">Estimates round up rather than down. Tap any meal &mdash; the pencil on it &mdash; to change the picture, the words, the numbers, the portion or which sitting it belongs to.</div>
         <!-- Today only. The card is a true nine by sixteen now, and a fortnight of
              thumbnails underneath made it a scroll with no bottom; last week's meals
              are reachable where they are actually wanted, in "Had this again". -->
@@ -1471,20 +1527,6 @@
     </section>
 
   </main>
-
-  <div id="restBarWrap">
-    <div class="rest-bar">
-      <div class="rest-ring-wrap">
-        <svg width="40" height="40" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
-          <circle id="restRingProgress" cx="20" cy="20" r="17" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-dasharray="106.8" stroke-dashoffset="0"/>
-        </svg>
-        <div class="rest-time" id="restTimeText">90</div>
-      </div>
-      <div class="rest-label">Rest</div>
-      <button class="rest-skip" id="restSkipBtn">Skip</button>
-    </div>
-  </div>
 
 
   <nav class="tabbar">
@@ -1580,6 +1622,20 @@
     <div class="modal-actions">
       <button class="close-btn" id="planCancelBtn">Cancel</button>
       <button class="primary-btn" id="planSaveBtn">Save plan</button>
+    </div>
+  </div>
+
+  <!-- One set, when the planned numbers were not what happened -->
+  <div class="modal-inner" id="setEditModal" style="display:none;">
+    <h3 id="setEditTitle">Set</h3>
+    <div class="field-row" style="margin-bottom:8px;">
+      <div class="field"><label>Reps</label><input type="number" id="setEditReps" inputmode="numeric"></div>
+      <div class="field"><label id="setEditWtLabel">Weight</label><input type="number" step="0.5" id="setEditWt" inputmode="decimal"></div>
+    </div>
+    <div class="f9-note" id="setEditGhost" style="margin-bottom:10px;"></div>
+    <div class="modal-actions">
+      <button class="close-btn" id="setEditCancel">Cancel</button>
+      <button class="primary-btn" id="setEditSave">Save</button>
     </div>
   </div>
 
@@ -2582,8 +2638,7 @@
 
   async function signOut() {
     stopSessionTimerUI();
-    clearInterval(restTimerInterval);
-    var wrap = document.getElementById("restBarWrap"); if (wrap) wrap.classList.remove("show");
+    stopRestTimer();
     try { await supabase.auth.signOut(); } catch (e) {}
     currentProfileId = null; currentProfileName = null; currentProfileEmail = ""; cache = {}; foodCache = [];
     document.getElementById("app").style.display = "none";
@@ -3072,29 +3127,31 @@
   }
 
   /* ===================== REST TIMER ===================== */
-  function startRestTimer(seconds) {
+  /* The countdown sits in the middle of the shape whose set you just finished. It used
+     to be a bar floating over the foot of the card, which is where the way between
+     exercises used to live -- so finishing a set hid the only control you wanted next.
+     Inside the shape it is where you are already looking and covers nothing. */
+  var restTimerBlock = null;
+  function paintRest(text) {
+    var el = restTimerBlock && restTimerBlock.querySelector(".ring-rest");
+    if (el) el.textContent = text;
+  }
+  function stopRestTimer() {
+    clearInterval(restTimerInterval); restTimerInterval = null;
+    paintRest(""); restTimerBlock = null;
+  }
+  function startRestTimer(seconds, block) {
     clearInterval(restTimerInterval);
+    paintRest("");
+    restTimerBlock = block || null;
     restTimerTotal = seconds; restTimerRemaining = seconds;
-    var wrap = document.getElementById("restBarWrap");
-    var ring = document.getElementById("restRingProgress");
-    var txt = document.getElementById("restTimeText");
-    var circumference = 106.8;
-    wrap.classList.add("show");
     function tick() {
-      txt.textContent = restTimerRemaining;
-      var pct = restTimerRemaining / restTimerTotal;
-      ring.setAttribute("stroke-dashoffset", (circumference * (1 - pct)).toFixed(1));
-      if (restTimerRemaining <= 0) { clearInterval(restTimerInterval); wrap.classList.remove("show"); vibrate([30,50,30,50,30]); return; }
+      if (restTimerRemaining <= 0) { stopRestTimer(); vibrate([30,50,30,50,30]); return; }
+      paintRest("rest " + fmtTime(restTimerRemaining));
       restTimerRemaining--;
     }
     tick();
     restTimerInterval = setInterval(tick, 1000);
-  }
-  function wireRestTimer() {
-    document.getElementById("restSkipBtn").onclick = function () {
-      clearInterval(restTimerInterval);
-      document.getElementById("restBarWrap").classList.remove("show");
-    };
   }
 
   /* ===================== LAST PERFORMANCE / HISTORY ===================== */
@@ -3182,63 +3239,224 @@
      percentage of the crest box, and the ring sits just outside the hexagon: the box is
      148px, the hexagon 104px of it, so 42% of the box clears the points. */
   var NODE_RING_PCT = 42;
-  function nodePos(i, n) {
-    var a = (-90 + (360 / n) * i) * Math.PI / 180;
-    return { x: 50 + Math.cos(a) * NODE_RING_PCT, y: 50 + Math.sin(a) * NODE_RING_PCT };
-  }
-
-  function crestHTML(exx, idx, doneFlags) {
-    var art = exArt(exx.name), col = EX_GROUP_COLOR[art.g];
-    var uid = "cr" + idx;
-    var glyph = art.d.map(function (d) { return '<path d="' + d + '"/>'; }).join("");
-    var svg =
-      '<svg class="crest-art" viewBox="-8 -8 116 116" aria-hidden="true">' +
-        '<defs>' +
-          '<clipPath id="' + uid + 'clip"><rect class="crest-flood" x="-8" y="108" width="116" height="116"/></clipPath>' +
-          '<linearGradient id="' + uid + 'grad" x1="0" y1="1" x2="0.4" y2="0">' +
-            '<stop offset="0" stop-color="' + col.c + '" stop-opacity="0.95"/>' +
-            '<stop offset="1" stop-color="' + col.c + '" stop-opacity="0.45"/>' +
-          '</linearGradient>' +
-        '</defs>' +
-        '<path class="crest-hex-bg" d="' + HEX_PATH + '"/>' +
-        '<g clip-path="url(#' + uid + 'clip)"><path d="' + HEX_PATH + '" fill="url(#' + uid + 'grad)"/></g>' +
-        '<path class="crest-hex-line" d="' + HEX_PATH + '"/>' +
-        '<g class="crest-glyph dim">' + glyph + '</g>' +
-        '<g class="crest-glyph lit" clip-path="url(#' + uid + 'clip)">' + glyph + '</g>' +
-      '</svg>';
-    var nodes = "";
+  /* The shape: one corner per set, clockwise from the top, in the order you do them.
+     The corners are buttons -- tapping one logs that set at the numbers underneath it,
+     tapping it again takes it back -- and the number underneath is a button too, for
+     the day the fourth set came off the stack lighter than the third. */
+  function ringHTML(exx) {
+    var parts = "";
     for (var i = 0; i < exx.sets; i++) {
-      var pos = nodePos(i, exx.sets);
-      nodes += '<button type="button" class="ex-node' + (doneFlags[i] ? " on" : "") + '" data-node="' + i + '"' +
-        ' style="left:' + pos.x + '%; top:' + pos.y + '%;"' +
-        ' aria-label="Set ' + (i+1) + '" aria-pressed="' + (doneFlags[i] ? "true" : "false") + '">' + (i+1) + '</button>';
+      parts += '<button type="button" class="ring-node" data-node="' + i + '"' +
+        ' aria-label="Set ' + (i + 1) + '" aria-pressed="false">' + (i + 1) + '</button>' +
+        '<button type="button" class="ring-lab" data-lab="' + i + '"' +
+        ' aria-label="Change set ' + (i + 1) + '"></button>';
     }
-    return '<div class="ex-crest" style="--tier:' + col.c + '; --tier-soft:' + col.soft + '; --tier-glow:' + col.glow + ';">' +
-      svg + nodes + '<div class="crest-stamp">Cleared</div></div>';
+    return '<div class="ring9">' +
+      '<svg class="ring-art" aria-hidden="true"></svg>' + parts +
+      '<div class="ring-mid">' +
+        '<div class="ring-count"><b>0</b><em>/' + exx.sets + '</em></div>' +
+        '<div class="ring-cap">SETS DONE</div>' +
+        '<div class="ring-rest"></div>' +
+      '</div></div>';
   }
 
-  /* Repaint a block's crest from whatever its rows currently say. */
-  function paintCrest(block) {
+  /* Geometry and state together, because both change for the same reasons and doing
+     six corners twice costs nothing. The shape is measured against the box it is
+     actually given rather than against the screen: on a short phone it comes out
+     smaller instead of pushing anything off the bottom. */
+  function drawRing(block) {
+    var ring = block.querySelector(".ring9"); if (!ring) return;
     var rows = Array.from(block.querySelectorAll(".set-split-row"));
-    var total = rows.length || 1;
-    var done = rows.filter(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; }).length;
-    var pct = done / total;
-    var crest = block.querySelector(".ex-crest");
-    var flood = crest.querySelector(".crest-flood");
-    flood.setAttribute("y", (108 - 116 * pct).toFixed(2));
-    crest.classList.toggle("complete", done === total && total > 0);
+    var n = rows.length; if (!n) return;
+    var W = ring.clientWidth, H = ring.clientHeight;
+    if (!(W > 40) || !(H > 40)) return;
+
+    var done = rows.map(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; });
+    var doneN = done.filter(Boolean).length;
+    var ang = [], mx = 0, up = 0, dn = 0;
+    for (var i = 0; i < n; i++) {
+      var a = -Math.PI / 2 + i * 2 * Math.PI / n;
+      ang.push(a);
+      mx = Math.max(mx, Math.abs(Math.cos(a)));
+      up = Math.max(up, -Math.sin(a));
+      dn = Math.max(dn, Math.sin(a));
+    }
+    /* The corner has to clear the sides, the top, and -- at the bottom -- its own
+       label as well, which is wider than it is. Whichever of those bites first is
+       the radius. */
+    var size = Math.max(30, Math.min(52, W * 0.135));
+    var LAB = 38, GAP = 15;
+    var R = Math.min(
+      (W / 2 - 4 - Math.max(LAB, size / 2)) / (mx || 1),
+      (H / 2 - 4 - size / 2) / (up || 1),
+      (H / 2 - 4 - size / 2 - GAP) / (dn || 1)
+    );
+    R = Math.max(42, R);
+    var cx = W / 2, cy = H / 2;
+    var pts = ang.map(function (a) { return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+
+    /* the flood is a water level: it rises through the shape as the sets land */
+    var topY = cy - R * up, botY = cy + R * dn;
+    var level = botY - (botY - topY) * (doneN / n);
+    var poly = pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" ");
+    var edges = "";
+    for (var e = 0; e < n; e++) {
+      var p1 = pts[e], p2 = pts[(e + 1) % n];
+      var lit = done[e] && done[(e + 1) % n];
+      edges += '<line class="ring-edge' + (lit ? " on" : "") + '" x1="' + p1[0].toFixed(1) +
+        '" y1="' + p1[1].toFixed(1) + '" x2="' + p2[0].toFixed(1) + '" y2="' + p2[1].toFixed(1) + '"/>';
+    }
+    var uid = "rg" + (drawRing._n = (drawRing._n || 0) + 1);
+    var g = R * 1.15, gx = cx - g / 2, gy = cy - g / 2;
+    var glyph = '<g class="ring-glyph" transform="translate(' + gx.toFixed(1) + ',' + gy.toFixed(1) +
+      ') scale(' + (g / 100).toFixed(3) + ')">' +
+      (block._art || []).map(function (d) { return '<path d="' + d + '"/>'; }).join("") + '</g>';
+    var art = ring.querySelector(".ring-art");
+    art.innerHTML =
+      '<defs><clipPath id="' + uid + '"><rect x="0" y="' + level.toFixed(1) +
+        '" width="' + W + '" height="' + Math.max(0, H - level).toFixed(1) + '"/></clipPath></defs>' +
+      '<polygon class="ring-poly" points="' + poly + '"/>' +
+      (doneN ? '<polygon class="ring-flood" points="' + poly + '" clip-path="url(#' + uid + ')"/>' : "") +
+      glyph + edges;
+    ring.classList.toggle("full", doneN === n);
+
     rows.forEach(function (r, i) {
-      var on = r.querySelector(".mini-done").getAttribute("data-done") === "1";
-      var node = crest.querySelector('[data-node="' + i + '"]');
-      if (!node) return;
-      node.classList.toggle("on", on);
-      node.setAttribute("aria-pressed", on ? "true" : "false");
+      var node = ring.querySelector('[data-node="' + i + '"]');
+      var lab = ring.querySelector('[data-lab="' + i + '"]');
+      if (!node || !lab) return;
+      node.style.width = node.style.height = size + "px";
+      node.style.left = (pts[i][0] - size / 2) + "px";
+      node.style.top = (pts[i][1] - size / 2) + "px";
+      node.style.fontSize = Math.round(size * 0.42) + "px";
+      node.classList.toggle("on", done[i]);
+      /* the one you are on next, so the shape tells you where you are in it */
+      node.classList.toggle("next", !done[i] && doneN === i);
+      node.setAttribute("aria-pressed", done[i] ? "true" : "false");
+      lab.style.left = pts[i][0] + "px";
+      lab.style.top = (pts[i][1] + size / 2 + 3) + "px";
+      lab.classList.toggle("on", done[i]);
+      lab.classList.toggle("pending", !done[i]);
+      lab.innerHTML = setLabel(r);
     });
-    var meter = block.querySelector(".ex-meter-fill");
-    if (meter) meter.style.width = (pct * 100) + "%";
-    var count = block.querySelector(".ex-count");
-    if (count) count.textContent = done + " / " + total;
+
+    var mid = ring.querySelector(".ring-mid");
+    mid.querySelector(".ring-count b").textContent = doneN;
+    mid.querySelector(".ring-cap").textContent = doneN === n ? "CLEARED" : "SETS DONE";
     paintPagerTabs();
+  }
+  /* What a set says under its corner: what you did, or what you are about to. */
+  function setLabel(row) {
+    var reps = row.querySelector(".reps-input").value;
+    var wt = row.querySelector(".wt-input");
+    var w = wt.disabled ? "bw" : (wt.value === "" ? "\u2014" : wt.value);
+    return "<b>" + esc(reps === "" ? "\u2014" : reps) + "</b> \u00d7 " + esc(w);
+  }
+  /* Tapping a corner logs the set at the numbers under it, which is right nearly
+     every time. This is for the times it is not: the set that came off lighter, or
+     the one where you got two more than you meant to. */
+  var setEdit = null;
+  function openSetEdit(block, exx, key, idx) {
+    var row = block.querySelectorAll(".set-split-row")[idx];
+    if (!row) return;
+    setEdit = { block: block, exx: exx, key: key, idx: idx, row: row };
+    var wt = row.querySelector(".wt-input");
+    document.getElementById("setEditTitle").textContent = exx.name + " \u00b7 set " + (idx + 1);
+    document.getElementById("setEditReps").value = row.querySelector(".reps-input").value;
+    document.getElementById("setEditWt").value = wt.value;
+    document.getElementById("setEditWt").disabled = wt.disabled;
+    document.getElementById("setEditWtLabel").textContent = wt.disabled ? "Bodyweight" : "Weight (" + exx.weightLabel + ")";
+    var last = block._last && block._last.sets && block._last.sets[idx];
+    document.getElementById("setEditGhost").textContent = last
+      ? "Last time: " + (last.reps != null ? last.reps + " reps" : "") +
+        (last.weight != null ? " at " + last.weight : "")
+      : "Asked for: " + exx.repLo + "\u2013" + exx.repHi + " reps";
+    hideSheets("setEditModal");
+    document.getElementById("setEditModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+  }
+  function wireSetEdit() {
+    document.getElementById("setEditCancel").onclick = function () {
+      document.getElementById("modalOverlay").classList.remove("open");
+      document.getElementById("setEditModal").style.display = "none";
+    };
+    document.getElementById("setEditSave").onclick = async function () {
+      if (!setEdit) return;
+      var e = setEdit, reps = document.getElementById("setEditReps").value;
+      var wt = document.getElementById("setEditWt");
+      e.row.querySelector(".reps-input").value = reps;
+      if (!wt.disabled) e.row.querySelector(".wt-input").value = wt.value;
+      /* Correcting a set is saying you did it. Anything else means typing the numbers
+         and then going back to the corner to say so, which nobody would do twice. */
+      var mark = e.row.querySelector(".mini-done");
+      if (mark.getAttribute("data-done") !== "1") {
+        mark.setAttribute("data-done", "1"); mark.classList.add("on");
+        e.row.classList.add("done-row");
+      }
+      document.getElementById("modalOverlay").classList.remove("open");
+      document.getElementById("setEditModal").style.display = "none";
+      drawRing(e.block);
+      await persistSet(e.key, e.exx.name, e.row);
+      setEdit = null;
+    };
+  }
+
+  function drawAllRings() {
+    Array.from(document.querySelectorAll("#exerciseList .ex-block")).forEach(drawRing);
+    drawHill();
+  }
+
+  /* The hill. Its slope is the incline, its length is the minutes the day asks for,
+     and the walker stands where you have got to. A ring would have been the same
+     picture as the lifting pages wearing a different hat; this is the shape of the
+     thing itself, and it reads the boxes underneath it as you type. */
+  function drawHill() {
+    var el = document.getElementById("cardioHill"); if (!el) return;
+    var pg = document.getElementById("cardioPage");
+    var W = el.clientWidth, H = el.clientHeight;
+    if (!(W > 60) || !(H > 60)) return;
+    var ask = parseInt(pg.dataset.ask, 10) || 0;
+    var got = parseInt((document.getElementById("cardioMin") || {}).value, 10) || 0;
+    var free = document.getElementById("cardioFields").classList.contains("free");
+    var inc = free ? 0 : (parseFloat((document.getElementById("cardioIncline") || {}).value) || 0);
+
+    var pad = 13, x0 = pad, x1 = W - pad;
+    /* Ten percent is a hill you feel and a line you can barely see, so the slope is
+       drawn steeper than life -- but still in proportion, so twelve reads as more
+       than ten. A flat walk gets a floor rather than a flat line, or there would be
+       nothing to colour in. */
+    var rise = Math.max(0.3, Math.min(0.68, inc / 20)) * (H - 54);
+    var base = H - 28;
+    function yAt(x) { return base - rise * ((x - x0) / (x1 - x0)); }
+    var span = ask || Math.max(got, 1);
+    var frac = Math.max(0, Math.min(1, got / span));
+    var xw = x0 + (x1 - x0) * frac, yw = yAt(xw);
+
+    var ticks = "";
+    var step = span > 60 ? 20 : (span > 24 ? 10 : 5);
+    for (var m = 0; m <= span; m += step) {
+      var tx = x0 + (x1 - x0) * (m / span);
+      ticks += '<line class="hill-tick" x1="' + tx.toFixed(1) + '" y1="' + (yAt(tx) + 4).toFixed(1) +
+        '" x2="' + tx.toFixed(1) + '" y2="' + (base + 9) + '"/>' +
+        '<text class="hill-ticklab" x="' + tx.toFixed(1) + '" y="' + (base + 23) + '">' + m + '</text>';
+    }
+    /* mid-stride, and standing on the ground rather than near it */
+    var walker = '<g class="hill-walker" transform="translate(' + xw.toFixed(1) + ',' + (yw - 3).toFixed(1) + ')">' +
+      '<circle cx="0" cy="-32" r="4.4"/><path d="M0 -27v13"/>' +
+      '<path d="M0 -14l-8 14M0 -14l9 12"/><path d="M0 -24l-8 6M0 -24l9 5"/></g>';
+
+    el.querySelector(".hill-art").innerHTML =
+      (frac > 0 ? '<path class="hill-under" d="M' + x0 + ' ' + base + ' L' + x0 + ' ' + yAt(x0).toFixed(1) +
+        ' L' + xw.toFixed(1) + ' ' + yw.toFixed(1) + ' L' + xw.toFixed(1) + ' ' + base + 'Z"/>' : "") +
+      ticks +
+      '<path class="hill-ground" d="M' + x0 + ' ' + yAt(x0).toFixed(1) + ' L' + x1 + ' ' + yAt(x1).toFixed(1) + '"/>' +
+      (frac > 0 ? '<path class="hill-done" d="M' + x0 + ' ' + yAt(x0).toFixed(1) +
+        ' L' + xw.toFixed(1) + ' ' + yw.toFixed(1) + '"/>' : "") +
+      walker;
+
+    document.getElementById("cardioBigMin").textContent = got;
+    document.getElementById("cardioBigAsk").textContent = ask ? "/" + ask : "";
+    document.getElementById("cardioBigCap").textContent =
+      free ? "MINUTES ON YOUR FEET" : "MINUTES WALKED";
   }
 
   var REST_DAY = { name: "Rest day", type: "cardio", cardio: { min: 0 }, ex: [] };
@@ -3282,22 +3500,25 @@
             '<div class="mini-done ' + (done ? "on" : "") + '" data-done="' + (done ? "1" : "0") + '">&#10003;</div>' +
           '</div></div>';
       }
-      var art = exArt(exx.name);
+      var art = exArt(exx.name), col = EX_GROUP_COLOR[art.g];
+      block._art = art.d;
+      block.setAttribute("style", "--tier:" + col.c + "; --tier-soft:" + col.soft + "; --tier-glow:" + col.glow + ";");
       block.innerHTML =
-        '<div class="ex-head" style="--tier:' + EX_GROUP_COLOR[art.g].c + '">' +
-          crestHTML(exx, exIdx, doneFlags) +
-          '<div class="ex-meta">' +
-            '<div class="ex-name" data-exname="' + exx.name + '">' + exx.name + '</div>' +
-            '<div class="ex-target">' + exx.repLo + '–' + exx.repHi + ' reps @ ' + wUnit + '</div>' +
-            '<div class="ex-meter"><div class="ex-meter-fill"></div></div>' +
-            '<div class="ex-count"></div>' +
-            '<button class="same-last-btn" data-exname="' + exx.name + '">Same as last time</button>' +
-          '</div>' +
+        '<div class="ring-title">' +
+          '<div class="ex-name" data-exname="' + attrSafe(exx.name) + '">' + esc(exx.name) + '</div>' +
+          '<div class="ex-target">' + exx.repLo + '\u2013' + exx.repHi + ' reps \u00b7 ' + esc(wUnit) +
+            ' \u00b7 rest ' + exx.restSec + 's</div>' +
+        '</div>' +
+        ringHTML(exx) +
+        '<div class="ring-acts">' +
+          '<button type="button" class="ring-act same-last-btn" data-exname="' + attrSafe(exx.name) + '">Same as last time</button>' +
+          '<button type="button" class="ring-act hist-act" data-exname="' + attrSafe(exx.name) + '">History</button>' +
         '</div>' +
         '<div class="set-grid">' + setsHtml + '</div>';
       list.insertBefore(block, cardioPage);
 
       block.querySelector(".ex-name").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
+      block.querySelector(".hist-act").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
       block.querySelector(".same-last-btn").onclick = function () { fillFromLastTime(this.getAttribute("data-exname"), block, key); };
 
       var rows = Array.from(block.querySelectorAll(".set-split-row"));
@@ -3310,30 +3531,36 @@
         doneBtn.classList.toggle("on", !on);
         row.classList.toggle("done-row", !on);
         if (!on) {
-          vibrate(18); startRestTimer(exx.restSec);
+          vibrate(18); startRestTimer(exx.restSec, block);
           var nodeEl = block.querySelector('[data-node="' + idx + '"]');
           var tier = EX_GROUP_COLOR[exArt(exx.name).g];
-          /* the crest filling is the reward; the last node of a lift is a bigger one */
+          /* the shape filling is the reward; the last corner of a lift is a bigger one */
           var doneNow = rows.filter(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; }).length;
-          if (doneNow >= rows.length) { sfx("exercise"); burstFrom(block.querySelector(".ex-crest"), [tier.c, "#FFD166", "#FFFFFF"], 34); }
+          if (doneNow >= rows.length) { sfx("exercise"); burstFrom(block.querySelector(".ring9"), [tier.c, "#FFD166", "#FFFFFF"], 34); }
           else { sfx("set"); burstFrom(nodeEl, [tier.c, "#FFFFFF"], 12); }
-        }
-        paintCrest(block);
+        } else { stopRestTimer(); }
+        drawRing(block);
         persistSet(key, exx.name, row);
       }
+      block._toggleSet = toggleSet;
       rows.forEach(function (row, idx) {
-        row.querySelector(".mini-done").onclick = function () { toggleSet(idx); };
         row.querySelector(".reps-input").addEventListener("change", function () { persistSet(key, exx.name, row); });
         row.querySelector(".wt-input").addEventListener("change", function () { persistSet(key, exx.name, row); });
       });
-      Array.from(block.querySelectorAll(".ex-node")).forEach(function (node) {
+      Array.from(block.querySelectorAll(".ring-node")).forEach(function (node) {
         node.onclick = function () { toggleSet(parseInt(node.getAttribute("data-node"), 10)); };
       });
-      paintCrest(block);
+      /* The number under a corner is the way in when the planned ones were not what
+         happened -- a set that came off lighter, or more reps than you meant to do. */
+      Array.from(block.querySelectorAll(".ring-lab")).forEach(function (lab) {
+        lab.onclick = function () { openSetEdit(block, exx, key, parseInt(lab.getAttribute("data-lab"), 10)); };
+      });
+      drawRing(block);
 
       // fill in ghost "last time" values asynchronously
       getLastPerformance(exx.name).then(function (last) {
         if (!last) return;
+        block._last = last;
         last.sets.forEach(function (s, idx) {
           var slot = block.querySelector('[data-ghost-slot="' + idx + '"]');
           if (slot && s) slot.textContent = "Last time: " + (s.reps != null ? s.reps + " reps" : "") + (s.weight != null ? " @ " + s.weight : "");
@@ -3343,6 +3570,10 @@
     list.appendChild(cardioPage);          // cardio closes the session, so it closes the pager
     list.scrollLeft = 0;
     renderPagerDots();
+    /* The shapes are sized from the box they are in, and that box has no height until
+       the browser has laid the card out. Draw once now and once after. */
+    drawAllRings();
+    requestAnimationFrame(drawAllRings);
   }
 
   async function fillFromLastTime(exName, block, key) {
@@ -3357,6 +3588,7 @@
     });
     // persist all
     for (var i = 0; i < rows.length; i++) { await persistSet(key, exName, rows[i]); }
+    drawRing(block);
     vibrate(15);
   }
 
@@ -3586,6 +3818,7 @@
     var cpg = document.getElementById("cardioPage");
     cpg.dataset.ask = prog.cardio.min || 0;
     cpg.dataset.logged = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : "";
+    drawHill();
     document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
     document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : (prog.cardio.speed != null ? prog.cardio.speed : "");
     document.getElementById("cardioSaved").textContent = doc.cardio && doc.cardio.min != null ? "Logged" : "";
@@ -5013,6 +5246,7 @@
     }
     fitFigure();
     fitFood();
+    drawAllRings();
   }
 
   /* The macro strip is the first thing to go when the food card cannot hold its fixed
@@ -5028,7 +5262,7 @@
     /* The card is a fixed shape with nothing to scroll, so every pixel the rail is
        given has to be taken from something above it. These are the steps, cheapest
        first, and each one is only taken if the one before it was not enough. */
-    var steps = ["c9-strip1", "c9-nomacros", "c9-tightfood", "c9-notargets", "c9-noroom"];
+    var steps = ["c9-tinymacros", "c9-strip1", "c9-nomacros", "c9-tightfood", "c9-notargets", "c9-noroom"];
     steps.forEach(function (c) { root.classList.remove(c); });
     for (var i = 0; i < steps.length; i++) {
       if (card.scrollHeight <= card.clientHeight + 1) return;
@@ -5080,7 +5314,8 @@
      with the exercise it names. Cardio counts minutes because cardio has no sets. */
   function pageProgress(pg) {
     var head = pg.querySelector(".ex-head");
-    var hue = (head && head.style.getPropertyValue("--tier")) || "#6E9BFF";
+    var hue = pg.style.getPropertyValue("--tier") ||
+              (head && head.style.getPropertyValue("--tier")) || "#6E9BFF";
     if (pg.id === "cardioPage") {
       var ask = parseInt(pg.dataset.ask, 10) || 0;
       var got = pg.dataset.logged === "" || pg.dataset.logged == null ? null : parseInt(pg.dataset.logged, 10);
@@ -5546,6 +5781,12 @@
     return streak;
   }
 
+  function wireCardioHill() {
+    ["cardioMin", "cardioIncline", "cardioSpeed"].forEach(function (id) {
+      var el = document.getElementById(id); if (!el) return;
+      el.addEventListener("input", drawHill);
+    });
+  }
   function wireQuickSaves() {
     document.getElementById("saveWeightBtn").onclick = async function () {
       var key = dateKey(selectedDate);
@@ -5576,7 +5817,7 @@
       document.getElementById("cardioSaved").textContent = "Logged";
       var cpg = document.getElementById("cardioPage");
       cpg.dataset.logged = min == null ? "" : min;
-      paintPagerTabs();
+      paintPagerTabs(); drawHill();
       sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
       document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
       if (doc.cardio.min != null) fireFeedback("cardio", free
@@ -5739,17 +5980,22 @@
     var macEl = document.getElementById("todayMacros");
     if (macEl) {
       var bits = [
-        { n: "protein", v: prot, t: PLAN.protein, u: "g", over: false },
-        { n: "carbs",   v: carb, t: PLAN.carbs,   u: "g", over: false },
-        { n: "fat",     v: fat,  t: PLAN.fat,     u: "g", over: true },
-        { n: "fibre",   v: fib,  t: PLAN.fiber,   u: "g", over: false },
-        { n: "caffeine",v: caff, t: PLAN.caffeine,u: "mg", over: true }
+        { n: "protein", s: "prot", v: prot, t: PLAN.protein, u: "g", over: false },
+        { n: "carbs",   s: "carb", v: carb, t: PLAN.carbs,   u: "g", over: false },
+        { n: "fat",     s: "fat",  v: fat,  t: PLAN.fat,     u: "g", over: true },
+        { n: "fibre",   s: "fib",  v: fib,  t: PLAN.fiber,   u: "g", over: false },
+        { n: "caffeine",s: "caf",  v: caff, t: PLAN.caffeine,u: "mg", over: true }
       ];
+      /* Each name twice, long and short. When the strip has to go sideways the short
+         one is what fits five targets on one line -- and a target that fits is the
+         whole point of the strip. CSS swaps them; nothing re-renders. */
       macEl.innerHTML = bits.map(function (b) {
         var hit = b.t ? b.v / b.t : 0;
         var cls = !b.t ? "" : (b.over ? (hit > 1 ? " warn" : (hit >= 0.6 ? " ok" : "")) : (hit >= 1 ? " ok" : ""));
         return '<span class="tm' + cls + '"><b>' + Math.round(b.v) + '</b>' +
-          (b.t ? "/" + fmtInt(b.t) : "") + b.u + ' <i>' + b.n + '</i></span>';
+          (b.t ? "/" + fmtInt(b.t) : "") + b.u +
+          ' <i><span class="tm-long">' + b.n + '</span>' +
+          '<span class="tm-short">' + b.s + '</span></i></span>';
       }).join("");
       fitFood();
     }
@@ -6728,7 +6974,8 @@
        flex row squeezed the controls off the side of the screen. One list, and adding a
        sheet means adding it here and nowhere else. */
     ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
-     "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal"].forEach(function (id) {
+     "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal",
+     "setEditModal"].forEach(function (id) {
       if (id === except) return;
       var el = document.getElementById(id); if (el) el.style.display = "none";
     });
@@ -7192,7 +7439,7 @@
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireBody(); wireLabs(); wireProg(); wireSetup();
-    wireSessionTimer(); wireRestTimer(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
