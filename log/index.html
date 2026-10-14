@@ -149,6 +149,50 @@
   .t9-bar u { position: absolute; top: -2px; bottom: -2px; width: 2px; background: rgba(255,255,255,0.8); }
   .t9-record { font-family: var(--font-head); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
   .t9-record b { color: #7DF0B8; font-size: 13.5px; }
+  /* ---- the level bar ----
+     "Level 3 - 1,356 points" was two numbers with nothing between them: you could not
+     tell from it whether level 4 was tomorrow or next month. The same two numbers as a
+     bar answer that without being read. Notched like a health bar on purpose -- a
+     smooth fill is a percentage, and notches are a thing you can watch tick over. */
+  .t9-xp { display: flex; align-items: center; gap: 7px; margin-top: 6px; cursor: pointer; }
+  .t9-xp[hidden] { display: none; }
+  .t9-xp-lv { flex: 0 0 auto; font-family: var(--font-head); font-size: 9px;
+    letter-spacing: .08em; color: rgba(255,255,255,0.35); line-height: 1; }
+  .t9-xp-lv b { display: block; font-size: 13.5px; color: var(--ink); letter-spacing: .02em; }
+  .t9-xp-lv.next { text-align: right; }
+  .t9-xp-lv.next b { color: rgba(255,255,255,0.5); }
+  .t9-xp-bar { position: relative; flex: 1 1 auto; height: 14px; border-radius: 3px;
+    background: rgba(255,255,255,0.055); overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
+  .t9-xp-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+    background: #2A9E78;
+    transition: width .7s cubic-bezier(.2,.8,.3,1), left .7s cubic-bezier(.2,.8,.3,1); }
+  /* What today put on the bar, at the leading edge. Two flat steps of the one colour
+     with a dark edge between them: as gradients they met in the middle and the whole
+     thing read as a single ramp, which says nothing about where today began. */
+  .t9-xp-bar i.today { background: #7DF0B8; box-shadow: inset 2px 0 0 rgba(8,4,24,0.55),
+    0 0 12px -2px rgba(125,240,184,0.9); }
+  .t9-xp.levelled .t9-xp-bar { animation: xpPop .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes xpPop { 0% { transform: scaleY(1); } 45% { transform: scaleY(1.5); } 100% { transform: scaleY(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .t9-xp-bar i { transition: none; }
+    .t9-xp.levelled .t9-xp-bar { animation: none; }
+  }
+  /* The notches are painted over the fill in the card's own colour, so the bar reads
+     as segments without the fill having to know where they are. Thin: at 2px the gaps
+     were wider than the empty track was dark, and the unfilled half read as full. */
+  .t9-xp-bar::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 16 - 1.5px),
+      var(--surface) calc(100% / 16 - 1.5px) calc(100% / 16)); }
+  /* On the smallest card there is nothing to take the twenty-one pixels from: the
+     figure is already scrolling and the overflow goes up by exactly the bar's height.
+     The points and the distance are still on the record line above, so what is lost
+     here is the picture of them, not the facts. */
+  .c9-tiny .t9-xp { display: none; }
+  .c9-compact .t9-xp { margin-top: 4px; gap: 6px; }
+  .c9-compact .t9-xp-bar { height: 12px; }
+  .c9-compact .t9-xp-lv b { font-size: 12px; }
+  .c9-compact .t9-xp-togo { font-size: 9px; }
 
   .t9-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
   .t9-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 7px; border: 0;
@@ -1409,6 +1453,7 @@
           <div class="t9-score" id="t9Score"></div>
           <div class="t9-bar"><i id="t9Fill"></i><u id="t9Mark"></u></div>
           <div class="t9-record" id="t9Record"></div>
+          <div class="t9-xp" id="t9Xp" hidden></div>
         </div>
         <div class="t9-fig" id="t9Body"></div>
         <div class="t9-week" id="t9Week"></div>
@@ -5512,6 +5557,42 @@
   }
   /* Repaint the counts without rebuilding the strip, so a tab you are looking at does
      not jump out from under your thumb when a set lands. */
+  /* How far through this level you are, as a bar rather than as two numbers you have
+     to do arithmetic on. The span is this level's floor to the next level's floor, so
+     a long level reads as a long way and a short one does not. */
+  var lastLevelShown = null;
+  function renderLevelBar(pr) {
+    var el = document.getElementById("t9Xp");
+    if (!el) return;
+    var floor = pr.floorXP || 0, next = pr.nextXP || 0;
+    var span = Math.max(1, next - floor);
+    var into = Math.max(0, Math.min(span, (pr.total || 0) - floor));
+    /* Today's points sit at the leading edge in a lighter shade. They can only be the
+       part of the bar that is actually on it: on the day you level up, most of what
+       you earned went into the level you just left. */
+    var today = Math.max(0, Math.min(into, pr.todayXP || 0));
+    var before = into - today;
+    el.hidden = false;
+    el.innerHTML =
+      '<span class="t9-xp-lv">LVL<b>' + pr.level + '</b></span>' +
+      '<span class="t9-xp-bar">' +
+        '<i style="width:' + (100 * before / span).toFixed(1) + '%"></i>' +
+        (today > 0 ? '<i class="today" style="left:' + (100 * before / span).toFixed(1) +
+          '%; width:' + (100 * today / span).toFixed(1) + '%"></i>' : "") +
+      '</span>' +
+      '<span class="t9-xp-lv next">LVL<b>' + (pr.level + 1) + '</b></span>';
+    /* Levelling up is the one moment this whole bar exists for, so it is marked. */
+    if (lastLevelShown != null && pr.level > lastLevelShown) {
+      el.classList.remove("levelled"); void el.offsetWidth; el.classList.add("levelled");
+      sfx("exercise");
+      burstFrom(el, ["#7DF0B8", "#FFD166", "#FFFFFF"], 28);
+    }
+    lastLevelShown = pr.level;
+    /* The sheet behind it is where the levels, the parts and the badges live, so the
+       bar is the way in -- the same door the chips already are. */
+    el.onclick = openCharacter;
+  }
+
   function paintPagerTabs() {
     var list = document.getElementById("exerciseList");
     var dots = document.getElementById("exDots");
@@ -5632,7 +5713,16 @@
          fact and the same thing to protect. Two in a row is not a streak worth a
          headline, so it starts at three. */
       (pr.planRun > 2 ? "  \u00b7  <b>" + pr.planRun + "</b> days eating well" : "") +
-      "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points";
+      "  \u00b7  " + fmtInt(pr.total) + " points" +
+      /* How far, not just where. Printing it on the bar meant putting text over a
+         moving fill and under the notches; this is the line that is already text. */
+      (pr.nextXP > pr.total ? "  \u00b7  " + fmtInt(pr.nextXP - pr.total) + " to " +
+         /* Some levels rename you -- level 4 is "Getting going", level 7 is
+            "Consistent". When the next one is one of those, it is worth more as the
+            name than as the number. */
+         (rankTitle(pr.level + 1) !== rankTitle(pr.level)
+            ? rankTitle(pr.level + 1) : "level " + (pr.level + 1)) : "");
+    renderLevelBar(pr);
     /* a number that lands rather than appears: on the day you win it, you watch it go */
     if (renderTodayCard._shownWon != null && pr.daysWon > renderTodayCard._shownWon) {
       countTo(document.getElementById("t9Won"), pr.daysWon);
