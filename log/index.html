@@ -154,14 +154,9 @@
      tell from it whether level 4 was tomorrow or next month. The same two numbers as a
      bar answer that without being read. Notched like a health bar on purpose -- a
      smooth fill is a percentage, and notches are a thing you can watch tick over. */
-  .t9-xp { display: flex; align-items: center; gap: 7px; margin-top: 6px; cursor: pointer; }
+  .t9-xp { display: flex; align-items: center; margin: -3px 0 7px; cursor: pointer; }
   .t9-xp[hidden] { display: none; }
-  .t9-xp-lv { flex: 0 0 auto; font-family: var(--font-head); font-size: 9px;
-    letter-spacing: .08em; color: rgba(255,255,255,0.35); line-height: 1; }
-  .t9-xp-lv b { display: block; font-size: 13.5px; color: var(--ink); letter-spacing: .02em; }
-  .t9-xp-lv.next { text-align: right; }
-  .t9-xp-lv.next b { color: rgba(255,255,255,0.5); }
-  .t9-xp-bar { position: relative; flex: 1 1 auto; height: 14px; border-radius: 3px;
+  .t9-xp-bar { position: relative; flex: 1 1 auto; height: 10px; border-radius: 6px;
     background: rgba(255,255,255,0.055); overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07); }
   .t9-xp-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0;
@@ -182,17 +177,18 @@
      as segments without the fill having to know where they are. Thin: at 2px the gaps
      were wider than the empty track was dark, and the unfilled half read as full. */
   .t9-xp-bar::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 16 - 1.5px),
-      var(--surface) calc(100% / 16 - 1.5px) calc(100% / 16)); }
+    background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 18 - 2px),
+      var(--surface) calc(100% / 18 - 2px) calc(100% / 18)); }
   /* On the smallest card there is nothing to take the twenty-one pixels from: the
      figure is already scrolling and the overflow goes up by exactly the bar's height.
      The points and the distance are still on the record line above, so what is lost
      here is the picture of them, not the facts. */
+  /* On the smallest card there is nothing to take the bar's height from: the figure
+     is already scrolling and the overflow goes up by exactly that. The points and the
+     distance are still on the record line, so what is lost is the picture of them. */
   .c9-tiny .t9-xp { display: none; }
-  .c9-compact .t9-xp { margin-top: 4px; gap: 6px; }
-  .c9-compact .t9-xp-bar { height: 12px; }
-  .c9-compact .t9-xp-lv b { font-size: 12px; }
-  .c9-compact .t9-xp-togo { font-size: 9px; }
+  .c9-compact .t9-xp { margin: -2px 0 5px; }
+  .c9-compact .t9-xp-bar { height: 9px; }
 
   .t9-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
   .t9-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 7px; border: 0;
@@ -1452,8 +1448,8 @@
           <div class="t9-verdict" id="t9Verdict">&mdash;</div>
           <div class="t9-score" id="t9Score"></div>
           <div class="t9-bar"><i id="t9Fill"></i><u id="t9Mark"></u></div>
-          <div class="t9-record" id="t9Record"></div>
           <div class="t9-xp" id="t9Xp" hidden></div>
+          <div class="t9-record" id="t9Record"></div>
         </div>
         <div class="t9-fig" id="t9Body"></div>
         <div class="t9-week" id="t9Week"></div>
@@ -1625,6 +1621,9 @@
         </div>
         <svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
         <div class="w9-scroll">
+          <!-- The level lived under the day's score on the Today card, which put two
+               bars on one card with a line of words between them. It belongs on the
+               tab that is already about the long view, where it is the only bar. -->
           <div class="wins-card" id="winsCard" hidden>
             <div class="wins-head">
               <div class="wins-title">How far you've come</div>
@@ -5574,13 +5573,11 @@
     var before = into - today;
     el.hidden = false;
     el.innerHTML =
-      '<span class="t9-xp-lv">LVL<b>' + pr.level + '</b></span>' +
       '<span class="t9-xp-bar">' +
         '<i style="width:' + (100 * before / span).toFixed(1) + '%"></i>' +
         (today > 0 ? '<i class="today" style="left:' + (100 * before / span).toFixed(1) +
           '%; width:' + (100 * today / span).toFixed(1) + '%"></i>' : "") +
-      '</span>' +
-      '<span class="t9-xp-lv next">LVL<b>' + (pr.level + 1) + '</b></span>';
+      '</span>';
     /* Levelling up is the one moment this whole bar exists for, so it is marked. */
     if (lastLevelShown != null && pr.level > lastLevelShown) {
       el.classList.remove("levelled"); void el.offsetWidth; el.classList.add("levelled");
@@ -5713,13 +5710,8 @@
          fact and the same thing to protect. Two in a row is not a streak worth a
          headline, so it starts at three. */
       (pr.planRun > 2 ? "  \u00b7  <b>" + pr.planRun + "</b> days eating well" : "") +
-      "  \u00b7  " + fmtInt(pr.total) + " points" +
-      /* How far, not just where. Printing it on the bar meant putting text over a
-         moving fill and under the notches; this is the line that is already text. */
+      "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points" +
       (pr.nextXP > pr.total ? "  \u00b7  " + fmtInt(pr.nextXP - pr.total) + " to " +
-         /* Some levels rename you -- level 4 is "Getting going", level 7 is
-            "Consistent". When the next one is one of those, it is worth more as the
-            name than as the number. */
          (rankTitle(pr.level + 1) !== rankTitle(pr.level)
             ? rankTitle(pr.level + 1) : "level " + (pr.level + 1)) : "");
     renderLevelBar(pr);
