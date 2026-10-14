@@ -4708,13 +4708,13 @@
     { id: "wellfed",  name: "Eating in range", gain: 0.10,
       test: function (g, pr) { return pr.planRun >= 3; },
       why:  function (g, pr) { return pr.planRun + " days of eating well, back to back"; } },
-    { id: "conditioned", name: "Cardio is recent", gain: 0.10,
+    { id: "conditioned", name: "Cardio recent", gain: 0.10,
       test: function (g) { return g.sinceCardio <= 1; },
       why:  function () { return "cardio logged today or yesterday"; } },
     { id: "forged",   name: "Record lately",   gain: 0.15,
       test: function (g) { return g.daysSincePR != null && g.daysSincePR <= 7; },
       why:  function (g) { return g.daysSincePR === 0 ? "your best day of sets, today" : "your best day of sets, " + g.daysSincePR + " days ago"; } },
-    { id: "devoted",  name: "All given away", gain: 0.10,
+    { id: "devoted",  name: "All given", gain: 0.10,
       test: function () { return givenTotal() > 0 && accruedOutstanding() <= 0; },
       why:  function () { return "every penny your work earned has been given"; } }
   ];
@@ -5132,13 +5132,13 @@
      and lifting is always orange -- and the STATE drives the light: lit and glowing
      when today fed it, dim when it is still waiting, red when something is wrong. */
   var SLOTS = [
-    { key: "helmet", name: "Giving",     part: "Head",  fed: "giving away what you earned", icon: "helm",   hue: "#FFD166" },
-    { key: "chest",  name: "Food",       part: "Core",  fed: "meals inside your window", icon: "chest",  hue: "#7DF0B8" },
-    { key: "weapon", name: "Showing up", part: "Weapon", fed: "days logged in a row",   icon: "weapon", hue: "#FF4FD8" },
-    { key: "shield", name: "Eating well", part: "Shield", fed: "days eating well in a row", icon: "shield", hue: "#B06BFF" },
-    { key: "belt",   name: "Lifting",    part: "Waist", fed: "sets you finish",          icon: "belt",   hue: "#FF8A5B" },
-    { key: "legs",   name: "Walking",    part: "Legs",  fed: "cardio minutes",           icon: "legs",   hue: "#6FD0FF" },
-    { key: "boots",  name: "Weighing",   part: "Feet",  fed: "times on the scale",       icon: "boots",  hue: "#5B8CFF" }
+    { key: "helmet", name: "Giving",     part: "Head",  icon: "helm",   hue: "#FFD166" },
+    { key: "chest",  name: "Food",       part: "Core",  icon: "chest",  hue: "#7DF0B8" },
+    { key: "weapon", name: "Showing up", part: "Weapon", icon: "weapon", hue: "#FF4FD8" },
+    { key: "shield", name: "Eating well", part: "Shield", icon: "shield", hue: "#B06BFF" },
+    { key: "belt",   name: "Lifting",    part: "Waist", icon: "belt",   hue: "#FF8A5B" },
+    { key: "legs",   name: "Walking",    part: "Legs",  icon: "legs",   hue: "#6FD0FF" },
+    { key: "boots",  name: "Weighing",   part: "Feet",  icon: "boots",  hue: "#5B8CFF" }
   ];
   /* Which part a penalty lands on, so the thing that is wrong is the thing that
      lights up red rather than a chip somewhere else on the card. */
@@ -5323,7 +5323,7 @@
         if (BUILD_TIERS[ti].at > r.built) { nextT = BUILD_TIERS[ti]; break; }
       }
       var need = nextT ? Math.max(1, Math.ceil((nextT.at - r.built) / r.per)) : null;
-      return { key: sl.key, name: sl.name, part: sl.part, fed: sl.fed, icon: sl.icon, hue: sl.hue,
+      return { key: sl.key, name: sl.name, part: sl.part, icon: sl.icon, hue: sl.hue,
                blocked: !!r.blocked,
                built: r.built, face: r.face, detail: r.detail,
                rarity: tier, next: nextT, need: need,
@@ -5946,7 +5946,7 @@
     }));
     var room = document.documentElement.classList.contains("c9-compact") &&
                (document.querySelector(".card9") || {}).clientWidth < 330 ? 0 : 1;
-    var chips = ['<span class="t9-chip mult">everything counts ' + eff + '\u00d7</span>'];
+    var chips = ['<span class="t9-chip mult">everything ' + eff + '\u00d7</span>'];
     states.slice(0, room).forEach(function (st) {
       chips.push('<span class="t9-chip ' + st.cls + '">' + st.t + '</span>');
     });
