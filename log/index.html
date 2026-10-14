@@ -187,6 +187,7 @@
      is already scrolling and the overflow goes up by exactly that. The points and the
      distance are still on the record line, so what is lost is the picture of them. */
   .c9-tiny .t9-xp { display: none; }
+  .c9-tiny .rec-next { display: none; }
   .c9-compact .t9-xp { margin: -2px 0 5px; }
   .c9-compact .t9-xp-bar { height: 9px; }
 
@@ -5711,9 +5712,12 @@
          headline, so it starts at three. */
       (pr.planRun > 2 ? "  \u00b7  <b>" + pr.planRun + "</b> days eating well" : "") +
       "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points" +
-      (pr.nextXP > pr.total ? "  \u00b7  " + fmtInt(pr.nextXP - pr.total) + " to " +
-         (rankTitle(pr.level + 1) !== rankTitle(pr.level)
-            ? rankTitle(pr.level + 1) : "level " + (pr.level + 1)) : "");
+      /* Wrapped in its own span so the smallest card can drop it: there the bar is
+         already gone, and this much extra text took the line to two, which cost more
+         than the sentence was worth. */
+      (pr.nextXP > pr.total ? '<span class="rec-next">  \u00b7  ' + fmtInt(pr.nextXP - pr.total) + " to " +
+         esc(rankTitle(pr.level + 1) !== rankTitle(pr.level)
+            ? rankTitle(pr.level + 1) : "level " + (pr.level + 1)) + '</span>' : "");
     renderLevelBar(pr);
     /* a number that lands rather than appears: on the day you win it, you watch it go */
     if (renderTodayCard._shownWon != null && pr.daysWon > renderTodayCard._shownWon) {
