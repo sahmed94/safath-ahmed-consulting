@@ -220,6 +220,9 @@
   .t9-fig { flex: 1 1 auto; min-height: 0; position: relative; display: flex;
     flex-direction: column; justify-content: safe center; gap: 7px; padding: 1px 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  /* see fitFigure: only ever on when the figure has outgrown every rung it has */
+  .t9-fig.fg-cut { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent); }
   .fg-spine { position: absolute; left: 50%; top: 26px; bottom: 62px; width: 2px;
     margin-left: -1px; background: rgba(255,255,255,0.12); }
   .fg-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 40px minmax(0,1fr);
@@ -482,10 +485,68 @@
   .c9-roomy .fg-core > .fg-arm .fg-d { max-width: 132px; }
   .c9-roomy .fg-macros { font-size: 9.5px; gap: 11px; }
   .c9-roomy .t9-fig { gap: 11px; }
+
+  /* The last rung of the figure, for a phone whose real viewport is 600-odd pixels
+     rather than the 850 the spec sheet claims. Compact alone left the figure 100px
+     taller than the room it had, so the word under the rings came out sliced in half
+     by the week strip -- a hero image that reads as broken. Here the rings come down,
+     the macro legend goes (the Food tab is the place for grams), and the three along
+     the base lie down on their side, which is where most of the height was. */
+  .c9-figtiny .t9-fig { gap: 2px; padding: 0; }
+  .c9-figtiny .fg-macros { display: none; }
+  .c9-figtiny .fg-node { width: 32px; height: 32px; border-radius: 9px; }
+  .c9-figtiny .fg-node svg { width: 15px; height: 15px; }
+  .c9-figtiny .fg-node em { font-size: 6px; }
+  .c9-figtiny .fg-row { grid-template-columns: minmax(0,1fr) 32px minmax(0,1fr); }
+  .c9-figtiny .fg-rings, .c9-figtiny .fg-rings svg { width: 70px; height: 70px; }
+  .c9-figtiny .fg-kcal b { font-size: 15px; }
+  .c9-figtiny .fg-core::before { top: 22px; }
+  .c9-figtiny .fg-core > .fg-arm { padding-top: 10px; }
+  .c9-figtiny .fg-spine { top: 20px; bottom: 40px; }
+  .c9-figtiny .fg-n { font-size: 11.5px; }
+  .c9-figtiny .fg-d { font-size: 8.5px; }
+  /* Lying down: node, then the name and the reading stacked beside it, with the
+     badge on the end. The connector that ran through three stacked heads has
+     nothing left to join, so it goes. */
+  .c9-figtiny .fg-base { gap: 4px; }
+  .c9-figtiny .fg-base::before { display: none; }
+  /* Head on the left, the name over its reading in the middle, today's badge on the
+     end: four stacked rows become two, and the cell can be a third of the card wide
+     without the last name running off the edge. */
+  .c9-figtiny .fg-base .fg-arm { display: grid; grid-template-columns: auto minmax(0,1fr) auto;
+    grid-template-rows: auto auto; align-items: center; column-gap: 4px; row-gap: 0; }
+  .c9-figtiny .fg-base .fg-arm .fg-node { grid-area: 1 / 1 / 3 / 2; }
+  .c9-figtiny .fg-base .fg-arm .fg-n { grid-area: 1 / 2 / 2 / 3; font-size: 11px; }
+  .c9-figtiny .fg-base .fg-arm .fg-d { grid-area: 2 / 2 / 3 / 3; font-size: 8px; }
+  .c9-figtiny .fg-base .fg-arm .fg-add { grid-area: 1 / 3 / 3 / 4; }
+  .c9-figtiny .fg-base .fg-arm .fg-n,
+  .c9-figtiny .fg-base .fg-arm .fg-d { text-align: left; max-width: 100%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .c9-figtiny .fg-base .fg-add { font-size: 9px; padding: 1px 5px; }
+  /* The core's middle column was the tallest thing left: rings, then the word, then
+     the badge, three stacked rows under a circle. The word and the badge go on one
+     line beside each other instead, which is the last twenty pixels the figure needed
+     to stop being cut through the middle. */
+  .c9-figtiny .fg-core > .fg-arm:nth-child(2) { flex-flow: row wrap; justify-content: center;
+    column-gap: 6px; }
+  .c9-figtiny .fg-core > .fg-arm:nth-child(2) .fg-rings { flex: 0 0 100%; }
+  .c9-figtiny .fg-arm { gap: 1px; }
   .c9-compact .t9-chip { font-size: 9.5px; padding: 2px 6px; }
-  .c9-compact .weight9 .weight-chart { height: 74px; }
-  .c9-compact .w9-big { font-size: 34px; }
+  /* The weight card carries six fixed blocks above a scrolling history. On a real
+     phone viewport they added up to more than the card, so the history -- the whole
+     reason the tab scrolls -- was given nought to seven pixels. The fixed blocks give
+     way instead, and at the smallest size the chart goes: the history below it says
+     the same thing in numbers, and an input you cannot reach is worse than a trend
+     you cannot see. */
+  .c9-compact .weight9 .weight-chart { height: 58px; }
+  .c9-compact .w9-big { font-size: 28px; }
+  .c9-compact .w9-sub { font-size: 10px; }
+  .c9-compact .w9-tile { padding: 6px 8px; }
   .c9-compact .w9-tile > b, .c9-compact .w9-tile .rate-main b { font-size: 17px; }
+  .c9-compact .w9-tile > span { font-size: 8.5px; }
+  .c9-compact .w9-tile .rate-main { font-size: 11px; }
+  .c9-compact .w9-tile i { font-size: 8.5px; margin-top: 1px; }
+  .c9-tiny .weight9 .weight-chart { display: none; }
   .c9-compact .plan-btn { padding: 8px 10px; font-size: 11px; }
   .c9-compact .f9-targets > div { padding: 5px 4px; }
   .c9-compact .f9-targets b { font-size: 11.5px; }
@@ -814,6 +875,8 @@
      sits ON an accent is the page's own near-black. */
   .save-chip.primary { background: var(--blue); color: #0E0A1C; border-color: var(--blue); font-weight: 700; }
   .saved-tick { font-size: 11px; color: var(--teal); margin-top: 6px; min-height: 14px; font-weight: 600; }
+  /* Nothing to confirm, nothing to hold room for. */
+  .saved-tick:empty { display: none; }
 
   .plan-hero { display: flex; gap: 14px; align-items: center; }
   .plan-hero-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
@@ -1285,15 +1348,19 @@
   .cs-sub { font-size: 10.5px; color: rgba(255,255,255,0.42); margin-top: 4px; }
   .gear-row { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.1); }
   .gear-row:first-child { border-top: none; }
-  .gear-level { flex: 0 0 52px; height: 52px; border-radius: 12px; display: flex; flex-direction: column;
+  .gear-level { flex: 0 0 46px; height: 46px; border-radius: 12px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 1px; background: rgba(255,255,255,0.06); position: relative; }
   .gear-level svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8;
     stroke-linejoin: round; stroke-linecap: round; opacity: .9; }
-  .gear-level em { font-style: normal; font-family: var(--font-head); font-size: 11px; font-weight: 600;
-    line-height: 1; letter-spacing: .04em; text-transform: uppercase; }
+  /* The longest of these words is WEAPON, which at eleven pixels hung off both sides
+     of its own tile. The tile is the frame; the word stays inside it. */
+  .gear-level em { font-style: normal; font-family: var(--font-head); font-size: 8.5px; font-weight: 600;
+    line-height: 1; letter-spacing: .02em; text-transform: uppercase; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; }
   .gear-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   .gear-body b { font-size: 13.5px; }
   .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .gear-meta i { font-style: normal; font-weight: 600; }
   .state-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; margin-bottom: 6px; }
   .state-row.good { background: rgba(125,240,184,0.14); box-shadow: inset 0 0 0 1px rgba(125,240,184,0.34); }
   .state-row.bad { background: rgba(255,107,74,0.14); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.38); }
@@ -1303,7 +1370,6 @@
   .st-fix { display: block; font-size: 10.5px; color: rgba(255,255,255,0.45); margin-top: 2px; }
   .st-c { font-family: var(--font-head); font-size: 13px; flex: 0 0 auto; }
   .state-row.good .st-c { color: #7DF0B8; } .state-row.bad .st-c { color: #FF8F6B; }
-  .char-note { font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.45); margin: -4px 0 9px; }
   .char-foot { margin-top: 14px; background: rgba(255,255,255,0.08); border-radius: 11px; padding: 11px 12px;
     font-size: 11.5px; line-height: 1.5; color: rgba(255,255,255,0.72); }
 
@@ -1662,17 +1728,17 @@
     <div class="give-why" id="giveWhy"></div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field" style="flex:0 0 76px;"><label>Currency</label><input type="text" id="giveCurrency" maxlength="3"></div>
-      <div class="field"><label>Amount given</label><input type="number" step="0.01" id="giveAmount"></div>
+      <div class="field"><label>Amount</label><input type="number" step="0.01" id="giveAmount"></div>
     </div>
     <div class="field" style="margin-bottom:8px;"><label>Note (optional)</label><input type="text" id="giveNote" placeholder="where it went"></div>
     <div class="field" style="margin-bottom:8px;"><label>Cause</label><input type="text" id="giveCause"></div>
-    <div class="field" style="margin-bottom:14px;"><label id="giveDedLabel">Who is today for?</label><input type="text" id="giveDedication" placeholder="a name, or an intention"></div>
-    <div class="give-sec">What each thing is worth</div>
+    <div class="field" style="margin-bottom:14px;"><label id="giveDedLabel">Today is for</label><input type="text" id="giveDedication" placeholder="a name, or an intention"></div>
+    <div class="give-sec">Rates</div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Per session</label><input type="number" step="0.5" id="giveSession"></div>
       <div class="field"><label>Per day on plan</label><input type="number" step="0.5" id="giveOnPlan"></div>
     </div>
-    <div class="field" style="margin-bottom:14px;"><label>Per week the streak survives</label><input type="number" step="1" id="giveWeek"></div>
+    <div class="field" style="margin-bottom:14px;"><label>Per streak week</label><input type="number" step="1" id="giveWeek"></div>
     <div class="give-sec">Already given</div>
     <div id="giveHistory"></div>
     <div class="modal-actions">
@@ -1687,11 +1753,9 @@
       <div class="char-power"><span id="charPower">0</span><small>PARTS GOING</small></div>
       <div class="char-sub" id="charSub"></div>
     </div>
-    <div class="char-section">Your seven parts</div>
+    <div class="char-section">Parts</div>
     <div id="charSlots"></div>
-    <div class="char-section">What is helping, what is costing</div>
-    <div class="char-note">Each one is a fact about the last few days. Added together they
-      change how much today's points are worth — nothing else.</div>
+    <div class="char-section">Helping &amp; costing</div>
     <div id="charStates"></div>
     <div class="char-section">Milestones</div>
     <div class="rk-badges" id="charBadges"></div>
@@ -1718,7 +1782,7 @@
       <div class="field"><label>Daily deficit</label><input type="number" id="planDeficit" step="50"></div>
     </div>
     <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Floor — don't go below</label><input type="number" id="planFloor" step="50"></div>
+      <div class="field"><label>Floor</label><input type="number" id="planFloor" step="50"></div>
       <div class="field"><label>Protein (g)</label><input type="number" id="planProtein"></div>
     </div>
     <div class="field-row" style="margin-bottom:8px;">
@@ -1729,8 +1793,8 @@
       <div class="field"><label>Carbs (g)</label><input type="number" id="planCarbs"></div>
       <div class="field"><label>Caffeine cap (mg)</label><input type="number" id="planCaffeine" step="10"></div>
     </div>
-    <button class="ghost-btn" id="planSuggestBtn" style="width:100%; margin-top:10px;">Work out good targets for me</button>
-    <button class="ghost-btn" id="planBodyBtn" style="width:100%; margin-top:8px;">Height and date of birth &rarr;</button>
+    <button class="ghost-btn" id="planSuggestBtn" style="width:100%; margin-top:10px;">Suggest targets</button>
+    <button class="ghost-btn" id="planBodyBtn" style="width:100%; margin-top:8px;">Height &amp; date of birth &rarr;</button>
     <div class="plan-math" id="planMath"></div>
     <div class="plan-warn" id="planWarn" hidden></div>
     <div class="modal-actions">
@@ -1741,7 +1805,7 @@
 
   <!-- Seven days, and what they add up to -->
   <div class="modal-inner" id="weekModal" style="display:none;">
-    <h3 id="weekTitle">The last seven days</h3>
+    <h3 id="weekTitle">Last seven days</h3>
     <div class="wk-tot" id="weekTotals"></div>
     <div class="wk-table" id="weekTable"></div>
     <div class="wk-read" id="weekRead"></div>
@@ -1775,12 +1839,12 @@
     <h3>Your week</h3>
     <div class="prog-days" id="progDays"></div>
     <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Name for this day</label><input type="text" id="progName"></div>
+      <div class="field"><label>Day name</label><input type="text" id="progName"></div>
       <div class="field"><label>Cardio (min)</label><input type="number" id="progCardio" min="0" step="5"></div>
     </div>
     <div class="prog-scroll" id="progList"></div>
-    <button class="ghost-btn" id="progAddBtn" style="width:100%; margin-top:10px;">Add an exercise</button>
-    <div class="f9-note" style="margin-top:10px;">A day with no exercises is a cardio day. Leave a default weight empty and the app will ask for it the first time.</div>
+    <button class="ghost-btn" id="progAddBtn" style="width:100%; margin-top:10px;">Add exercise</button>
+    <div class="f9-note" style="margin-top:10px;">No exercises = a cardio day. An empty weight gets asked for the first time.</div>
     <div class="modal-actions">
       <button class="danger-btn" id="progResetBtn">Reset day</button>
       <button class="close-btn" id="progCancelBtn">Cancel</button>
@@ -1792,22 +1856,21 @@
   <!-- First sign-in: the three answers everything else is worked out from -->
   <div class="modal-inner" id="setupModal" style="display:none;">
     <h3 id="setupTitle">Welcome</h3>
-    <div class="f9-note" style="margin-bottom:10px;">Three answers and the app sets itself up:
-      your calories for the day, your protein, carbs, fat, fibre and caffeine, and the weight it
-      measures everything from. All of it editable afterwards.</div>
+    <div class="f9-note" style="margin-bottom:10px;">A few answers and the app sets your calories,
+      macros and starting weight. All editable later.</div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Date of birth</label><input type="date" id="setupBorn"></div>
       <div class="field"><label>Weight today (lb)</label><input type="number" id="setupWeight" step="0.1"></div>
     </div>
     <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Height &mdash; feet</label><input type="number" id="setupFt" min="3" max="8"></div>
-      <div class="field"><label>and inches</label><input type="number" id="setupIn" min="0" max="11" step="0.5"></div>
+      <div class="field"><label>Height (ft)</label><input type="number" id="setupFt" min="3" max="8"></div>
+      <div class="field"><label>(in)</label><input type="number" id="setupIn" min="0" max="11" step="0.5"></div>
     </div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Sex</label>
         <select id="setupSex"><option value="">Choose</option><option value="female">Female</option><option value="male">Male</option></select>
       </div>
-      <div class="field"><label>How hard is your week</label><select id="setupActivity"></select></div>
+      <div class="field"><label>Activity</label><select id="setupActivity"></select></div>
     </div>
     <div class="f9-note" id="setupWorking" style="margin-bottom:10px;"></div>
     <div class="modal-actions">
@@ -1819,8 +1882,8 @@
   <div class="modal-inner" id="bodyModal" style="display:none;">
     <h3>Your body</h3>
     <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Height &mdash; feet</label><input type="number" id="bodyFt" min="3" max="8"></div>
-      <div class="field"><label>and inches</label><input type="number" id="bodyIn" min="0" max="11" step="0.5"></div>
+      <div class="field"><label>Height (ft)</label><input type="number" id="bodyFt" min="3" max="8"></div>
+      <div class="field"><label>(in)</label><input type="number" id="bodyIn" min="0" max="11" step="0.5"></div>
     </div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Date of birth</label><input type="date" id="bodyBorn"></div>
@@ -1828,14 +1891,14 @@
         <select id="bodySex"><option value="male">Male</option><option value="female">Female</option></select>
       </div>
     </div>
-    <div class="field" style="margin-bottom:8px;"><label>How hard is your week</label>
+    <div class="field" style="margin-bottom:8px;"><label>Activity</label>
       <select id="bodyActivity"></select>
     </div>
     <div class="f9-note" id="bodyWorking" style="margin-bottom:10px;"></div>
-    <button class="ghost-btn" id="bodySuggestBtn" style="width:100%; margin-bottom:10px;">Work out my maintenance from this</button>
+    <button class="ghost-btn" id="bodySuggestBtn" style="width:100%; margin-bottom:10px;">Work out my maintenance</button>
     <label class="track-row" for="bodyTrack">
       <input type="checkbox" id="bodyTrack">
-      <span>Move my maintenance as my weight changes</span>
+      <span>Move maintenance as my weight changes</span>
     </label>
     <div class="modal-actions">
       <button class="close-btn" id="bodyCancelBtn">Cancel</button>
@@ -1846,7 +1909,7 @@
   <!-- Blood work: files the owner uploads, listed by date -->
   <div class="modal-inner" id="labsModal" style="display:none;">
     <h3>Blood work</h3>
-    <div class="f9-note" style="margin-bottom:10px;">A PDF or a photo of a panel. Stored against your account only.</div>
+    <div class="f9-note" style="margin-bottom:10px;">A PDF or photo of a panel. Yours only.</div>
     <label class="food-upload-btn f9-write" for="labsFileInput" style="margin-bottom:10px;">&#128206; Add a file</label>
     <input type="file" id="labsFileInput" accept="application/pdf,image/*" style="display:none;">
     <div id="labsList" class="again-scroll"></div>
@@ -1859,7 +1922,7 @@
   <div class="modal-inner" id="redeemModal" style="display:none;">
     <h3>Make up a missed walk</h3>
     <div class="redeem-meter">
-      <div class="rm-top"><b id="redeemSpare">0</b><span>spare minutes today</span></div>
+      <div class="rm-top"><b id="redeemSpare">0</b><span>spare min today</span></div>
       <div class="rm-track"><i id="redeemFill"></i></div>
       <div class="rm-note" id="redeemNote"></div>
     </div>
@@ -2097,11 +2160,11 @@
   }
   var BODY = Object.assign({}, DEFAULT_BODY);
   var ACTIVITY = [
-    { v: 1.2,   label: "Desk job, no training" },
-    { v: 1.375, label: "Light \u2014 one to three days" },
-    { v: 1.55,  label: "Moderate \u2014 three to five days" },
-    { v: 1.725, label: "Hard \u2014 six or seven days" },
-    { v: 1.9,   label: "Very hard \u2014 physical job too" }
+    { v: 1.2,   label: "Desk job \u00b7 no training" },
+    { v: 1.375, label: "Light \u00b7 1\u20133 days" },
+    { v: 1.55,  label: "Moderate \u00b7 3\u20135 days" },
+    { v: 1.725, label: "Hard \u00b7 6\u20137 days" },
+    { v: 1.9,   label: "Very hard \u00b7 physical job" }
   ];
   var latestWeightLb = null;
 
@@ -2891,7 +2954,7 @@
       document.getElementById("rateValue").textContent = "—";
       document.getElementById("rateValue").parentNode.className = "rate-main";
       document.getElementById("rateSub").textContent =
-        "Weigh in on at least three days in a fortnight and this becomes a trend. Single weigh-ins swing too much to read.";
+        "Three weigh-ins in a fortnight makes a trend.";
       return;
     }
     row.hidden = false;
@@ -2901,27 +2964,27 @@
     el.parentNode.className = "rate-main " + (v < -0.1 ? "good" : v > 0.25 ? "bad" : "");
     var impliedDeficit = Math.round(-v * 3500 / 7);
     document.getElementById("rateSub").textContent =
-      "Trend across " + r.n + " weigh-ins over " + Math.round(r.spanDays) + " days. " +
+      r.n + " in " + Math.round(r.spanDays) + "d \u00b7 " +
       (Math.abs(v) < 0.15
-        ? "Flat — too close to zero to call either way yet."
+        ? "flat so far"
         : v < 0
-          ? "That rate implies about " + fmtInt(impliedDeficit) + " kcal/day under maintenance."
-          : "Going the wrong way: about " + fmtInt(-impliedDeficit) + " kcal/day over maintenance.");
+          ? "\u2248" + fmtInt(impliedDeficit) + " kcal under"
+          : "\u2248" + fmtInt(-impliedDeficit) + " kcal over");
   }
 
   async function renderTopStats() {
     var keys = await getAllDayKeys();
     var latest = latestWeightLb;
     document.getElementById("statWeight").textContent = latest != null ? latest + " lb" : "—";
-    document.getElementById("statWeightSub").textContent = latest != null ? "most recent log" : "not logged yet";
+    document.getElementById("statWeightSub").textContent = latest != null ? "latest" : "not logged";
     var lossSub = document.getElementById("statTotalLossSub");
     var conf = profileConf();
     if (conf && conf.startWeight != null) {
-      if (lossSub) lossSub.textContent = "since " + conf.startWeight + " lb start";
+      if (lossSub) lossSub.textContent = "from " + conf.startWeight + " lb";
       if (latest != null) { var loss = (conf.startWeight - latest).toFixed(1); document.getElementById("statTotalLoss").textContent = (loss >= 0 ? "-" : "+") + Math.abs(loss) + " lb"; }
       else { document.getElementById("statTotalLoss").textContent = "—"; }
     } else {
-      if (lossSub) lossSub.textContent = "vs. first logged weight";
+      if (lossSub) lossSub.textContent = "from first weigh-in";
       var keysAsc = keys.slice().sort();
       var earliest = null;
       for (var j = 0; j < keysAsc.length; j++) { var dd = await getDayDoc(keysAsc[j]); if (dd.weight != null) { earliest = dd.weight; break; } }
@@ -3804,7 +3867,7 @@
     document.getElementById("modalOverlay").classList.add("open");
 
     var hist = await getExerciseHistory(exName, 12);
-    if (hist.length === 0) { listEl.innerHTML = '<div class="empty">No completed sets logged yet for this exercise.</div>'; return; }
+    if (hist.length === 0) { listEl.innerHTML = '<div class="empty">No sets logged for this exercise yet.</div>'; return; }
     /* Sets and reps, not pounds. What this list is for is seeing whether the work is
        going up, and the work is the sets you finished and the reps inside them --
        which also compares honestly across a machine, a dumbbell and a cable. */
@@ -3845,24 +3908,22 @@
     var macroKcal = g("planProtein") * 4 + g("planFat") * 9 + g("planCarbs") * 4;
     var off = macroKcal - eat;
     document.getElementById("planMath").innerHTML =
-      "Eat <b>" + fmtInt(eat) + " kcal</b> a day. At a " + fmtInt(d) + " deficit that is about <b>" +
-      lbWk.toFixed(1) + " lb a week</b>, or " + (lbWk * 4.33).toFixed(1) + " lb a month." +
-      "<br>Scoring treats " + fmtInt(fl) + "–" + fmtInt(eat) + " as a full day. Above " + fmtInt(eat) +
-      " the score falls away; below " + fmtInt(fl) + " it falls away too." +
-      "<br>Protein, fat and carbs as set come to <b>" + fmtInt(macroKcal) + " kcal</b>" +
-      (Math.abs(off) <= 60 ? ", which is the day."
-        : (off > 0 ? ", which is " + fmtInt(off) + " over the day."
-                   : ", leaving " + fmtInt(-off) + " kcal of the day unspoken for."));
+      "Eat <b>" + fmtInt(eat) + " kcal</b> \u00b7 <b>" + lbWk.toFixed(1) + " lb/wk</b> \u00b7 " +
+      (lbWk * 4.33).toFixed(1) + " lb/mo" +
+      "<br>Full score " + fmtInt(fl) + "\u2013" + fmtInt(eat) + ". Outside that it falls away." +
+      "<br>Macros as set: <b>" + fmtInt(macroKcal) + " kcal</b>" +
+      (Math.abs(off) <= 60 ? ""
+        : (off > 0 ? " \u00b7 " + fmtInt(off) + " over"
+                   : " \u00b7 " + fmtInt(-off) + " unspoken for"));
     var warn = document.getElementById("planWarn");
     if (eat < 1500 || fl < 1500) {
       warn.hidden = false;
-      warn.innerHTML = "<b>Under 1,500 kcal a day</b> is the point where the usual advice for men is to " +
-        "have someone medical watching. Your resting burn alone is about " + fmtInt(BMR_EST) + " kcal. " +
-        "The app will do what you set here — this is a note, not a block.";
+      warn.innerHTML = "<b>Under 1,500 kcal</b> is where the usual advice for men is to have someone " +
+        "medical watching \u2014 your resting burn alone is about " + fmtInt(BMR_EST) + " kcal. A note, not a block.";
     } else if (lbWk > 2) {
       warn.hidden = false;
-      warn.innerHTML = "<b>" + lbWk.toFixed(1) + " lb a week</b> is faster than the 1–2 lb that usually holds. " +
-        "Above that, more of what comes off tends to be muscle rather than fat.";
+      warn.innerHTML = "<b>" + lbWk.toFixed(1) + " lb/wk</b> is faster than the 1\u20132 lb that holds. " +
+        "Above that, more of what comes off is muscle.";
     } else { warn.hidden = true; }
   }
   function openPlanSheet() {
@@ -3962,7 +4023,7 @@
       '<div class="wh-note">' + (bandFrom !== bandTo
         ? "Out of the <b>" + bandFrom + "</b> band and into <b>" + bandTo + "</b>."
         : "Still in the <b>" + bandTo + "</b> band.") +
-      " Standard reference: under 5.7 normal, 5.7–6.4 prediabetes.</div>";
+      "</div>";
 
     var rows = [
       { k: "LDL cholesterol", a: first.ldl, b: last.ldl, lowerIsBetter: true, unit: "" },
@@ -3985,8 +4046,8 @@
     var a1cGood = last.a1c < first.a1c;
     var total = rows.length + 1, won = improved + (a1cGood ? 1 : 0);
     document.getElementById("winsFoot").textContent = won === total
-      ? "Every marker moved the right way. The scale is the noisiest measurement you own and the slowest to move — this is the one that says whether it worked."
-      : won + " of " + total + " markers moved the right way over " + months + " months.";
+      ? "Every marker moved the right way."
+      : won + " of " + total + " markers moved the right way.";
   }
 
   function renderPlanLabels() {
@@ -4660,9 +4721,9 @@
 
   /* ---- the windows that pay more while they are open ---- */
   var WINDOWS = [
-    { key: "dawn",  from: 5,  to: 10, label: "Morning weigh-in", what: "Step on the scale before 10am" },
-    { key: "midday", from: 11, to: 15, label: "Midday plate",     what: "Photograph lunch before 3pm" },
-    { key: "close", from: 18, to: 23, label: "Evening close-out", what: "Finish the day's quests before 11pm" }
+    { key: "dawn",  from: 5,  to: 10, label: "Morning weigh-in", what: "Weigh in" },
+    { key: "midday", from: 11, to: 15, label: "Midday plate",     what: "Photograph lunch" },
+    { key: "close", from: 18, to: 23, label: "Evening close-out", what: "Finish the day" }
   ];
   function activeWindow(now) {
     var h = now.getHours();
@@ -4973,8 +5034,8 @@
       if (r.streakWeek > 0 && st.streakWeeks) bits.push(st.streakWeeks + " weeks the streak survived");
       why.innerHTML = out > 0
         ? "<b>" + money(out) + "</b> earned and not yet given" + (bits.length ? " \u2014 " + bits.join(", ") : "") + "."
-        : (acc > 0 ? "Everything your work has earned has been given. " + money(acc) + " so far."
-                   : "Nothing earned yet. Any part of a session, or a day's eating near the window, starts it.");
+        : (acc > 0 ? "All earned, all given \u2014 " + money(acc) + " so far."
+                   : "Nothing earned yet. A session or a day near the window starts it.");
     }
     document.getElementById("giveNote").value = "";
     document.getElementById("giveCause").value = GOOD.cause;
@@ -5200,11 +5261,11 @@
                   ? "give " + money(Math.min(n, owed)) + " of the " + money(owed) + " you have earned"
                   : "earn first \u2014 finish a session or eat on plan"; },
                 detail: owed > 0 ? money(earned) + " earned \u00b7 " + money(given) + " given"
-                                 : (earned > 0 ? money(earned) + " earned and all of it given"
-                                               : "nothing earned to give yet") },
+                                 : (earned > 0 ? money(earned) + " earned, all given"
+                                               : "nothing earned yet") },
       chest:  { built: Math.round(onPlan * 4 + mealDays * 1.5), face: onPlan + "/30", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " on plan"; },
-                detail: onPlan + " of the last 30 days inside the window" },
+                detail: onPlan + " of 30 days in window" },
       /* Both runs are built the same way: the live run, plus the permanent thing
          behind it. The second term is what stops the part emptying out the morning
          after a slip, when the work behind it has not gone anywhere. */
@@ -5213,7 +5274,7 @@
                 /* The arm these sit on clips to one line, so both runs say their two
                    numbers in as few words as they can and still mean something. */
                 detail: run ? run + " in a row \u00b7 " + fmtInt(everLogged) + " total"
-                            : (everLogged ? "no run \u00b7 " + fmtInt(everLogged) + " days total"
+                            : (everLogged ? "no run \u00b7 " + fmtInt(everLogged) + " total"
                                           : "nothing logged yet") },
       shield: { built: Math.round(planRun * 4 + bestPlanRun * 2.5), face: planRun + "d", per: 4,
                 step: function (n) { return n + " more day" + (n === 1 ? "" : "s") + " eating well"; },
@@ -5222,14 +5283,14 @@
                                                : "no clean run yet") },
       belt:   { built: Math.round(sets30 * 0.9), face: fmtInt(sets30) + " sets", per: 0.9,
                 step: function (n) { return n + " more set" + (n === 1 ? "" : "s"); },
-                detail: sets30 ? fmtInt(sets30) + " sets and " + fmtInt(reps30) + " reps in 30 days"
-                               : "no finished sets in the last 30 days" },
+                detail: sets30 ? fmtInt(sets30) + " sets \u00b7 " + fmtInt(reps30) + " reps / 30d"
+                               : "no sets in 30 days" },
       legs:   { built: Math.round(cardioMin / 8), face: fmtInt(cardioMin) + " min", per: 1 / 8,
                 step: function (n) { return fmtInt(n) + " more cardio minutes"; },
-                detail: fmtInt(cardioMin) + " cardio minutes in 30 days" },
+                detail: fmtInt(cardioMin) + " min / 30d" },
       boots:  { built: Math.round(weighDays * 5), face: weighDays + " of 30", per: 5,
                 step: function (n) { return n + " more weigh-in" + (n === 1 ? "" : "s"); },
-                detail: weighDays + " weigh-ins in the last 30 days" }
+                detail: weighDays + " weigh-ins / 30d" }
     };
 
     var gearScore = 0, equipped = 0;
@@ -5297,8 +5358,8 @@
           '<em>' + r.part + '</em>' +
           '</span>' +
         '<span class="gear-body"><b>' + r.name + '</b>' +
-          '<span class="gear-meta" style="color:' + r.hue + '">' + r.rarity.name + '  ·  ' + r.fed + '</span>' +
-          '<span class="gear-meta">' + r.detail + '</span>' +
+          '<span class="gear-meta"><i style="color:' + r.hue + '">' + r.rarity.name + '</i>  \u00b7  ' +
+            r.detail + '</span>' +
         '</span></div>';
     }).join("");
 
@@ -5325,8 +5386,7 @@
     }).join("");
 
     document.getElementById("charFoot").innerHTML =
-      "Your streak pays <b>" + pr.mult + "×</b>, and the list above takes it to <b>" + eff + "×</b>. " +
-      "Each part is fed by one thing you do, and every number traces back to a row in the log.";
+      "Streak <b>" + pr.mult + "×</b> → <b>" + eff + "×</b> with the above.";
 
     hideSheets("charModal");
     document.getElementById("charModal").style.display = "block";
@@ -5449,6 +5509,9 @@
       if (cb) cb.setAttribute("aria-pressed", "false");
       applyCardToggles();
     }
+    /* The last figure rung is measured, not derived from a height, so it has to be
+       let go of here or a card that grew would keep a shape sized for one that had not. */
+    document.documentElement.classList.remove("c9-figtiny");
     fitFigure();
     fitFood();
     drawAllRings();
@@ -5484,12 +5547,17 @@
     var root = document.documentElement;
     var fig = document.getElementById("t9Body");
     if (!fig || !fig.children.length) return;
-    for (var i = 0; i < 2; i++) {
-      if (fig.scrollHeight <= fig.clientHeight + 1) return;
+    for (var i = 0; i < 3; i++) {
+      if (fig.scrollHeight <= fig.clientHeight + 1) break;
       if (root.classList.contains("c9-roomy")) { root.classList.remove("c9-roomy"); continue; }
       if (!root.classList.contains("c9-compact")) { root.classList.add("c9-compact"); continue; }
-      return;
+      if (!root.classList.contains("c9-figtiny")) { root.classList.add("c9-figtiny"); continue; }
+      break;
     }
+    /* On the shortest screens there is no rung small enough, and a hard edge cuts a
+       line of type in half -- which reads as a broken app rather than as more below.
+       Fading the last few pixels says the same thing and says it on purpose. */
+    fig.classList.toggle("fg-cut", fig.scrollHeight > fig.clientHeight + 1);
   }
 
   /* ---- where you are in the session ----
@@ -5698,7 +5766,7 @@
     v.className = "t9-verdict " + (bl.won ? "win" : near ? "near" : blank ? "blank" : "lose");
     document.getElementById("t9Score").textContent =
       (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " · ") +
-      bl.score + " of 100  ·  " + WIN_AT + " wins the day";
+      bl.score + " / 100  ·  " + WIN_AT + " wins";
     var fill = document.getElementById("t9Fill");
     fill.style.width = Math.min(100, bl.score) + "%";
     fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : blank ? "rgba(255,255,255,0.3)" : "#FF8F6B";
@@ -5711,7 +5779,7 @@
          fact and the same thing to protect. Two in a row is not a streak worth a
          headline, so it starts at three. */
       (pr.planRun > 2 ? "  \u00b7  <b>" + pr.planRun + "</b> days eating well" : "") +
-      "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " points" +
+      "  \u00b7  level " + pr.level + "  \u00b7  " + fmtInt(pr.total) + " pts" +
       /* Wrapped in its own span so the smallest card can drop it: there the bar is
          already gone, and this much extra text took the line to two, which cost more
          than the sentence was worth. */
@@ -5813,7 +5881,7 @@
         arm("shield") +
       '</div>' +
       '<div class="fg-macros">' + RINGS.map(function (g) {
-        return '<span style="color:' + g.c + '">\u25CF</span> <i>' + Math.round(g.v) + 'g</i> of ' + g.t;
+        return '<span style="color:' + g.c + '">\u25CF</span> <i>' + Math.round(g.v) + '</i>/' + g.t;
       }).join("") + '</div>' +
       '<div class="fg-base">' + arm("belt", 1) + arm("legs", 1) + arm("boots", 1) + '</div>';
 
@@ -5952,17 +6020,17 @@
     /* loss aversion, shown only once the day is genuinely at risk */
     if (pr.run > 0 && !pr.loggedToday && now.getHours() >= 16) {
       note.hidden = false;
-      note.innerHTML = "Your <b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "× points</b> end in <b>" +
+      note.innerHTML = "<b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "\u00d7</b> end in <b>" +
         hms(msUntilHour(now, 24)) + "</b>" +
-        (GAME.shields ? " — a spare day will cover it if you miss." : " — log anything to keep them.");
+        (GAME.shields ? " \u2014 a spare day covers it." : " \u2014 log anything.");
       return;
     }
 
     var w = activeWindow(now);
     note.hidden = false;
     note.innerHTML = w
-      ? "<b>" + w.label + "</b> · " + w.what + " — closes in <b>" + hms(msUntilHour(now, w.to)) + "</b>"
-      : (function () { var n = nextWindow(now); return "<b>" + n.label + "</b> opens in <b>" + hms(msUntilHour(now, n.from)) + "</b>"; })();
+      ? "<b>" + w.what + "</b> \u00b7 " + hms(msUntilHour(now, w.to)) + " left"
+      : (function () { var n = nextWindow(now); return n.what + " in <b>" + hms(msUntilHour(now, n.from)) + "</b>"; })();
   }
 
 
@@ -6083,21 +6151,21 @@
     drawLineChart(document.getElementById("weightChart"), points.map(function(p){return p.weight;}), points.map(function(p){return p.key;}), "#2E6BFF");
     renderRate(points);
     var histList = document.getElementById("histList"); histList.innerHTML = "";
-    if (keys.length === 0) { histList.innerHTML = '<div class="empty">Nothing logged yet — entries you save will show up here.</div>'; return; }
+    if (keys.length === 0) { histList.innerHTML = '<div class="empty">Nothing logged yet.</div>'; return; }
     for (var j = 0; j < Math.min(keys.length, 30); j++) {
       var k = keys[j]; var doc = await getDayDoc(k);
       var row = document.createElement("div"); row.className = "hist-row";
       var metaParts = [];
-      if (doc.cardio && doc.cardio.min != null) metaParts.push(doc.cardio.min + " min cardio");
+      if (doc.cardio && doc.cardio.min != null) metaParts.push(doc.cardio.min + " min");
       var setCount = 0;
       if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
-      if (setCount > 0) metaParts.push(setCount + " sets logged");
+      if (setCount > 0) metaParts.push(setCount + " sets");
       row.innerHTML = '<div><div class="hist-date">' + k + '</div><div class="hist-meta">' + (metaParts.join(" · ") || "—") + '</div></div><div class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</div>';
       histList.appendChild(row);
     }
   }
   function drawLineChart(svg, values, labels, color) {
-    if (values.length < 2) { svg.innerHTML = '<text x="300" y="75" fill="#9599AC" font-size="13" text-anchor="middle" font-family="Inter">Log a couple more days to see a trend</text>'; return; }
+    if (values.length < 2) { svg.innerHTML = '<text x="300" y="75" fill="#9599AC" font-size="13" text-anchor="middle" font-family="Inter">A couple more days makes a trend</text>'; return; }
     var W = 600, H = 150, pad = 12;
     var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
     if (min === max) { min -= 1; max += 1; }
@@ -7238,16 +7306,16 @@
     var hIn = ft * 12 + inch;
     var w = latestWeightLb;
     if (!hIn || age == null || !w) {
-      el.textContent = "Fill in your height and birthday, and log a weight, and this will work the figure out for you.";
+      el.textContent = "Height, birthday and a logged weight, and this works itself out.";
       return;
     }
     var sex = document.getElementById("bodySex").value;
     var act = Number(document.getElementById("bodyActivity").value) || 1.55;
     var bmr = mifflinBmr(w, hIn, age, sex);
-    el.innerHTML = "At <b>" + w + " lb</b>, <b>" + (ft + "\u2032" + inch + "\u2033") + "</b> and <b>" + age +
-      "</b>, resting burn is about <b>" + fmtInt(bmr) + "</b>. Times " + act + " for the week, that is about <b>" +
-      fmtInt(Math.round(bmr * act / 10) * 10) + "</b> a day. A pound is worth about " +
-      (10 * act / 2.20462).toFixed(1) + " calories a day.";
+    el.innerHTML = "<b>" + w + " lb</b> \u00b7 <b>" + (ft + "\u2032" + inch + "\u2033") + "</b> \u00b7 <b>" + age +
+      "</b> \u2192 resting <b>" + fmtInt(bmr) + "</b>, \u00d7" + act + " = <b>" +
+      fmtInt(Math.round(bmr * act / 10) * 10) + " kcal</b>/day. A pound \u2248 " +
+      (10 * act / 2.20462).toFixed(1) + " kcal/day.";
   }
   function setBodyLabel() {
     var el = document.getElementById("bodyBtnLabel");
@@ -7326,15 +7394,14 @@
     var el = document.getElementById("setupWorking");
     if (!el) return;
     var f = setupFields();
-    if (!f.ok) { el.textContent = "Fill these in and this will show what it works out."; return; }
+    if (!f.ok) { el.textContent = "Fill these in to see what it works out."; return; }
     var bmr = mifflinBmr(f.weight, f.heightIn, f.age, f.sex);
     var maint = Math.round(bmr * f.activity / 10) * 10;
     var t = suggestedTargets(maint, f.weight, f.age);
-    el.innerHTML = "At <b>" + f.weight + " lb</b>, <b>" + f.ftIn + "</b> and <b>" + f.age +
-      "</b>, resting burn is about <b>" + fmtInt(bmr) + "</b>. Times " + f.activity +
-      " for the week, that is <b>" + fmtInt(maint) + " kcal</b> a day to hold steady, with <b>" +
-      t.protein + "g</b> protein, <b>" + t.carbs + "g</b> carbs, <b>" + t.fat + "g</b> fat and <b>" +
-      t.fiber + "g</b> fibre.";
+    el.innerHTML = "<b>" + f.weight + " lb</b> \u00b7 <b>" + f.ftIn + "</b> \u00b7 <b>" + f.age +
+      "</b> \u2192 resting <b>" + fmtInt(bmr) + "</b>, \u00d7" + f.activity + " = <b>" +
+      fmtInt(maint) + " kcal</b> to hold. <b>" + t.protein + "P</b> \u00b7 <b>" + t.carbs +
+      "C</b> \u00b7 <b>" + t.fat + "F</b> \u00b7 <b>" + t.fiber + "g</b> fibre.";
   }
   function setupFields() {
     var born = document.getElementById("setupBorn").value || "";
@@ -7426,20 +7493,20 @@
     var pct = st.want ? Math.min(100, Math.round(st.walked / st.want * 100)) : (st.walked ? 100 : 0);
     document.getElementById("redeemFill").style.width = pct + "%";
     document.getElementById("redeemNote").innerHTML = st.want
-      ? "Today you have walked <b>" + st.walked + "</b> of the <b>" + st.want + "</b> minutes today asks for" +
-        (st.given ? ", and given <b>" + st.given + "</b> away" : "") + ". Anything past today's own target can make up a missed walk from the last week."
-      : "Today asks for no walk, so every minute you walk is spare" +
-        (st.given ? ", less the <b>" + st.given + "</b> already given away" : "") + ".";
+      ? "<b>" + st.walked + "</b> of <b>" + st.want + "</b> min today" +
+        (st.given ? " \u00b7 <b>" + st.given + "</b> given" : "") + ". Anything over covers a missed walk."
+      : "No walk asked today, so every minute is spare" +
+        (st.given ? " \u00b7 <b>" + st.given + "</b> already given" : "") + ".";
     var list = document.getElementById("redeemList");
     if (!st.days.length) {
-      list.innerHTML = '<div class="empty">No short walks in the last week. Nothing to make up.</div>';
+      list.innerHTML = '<div class="empty">No missed walks this week.</div>';
     } else {
       list.innerHTML = st.days.map(function (d) {
         var can = Math.min(st.spare, d.short);
         return '<div class="rd-row"><span class="rd-when"><b>' + fmtLabel(d.date) + '</b>' +
-          '<span>' + d.got + " of " + d.want + ' min \u00b7 ' + d.short + ' short</span></span>' +
+          '<span>' + d.got + "/" + d.want + ' min \u00b7 ' + d.short + ' short</span></span>' +
           '<button class="rd-go" type="button" data-k="' + d.key + '" data-m="' + can + '"' +
-          (can > 0 ? "" : " disabled") + '>' + (can > 0 ? "Make up " + can + " min" : "No spare") + '</button></div>';
+          (can > 0 ? "" : " disabled") + '>' + (can > 0 ? "+" + can + " min" : "\u2014") + '</button></div>';
       }).join("");
       Array.prototype.forEach.call(list.querySelectorAll(".rd-go"), function (b) {
         b.onclick = async function () {
