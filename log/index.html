@@ -716,8 +716,10 @@
   .prog-ex:first-child { border-top: none; }
   .prog-ex .pe-top { display: flex; gap: 7px; align-items: center; margin-bottom: 6px; }
   .prog-ex .pe-top input { flex: 1 1 auto; min-width: 0; }
-  .prog-ex .pe-del { flex: 0 0 auto; border: 1px solid var(--coral); background: var(--coral-soft);
-    color: var(--coral); border-radius: 8px; padding: 6px 9px; font-size: 12px; cursor: pointer; }
+  .prog-ex .pe-del { flex: 0 0 auto; width: 34px; height: 34px; border: 1px solid var(--line);
+    background: transparent; color: var(--ink-faint); border-radius: 9px; padding: 0; font-size: 15px;
+    line-height: 1; cursor: pointer; }
+  .prog-ex .pe-del:active { border-color: var(--coral); background: var(--coral-soft); color: var(--coral); }
   .prog-ex .pe-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .prog-ex .pe-nums label { display: block; font-size: 10px; color: var(--ink-faint); margin-bottom: 2px; }
   .prog-ex .pe-nums input { width: 100%; }
@@ -1970,12 +1972,12 @@
     </div>
     <input type="file" id="mealEditCamera" accept="image/*" capture="environment" style="display:none;">
     <input type="file" id="mealEditLibrary" accept="image/*" style="display:none;">
-    <div class="field" style="margin-bottom:8px;"><label>Which sitting</label>
+    <div class="field" style="margin-bottom:8px;"><label>Sitting</label>
       <div class="meal-reassign" id="mealEditWhich"></div>
     </div>
     <div class="field" style="margin-bottom:8px;"><label>Description</label><input type="text" id="mealEditDesc"></div>
     <div class="field" style="margin-bottom:8px;">
-      <label>Portion &mdash; more of the same thing, macros follow</label>
+      <label>Portion</label>
       <div class="portion-row">
         <button type="button" class="portion-step" id="mealPortionDown">&minus;</button>
         <span class="portion-now" id="mealPortionNow">1&times;</span>
@@ -5027,16 +5029,16 @@
   function trainingSaid(st) {
     var cr = st.sessionCredit || 0, whole = st.sessions || 0;
     var extra = Math.max(0, cr - whole);
-    if (!whole) return "training part-done, worth " + tenth(cr) + " of a session";
-    return whole + " session" + (whole === 1 ? "" : "s") + " finished" +
-      (extra >= 0.05 ? ", plus part-sessions worth " + tenth(extra) + " more" : "");
+    if (!whole) return tenth(cr) + " of a session";
+    return (extra >= 0.05 ? tenth(cr) : String(whole)) +
+      " session" + (whole === 1 && extra < 0.05 ? "" : "s");
   }
   function eatingSaid(st) {
     var cr = st.onPlanCredit || 0, whole = st.onPlanDays || 0;
     var extra = Math.max(0, cr - whole);
-    if (!whole) return "eating near the window, worth " + tenth(cr) + " of a day";
-    return whole + " day" + (whole === 1 ? "" : "s") + " inside the window" +
-      (extra >= 0.05 ? ", plus near misses worth " + tenth(extra) + " more" : "");
+    if (!whole) return tenth(cr) + " of a day on plan";
+    return (extra >= 0.05 ? tenth(cr) : String(whole)) +
+      " day" + (whole === 1 && extra < 0.05 ? "" : "s") + " on plan";
   }
   function openGiveSheet(pr) {
     var acc = accrued(pr), out = Math.max(0, acc - givenTotal());
@@ -5048,9 +5050,9 @@
       var bits = [];
       if (r.session > 0 && st.sessionCredit) bits.push(trainingSaid(st));
       if (r.onPlan > 0 && st.onPlanCredit) bits.push(eatingSaid(st));
-      if (r.streakWeek > 0 && st.streakWeeks) bits.push(st.streakWeeks + " weeks the streak survived");
+      if (r.streakWeek > 0 && st.streakWeeks) bits.push(st.streakWeeks + " streak weeks");
       why.innerHTML = out > 0
-        ? "<b>" + money(out) + "</b> earned and not yet given" + (bits.length ? " \u2014 " + bits.join(", ") : "") + "."
+        ? "<b>" + money(out) + "</b> earned, not yet given" + (bits.length ? " \u00b7 " + bits.join(" \u00b7 ") : "") + "."
         : (acc > 0 ? "All earned, all given \u2014 " + money(acc) + " so far."
                    : "Nothing earned yet. A session or a day near the window starts it.");
     }
@@ -6079,7 +6081,7 @@
     m.querySelector(".drop-what").textContent = prize.what;
     m.querySelector(".drop-sub").textContent = prize.shield
       ? "A spare day covers one day you miss without breaking your streak. It is used automatically."
-      : "Banked. Come back tomorrow for the next one.";
+      : "Banked. Next one tomorrow.";
     document.getElementById("exHistoryModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("planModal").style.display = "none";
@@ -6177,7 +6179,7 @@
       var setCount = 0;
       if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
       if (setCount > 0) metaParts.push(setCount + " sets");
-      row.innerHTML = '<div><div class="hist-date">' + k + '</div><div class="hist-meta">' + (metaParts.join(" · ") || "—") + '</div></div><div class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</div>';
+      row.innerHTML = '<div><div class="hist-date">' + fmtLabel(new Date(k + "T12:00:00")) + '</div><div class="hist-meta">' + (metaParts.join(" · ") || "—") + '</div></div><div class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</div>';
       histList.appendChild(row);
     }
   }
@@ -6203,7 +6205,8 @@
     var grouped = {};
     items.forEach(function(it) { grouped[it.date] = grouped[it.date] || []; grouped[it.date].push(it); });
     Object.keys(grouped).sort().reverse().forEach(function(dateStr) {
-      var label = document.createElement("div"); label.className = "food-day-label"; label.textContent = dateStr; container.appendChild(label);
+      var label = document.createElement("div"); label.className = "food-day-label";
+      label.textContent = fmtLabel(new Date(dateStr + "T12:00:00")); container.appendChild(label);
       var grid = document.createElement("div"); grid.className = "food-grid";
       grouped[dateStr].forEach(function(it) {
         var cell = document.createElement("div"); cell.className = "food-item";
@@ -6524,7 +6527,7 @@
     var verb = src ? "Replace" : "Add";
     document.getElementById("mealPhotoCamLabel").textContent = verb === "Add" ? "Take photo" : "Retake";
     document.getElementById("mealPhotoLibLabel").textContent = verb === "Add" ? "Choose photo" : "Change";
-    document.getElementById("mealRerunBtn").textContent = src ? "Estimate with AI" : "Estimate from the description";
+    document.getElementById("mealRerunBtn").textContent = src ? "Estimate with AI" : "Estimate from description";
   }
   function openMealEdit(item) {
     editingMeal = item;
@@ -7086,7 +7089,7 @@
     list.innerHTML = progDraft.ex.map(function (e, i) {
       return '<div class="prog-ex" data-i="' + i + '">' +
         '<div class="pe-top"><input type="text" class="pe-name" value="' + esc(e.name || "") + '" placeholder="Exercise">' +
-          '<button type="button" class="pe-del">Remove</button></div>' +
+          '<button type="button" class="pe-del" aria-label="Remove this exercise">\u2715</button></div>' +
         '<div class="pe-nums">' +
           '<div><label>Sets</label><input type="number" class="pe-sets" min="1" max="20" value="' + (e.sets || 3) + '"></div>' +
           '<div><label>Reps from</label><input type="number" class="pe-lo" min="1" max="60" value="' + (e.repLo || 8) + '"></div>' +
