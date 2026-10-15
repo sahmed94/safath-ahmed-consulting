@@ -146,7 +146,7 @@
      carry more light. */
   .t9-verdict.grade { font-size: 44px; letter-spacing: .01em; }
   .t9-verdict.grade.a { text-shadow: 0 0 26px rgba(125,240,184,0.5); }
-  .t9-verdict.grade.ap { color: #FFD166; text-shadow: 0 0 16px rgba(255,209,102,0.75), 0 0 40px rgba(255,209,102,0.45); }
+  .t9-verdict.grade.s { color: #FFD166; text-shadow: 0 0 16px rgba(255,209,102,0.75), 0 0 40px rgba(255,209,102,0.45); }
   .c9-compact .t9-verdict.grade { font-size: 34px; }
   .t9-verdict.lose { color: #FF8F6B; } .t9-verdict.blank { color: rgba(255,255,255,0.5); }
   .t9-score { font-size: 12.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
@@ -4575,14 +4575,17 @@
      taught was that turning up was not enough.
 
      Moving is enough. A day asks for cardio, or lifting, or both; do one of them and
-     the day is won. Do all of them and it is an A, and an A+ if the eating held too.
-     The hundred-point score still exists and still drives the points -- it is the
-     detail -- but it no longer decides. */
+     the day is won at a B. Do all of them and it is an A+. The rung above that is S,
+     and the eating is what buys it -- so the top is still worth going for on a day
+     you have already done everything physical.
+
+     The hundred-point score still exists and still drives the points; it is the
+     detail now, not the judge. */
   var DONE_AT = 0.8;       // a discipline counts as done at four fifths of the ask
   function gradeFor(movesAsked, movesDone, onPlan) {
     if (!movesAsked || !movesDone) return null;
     if (movesDone < movesAsked) return "B";
-    return onPlan ? "A+" : "A";
+    return onPlan ? "S" : "A+";
   }
   /* ---- making up a missed walk ----
      A day you did not walk is a day you did not walk, and nothing here pretends
@@ -4848,8 +4851,8 @@
        reading of what the day contains, a won day stays won when it is recomputed */
     var bl = dayBlows(prog, doc, foodRows);
     if (bl.won) xp += XP.won;
-    if (bl.grade === "A") xp += XP.gradeA;
-    if (bl.grade === "A+") xp += XP.gradeAPlus;
+    if (bl.grade === "A+") xp += XP.gradeA;
+    if (bl.grade === "S") xp += XP.gradeAPlus;
 
     return { xp: Math.round(xp), perfect: perfect, meals: meals, sessionDone: anyLift && allSets,
              score: bl.score, won: bl.won, grade: bl.grade, doneSets: bl.doneSets, doneReps: bl.doneReps,
@@ -5179,8 +5182,8 @@
      change is which table it is rolled against, and that is earned. */
   function dropTier(grade, run) {
     var t = 0;
-    if (grade === "A") t += 1;
-    if (grade === "A+") t += 2;
+    if (grade === "A+") t += 1;
+    if (grade === "S") t += 2;
     if (run >= 7) t += 1;
     if (run >= 21) t += 1;
     return t;
@@ -6227,7 +6230,7 @@
        the same two words every time, and the line under it says the only two things
        that decide it. */
     v.textContent = bl.won ? bl.grade : near ? "ALMOST" : blank ? "NOTHING YET" : "NOT YET";
-    v.className = "t9-verdict " + (bl.won ? ("win grade" + (bl.grade === "A+" ? " ap" : bl.grade === "A" ? " a" : ""))
+    v.className = "t9-verdict " + (bl.won ? ("win grade" + (bl.grade === "S" ? " s" : bl.grade === "A+" ? " a" : ""))
                                           : near ? "near" : blank ? "blank" : "lose");
     var moves = [];
     if (bl.cardioShare != null)
