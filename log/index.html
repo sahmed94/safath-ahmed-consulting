@@ -602,7 +602,8 @@
      itself: the slope IS the incline you set, the walker stands at the minutes you
      have put in, and the ground colours in behind them. Every line on it is a number
      you typed. */
-  .hill9 { position: relative; height: clamp(140px, 27vh, 250px); margin: 8px 0 2px; }
+  .cardio-page { display: flex; flex-direction: column; min-height: 0; }
+  .hill9 { position: relative; flex: 1 1 auto; min-height: 96px; max-height: 250px; margin: 8px 0 2px; }
   .hill-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .hill-ground { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 2.5; stroke-linecap: round; }
   .hill-done { fill: none; stroke: var(--teal); stroke-width: 4; stroke-linecap: round;
@@ -625,6 +626,14 @@
      rather than leaving two empty boxes to be stared at. */
   .cp-fields.free { grid-template-columns: 1fr; }
   .cp-fields.free .cp-tread { display: none; }
+  /* On a short card the hill gives first, then the type on the boxes under it. */
+  .c9-compact .hill9 { min-height: 76px; margin: 4px 0 0; }
+  .c9-compact .cp-fields { gap: 6px; margin: 2px 0 7px; }
+  .c9-compact .cp-fields .field input { font-size: 17px; padding: 7px 4px; }
+  .c9-compact .cp-fields .field label { font-size: 8.5px; }
+  .c9-compact .cp-go .save-chip { padding: 9px 12px; }
+  .c9-tiny .hill9 { min-height: 58px; }
+  .c9-tiny .cp-fields .field input { font-size: 15px; padding: 5px 3px; }
   .cp-go { display: flex; gap: 8px; align-items: stretch; }
   .cp-go .save-chip { flex: 1 1 auto; }
   .cp-go .cp-cam { flex: 0 0 48px; width: 48px; padding: 0; display: flex;
@@ -978,7 +987,19 @@
      before you have read a word of it; tap a corner and it lands, and the shape fills
      behind you. Everything here is positioned from JavaScript against the box it is
      actually given, because the only honest size for it is whatever is left over. */
-  .ex-block.page { display: flex; flex-direction: column; min-height: 0; padding: 0; border-top: 0; }
+  .ex-block.page, .ex-block.ss-half { display: flex; flex-direction: column; min-height: 0; padding: 0; border-top: 0; }
+  /* A superset page: two moves, a hairline between them, each with its own shape and
+     its own corners to tap. Nothing stacks, so neither half scrolls. */
+  .ss-pair { display: flex; flex-direction: row; gap: 0; min-height: 0; }
+  .ss-pair > .ss-half { flex: 1 1 0; min-width: 0; }
+  .ss-pair > .ss-half + .ss-half { border-left: 1px solid var(--line); padding-left: 10px; margin-left: 10px; }
+  .ss-pair .ex-name { font-size: 15px; }
+  .ss-pair .ex-target { font-size: 10px; }
+  .ss-pair .ring-cap { display: none; }
+  .ss-pair .ring-acts { flex-wrap: nowrap; gap: 5px; }
+  .ss-pair .ring-act { font-size: 9.5px; padding: 3px 6px; white-space: nowrap; }
+  .c9-compact .ss-pair .ex-name { font-size: 13.5px; }
+  .c9-compact .ss-pair .ex-target { font-size: 9px; }
   .ring-title { flex: 0 0 auto; text-align: center; padding: 2px 0 0; }
   .ring-title .ex-name { font-family: var(--font-head); font-size: 23px; font-weight: 400;
     letter-spacing: .01em; line-height: 1.1; }
@@ -1375,13 +1396,27 @@
   .char-power span { font-family: var(--font-head); font-size: 33px; font-weight: 700; line-height: 1; color: #FFD166; }
   .char-power small { font-family: var(--font-head); font-size: 9px; letter-spacing: .16em; color: rgba(255,255,255,0.55); margin-top: 3px; }
   .char-sub { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.5; }
-  .rv-tabs { display: flex; gap: 4px; margin: 12px 0 10px; padding: 3px; border-radius: 12px;
+  /* A sheet too long for a phone is a sheet you scroll looking for the Save button.
+     These step it sideways instead, which is the one direction the app is allowed to
+     ask for. Any sheet can use them: a .rv-tabs row of buttons carrying data-pane,
+     and a .rv-pane per name. wirePanes does the rest. */
+  .rv-tabs { display: flex; gap: 4px; margin: 2px 0 10px; padding: 3px; border-radius: 12px;
     background: rgba(255,255,255,0.06); }
   .rv-tab { flex: 1 1 0; min-width: 0; border: 0; background: transparent; cursor: pointer;
     color: rgba(255,255,255,0.6); font-family: var(--font-head); font-size: 11.5px;
     letter-spacing: .06em; text-transform: uppercase; padding: 7px 4px; border-radius: 9px; }
   .rv-tab.on { background: rgba(255,255,255,0.14); color: #fff; }
   .rv-pane[hidden] { display: none; }
+  /* A sheet gets the screen, less a thumb's worth of margin, and on a phone-sized
+     screen its fields sit closer together. */
+  .c9-compact .modal-inner { padding: 13px; }
+  .c9-compact .modal-inner .field label { font-size: 10px; margin-bottom: 3px; }
+  .c9-compact .modal-inner .field input, .c9-compact .modal-inner .field select {
+    padding: 7px 10px; font-size: 14px; }
+  .c9-compact .modal-inner .field-row { margin-bottom: 6px !important; }
+  .c9-compact .modal-inner h3 { margin-bottom: 9px; }
+  .c9-compact .modal-actions { margin-top: 9px; }
+  .c9-compact .modal-actions button { padding: 9px; }
   .char-section { font-family: var(--font-head); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: rgba(255,255,255,0.5); margin: 18px 0 9px; }
   .cs-row { margin-bottom: 12px; }
@@ -1495,14 +1530,14 @@
   /* The share sheet had no styles at all: it was a plain div sitting at the bottom of
      every page, which only passed for a modal while the page was long enough to hide
      it. With one card per screen there is nothing below to hide it in. */
-  #modalOverlay { position: fixed; inset: 0; z-index: 60; background: rgba(8,4,20,0.78); display: none; align-items: center; justify-content: center; padding: 20px; }
+  #modalOverlay { position: fixed; inset: 0; z-index: 60; background: rgba(8,4,20,0.78); display: none; align-items: center; justify-content: center; padding: 12px; }
   #modalOverlay.open { display: flex; }
   /* The sheets are the same surface as the cards. This is the only rule that sets it:
      a second, earlier copy of it was overridden by this one and the sheets opened
      white, which is the thing that made the app look broken. One rule, no cascade. */
   .modal-inner { background: linear-gradient(162deg, #140D26 0%, #1B1035 48%, #251038 100%);
     border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px;
-    max-width: 420px; width: 100%; max-height: 88vh; overflow-y: auto; }
+    max-width: 420px; width: 100%; max-height: calc(100vh - 24px); overflow-y: auto; }
   .modal-inner h3 { font-family: var(--font-head); font-size: 15px; margin: 0 0 12px; color: var(--ink); }
   .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
   .modal-actions button { flex: 1; font-family: var(--font-head); font-size: 13px; padding: 11px; border-radius: 10px; cursor: pointer; border: 1.5px solid var(--line); }
@@ -1770,6 +1805,12 @@
   <!-- Record a gift -->
   <div class="modal-inner" id="giveModal" style="display:none;">
     <h3>Record a gift</h3>
+    <div class="rv-tabs">
+      <button type="button" class="rv-tab" data-pane="gift">Give</button>
+      <button type="button" class="rv-tab" data-pane="rates">Rates</button>
+      <button type="button" class="rv-tab" data-pane="past">Given</button>
+    </div>
+    <div class="rv-pane" data-pane="gift">
     <div class="give-why" id="giveWhy"></div>
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field" style="flex:0 0 76px;"><label>Currency</label><input type="text" id="giveCurrency" maxlength="3"></div>
@@ -1778,14 +1819,17 @@
     <div class="field" style="margin-bottom:8px;"><label>Note (optional)</label><input type="text" id="giveNote" placeholder="where it went"></div>
     <div class="field" style="margin-bottom:8px;"><label>Cause</label><input type="text" id="giveCause"></div>
     <div class="field" style="margin-bottom:14px;"><label id="giveDedLabel">Today is for</label><input type="text" id="giveDedication" placeholder="a name, or an intention"></div>
-    <div class="give-sec">Rates</div>
-    <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Per session</label><input type="number" step="0.5" id="giveSession"></div>
-      <div class="field"><label>Per day on plan</label><input type="number" step="0.5" id="giveOnPlan"></div>
     </div>
-    <div class="field" style="margin-bottom:14px;"><label>Per streak week</label><input type="number" step="1" id="giveWeek"></div>
-    <div class="give-sec">Already given</div>
-    <div id="giveHistory"></div>
+    <div class="rv-pane" data-pane="rates" hidden>
+      <div class="field-row" style="margin-bottom:8px;">
+        <div class="field"><label>Per session</label><input type="number" step="0.5" id="giveSession"></div>
+        <div class="field"><label>Per day on plan</label><input type="number" step="0.5" id="giveOnPlan"></div>
+      </div>
+      <div class="field"><label>Per streak week</label><input type="number" step="1" id="giveWeek"></div>
+    </div>
+    <div class="rv-pane" data-pane="past" hidden>
+      <div id="giveHistory"></div>
+    </div>
     <div class="modal-actions">
       <button class="close-btn" id="giveCloseBtn">Cancel</button>
       <button class="primary-btn" id="giveSaveBtn">Save</button>
@@ -1807,15 +1851,15 @@
       <button type="button" class="rv-tab" data-pane="parts">Parts</button>
       <button type="button" class="rv-tab" data-pane="states">Standing</button>
     </div>
-    <div class="rv-pane" id="rvWeek">
+    <div class="rv-pane" id="rvWeek" data-pane="week">
       <div class="wk-tot" id="weekTotals"></div>
       <div class="wk-table" id="weekTable"></div>
       <div class="wk-read" id="weekRead"></div>
     </div>
-    <div class="rv-pane" id="rvParts" hidden>
+    <div class="rv-pane" id="rvParts" data-pane="parts" hidden>
       <div id="charSlots"></div>
     </div>
-    <div class="rv-pane" id="rvStates" hidden>
+    <div class="rv-pane" id="rvStates" data-pane="states" hidden>
       <div class="char-section">Helping &amp; costing</div>
       <div id="charStates"></div>
       <div class="char-section">Milestones</div>
@@ -1936,6 +1980,11 @@
 
   <div class="modal-inner" id="bodyModal" style="display:none;">
     <h3>Your body</h3>
+    <div class="rv-tabs">
+      <button type="button" class="rv-tab" data-pane="you">You</button>
+      <button type="button" class="rv-tab" data-pane="labs">Blood work</button>
+    </div>
+    <div class="rv-pane" data-pane="you">
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Height (ft)</label><input type="number" id="bodyFt" min="3" max="8"></div>
       <div class="field"><label>(in)</label><input type="number" id="bodyIn" min="0" max="11" step="0.5"></div>
@@ -1955,10 +2004,11 @@
       <input type="checkbox" id="bodyTrack">
       <span>Move maintenance as my weight changes</span>
     </label>
+    </div>
     <!-- Blood work was its own sheet behind its own button, for a list of files that
          is nearly always empty. It is the same subject as the rest of this sheet --
-         facts about your body that are not today's weight -- so it lives here. -->
-    <div class="char-section" style="margin-top:12px;">Blood work</div>
+         facts about your body that are not today's weight -- so it is a pane of it. -->
+    <div class="rv-pane" data-pane="labs" hidden>
     <div class="wins-card" id="winsCard" hidden>
       <div class="wins-head">
         <div class="wins-title">How far you've come</div>
@@ -1972,6 +2022,7 @@
     <label class="food-upload-btn f9-write" for="labsFileInput" style="margin-bottom:8px;"><svg class="fb-i" viewBox="0 0 24 24"><path d="M20.5 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l9-9a3.3 3.3 0 0 1 4.7 4.7l-8.9 8.9a1.7 1.7 0 0 1-2.4-2.4l8.2-8.2"/></svg> Add a panel</label>
     <input type="file" id="labsFileInput" accept="application/pdf,image/*" style="display:none;">
     <div id="labsList" class="again-scroll"></div>
+    </div>
     <div class="modal-actions">
       <button class="close-btn" id="bodyCancelBtn">Cancel</button>
       <button class="primary-btn" id="bodySaveBtn">Save</button>
@@ -2052,20 +2103,35 @@
   "use strict";
 
   function ex(name, sets, repLo, repHi, weight, weightLabel, div, restSec) {
-    return { name: name, sets: sets, repLo: repLo, repHi: repHi, repDefault: repLo, weightDefault: weight, weightLabel: weightLabel || "lb", div: !!div, restSec: restSec || 60 };
+    return { name: name, sets: sets, repLo: repLo, repHi: repHi, repDefault: repLo, weightDefault: weight, weightLabel: weightLabel || "lb", div: !!div, restSec: restSec == null ? 60 : restSec };
   }
+  /* Six moving days and two cardio days, every one of them forty minutes on the
+     treadmill or eighty. A rest of 0 is a superset: that move goes straight into the
+     one under it, and the pair rests together at the end. */
   var PROGRAM_SAFATH = {
-    6: { name: "Upper A", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Flat DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 90), ex("Standing DB OHP", 4, 8, 12, 35, "lb/hand", false, 90), ex("DB Row", 4, 8, 12, 65, "lb", true, 90), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60), ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 60), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
-    0: { name: "Lower A", type: "lift", cardio: { min: 80, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 90, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60) ]},
-    1: { name: "Cardio only", type: "cardio", cardio: { min: 40, incline: 10, speed: 3.0 }, ex: [] },
-    2: { name: "Upper B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Incline DB Bench", 4, 8, 12, 50, "lb/hand", false, 90), ex("Face Pull", 4, 12, 20, 59, "lb", true, 60), ex("DB Fly", 3, 10, 15, 17.5, "lb/hand", false, 60), ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", true, 60), ex("Dips", 3, 10, 15, null, "bodyweight", false, 90), ex("Zottman Curl", 3, 10, 15, 20, "lb/hand", false, 60) ]},
-    3: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] },
-    4: { name: "Lower B", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 6, 12, 20, 123, "lb", false, 90), ex("Leg Curl", 5, 10, 15, 90, "lb", true, 60), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60), ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
-    5: { name: "Cardio only", type: "cardio", cardio: { min: 45, incline: 10, speed: 3.0 }, ex: [] }
+    6: { name: "Upper", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
+      ex: [ ex("Flat DB Bench", 3, 8, 12, 50, "lb/hand", false, 0), ex("Lat Pulldown", 3, 8, 12, 95.5, "lb", true, 90),
+            ex("Standing DB OHP", 3, 8, 12, 35, "lb/hand", false, 0), ex("Face Pull", 3, 12, 20, 59, "lb", true, 90),
+            ex("DB Row", 3, 8, 12, 65, "lb", true, 0), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 90),
+            ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60) ]},
+    0: { name: "Lower", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
+      ex: [ ex("Belt Squat", 5, 12, 20, 123, "lb", false, 90),
+            ex("Leg Curl", 4, 10, 15, 90, "lb", true, 0), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60),
+            ex("Bent-Knee Calf Raise", 3, 15, 25, 64, "lb", true, 60) ]},
+    1: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] },
+    2: { name: "Push", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
+      ex: [ ex("Incline DB Bench", 4, 8, 12, 50, "lb/hand", false, 90),
+            ex("DB Fly", 4, 10, 15, 17.5, "lb/hand", false, 0), ex("DB Lateral Raise", 4, 12, 20, 17.5, "lb/hand", true, 60),
+            ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 0), ex("Dips", 3, 10, 15, null, "bodyweight", false, 90) ]},
+    3: { name: "Pull", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
+      ex: [ ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 0), ex("DB Row", 4, 8, 12, 65, "lb", true, 90),
+            ex("Face Pull", 4, 12, 20, 59, "lb", true, 0), ex("Zottman Curl", 4, 10, 15, 20, "lb/hand", false, 60),
+            ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
+    4: { name: "Legs", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
+      ex: [ ex("Belt Squat", 5, 12, 20, 123, "lb", false, 90),
+            ex("Leg Curl", 4, 10, 15, 90, "lb", true, 0), ex("Back Extension", 3, 12, 15, 44, "lb", false, 60),
+            ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
+    5: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] }
   };
 
   /* Ifhrad's week: upper, lower, push, pull, legs from Monday, then the weekend walked
@@ -3594,7 +3660,7 @@
        where the labels would starve the corners, the labels go and the corners take
        the room. Holding a corner still opens the editor. */
     var labels = true, sol = solve(true);
-    if (sol.size < 30) { labels = false; sol = solve(false); }
+    if (sol.size < 30 || sol.rx <= 30 || sol.ry <= 22) { labels = false; sol = solve(false); }
     var rx = sol.rx, ry = sol.ry, size = sol.size, pts = sol.pts;
 
     /* the flood is a water level: it rises through the shape as the sets land */
@@ -3799,9 +3865,30 @@
     Array.from(list.querySelectorAll(".ex-block")).forEach(function (n) { n.remove(); });
     if (prog.type === "cardio") { renderPagerDots(); return; }
 
+    /* Two moves with no rest between them are a superset: you go A, B, A, B and the
+       pair rests at the end. Two pages meant swiping back and forth between every
+       set, so they share one page, side by side, and the whole round is in front of
+       you. The pairing is read off the programme -- a rest of nought is the mark. */
+    var partnerOf = {}, isSecond = {};
+    for (var pi = 0; pi < prog.ex.length; pi++) {
+      if (isSecond[pi]) continue;
+      if (prog.ex[pi].restSec === 0 && prog.ex[pi + 1] && !isSecond[pi + 1]) {
+        partnerOf[pi] = pi + 1;
+        isSecond[pi + 1] = true;
+      }
+    }
+    var pairHost = {};
     prog.ex.forEach(function (exx, exIdx) {
+      var host = pairHost[exIdx];
+      if (!host && partnerOf[exIdx] != null) {
+        host = document.createElement("div");
+        host.className = "page ss-pair";
+        list.insertBefore(host, cardioPage);
+        pairHost[exIdx] = host;
+        pairHost[partnerOf[exIdx]] = host;
+      }
       var block = document.createElement("div");
-      block.className = "ex-block page";
+      block.className = "ex-block " + (host ? "ss-half" : "page");
       var savedSets = (doc.sets && doc.sets[exx.name]) || [];
       var wUnit = exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
       var doneFlags = [];
@@ -3814,7 +3901,7 @@
         var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : (exx.weightDefault == null ? "" : exx.weightDefault);
         var done = doneFlags[s];
         setsHtml += '<div class="set-split-row' + (done ? " done-row" : "") + '" data-set="' + s + '">' +
-          '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + ' · Rest ' + exx.restSec + 's<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
+          '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + ' · ' + (exx.restSec > 0 ? "Rest " + exx.restSec + "s" : "no rest") + '<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
           '<div class="ssr-input">' +
             '<input type="number" placeholder="reps" class="mini-field reps-input" value="' + repsVal + '">' +
             '<input type="number" step="0.5" placeholder="' + (exx.weightDefault == null ? "bw" : "lb") + '" class="mini-field wt-input" value="' + wtVal + '" ' + (exx.weightDefault == null ? 'disabled' : '') + '>' +
@@ -3824,11 +3911,14 @@
       var art = exArt(exx.name), col = EX_GROUP_COLOR[art.g];
       block._art = art.d;
       block.setAttribute("style", "--tier:" + col.c + "; --tier-soft:" + col.soft + "; --tier-glow:" + col.glow + ";");
+      /* The tab above the pager reads its colour off the page, so the pair takes the
+         colour of whichever move opens it. */
+      if (host && !host.style.getPropertyValue("--tier")) host.style.setProperty("--tier", col.c);
       block.innerHTML =
         '<div class="ring-title">' +
           '<div class="ex-name" data-exname="' + attrSafe(exx.name) + '">' + esc(exx.name) + '</div>' +
           '<div class="ex-target">' + exx.repLo + '\u2013' + exx.repHi + ' reps \u00b7 ' + esc(wUnit) +
-            ' \u00b7 rest ' + exx.restSec + 's</div>' +
+            (exx.restSec > 0 ? ' \u00b7 rest ' + exx.restSec + 's' : ' \u00b7 no rest') + '</div>' +
         '</div>' +
         ringHTML(exx) +
         '<div class="ring-acts">' +
@@ -3836,7 +3926,7 @@
           '<button type="button" class="ring-act hist-act" data-exname="' + attrSafe(exx.name) + '">History</button>' +
         '</div>' +
         '<div class="set-grid">' + setsHtml + '</div>';
-      list.insertBefore(block, cardioPage);
+      if (host) host.appendChild(block); else list.insertBefore(block, cardioPage);
 
       block.querySelector(".ex-name").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
       block.querySelector(".hist-act").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
@@ -3852,7 +3942,9 @@
         doneBtn.classList.toggle("on", !on);
         row.classList.toggle("done-row", !on);
         if (!on) {
-          vibrate(18); startRestTimer(exx.restSec, block);
+          vibrate(18);
+          /* A superset's first move asks for no rest: straight into the pair. */
+          if (exx.restSec > 0) startRestTimer(exx.restSec, block); else stopRestTimer();
           var nodeEl = block.querySelector('[data-node="' + idx + '"]');
           var tier = EX_GROUP_COLOR[exArt(exx.name).g];
           /* the shape filling is the reward; the last corner of a lift is a bigger one */
@@ -4315,6 +4407,23 @@
      perfect is a bar you stop aiming at, and the whole problem this is here to solve
      is wanting to stop. */
   var WIN_AT = 80;
+  /* What wins a day.
+
+     It used to be the hundred-point score, which meant a day of every set and every
+     minute still lost if you had not photographed lunch and stood on the scale. That
+     is a rule that punishes a good day for being an incomplete one, and the thing it
+     taught was that turning up was not enough.
+
+     Moving is enough. A day asks for cardio, or lifting, or both; do one of them and
+     the day is won. Do all of them and it is an A, and an A+ if the eating held too.
+     The hundred-point score still exists and still drives the points -- it is the
+     detail -- but it no longer decides. */
+  var DONE_AT = 0.8;       // a discipline counts as done at four fifths of the ask
+  function gradeFor(movesAsked, movesDone, onPlan) {
+    if (!movesAsked || !movesDone) return null;
+    if (movesDone < movesAsked) return "B";
+    return onPlan ? "A+" : "A";
+  }
   /* ---- making up a missed walk ----
      A day you did not walk is a day you did not walk, and nothing here pretends
      otherwise: the only thing that can pay for it is minutes you actually walked, on
@@ -4458,13 +4567,27 @@
     ].filter(function (b) { return b.max > 0; });
 
     var score = blows.reduce(function (a, b) { return a + b.v; }, 0);
+    /* The two things that are actually exercise, and how much of each the day got.
+       Everything else on the card is a habit around them. */
+    var cardioShare = wantMin ? Math.min(1, actualMin / wantMin) : null;
+    var liftShare = (isLift && totalSets) ? Math.min(1, doneSets / totalSets) : null;
+    var movesAsked = 0, movesDone = 0;
+    [cardioShare, liftShare].forEach(function (x) {
+      if (x == null) return;
+      movesAsked++;
+      if (x >= DONE_AT) movesDone++;
+    });
+    var grade = gradeFor(movesAsked, movesDone, onPlan);
     /* What share of the training the day asked for actually got done -- sets on a
        lifting day, minutes on a cardio one. The ledger and the card both pay on this
        rather than on a finished session, so half a session is half the credit instead
        of none, and both of them read it from here rather than working it out again. */
     var trainShare = isLift ? (totalSets ? doneSets / totalSets : 0)
                             : (wantMin ? Math.min(1, actualMin / wantMin) : 0);
-    return { blows: blows, score: score, won: score >= WIN_AT, isLift: isLift,
+    return { blows: blows, score: score, won: movesDone >= 1, grade: grade, isLift: isLift,
+             movesAsked: movesAsked, movesDone: movesDone,
+             cardioShare: cardioShare, liftShare: liftShare,
+             wantMin: wantMin, actualMin: actualMin, madeUp: madeUp,
              totalSets: totalSets, doneSets: doneSets, doneReps: doneReps,
              cal: cal, anyEst: anyEst, onPlan: onPlan, mealShare: ms.share, mealWhy: ms.why,
              trainShare: trainShare };
@@ -5115,6 +5238,7 @@
     document.getElementById("giveOnPlan").value = GOOD.rates.onPlan;
     document.getElementById("giveWeek").value = GOOD.rates.streakWeek;
     renderGivenList();
+    wirePanes("giveModal", "gift");
     hideSheets("giveModal");
     document.getElementById("giveModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
@@ -5411,18 +5535,28 @@
     belt:   '<path d="M3 9h18v6H3z"/><path d="M9 9v6M15 9v6"/><path d="M11 11h2v2h-2z"/>',
     boots:  '<path d="M7 3h4v10l6 3v5H7z"/><path d="M7 16h10"/>'
   };
-  /* Which pane the sheet lands on, and the one place that switches between them. */
-  function showReviewPane(which) {
-    var panes = { week: "rvWeek", parts: "rvParts", states: "rvStates" };
-    Object.keys(panes).forEach(function (k) {
-      var el = document.getElementById(panes[k]);
-      if (el) el.hidden = (k !== which);
+  /* Which pane a sheet lands on, and the one place that switches between them.
+     `root` is the sheet; its .rv-tab buttons name panes, and each pane is the
+     .rv-pane carrying the same data-pane. */
+  function showPane(rootId, which) {
+    var root = document.getElementById(rootId);
+    if (!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll(".rv-pane"), function (el) {
+      el.hidden = el.getAttribute("data-pane") !== which;
     });
-    Array.prototype.forEach.call(document.querySelectorAll("#rvTabs .rv-tab"), function (b) {
+    Array.prototype.forEach.call(root.querySelectorAll(".rv-tab"), function (b) {
       var on = b.getAttribute("data-pane") === which;
       b.classList.toggle("on", on);
       b.setAttribute("aria-selected", on ? "true" : "false");
     });
+  }
+  function wirePanes(rootId, which) {
+    var root = document.getElementById(rootId);
+    if (!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll(".rv-tab"), function (b) {
+      b.onclick = function () { showPane(rootId, b.getAttribute("data-pane")); };
+    });
+    showPane(rootId, which);
   }
   async function openCharacter(pane) {
     var pr = lastProg || await progression();
@@ -5473,10 +5607,7 @@
       "Streak <b>" + pr.mult + "×</b> → <b>" + eff + "×</b> with the above.";
 
     paintWeekSheet();
-    showReviewPane(pane || "parts");
-    Array.prototype.forEach.call(document.querySelectorAll("#rvTabs .rv-tab"), function (b) {
-      b.onclick = function () { showReviewPane(b.getAttribute("data-pane")); };
-    });
+    wirePanes("charModal", pane || "parts");
     hideSheets("charModal");
     document.getElementById("charModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
@@ -5657,8 +5788,11 @@
      is a real button, so tab reaches it and a screen reader can say which exercise it
      goes to and whether that one is finished. */
   function pageName(pg, i) {
-    var n = pg.querySelector(".ex-name");
-    return n ? n.textContent.trim() : (pg.id === "cardioPage" ? "Cardio" : "Page " + (i + 1));
+    var ns = Array.prototype.map.call(pg.querySelectorAll(".ex-name"), function (e) {
+      return e.textContent.trim();
+    }).filter(Boolean);
+    if (ns.length) return ns.join(" + ");
+    return pg.id === "cardioPage" ? "Cardio" : "Page " + (i + 1);
   }
   function gotoPage(i) {
     var list = document.getElementById("exerciseList");
@@ -7443,6 +7577,7 @@
     document.getElementById("bodyTrack").checked = PLAN.trackWeight !== false;
     bodyWorking();
     renderLabs();
+    wirePanes("bodyModal", "you");
     hideSheets("bodyModal");
     document.getElementById("bodyModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
