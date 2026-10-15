@@ -546,6 +546,50 @@
     column-gap: 6px; }
   .c9-figtiny .fg-core > .fg-arm:nth-child(2) .fg-rings { flex: 0 0 100%; }
   .c9-figtiny .fg-arm { gap: 1px; }
+
+  /* One rung below figtiny: the readings under each part go (the review sheet has
+     them), the heads come down again, and what is left is the shape and the badges. */
+  .c9-fignano .fg-d { display: none; }
+  .c9-fignano .fg-node { width: 26px; height: 26px; border-radius: 8px; }
+  .c9-fignano .fg-node svg { width: 13px; height: 13px; }
+  .c9-fignano .fg-node em { font-size: 5.5px; }
+  .c9-fignano .fg-row { grid-template-columns: minmax(0,1fr) 26px minmax(0,1fr); }
+  .c9-fignano .fg-rings, .c9-fignano .fg-rings svg { width: 58px; height: 58px; }
+  .c9-fignano .fg-kcal b { font-size: 13px; }
+  .c9-fignano .fg-core::before { top: 18px; }
+  .c9-fignano .fg-core > .fg-arm { padding-top: 7px; }
+  .c9-fignano .fg-arm { gap: 0; }
+  .c9-fignano .t9-fig { gap: 1px; }
+  .c9-fignano .fg-n { font-size: 11px; }
+
+  /* And the last one, for a card so short the figure would be a smear: everything on
+     one line. Seven parts, each a head and a word, the food rings among them. It is
+     the same figure with its limbs laid out in a row rather than a body. */
+  .c9-figrow .t9-fig { flex-direction: row; align-items: center; justify-content: space-between;
+    gap: 3px; overflow-x: auto; overflow-y: hidden; }
+  .c9-figrow .fg-core, .c9-figrow .fg-base { display: contents; }
+  .c9-figrow .fg-spine, .c9-figrow .fg-macros, .c9-figrow .fg-d { display: none; }
+  .c9-figrow .fg-core::before, .c9-figrow .fg-base::before { display: none; }
+  /* Seven cells of a seventh each, so the row ends where the card does rather than
+     running off the side of it. */
+  .c9-figrow .fg-row, .c9-figrow .fg-arm { display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start; gap: 1px;
+    flex: 1 1 0; min-width: 0; padding-top: 0 !important; }
+  .c9-figrow .fg-rings, .c9-figrow .fg-rings svg { width: 34px; height: 34px; }
+  .c9-figrow .fg-kcal b { font-size: 9px; }
+  .c9-figrow .fg-kcal span { display: none; }
+  .c9-figrow .fg-node { width: 24px; height: 24px; border-radius: 7px; }
+  .c9-figrow .fg-node svg { width: 12px; height: 12px; }
+  .c9-figrow .fg-node em { display: none; }
+  .c9-figrow .fg-n, .c9-figrow .fg-add { font-size: 8px; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .c9-figrow .fg-add { padding: 0 3px; border-radius: 5px; }
+  .c9-figrow .fg-l { display: contents; }
+  .c9-figrow .fg-core > .fg-arm:nth-child(2) { flex-flow: column nowrap; column-gap: 0; }
+  .c9-figrow .fg-core > .fg-arm:nth-child(2) .fg-rings { flex: 0 0 auto; }
+  .c9-figrow .fg-base .fg-arm { display: flex; flex-direction: column; }
+  .c9-figrow .fg-base .fg-arm .fg-n { text-align: center; }
+
   .c9-compact .t9-chip { font-size: 9.5px; padding: 2px 6px; }
   /* The weight card carries six fixed blocks above a scrolling history. On a real
      phone viewport they added up to more than the card, so the history -- the whole
@@ -642,13 +686,28 @@
   .cp-fields.free { grid-template-columns: 1fr; }
   .cp-fields.free .cp-tread { display: none; }
   /* On a short card the hill gives first, then the type on the boxes under it. */
-  .c9-compact .hill9 { min-height: 76px; margin: 4px 0 0; }
+  .c9-compact .hill9 { min-height: 36px; margin: 3px 0 0; }
   .c9-compact .cp-fields { gap: 6px; margin: 2px 0 7px; }
   .c9-compact .cp-fields .field input { font-size: 17px; padding: 7px 4px; }
   .c9-compact .cp-fields .field label { font-size: 8.5px; }
   .c9-compact .cp-go .save-chip { padding: 9px 12px; }
-  .c9-tiny .hill9 { min-height: 58px; }
-  .c9-tiny .cp-fields .field input { font-size: 15px; padding: 5px 3px; }
+  .c9-tiny .hill9 { min-height: 0; flex: 0 0 auto; margin: 0; }
+  .c9-tiny .hill-art { display: none; }
+  .c9-tiny .hill-big { position: static; display: flex; align-items: baseline; gap: 5px; }
+  .c9-tiny .hill-big span { margin-top: 0; }
+  .c9-tiny .hill-big b { font-size: 18px; }
+  .c9-tiny .hill-big em { font-size: 13px; }
+  .c9-tiny .hill-big span { font-size: 8px; }
+  .c9-tiny .cardio-page .ring-title .ex-target { font-size: 9px; }
+  .c9-tiny .cp-fields .field input { font-size: 14px; padding: 3px 3px; }
+  .c9-tiny .cp-fields { gap: 5px; margin: 1px 0 5px; }
+  .c9-tiny .cp-fields .field label { font-size: 7.5px; }
+  .c9-tiny .cp-go .save-chip { padding: 7px 10px; font-size: 11px; }
+  .c9-tiny .cp-go .cp-cam { flex-basis: 40px; width: 40px; }
+  .c9-tiny .cardio-page .ring-title .ex-name { font-size: 13px; }
+  .c9-tiny .cp-fields { margin: 0 0 4px; gap: 4px; }
+  .c9-tiny .cp-go .save-chip { padding: 6px 10px; }
+  .c9-tiny .cp-go .cp-cam { flex-basis: 36px; width: 36px; }
   .cp-go { display: flex; gap: 8px; align-items: stretch; }
   .cp-go .save-chip { flex: 1 1 auto; }
   .cp-go .cp-cam { flex: 0 0 48px; width: 48px; padding: 0; display: flex;
@@ -729,14 +788,19 @@
   .rm-track { height: 8px; border-radius: 20px; background: rgba(255,255,255,0.1); margin: 8px 0 7px; overflow: hidden; }
   .rm-track i { display: block; height: 100%; border-radius: 20px; background: var(--teal); width: 0; }
   .rm-note { font-size: 11.5px; color: var(--ink-faint); line-height: 1.45; }
-  .rd-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
-  .rd-row:first-child { border-top: none; }
-  .rd-when { flex: 1 1 auto; min-width: 0; }
-  .rd-when b { display: block; font-family: var(--font-head); font-size: 13.5px; }
-  .rd-when span { font-size: 11.5px; color: var(--ink-faint); }
+  #redeemList { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; padding: 2px 0 4px; }
+  #redeemList::-webkit-scrollbar { height: 4px; }
+  #redeemList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 20px; }
+  .rd-row { flex: 0 0 auto; scroll-snap-align: start; display: flex; flex-direction: column;
+    align-items: stretch; gap: 7px; min-width: 124px; padding: 10px; border-radius: 12px;
+    background: var(--surface-2); }
+  .rd-when { min-width: 0; }
+  .rd-when b { display: block; font-family: var(--font-head); font-size: 13px; white-space: nowrap; }
+  .rd-when span { display: block; font-size: 10.5px; color: var(--ink-faint); white-space: nowrap; }
   .rd-go { flex: 0 0 auto; border: 1px solid var(--teal); background: rgba(125,240,184,0.14);
-    color: var(--teal); border-radius: 9px; padding: 7px 11px; font-size: 12px;
-    font-family: var(--font-head); cursor: pointer; }
+    color: var(--teal); border-radius: 9px; padding: 7px 9px; font-size: 11.5px;
+    font-family: var(--font-head); cursor: pointer; white-space: nowrap; }
   .rd-go:disabled { border-color: var(--line); background: rgba(255,255,255,0.04); color: var(--ink-faint); cursor: default; }
   .t2-edit { flex: 0 0 auto; width: 32px; height: 32px; display: inline-flex; align-items: center;
     justify-content: center; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
@@ -860,6 +924,10 @@
   .hist-meta { font-size: 10px; color: var(--ink-faint); white-space: nowrap; }
   .c9-compact .hist-row { min-width: 84px; padding: 6px 9px; }
   .c9-compact .hist-weight { font-size: 15px; }
+  .c9-tiny .w9-strip .w9-sec { display: none; }
+  .c9-tiny .hist-row { min-width: 74px; padding: 4px 7px; gap: 0; }
+  .c9-tiny .hist-weight { font-size: 13px; }
+  .c9-tiny .hist-date, .c9-tiny .hist-meta { font-size: 9px; }
   .w9-sec { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
     color: var(--ink-faint); margin: 12px 0 6px; }
   .weight9 .weight-chart { height: 110px; flex: 0 0 auto; }
@@ -1229,6 +1297,11 @@
   .c9-compact #foodToday .food-edit-dot { width: 21px; height: 21px; right: 4px; bottom: 4px; }
   .c9-compact #foodToday .food-edit-dot svg { width: 11px; height: 11px; }
   .c9-compact #foodToday .food-written { font-size: 11px; padding: 22px 8px 22px; }
+  .c9-tiny #foodToday .food-cal-badge { font-size: 7.5px; padding: 1px 4px; top: 3px; right: 3px; }
+  .c9-tiny #foodToday .food-tag { padding: 3px; top: 3px; left: 3px; }
+  .c9-tiny #foodToday .food-edit-dot { width: 17px; height: 17px; right: 3px; bottom: 3px; }
+  .c9-tiny #foodToday .food-edit-dot svg { width: 9px; height: 9px; }
+  .c9-tiny #foodToday .food-written { font-size: 9.5px; padding: 16px 5px; line-height: 1.25; }
   .macro-row { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
   .macro-row:first-child { border-top: none; }
   .macro-row .mk { color: var(--ink-dim); } .macro-row .mv { font-weight: 700; color: var(--ink); font-family: var(--font-head); }
@@ -1425,6 +1498,18 @@
   /* A sheet gets the screen, less a thumb's worth of margin, and on a phone-sized
      screen its fields sit closer together. */
   .c9-compact .modal-inner { padding: 13px; }
+  .c9-compact .char-power { min-width: 74px; padding: 7px 10px; border-radius: 13px; }
+  .c9-compact .char-power span { font-size: 24px; }
+  .c9-compact .char-power small { font-size: 8px; letter-spacing: .12em; }
+  .c9-compact .char-head { gap: 10px; }
+  .c9-compact .char-sub { font-size: 12px; line-height: 1.4; }
+  .c9-compact .rv-tabs { margin: 8px 0 8px; }
+  .c9-compact .rv-tab { padding: 6px 4px; font-size: 11px; }
+  .c9-compact .wk-tot { gap: 5px; margin-bottom: 8px; }
+  .c9-compact .wk-tot div { padding: 5px 3px; }
+  .c9-compact .wk-tot b { font-size: 15px; }
+  .c9-compact .wk-row { padding: 5px 7px; }
+  .c9-compact .wk-read p { margin: 6px 0; }
   .c9-compact .modal-inner .field label { font-size: 10px; margin-bottom: 3px; }
   .c9-compact .modal-inner .field input, .c9-compact .modal-inner .field select {
     padding: 7px 10px; font-size: 14px; }
@@ -4643,7 +4728,7 @@
        lifting day, minutes on a cardio one. The ledger and the card both pay on this
        rather than on a finished session, so half a session is half the credit instead
        of none, and both of them read it from here rather than working it out again. */
-    var trainShare = isLift ? (totalSets ? doneSets / totalSets : 0)
+    var trainShare = isLift ? (totalSets ? Math.min(1, doneSets / totalSets) : 0)
                             : (wantMin ? Math.min(1, actualMin / wantMin) : 0);
     return { blows: blows, score: score, won: movesDone >= 1, grade: grade, isLift: isLift,
              movesAsked: movesAsked, movesDone: movesDone,
@@ -5818,7 +5903,7 @@
     }
     /* The last figure rung is measured, not derived from a height, so it has to be
        let go of here or a card that grew would keep a shape sized for one that had not. */
-    document.documentElement.classList.remove("c9-figtiny");
+    document.documentElement.classList.remove("c9-figtiny", "c9-fignano", "c9-figrow");
     fitFigure();
     fitFood();
     drawAllRings();
@@ -5854,12 +5939,16 @@
     var root = document.documentElement;
     var fig = document.getElementById("t9Body");
     if (!fig || !fig.children.length) return;
-    for (var i = 0; i < 3; i++) {
+    var rungs = ["c9-figtiny", "c9-fignano", "c9-figrow"];
+    for (var i = 0; i < rungs.length + 2; i++) {
       if (fig.scrollHeight <= fig.clientHeight + 1) break;
       if (root.classList.contains("c9-roomy")) { root.classList.remove("c9-roomy"); continue; }
       if (!root.classList.contains("c9-compact")) { root.classList.add("c9-compact"); continue; }
-      if (!root.classList.contains("c9-figtiny")) { root.classList.add("c9-figtiny"); continue; }
-      break;
+      var stepped = false;
+      for (var r = 0; r < rungs.length; r++) {
+        if (!root.classList.contains(rungs[r])) { root.classList.add(rungs[r]); stepped = true; break; }
+      }
+      if (!stepped) break;
     }
     /* On the shortest screens there is no rung small enough, and a hard edge cuts a
        line of type in half -- which reads as a broken app rather than as more below.
