@@ -1535,6 +1535,34 @@
   .c9-compact .meal-reassign button { padding: 6px 4px; font-size: 11px; }
   .c9-compact .portion-row { gap: 7px; }
   .c9-compact .rk-badge { font-size: 9.5px; padding: 3px 7px; }
+  .c9-compact .meal-reassign button { padding: 5px 4px; }
+  /* And on the shortest screen of all, one rung tighter again. */
+  .c9-tiny .modal-inner { padding: 10px; }
+  .c9-tiny .modal-inner h3 { font-size: 13.5px; margin-bottom: 7px; }
+  .c9-tiny .modal-inner .field label { font-size: 9px; margin-bottom: 2px; }
+  .c9-tiny .modal-inner .field input, .c9-tiny .modal-inner .field select {
+    padding: 5px 8px; font-size: 13px; }
+  .c9-tiny .modal-inner .field-row { margin-bottom: 5px !important; }
+  .c9-tiny .modal-actions { margin-top: 7px; }
+  .c9-tiny .modal-actions button { padding: 7px; font-size: 12px; }
+  .c9-tiny .rv-tabs { margin: 6px 0; padding: 2px; }
+  .c9-tiny .rv-tab { padding: 5px 3px; font-size: 10px; }
+  .c9-tiny .char-power { min-width: 60px; padding: 5px 8px; }
+  .c9-tiny .char-power span { font-size: 19px; }
+  .c9-tiny .char-sub { font-size: 11px; }
+  .c9-tiny .gear-row { padding: 4px 0; gap: 7px; }
+  .c9-tiny .gear-level { flex-basis: 32px; height: 32px; border-radius: 9px; }
+  .c9-tiny .gear-level svg { width: 14px; height: 14px; }
+  .c9-tiny .gear-level em { font-size: 7px; }
+  .c9-tiny .gear-body b { font-size: 11.5px; }
+  .c9-tiny .gear-meta { font-size: 9.5px; }
+  .c9-tiny .wk-row { padding: 3px 6px; }
+  .c9-tiny .wk-tot div { padding: 4px 2px; }
+  .c9-tiny .wk-tot b { font-size: 13px; }
+  .c9-tiny .wk-read { font-size: 10.5px; }
+  .c9-tiny .plan-math, .c9-tiny .plan-warn { font-size: 10.5px; }
+  .c9-tiny .meal-reassign button { padding: 4px 3px; font-size: 10px; }
+  .c9-tiny .meal-photo-row .food-upload-btn { padding: 6px 4px; font-size: 10.5px; }
   .char-section { font-family: var(--font-head); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: rgba(255,255,255,0.5); margin: 18px 0 9px; }
   .cs-row { margin-bottom: 12px; }
@@ -2510,6 +2538,19 @@
       MY_LABS = Array.isArray(lb) ? lb : [];
       var pg = sets && sets[PROG_SLOT];
       MY_PROG = (pg && typeof pg === "object" && !Array.isArray(pg)) ? pg : null;
+      /* A day you have edited beats the coded week, which is the point of the editor
+         -- but it also means a new coded week would never show on a day you had
+         touched. The coded week carries a version; when it moves, the edits that
+         predate it are let go once, and anything edited afterwards is kept. */
+      if (MY_PROG && Number(MY_PROG.__v || 0) < PROGRAM_VERSION) {
+        MY_PROG = null;
+        try {
+          var keep = sets || {};
+          delete keep[PROG_SLOT];
+          await supabase.from("days").upsert({ user_id: currentProfileId, date: PLAN_ROW_DATE, sets: keep },
+            { onConflict: "user_id,date" });
+        } catch (e2) {}
+      }
       GAME = gameFromPlanRow(sets);
       GOOD = goodFromPlanRow(sets);
     } catch (e) {}
@@ -7489,6 +7530,9 @@
      stored against the account, so each person's week is their own. Only the days you
      actually change are stored, so a day left alone keeps following the original. */
   var PROG_SLOT = "__prog";
+  /* Bump this whenever a coded programme changes and the change should reach people
+     who have edited a day. Stored edits older than it are dropped once. */
+  var PROGRAM_VERSION = 2;
   var MY_PROG = null;
   var progDay = 1, progDraft = null;
 
@@ -7502,6 +7546,7 @@
     Object.keys(base).forEach(function (d) { out[d] = base[d]; });
     if (MY_PROG && typeof MY_PROG === "object") {
       Object.keys(MY_PROG).forEach(function (d) {
+        if (d === "__v") return;
         var v = MY_PROG[d];
         if (v && typeof v === "object" && Array.isArray(v.ex)) out[d] = v;
       });
@@ -7595,6 +7640,7 @@
   async function saveProgDay() {
     stashProgDraft();
     if (!MY_PROG || typeof MY_PROG !== "object") MY_PROG = {};
+    MY_PROG.__v = PROGRAM_VERSION;
     MY_PROG[progDay] = progDraft;
     try {
       var res = await supabase.from("days").select("sets").eq("user_id", currentProfileId).eq("date", PLAN_ROW_DATE).maybeSingle();
