@@ -782,7 +782,10 @@
     text-align: center; font-size: 9px; color: rgba(255,255,255,0.72); padding: 3px; }
   .c9-compact .t9-food .t9-f span { font-size: 7.5px; }
   .redeem-meter { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
-  .rm-top { display: flex; align-items: baseline; gap: 7px; }
+  /* Two readings on one line, so they need a gap between the pairs that is bigger
+     than the gap inside one, or "0 spare min 0 spare sets" reads as one number. */
+  .rm-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+  .rm-top b + span { margin-right: 10px; }
   .rm-top b { font-family: var(--font-head); font-size: 26px; color: var(--teal); }
   .rm-top span { font-size: 12px; color: var(--ink-dim); }
   .rm-track { height: 8px; border-radius: 20px; background: rgba(255,255,255,0.1); margin: 8px 0 7px; overflow: hidden; }
@@ -1517,6 +1520,21 @@
   .c9-compact .modal-inner h3 { margin-bottom: 9px; }
   .c9-compact .modal-actions { margin-top: 9px; }
   .c9-compact .modal-actions button { padding: 9px; }
+  /* The rows inside a sheet, on a phone: the same readings, closer together, so the
+     pane ends above the bottom of the screen rather than under it. */
+  .c9-compact .gear-row { padding: 6px 0; gap: 9px; }
+  .c9-compact .gear-level { flex-basis: 38px; height: 38px; border-radius: 10px; }
+  .c9-compact .gear-level svg { width: 16px; height: 16px; }
+  .c9-compact .gear-body b { font-size: 12.5px; }
+  .c9-compact .gear-meta { font-size: 10px; }
+  .c9-compact .wk-row { padding: 4px 7px; }
+  .c9-compact .wk-row b, .c9-compact .wk-row .wk-sc { font-size: 11.5px; }
+  .c9-compact .wk-read { font-size: 11.5px; line-height: 1.45; }
+  .c9-compact .char-section { margin: 9px 0 6px; }
+  .c9-compact .meal-photo-row { margin-bottom: 8px; }
+  .c9-compact .meal-reassign button { padding: 6px 4px; font-size: 11px; }
+  .c9-compact .portion-row { gap: 7px; }
+  .c9-compact .rk-badge { font-size: 9.5px; padding: 3px 7px; }
   .char-section { font-family: var(--font-head); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: rgba(255,255,255,0.5); margin: 18px 0 9px; }
   .cs-row { margin-bottom: 12px; }
