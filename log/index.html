@@ -142,6 +142,12 @@
   .t9-top { flex: 0 0 auto; text-align: center; }
   .t9-verdict { font-family: var(--font-head); font-size: 30px; font-weight: 700; letter-spacing: .02em; line-height: 1.05; }
   .t9-verdict.win { color: #7DF0B8; } .t9-verdict.near { color: #FFD166; }
+  /* One of the three letters, not a sentence: it can be bigger, and the better ones
+     carry more light. */
+  .t9-verdict.grade { font-size: 44px; letter-spacing: .01em; }
+  .t9-verdict.grade.a { text-shadow: 0 0 26px rgba(125,240,184,0.5); }
+  .t9-verdict.grade.ap { color: #FFD166; text-shadow: 0 0 16px rgba(255,209,102,0.75), 0 0 40px rgba(255,209,102,0.45); }
+  .c9-compact .t9-verdict.grade { font-size: 34px; }
   .t9-verdict.lose { color: #FF8F6B; } .t9-verdict.blank { color: rgba(255,255,255,0.5); }
   .t9-score { font-size: 12.5px; color: rgba(255,255,255,0.62); margin-top: 2px; }
   .t9-bar { position: relative; height: 10px; border-radius: 6px; background: rgba(255,255,255,0.12); margin: 8px 0 7px; overflow: hidden; }
@@ -433,6 +439,15 @@
     font-family: var(--font-head); font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
     padding: 11px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
   .t9-btn.drop { border: 0; background: linear-gradient(90deg, #E0417C, #7A3FF2); animation: dropPulse 1.9s ease-in-out infinite; }
+  /* The better the day, the more the thing you are about to open looks worth opening.
+     Four rungs: B, A, A+, and A+ on a long run. */
+  .t9-btn.drop.ready { animation: dropPulse 1.5s ease-in-out infinite; }
+  .t9-btn.drop.ready.t1 { background: linear-gradient(90deg, #E0417C, #6FD0FF); box-shadow: 0 0 20px -4px rgba(111,208,255,0.75); }
+  .t9-btn.drop.ready.t2 { background: linear-gradient(90deg, #B06BFF, #6FD0FF); box-shadow: 0 0 24px -3px rgba(176,107,255,0.85); }
+  .t9-btn.drop.ready.t3,
+  .t9-btn.drop.ready.t4 { background: linear-gradient(90deg, #FFD166, #FF8F6B, #E0417C);
+    color: #1A0E05; font-weight: 700; box-shadow: 0 0 28px -2px rgba(255,209,102,0.9);
+    animation: dropPulse 1.1s ease-in-out infinite; }
   .t9-btn.drop:disabled { animation: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); }
 
   /* a short phone: same card, tighter type, and the body keeps the room */
@@ -2031,9 +2046,10 @@
 
   <!-- Make up a missed walk with minutes walked since -->
   <div class="modal-inner" id="redeemModal" style="display:none;">
-    <h3>Make up a missed walk</h3>
+    <h3>Make up a missed day</h3>
     <div class="redeem-meter">
-      <div class="rm-top"><b id="redeemSpare">0</b><span>spare min today</span></div>
+      <div class="rm-top"><b id="redeemSpare">0</b><span>spare min</span>
+        <b id="redeemSpareSets">0</b><span>spare sets</span></div>
       <div class="rm-track"><i id="redeemFill"></i></div>
       <div class="rm-note" id="redeemNote"></div>
     </div>
@@ -4437,10 +4453,34 @@
     var m = doc && doc.sets && doc.sets[REDEEM_SLOT];
     return (m && typeof m === "object" && !Array.isArray(m)) ? m : null;
   }
-  function redeemedMinutes(doc) {
+  /* An entry used to be a number of minutes. It is {min, sets} now, because a missed
+     session is as makeable-up as a missed walk. A bare number is the old shape and
+     still reads as minutes, so nothing already banked is lost. */
+  function redeemedOf(doc, what) {
     var m = redeemMap(doc), n = 0;
-    if (m) Object.keys(m).forEach(function (k) { n += Number(m[k]) || 0; });
+    if (m) Object.keys(m).forEach(function (k) {
+      var v = m[k];
+      if (v && typeof v === "object") n += Number(v[what]) || 0;
+      else if (what === "min") n += Number(v) || 0;
+    });
     return n;
+  }
+  function redeemedMinutes(doc) { return redeemedOf(doc, "min"); }
+  function redeemedSets(doc) { return redeemedOf(doc, "sets"); }
+  /* What one day asked for and what it got, in both currencies -- the one place that
+     works it out, so the score, the banner and the ledger cannot disagree. */
+  function dayShortfall(prog, doc) {
+    var wantMin = (prog && prog.cardio && prog.cardio.min) || 0;
+    var gotMin = ((doc.cardio && doc.cardio.min) || 0) + redeemedMinutes(doc);
+    var wantSets = 0, gotSets = 0;
+    if (prog && prog.type !== "cardio") prog.ex.forEach(function (exx) {
+      wantSets += exx.sets;
+      var rows = (doc.sets && Array.isArray(doc.sets[exx.name])) ? doc.sets[exx.name] : [];
+      rows.forEach(function (r) { if (r && r.done) gotSets++; });
+    });
+    gotSets += redeemedSets(doc);
+    return { wantMin: wantMin, gotMin: gotMin, shortMin: Math.max(0, wantMin - gotMin),
+             wantSets: wantSets, gotSets: gotSets, shortSets: Math.max(0, wantSets - gotSets) };
   }
 
   /* What today has spare, and which days could use it. Spare is the walking done over
@@ -4449,29 +4489,45 @@
     var now = new Date(), todayK = dateKey(now);
     var tdoc = await getDayDoc(todayK);
     var tprog = PROGRAM[now.getDay()];
-    var want = (tprog && tprog.cardio && tprog.cardio.min) || 0;
+    /* Today's own ask comes off first: surplus is what you did BEYOND the day in
+       front of you, which is the only thing that was ever spare. */
+    var mine = dayShortfall(tprog, tdoc);
     var walked = (tdoc.cardio && tdoc.cardio.min) || 0;
-    var given = 0, days = [];
+    var setsToday = mine.gotSets - redeemedSets(tdoc);
+    var givenMin = 0, givenSets = 0, days = [];
     for (var i = 1; i <= REDEEM_WINDOW; i++) {
       var d = new Date(now); d.setDate(d.getDate() - i);
       var k = dateKey(d), doc = await getDayDoc(k);
       var m = redeemMap(doc);
-      if (m) given += Number(m[todayK]) || 0;
-      var pg = PROGRAM[d.getDay()];
-      var w = (pg && pg.cardio && pg.cardio.min) || 0;
-      if (!w) continue;                                   // a day that asked for none cannot be short
-      var got = ((doc.cardio && doc.cardio.min) || 0) + redeemedMinutes(doc);
-      if (got < w) days.push({ key: k, date: new Date(d), want: w, got: got, short: w - got });
+      if (m && m[todayK] != null) {
+        var g = m[todayK];
+        if (g && typeof g === "object") { givenMin += Number(g.min) || 0; givenSets += Number(g.sets) || 0; }
+        else givenMin += Number(g) || 0;
+      }
+      var sf = dayShortfall(PROGRAM[d.getDay()], doc);
+      if (sf.shortMin <= 0 && sf.shortSets <= 0) continue;
+      days.push({ key: k, date: new Date(d),
+                  wantMin: sf.wantMin, gotMin: sf.gotMin, shortMin: sf.shortMin,
+                  wantSets: sf.wantSets, gotSets: sf.gotSets, shortSets: sf.shortSets });
     }
-    return { todayK: todayK, want: want, walked: walked, given: given,
-             spare: Math.max(0, walked - want - given), days: days };
+    return { todayK: todayK, want: mine.wantMin, walked: walked, given: givenMin,
+             spare: Math.max(0, walked - mine.wantMin - givenMin),
+             wantSets: mine.wantSets, setsToday: setsToday, givenSets: givenSets,
+             spareSets: Math.max(0, setsToday - mine.wantSets - givenSets),
+             days: days };
   }
-  async function redeemDay(key, minutes) {
+  /* Paying a day back. Each entry is stamped with the day the work was actually done,
+     which is what stops the same surplus being spent twice. */
+  async function redeemDay(key, amount) {
     var todayK = dateKey(new Date());
     await mutateDay(key, function (doc) {
       if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
       var m = redeemMap(doc) || {};
-      m[todayK] = (Number(m[todayK]) || 0) + minutes;
+      var cur = m[todayK];
+      if (!cur || typeof cur !== "object") cur = { min: Number(cur) || 0, sets: 0 };
+      cur.min = (Number(cur.min) || 0) + (Number(amount.min) || 0);
+      cur.sets = (Number(cur.sets) || 0) + (Number(amount.sets) || 0);
+      m[todayK] = cur;
       doc.sets[REDEEM_SLOT] = m;
     });
   }
@@ -4533,6 +4589,9 @@
     }
 
     var totalSets = 0, doneSets = 0, doneReps = 0;
+    /* Sets finished on a later day and credited back to this one, exactly as the
+       minutes are. A missed session is as makeable-up as a missed walk. */
+    var madeUpSets = redeemedSets(doc);
     if (isLift) prog.ex.forEach(function (exx) {
       totalSets += exx.sets;
       var rows = (doc.sets && Array.isArray(doc.sets[exx.name])) ? doc.sets[exx.name] : [];
@@ -4549,7 +4608,8 @@
     var madeUp = redeemedMinutes(doc);
     var actualMin = walkedMin + madeUp;
     var cardioHit = Math.round(Math.min(1, wantMin ? actualMin / wantMin : 0) * cardioW);
-    var liftHit = isLift ? Math.round((totalSets ? doneSets / totalSets : 0) * liftW) : 0;
+    doneSets += madeUpSets;
+    var liftHit = isLift ? Math.round((totalSets ? Math.min(1, doneSets / totalSets) : 0) * liftW) : 0;
 
     var cal = 0, anyEst = false;
     foodRows.forEach(function (f) { if (f.estimate && f.estimate.calories) { anyEst = true; cal += f.estimate.calories; } });
@@ -4561,7 +4621,8 @@
     var blows = [
       { k: "Cardio",   v: cardioHit, max: cardioW, note: actualMin + "/" + wantMin + " min" +
           (madeUp ? " (" + madeUp + " made up)" : "") },
-      { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" : "rest day" },
+      { k: "Training", v: liftHit,   max: liftW,   note: isLift ? doneSets + "/" + totalSets + " sets" +
+          (madeUpSets ? " (" + madeUpSets + " made up)" : "") : "rest day" },
       { k: "Meals",    v: mealHit,   max: mealW,   note: anyEst ? fmtInt(cal) + " kcal \u00b7 " + ms.why : (foodRows.length ? foodRows.length + " logged" : "none logged") },
       { k: "Weigh-in", v: weighHit,  max: weighW,  note: doc.weight != null ? "on the scale" : "not weighed" }
     ].filter(function (b) { return b.max > 0; });
@@ -4596,7 +4657,10 @@
   /* ---- what a day is worth ---- */
   var XP = { weigh: 20, meal: 15, mealCap: 4, onPlan: 40, cardio: 25, cardioPerMin: 0.6,
              cardioCap: 80, set: 5, exerciseDone: 25, sessionDone: 75, sessionPart: 0.6,
-             won: 60, perfect: 100 };
+             won: 60, perfect: 100,
+             /* The grade pays, so the difference between turning up and finishing is
+                worth something beyond the letter on the card. */
+             gradeA: 50, gradeAPlus: 90 };
 
   function dayXP(key, doc, prog, foodRows) {
     var xp = 0;
@@ -4640,9 +4704,11 @@
        reading of what the day contains, a won day stays won when it is recomputed */
     var bl = dayBlows(prog, doc, foodRows);
     if (bl.won) xp += XP.won;
+    if (bl.grade === "A") xp += XP.gradeA;
+    if (bl.grade === "A+") xp += XP.gradeAPlus;
 
     return { xp: Math.round(xp), perfect: perfect, meals: meals, sessionDone: anyLift && allSets,
-             score: bl.score, won: bl.won, doneSets: bl.doneSets, doneReps: bl.doneReps,
+             score: bl.score, won: bl.won, grade: bl.grade, doneSets: bl.doneSets, doneReps: bl.doneReps,
              onPlan: anyEst && cal >= PLAN.floor && cal <= planIntake(),
              /* what the ledger pays on: the part of the day that was actually done */
              mealShare: anyEst ? ms.share : 0, trainShare: bl.trainShare };
@@ -4959,13 +5025,34 @@
     { p: 0.13, rarity: "Great",  color: "#B06BFF", art: "◈", what: "A spare day for your streak", xp: 40, shield: 1 },
     { p: 0.05, rarity: "Best",   color: "#FFD166", art: "★", what: "+250 points and a spare day", xp: 250, shield: 1 }
   ];
-  function rollDrop(dayKey) {
-    var r = seeded((currentProfileId || "anon") + ":" + dayKey)();
-    var acc = 0;
-    for (var i = 0; i < DROP_TABLE.length; i++) { acc += DROP_TABLE[i].p; if (r < acc) return DROP_TABLE[i]; }
-    return DROP_TABLE[0];
+  /* How many rungs the roll is nudged up before it lands. The point of a gacha is
+     that playing better feels better, so the thing that moves the odds is the thing
+     the app is actually asking for: finishing what the day asked, and keeping a run
+     going. A B day still rolls -- it just rolls on the bottom table.
+
+     The roll itself stays seeded on the day, so it cannot be re-rolled by closing
+     the app; the luck for a given day is fixed before you ever see it. What you can
+     change is which table it is rolled against, and that is earned. */
+  function dropTier(grade, run) {
+    var t = 0;
+    if (grade === "A") t += 1;
+    if (grade === "A+") t += 2;
+    if (run >= 7) t += 1;
+    if (run >= 21) t += 1;
+    return t;
   }
-  var DROP_UNLOCK_XP = 120;
+  function rollDrop(dayKey, tier) {
+    var rnd = seeded((currentProfileId || "anon") + ":" + dayKey);
+    var best = null;
+    /* One extra roll per rung, keep the better -- the shape every gacha uses for a
+       bonus, because it lifts the floor without ever promising the top. */
+    for (var n = 0; n <= (tier || 0); n++) {
+      var r = rnd(), acc = 0, got = DROP_TABLE[0];
+      for (var i = 0; i < DROP_TABLE.length; i++) { acc += DROP_TABLE[i].p; if (r < acc) { got = DROP_TABLE[i]; break; } }
+      if (!best || DROP_TABLE.indexOf(got) > DROP_TABLE.indexOf(best)) best = got;
+    }
+    return best || DROP_TABLE[0];
+  }
 
   /* ---- badges: earned by doing the thing, never by luck ---- */
   var BADGES = [
@@ -5959,7 +6046,10 @@
     var prog = PROGRAM[selectedDate.getDay()];
     var dayRows = foodCache.filter(function (f) { return f.date === key; });
     var bl = dayBlows(prog, doc, dayRows);
-    var near = !bl.won && bl.score >= WIN_AT - 20;
+    /* Close is close to finishing a discipline, not close to a hundred points: the
+       thing the card should be nudging you towards is the session, not the chores. */
+    var bestMove = Math.max(bl.cardioShare || 0, bl.liftShare || 0);
+    var near = !bl.won && bestMove >= 0.5;
 
     /* three things worth a noise, and only when they happen while you are watching */
     if (renderTodayCard._lvl && pr.level > renderTodayCard._lvl) {
@@ -5974,7 +6064,7 @@
     if (renderTodayCard._won === false && bl.won) {
       sfx("levelUp"); vibrate([20, 50, 20, 50, 60]);
       burstFrom(document.querySelector(".t9-verdict"), ["#7DF0B8", "#FFFFFF", "#FFD166"], 56);
-      showToast("Day won — " + bl.score + " of 100. That is " + fmtInt(pr.daysWon) + " now.", false);
+      showToast("Day won — " + (bl.grade || "B") + ". That is " + fmtInt(pr.daysWon) + " now.", false);
     }
     renderTodayCard._lvl = pr.level;
     renderTodayCard._mult = pr.mult;
@@ -5985,11 +6075,20 @@
        nothing in it yet has not been lost, and saying so on a first open is the
        quickest way to make somebody close the app. */
     var blank = bl.score === 0;
-    v.textContent = bl.won ? "DAY WON" : near ? "ALMOST" : blank ? "NOTHING YET" : "NOT YET";
-    v.className = "t9-verdict " + (bl.won ? "win" : near ? "near" : blank ? "blank" : "lose");
+    /* The grade is the verdict now. A won day says which grade it won at rather than
+       the same two words every time, and the line under it says the only two things
+       that decide it. */
+    v.textContent = bl.won ? bl.grade : near ? "ALMOST" : blank ? "NOTHING YET" : "NOT YET";
+    v.className = "t9-verdict " + (bl.won ? ("win grade" + (bl.grade === "A+" ? " ap" : bl.grade === "A" ? " a" : ""))
+                                          : near ? "near" : blank ? "blank" : "lose");
+    var moves = [];
+    if (bl.cardioShare != null)
+      moves.push((bl.cardioShare >= DONE_AT ? "\u2713 " : "") + "Cardio " + bl.actualMin + "/" + bl.wantMin);
+    if (bl.liftShare != null)
+      moves.push((bl.liftShare >= DONE_AT ? "\u2713 " : "") + "Lifting " + bl.doneSets + "/" + bl.totalSets);
     document.getElementById("t9Score").textContent =
-      (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " · ") +
-      bl.score + " / 100  ·  " + WIN_AT + " wins";
+      (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " \u00b7 ") +
+      (moves.length ? moves.join("  \u00b7  ") : "a rest day");
     var fill = document.getElementById("t9Fill");
     fill.style.width = Math.min(100, bl.score) + "%";
     fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : blank ? "rgba(255,255,255,0.3)" : "#FF8F6B";
@@ -6165,16 +6264,20 @@
     if (dateKey(selectedDate) !== tKey) { btn.hidden = true; }
     else {
       btn.hidden = false;
-      btn.className = "t9-btn drop";
+      /* It used to unlock on a points total, which could be reached by photographing
+         lunch and standing on the scale. The reward is for moving now: win the day
+         and it opens, and the grade you won it at decides what it rolls on. */
+      var tier = dropTier(bl.grade, pr.run);
+      btn.className = "t9-btn drop" + (bl.won && !GAME.opened[tKey] ? " ready t" + Math.min(4, tier) : "");
       if (GAME.opened[tKey]) {
         btn.disabled = true;
         btn.textContent = "Reward: " + GAME.opened[tKey].rarity;
-      } else if (pr.todayRaw >= DROP_UNLOCK_XP) {
+      } else if (bl.won) {
         btn.disabled = false;
-        btn.textContent = "✦ Reward";
+        btn.textContent = tier > 0 ? "\u2726 Reward  \u00b7  " + bl.grade : "\u2726 Reward";
       } else {
         btn.disabled = true;
-        btn.textContent = "+" + fmtInt(DROP_UNLOCK_XP - pr.todayRaw) + " pts to open";
+        btn.textContent = "Move to open";
       }
     }
 
@@ -6287,7 +6390,11 @@
     document.getElementById("rkDropBtn").onclick = async function () {
       var tKey = dateKey(new Date());
       if (GAME.opened[tKey]) return;
-      var prize = rollDrop(tKey);
+      var tdoc = await getDayDoc(tKey);
+      var tbl = dayBlows(PROGRAM[new Date().getDay()], tdoc,
+                         foodCache.filter(function (f) { return f.date === tKey; }));
+      if (!tbl.won) return;
+      var prize = rollDrop(tKey, dropTier(tbl.grade, (lastProg && lastProg.run) || 0));
       GAME.opened[tKey] = { rarity: prize.rarity, what: prize.what, xp: prize.xp, shield: prize.shield };
       GAME.shields += prize.shield;
       await saveGame();
@@ -7252,11 +7359,20 @@
     /* One line, because the figure is what the card is for and this is a prompt, not a
        paragraph. The ledger behind it has the full story. */
     var when = DAY_ABBR[nearest.date.getDay()] + " " + nearest.date.getDate();
-    redeemNote = st.spare > 0
-      ? { cls: "t9-redeem ready", spare: true,
-          html: "\u21ba <b>" + st.spare + " min spare</b> \u2192 make up " + when }
-      : { cls: "t9-redeem earn", spare: false,
-          html: "\u21ba Walk <b>" + nearest.short + " min</b> extra to make up " + when };
+    var haveSpare = st.spare > 0 || st.spareSets > 0;
+    if (haveSpare) {
+      var got = [];
+      if (st.spare > 0) got.push(st.spare + " min");
+      if (st.spareSets > 0) got.push(st.spareSets + " sets");
+      redeemNote = { cls: "t9-redeem ready", spare: true,
+                     html: "\u21ba <b>" + got.join(" + ") + " spare</b> \u2192 make up " + when };
+    } else {
+      var need = [];
+      if (nearest.shortMin > 0) need.push(nearest.shortMin + " min");
+      if (nearest.shortSets > 0) need.push(nearest.shortSets + " sets");
+      redeemNote = { cls: "t9-redeem earn", spare: false,
+                     html: "\u21ba <b>" + need.join(" + ") + "</b> extra covers " + when };
+    }
     tickRank();
   }
 
@@ -7732,9 +7848,10 @@
     document.getElementById("redeemSpare").textContent = st.spare;
     var pct = st.want ? Math.min(100, Math.round(st.walked / st.want * 100)) : (st.walked ? 100 : 0);
     document.getElementById("redeemFill").style.width = pct + "%";
+    document.getElementById("redeemSpareSets").textContent = st.spareSets;
     document.getElementById("redeemNote").innerHTML = st.want
       ? "<b>" + st.walked + "</b> of <b>" + st.want + "</b> min today" +
-        (st.given ? " \u00b7 <b>" + st.given + "</b> given" : "") + ". Anything over covers a missed walk."
+        (st.given ? " \u00b7 <b>" + st.given + "</b> given" : "") + ". Anything over covers a missed day."
       : "No walk asked today, so every minute is spare" +
         (st.given ? " \u00b7 <b>" + st.given + "</b> already given" : "") + ".";
     var list = document.getElementById("redeemList");
@@ -7742,18 +7859,27 @@
       list.innerHTML = '<div class="empty">No missed walks this week.</div>';
     } else {
       list.innerHTML = st.days.map(function (d) {
-        var can = Math.min(st.spare, d.short);
+        var canMin = Math.min(st.spare, d.shortMin);
+        var canSets = Math.min(st.spareSets, d.shortSets);
+        var was = [];
+        if (d.wantMin) was.push(d.gotMin + "/" + d.wantMin + " min");
+        if (d.wantSets) was.push(d.gotSets + "/" + d.wantSets + " sets");
+        var pay = [];
+        if (canMin > 0) pay.push("+" + canMin + " min");
+        if (canSets > 0) pay.push("+" + canSets + " sets");
         return '<div class="rd-row"><span class="rd-when"><b>' + fmtLabel(d.date) + '</b>' +
-          '<span>' + d.got + "/" + d.want + ' min \u00b7 ' + d.short + ' short</span></span>' +
-          '<button class="rd-go" type="button" data-k="' + d.key + '" data-m="' + can + '"' +
-          (can > 0 ? "" : " disabled") + '>' + (can > 0 ? "+" + can + " min" : "\u2014") + '</button></div>';
+          '<span>' + was.join(" \u00b7 ") + '</span></span>' +
+          '<button class="rd-go" type="button" data-k="' + d.key + '" data-m="' + canMin + '"' +
+          ' data-s="' + canSets + '"' + (pay.length ? "" : " disabled") + '>' +
+          (pay.length ? pay.join(" \u00b7 ") : "\u2014") + '</button></div>';
       }).join("");
       Array.prototype.forEach.call(list.querySelectorAll(".rd-go"), function (b) {
         b.onclick = async function () {
           var mins = Number(b.getAttribute("data-m")) || 0;
-          if (mins <= 0) return;
+          var sets = Number(b.getAttribute("data-s")) || 0;
+          if (mins <= 0 && sets <= 0) return;
           b.disabled = true; b.textContent = "Making up\u2026";
-          await redeemDay(b.getAttribute("data-k"), mins);
+          await redeemDay(b.getAttribute("data-k"), { min: mins, sets: sets });
           sfx("logged"); vibrate([12, 30, 12]);
           burstFrom(b, ["#7DF0B8", "#FFFFFF"], 16);
           await openRedeem();
