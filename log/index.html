@@ -123,7 +123,7 @@
     display: flex; align-items: center; gap: 8px; margin: 12px 0 7px; }
   .f9-sec::after, .w9-sec::after, .char-section::after {
     content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
-  .f9-scroll .f9-sec:first-child, .w9-scroll .w9-sec:first-child { margin-top: 2px; }
+  .f9-scroll .f9-sec:first-child, .w9-strip .w9-sec:first-child { margin-top: 2px; }
 
   /* fields, inside a card or a sheet */
   .card9 input, .card9 textarea, .card9 select,
@@ -625,7 +625,11 @@
      rather than leaving two empty boxes to be stared at. */
   .cp-fields.free { grid-template-columns: 1fr; }
   .cp-fields.free .cp-tread { display: none; }
-  .cp-burn { font-size: 12px; color: var(--ink-dim); margin: 12px 0 10px; }
+  .cp-go { display: flex; gap: 8px; align-items: stretch; }
+  .cp-go .save-chip { flex: 1 1 auto; }
+  .cp-go .cp-cam { flex: 0 0 48px; width: 48px; padding: 0; display: flex;
+    align-items: center; justify-content: center; }
+  .cp-go .cp-cam .fb-i { width: 19px; height: 19px; margin: 0; }
   /* On a programme that is cardio every day, the train card was one short panel and
      two thirds empty. The week it is keeping goes in that space: seven days, minutes
      each, so a run of them is something to see rather than something to remember. */
@@ -642,7 +646,7 @@
   .cp-week .cw-d.today { box-shadow: 0 0 0 1px var(--blue) inset; }
   .cp-week .cw-note { font-size: 10.5px; color: var(--ink-dim); margin-top: 7px; }
   .cardio-page .food-upload-btn { padding: 13px 12px; }
-  .cp-burn b { color: var(--ink); font-family: var(--font-head); font-size: 15px; }
+
 
   /* FOOD */
   .f9-targets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
@@ -650,6 +654,14 @@
   .f9-targets b { display: block; font-family: var(--font-head); font-size: 13px; }
   .f9-targets span { font-size: 9px; color: var(--ink-faint); letter-spacing: .03em; }
   .f9-actions { display: flex; gap: 8px; }
+  /* The four-up row: icon over word, so a cell a quarter of the card wide still
+     names itself instead of clipping "Choose photo" to "Choose p". */
+  .f9-four .food-upload-btn { flex-direction: column; gap: 3px; padding: 8px 4px; }
+  .f9-four .fb-i { width: 18px; height: 18px; }
+  .f9-four i { font-style: normal; font-size: 10.5px; line-height: 1; }
+  .c9-compact .f9-four .food-upload-btn { padding: 7px 3px; }
+  .c9-compact .f9-four .fb-i { width: 17px; height: 17px; }
+  .c9-compact .f9-four i { font-size: 10px; }
   /* A written meal counts the same as a photographed one, so its button looks like
      the others rather than like an afterthought -- just quieter, and on its own line. */
   .f9-write { margin-top: 8px; padding: 11px 12px; font-size: 12.5px; border-style: solid;
@@ -764,7 +776,7 @@
     overflow: hidden; text-overflow: ellipsis; }
   .track-row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-dim); cursor: pointer; }
   .track-row input { width: 17px; height: 17px; accent-color: var(--blue); flex: 0 0 auto; }
-  #bodyModal select, #labsModal select { width: 100%; }
+  #bodyModal select { width: 100%; }
   .lab-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
   .lab-row:first-child { border-top: none; }
   .lab-when { flex: 1 1 auto; min-width: 0; }
@@ -808,7 +820,22 @@
     max-height: 39px; overflow: hidden; }
   .w9-input { display: flex; gap: 8px; }
   .w9-input input { flex: 1 1 auto; }
-  .w9-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .w9-strip { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  /* One tile per day, read across instead of down. Each one is the three things a
+     day of this tab is about: when, what the scale said, and what you did. */
+  .hist-list { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: row; gap: 7px;
+    overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity; padding-bottom: 2px; }
+  .hist-list::-webkit-scrollbar { height: 4px; }
+  .hist-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 20px; }
+  .hist-row { flex: 0 0 auto; scroll-snap-align: start; display: flex; flex-direction: column;
+    justify-content: center; gap: 2px; min-width: 92px; padding: 8px 10px; border: 0;
+    border-radius: 12px; background: var(--surface-2); }
+  .hist-date { font-size: 11px; color: var(--ink-faint); font-weight: 600; white-space: nowrap; }
+  .hist-weight { font-family: var(--font-head); font-size: 17px; color: var(--ink); font-weight: 600; }
+  .hist-meta { font-size: 10px; color: var(--ink-faint); white-space: nowrap; }
+  .c9-compact .hist-row { min-width: 84px; padding: 6px 9px; }
+  .c9-compact .hist-weight { font-size: 15px; }
   .w9-sec { font-family: var(--font-head); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
     color: var(--ink-faint); margin: 12px 0 6px; }
   .weight9 .weight-chart { height: 110px; flex: 0 0 auto; }
@@ -1071,12 +1098,6 @@
   .trend-pane { display: none; } .trend-pane.active { display: block; }
   .weight-chart { width: 100%; height: 150px; display: block; }
   .bar-chart { width: 100%; height: 130px; display: block; }
-  .hist-list { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
-  .hist-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
-  .hist-row:first-child { border-top: none; }
-  .hist-date { font-size: 13px; color: var(--ink-dim); font-weight: 500; }
-  .hist-meta { font-size: 11px; color: var(--ink-faint); text-align: right; }
-  .hist-weight { font-family: var(--font-head); font-size: 16px; color: var(--ink); font-weight: 600; }
   .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 6px; }
   .heat-cell { aspect-ratio: 1; border-radius: 6px; background: var(--surface-2); position: relative; }
   .heat-cell .dnum { position: absolute; top: 2px; left: 4px; font-size: 8px; color: var(--ink-faint); }
@@ -1354,6 +1375,13 @@
   .char-power span { font-family: var(--font-head); font-size: 33px; font-weight: 700; line-height: 1; color: #FFD166; }
   .char-power small { font-family: var(--font-head); font-size: 9px; letter-spacing: .16em; color: rgba(255,255,255,0.55); margin-top: 3px; }
   .char-sub { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.5; }
+  .rv-tabs { display: flex; gap: 4px; margin: 12px 0 10px; padding: 3px; border-radius: 12px;
+    background: rgba(255,255,255,0.06); }
+  .rv-tab { flex: 1 1 0; min-width: 0; border: 0; background: transparent; cursor: pointer;
+    color: rgba(255,255,255,0.6); font-family: var(--font-head); font-size: 11.5px;
+    letter-spacing: .06em; text-transform: uppercase; padding: 7px 4px; border-radius: 9px; }
+  .rv-tab.on { background: rgba(255,255,255,0.14); color: #fff; }
+  .rv-pane[hidden] { display: none; }
   .char-section { font-family: var(--font-head); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: rgba(255,255,255,0.5); margin: 18px 0 9px; }
   .cs-row { margin-bottom: 12px; }
@@ -1379,6 +1407,9 @@
   .gear-body b { font-size: 13.5px; }
   .gear-meta { font-size: 11px; color: rgba(255,255,255,0.5); }
   .gear-meta i { font-style: normal; font-weight: 600; }
+  /* A dozen sessions is a list that would push the sheet past the bottom of a phone.
+     It gets a box of its own and the sheet keeps its shape. */
+  .exh-scroll { max-height: 34vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .state-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; margin-bottom: 6px; }
   .state-row.good { background: rgba(125,240,184,0.14); box-shadow: inset 0 0 0 1px rgba(125,240,184,0.34); }
   .state-row.bad { background: rgba(255,107,74,0.14); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.38); }
@@ -1620,7 +1651,7 @@
           <div class="page cardio-page" id="cardioPage" style="--tier:#12B886;">
             <div class="ring-title">
               <div class="ex-name">Cardio</div>
-              <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span></div>
+              <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span><span id="cardioCalEst"></span></div>
             </div>
             <div class="hill9" id="cardioHill">
               <svg class="hill-art" aria-hidden="true"></svg>
@@ -1632,10 +1663,15 @@
               <div class="field cp-tread"><input type="number" id="cardioIncline" inputmode="numeric"><label>INCLINE %</label></div>
               <div class="field cp-tread"><input type="number" step="0.1" id="cardioSpeed" inputmode="decimal"><label>MPH</label></div>
             </div>
-            <button class="save-chip primary" style="width:100%;" id="saveCardioBtn">Log cardio</button>
-            <div class="saved-tick" id="cardioSaved"></div>
-            <div class="cp-burn">Burned, roughly: <b id="cardioCalEst">&mdash;</b></div>
-            <label class="food-upload-btn" id="cardioFileLabel" for="cardioFileInput">Add a photo of the screen</label>
+            <!-- Log, a confirmation line, a burn estimate and a photo button were four
+                 rows under the hill on a page that was already past the bottom of the
+                 screen. The hill says what is logged, so the confirmation goes; the
+                 burn joins the line under the title; the camera rides with Log. -->
+            <div class="cp-go">
+              <button class="save-chip primary" id="saveCardioBtn">Log cardio</button>
+              <label class="food-upload-btn cp-cam" id="cardioFileLabel" for="cardioFileInput"
+                     title="Add a photo of the screen" aria-label="Add a photo of the screen"><svg class="fb-i" viewBox="0 0 24 24"><path d="M3 8h3.5l1.8-2.6h7.4L17.5 8H21v11H3z"/><circle cx="12" cy="13" r="3.4"/></svg></label>
+            </div>
             <input type="file" id="cardioFileInput" accept="image/*" capture="environment" style="display:none;">
             <img id="cardioPhotoPreview" style="display:none; width:100%; margin-top:10px; border-radius:12px; border:1px solid var(--line);">
             <div class="cp-week" id="cardioWeek" hidden></div>
@@ -1659,13 +1695,14 @@
           <label>Describe it &mdash; ingredients, portion, how it was cooked</label>
           <input type="text" id="foodDetailsInput" placeholder="e.g. grilled chicken, brown rice, olive oil">
         </div>
-        <div class="f9-actions">
-          <label class="food-upload-btn" for="foodCameraInput"><svg class="fb-i" viewBox="0 0 24 24"><path d="M3 8h3.5l1.8-2.6h7.4L17.5 8H21v11H3z"/><circle cx="12" cy="13" r="3.4"/></svg> Take photo</label>
-          <label class="food-upload-btn" for="foodLibraryInput"><svg class="fb-i" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.4"/><circle cx="8.6" cy="10" r="1.6"/><path d="M21 15.5l-4.8-4.6-5.6 5.6-2.5-2.3L3 18"/></svg> Choose photo</label>
-        </div>
-        <div class="f9-actions" style="margin-top:8px;">
-          <button class="food-upload-btn f9-write" id="foodWriteBtn" type="button"><svg class="fb-i" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></svg> Write it</button>
-          <button class="food-upload-btn f9-write" id="foodAgainBtn" type="button"><svg class="fb-i" viewBox="0 0 24 24"><path d="M3.5 11a8.5 8.5 0 0 1 14.6-5.9L21 8"/><path d="M21 3.5V8h-4.5"/><path d="M20.5 13a8.5 8.5 0 0 1-14.6 5.9L3 16"/><path d="M3 20.5V16h4.5"/></svg> Had this again</button>
+        <!-- Four ways to log a meal, which were two rows of two: eighty pixels of a
+             card whose history strip underneath was being squeezed to nothing. One
+             row of four, the icon doing the naming and the word underneath it. -->
+        <div class="f9-actions f9-four">
+          <label class="food-upload-btn" for="foodCameraInput"><svg class="fb-i" viewBox="0 0 24 24"><path d="M3 8h3.5l1.8-2.6h7.4L17.5 8H21v11H3z"/><circle cx="12" cy="13" r="3.4"/></svg><i>Camera</i></label>
+          <label class="food-upload-btn" for="foodLibraryInput"><svg class="fb-i" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.4"/><circle cx="8.6" cy="10" r="1.6"/><path d="M21 15.5l-4.8-4.6-5.6 5.6-2.5-2.3L3 18"/></svg><i>Photos</i></label>
+          <button class="food-upload-btn f9-write" id="foodWriteBtn" type="button"><svg class="fb-i" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></svg><i>Write</i></button>
+          <button class="food-upload-btn f9-write" id="foodAgainBtn" type="button"><svg class="fb-i" viewBox="0 0 24 24"><path d="M3.5 11a8.5 8.5 0 0 1 14.6-5.9L21 8"/><path d="M21 3.5V8h-4.5"/><path d="M20.5 13a8.5 8.5 0 0 1-14.6 5.9L3 16"/><path d="M3 20.5V16h4.5"/></svg><i>Again</i></button>
         </div>
         <input type="file" id="foodCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="foodLibraryInput" accept="image/*" style="display:none;">
@@ -1700,25 +1737,14 @@
           <input type="number" step="0.1" id="weightInput" placeholder="Today's weight, e.g. 208.4">
           <button class="save-chip primary" id="saveWeightBtn">Log</button>
         </div>
-        <div class="saved-tick" id="weightSaved"></div>
         <div class="w9-actions">
           <button class="plan-btn" type="button" id="bodyBtn">Body &middot; <span id="bodyBtnLabel">&mdash;</span></button>
-          <button class="plan-btn" type="button" id="labsBtn">Blood work &middot; <span id="labsBtnLabel">&mdash;</span></button>
         </div>
         <svg class="weight-chart" id="weightChart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
-        <div class="w9-scroll">
-          <!-- The level lived under the day's score on the Today card, which put two
-               bars on one card with a line of words between them. It belongs on the
-               tab that is already about the long view, where it is the only bar. -->
-          <div class="wins-card" id="winsCard" hidden>
-            <div class="wins-head">
-              <div class="wins-title">How far you've come</div>
-              <div class="wins-span" id="winsSpan"></div>
-            </div>
-            <div class="wins-hero" id="winsHero"></div>
-            <div class="wins-rows" id="winsRows"></div>
-            <div class="wins-foot" id="winsFoot"></div>
-          </div>
+        <!-- Thirty days of weigh-ins was a column seven hundred pixels tall inside a
+             box a hundred tall: the history was there and unreachable. Sideways it is
+             a strip of days you flick through, and the card stops scrolling. -->
+        <div class="w9-strip">
           <div class="w9-sec">Every day you logged</div>
           <div class="hist-list" id="histList"></div>
         </div>
@@ -1767,18 +1793,35 @@
   </div>
 
   <!-- Character sheet -->
+  <!-- "How am I doing" was two sheets opened from two buttons eight pixels apart on
+       the same card, and the longer of them ran past the bottom of a laptop. One
+       sheet, three panes, stepped through side to side: the week, the parts, and what
+       is moving the multiplier. Each pane is short enough to read without scrolling. -->
   <div class="modal-inner char-sheet" id="charModal" style="display:none;">
     <div class="char-head">
       <div class="char-power"><span id="charPower">0</span><small>PARTS GOING</small></div>
       <div class="char-sub" id="charSub"></div>
     </div>
-    <div class="char-section">Parts</div>
-    <div id="charSlots"></div>
-    <div class="char-section">Helping &amp; costing</div>
-    <div id="charStates"></div>
-    <div class="char-section">Milestones</div>
-    <div class="rk-badges" id="charBadges"></div>
-    <div class="char-foot" id="charFoot"></div>
+    <div class="rv-tabs" id="rvTabs">
+      <button type="button" class="rv-tab" data-pane="week">Week</button>
+      <button type="button" class="rv-tab" data-pane="parts">Parts</button>
+      <button type="button" class="rv-tab" data-pane="states">Standing</button>
+    </div>
+    <div class="rv-pane" id="rvWeek">
+      <div class="wk-tot" id="weekTotals"></div>
+      <div class="wk-table" id="weekTable"></div>
+      <div class="wk-read" id="weekRead"></div>
+    </div>
+    <div class="rv-pane" id="rvParts" hidden>
+      <div id="charSlots"></div>
+    </div>
+    <div class="rv-pane" id="rvStates" hidden>
+      <div class="char-section">Helping &amp; costing</div>
+      <div id="charStates"></div>
+      <div class="char-section">Milestones</div>
+      <div class="rk-badges" id="charBadges"></div>
+      <div class="char-foot" id="charFoot"></div>
+    </div>
     <div class="modal-actions"><button class="primary-btn" id="charCloseBtn" style="width:100%;">Close</button></div>
   </div>
 
@@ -1823,34 +1866,27 @@
   </div>
 
   <!-- Seven days, and what they add up to -->
-  <div class="modal-inner" id="weekModal" style="display:none;">
-    <h3 id="weekTitle">Last seven days</h3>
-    <div class="wk-tot" id="weekTotals"></div>
-    <div class="wk-table" id="weekTable"></div>
-    <div class="wk-read" id="weekRead"></div>
-    <div class="modal-actions">
-      <button class="close-btn" id="weekCloseBtn" style="width:100%;">Close</button>
-    </div>
-  </div>
-
   <!-- One set, when the planned numbers were not what happened -->
+  <!-- One exercise, one sheet. Correcting a set and looking at what the exercise has
+       done are the same question asked from two places on the same page, and they
+       were two sheets that could not see each other: you fixed a number without the
+       history that says whether it is going up. The fields hide when the sheet is
+       opened from the exercise name rather than from a set. -->
   <div class="modal-inner" id="setEditModal" style="display:none;">
     <h3 id="setEditTitle">Set</h3>
-    <div class="field-row" style="margin-bottom:8px;">
-      <div class="field"><label>Reps</label><input type="number" id="setEditReps" inputmode="numeric"></div>
-      <div class="field"><label id="setEditWtLabel">Weight</label><input type="number" step="0.5" id="setEditWt" inputmode="decimal"></div>
+    <div id="setEditFields">
+      <div class="field-row" style="margin-bottom:8px;">
+        <div class="field"><label>Reps</label><input type="number" id="setEditReps" inputmode="numeric"></div>
+        <div class="field"><label id="setEditWtLabel">Weight</label><input type="number" step="0.5" id="setEditWt" inputmode="decimal"></div>
+      </div>
+      <div class="f9-note" id="setEditGhost" style="margin-bottom:10px;"></div>
     </div>
-    <div class="f9-note" id="setEditGhost" style="margin-bottom:10px;"></div>
+    <div class="char-section" id="setEditHistSec">Every time you did it</div>
+    <div id="exHistoryList" class="exh-scroll"></div>
     <div class="modal-actions">
       <button class="close-btn" id="setEditCancel">Cancel</button>
       <button class="primary-btn" id="setEditSave">Save</button>
     </div>
-  </div>
-
-  <div class="modal-inner" id="exHistoryModal" style="display:none;">
-    <h3 id="exHistoryTitle">Exercise history</h3>
-    <div id="exHistoryList"></div>
-    <div class="modal-actions"><button class="close-btn" id="closeExHistoryBtn" style="width:100%;">Close</button></div>
   </div>
 
   <!-- The week itself: every day, every exercise, editable -->
@@ -1919,21 +1955,26 @@
       <input type="checkbox" id="bodyTrack">
       <span>Move maintenance as my weight changes</span>
     </label>
-    <div class="modal-actions">
-      <button class="close-btn" id="bodyCancelBtn">Cancel</button>
-      <button class="primary-btn" id="bodySaveBtn">Save</button>
+    <!-- Blood work was its own sheet behind its own button, for a list of files that
+         is nearly always empty. It is the same subject as the rest of this sheet --
+         facts about your body that are not today's weight -- so it lives here. -->
+    <div class="char-section" style="margin-top:12px;">Blood work</div>
+    <div class="wins-card" id="winsCard" hidden>
+      <div class="wins-head">
+        <div class="wins-title">How far you've come</div>
+        <div class="wins-span" id="winsSpan"></div>
+      </div>
+      <div class="wins-hero" id="winsHero"></div>
+      <div class="wins-rows" id="winsRows"></div>
+      <div class="wins-foot" id="winsFoot"></div>
     </div>
-  </div>
 
-  <!-- Blood work: files the owner uploads, listed by date -->
-  <div class="modal-inner" id="labsModal" style="display:none;">
-    <h3>Blood work</h3>
-    <div class="f9-note" style="margin-bottom:10px;">A PDF or photo of a panel. Yours only.</div>
-    <label class="food-upload-btn f9-write" for="labsFileInput" style="margin-bottom:10px;"><svg class="fb-i" viewBox="0 0 24 24"><path d="M20.5 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l9-9a3.3 3.3 0 0 1 4.7 4.7l-8.9 8.9a1.7 1.7 0 0 1-2.4-2.4l8.2-8.2"/></svg> Add a file</label>
+    <label class="food-upload-btn f9-write" for="labsFileInput" style="margin-bottom:8px;"><svg class="fb-i" viewBox="0 0 24 24"><path d="M20.5 11.5l-8.6 8.6a5 5 0 0 1-7.1-7.1l9-9a3.3 3.3 0 0 1 4.7 4.7l-8.9 8.9a1.7 1.7 0 0 1-2.4-2.4l8.2-8.2"/></svg> Add a panel</label>
     <input type="file" id="labsFileInput" accept="application/pdf,image/*" style="display:none;">
     <div id="labsList" class="again-scroll"></div>
     <div class="modal-actions">
-      <button class="close-btn" id="labsCloseBtn">Close</button>
+      <button class="close-btn" id="bodyCancelBtn">Cancel</button>
+      <button class="primary-btn" id="bodySaveBtn">Save</button>
     </div>
   </div>
 
@@ -2995,7 +3036,12 @@
     var keys = await getAllDayKeys();
     var latest = latestWeightLb;
     document.getElementById("statWeight").textContent = latest != null ? latest + " lb" : "—";
-    document.getElementById("statWeightSub").textContent = latest != null ? "latest" : "not logged";
+    /* A separate "Logged" line under the input was a whole row of the card saying
+       what the number above it had already said. The subtitle says it instead. */
+    var todayDoc = cache[dateKey(new Date())];
+    var loggedToday = !!(todayDoc && todayDoc.weight != null);
+    document.getElementById("statWeightSub").textContent =
+      latest == null ? "not logged" : loggedToday ? "logged today" : "latest";
     var lossSub = document.getElementById("statTotalLossSub");
     var conf = profileConf();
     if (conf && conf.startWeight != null) {
@@ -3031,7 +3077,7 @@
     renderQuests(); renderTopStats().then(renderWins); renderRank(); snapshotBests();
 
     document.getElementById("weightInput").value = doc.weight != null ? doc.weight : "";
-    document.getElementById("weightSaved").textContent = doc.weight != null ? "Logged" : "";
+
 
     // Once per load, quietly drop photos past the retention window.
     if (!renderAll._purged) { renderAll._purged = true; purgeOldPhotos(); }
@@ -3641,9 +3687,13 @@
       ? "Last time: " + (last.reps != null ? last.reps + " reps" : "") +
         (last.weight != null ? " at " + last.weight : "")
       : "Asked for: " + exx.repLo + "\u2013" + exx.repHi + " reps";
+    document.getElementById("setEditFields").hidden = false;
+    document.getElementById("setEditSave").hidden = false;
+    document.getElementById("setEditCancel").textContent = "Cancel";
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
+    fillExerciseHistory(exx.name);
   }
   function wireSetEdit() {
     document.getElementById("setEditCancel").onclick = function () {
@@ -3877,14 +3927,21 @@
     vibrate(15);
   }
 
-  async function openExerciseHistory(exName) {
-    document.getElementById("exHistoryTitle").textContent = exName + " — history";
-    var listEl = document.getElementById("exHistoryList");
-    listEl.innerHTML = '<div class="empty">Loading…</div>';
-    hideSheets("exHistoryModal");
-    document.getElementById("exHistoryModal").style.display = "block";
+  function openExerciseHistory(exName) {
+    setEdit = null;
+    document.getElementById("setEditTitle").textContent = exName;
+    document.getElementById("setEditFields").hidden = true;
+    document.getElementById("setEditSave").hidden = true;
+    document.getElementById("setEditCancel").textContent = "Close";
+    hideSheets("setEditModal");
+    document.getElementById("setEditModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
-
+    return fillExerciseHistory(exName);
+  }
+  async function fillExerciseHistory(exName) {
+    var listEl = document.getElementById("exHistoryList");
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="empty">Loading\u2026</div>';
     var hist = await getExerciseHistory(exName, 12);
     if (hist.length === 0) { listEl.innerHTML = '<div class="empty">No sets logged for this exercise yet.</div>'; return; }
     /* Sets and reps, not pounds. What this list is for is seeing whether the work is
@@ -3905,7 +3962,7 @@
       var isPR = d.reps > 0 && di === bestAt;
       var row = document.createElement("div");
       row.className = "exh-row" + (isPR ? " pr" : "");
-      row.innerHTML = '<span>' + d.date + '</span><span>' + d.sets + " set" + (d.sets === 1 ? "" : "s") +
+      row.innerHTML = '<span>' + fmtLabel(new Date(d.date + "T12:00:00")) + '</span><span>' + d.sets + " set" + (d.sets === 1 ? "" : "s") +
         "  \u00b7  " + d.reps + " reps" + (isPR ? '<span class="exh-pr-badge">BEST</span>' : '') + '</span>';
       listEl.appendChild(row);
     });
@@ -4078,10 +4135,6 @@
       (PLAN.deficit > 0 ? (PLAN.deficit / 500).toFixed(1) + " lb/wk" : "holding steady"));
   }
 
-  function wireExerciseHistoryModal() {
-    document.getElementById("closeExHistoryBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
-  }
-
   /* A day whose cardio is "be on your feet for half an hour" rather than "this many
      minutes at this incline and this speed". */
   function cardioFree(prog) { return !!(prog && prog.cardio && prog.cardio.mode === "free"); }
@@ -4103,13 +4156,12 @@
     drawHill();
     document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
     document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : (prog.cardio.speed != null ? prog.cardio.speed : "");
-    document.getElementById("cardioSaved").textContent = doc.cardio && doc.cardio.min != null ? "Logged" : "";
     var prev = document.getElementById("cardioPhotoPreview");
     if (doc.cardioPhoto && doc.cardioPhoto.url) { prev.src = doc.cardioPhoto.url; prev.style.display = "block"; }
     else { prev.style.display = "none"; prev.removeAttribute("src"); }
-    document.getElementById("cardioCalEst").textContent = (doc.cardio && doc.cardio.calories != null) ? doc.cardio.calories + " kcal" : "—";
-    var lbl = document.getElementById("cardioFileLabel");
-    if (lbl) lbl.textContent = free ? "Add a photo" : "Add a photo of the screen";
+    document.getElementById("cardioCalEst").textContent =
+      (doc.cardio && doc.cardio.calories != null) ? "  \u00b7  \u2248" + doc.cardio.calories + " kcal" : "";
+
     await renderCardioWeek(free);
   }
 
@@ -5359,7 +5411,20 @@
     belt:   '<path d="M3 9h18v6H3z"/><path d="M9 9v6M15 9v6"/><path d="M11 11h2v2h-2z"/>',
     boots:  '<path d="M7 3h4v10l6 3v5H7z"/><path d="M7 16h10"/>'
   };
-  async function openCharacter() {
+  /* Which pane the sheet lands on, and the one place that switches between them. */
+  function showReviewPane(which) {
+    var panes = { week: "rvWeek", parts: "rvParts", states: "rvStates" };
+    Object.keys(panes).forEach(function (k) {
+      var el = document.getElementById(panes[k]);
+      if (el) el.hidden = (k !== which);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("#rvTabs .rv-tab"), function (b) {
+      var on = b.getAttribute("data-pane") === which;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+  async function openCharacter(pane) {
     var pr = lastProg || await progression();
     var lo = await loadout(pr);
     lastLoadout = lo;
@@ -5407,6 +5472,11 @@
     document.getElementById("charFoot").innerHTML =
       "Streak <b>" + pr.mult + "×</b> → <b>" + eff + "×</b> with the above.";
 
+    paintWeekSheet();
+    showReviewPane(pane || "parts");
+    Array.prototype.forEach.call(document.querySelectorAll("#rvTabs .rv-tab"), function (b) {
+      b.onclick = function () { showReviewPane(b.getAttribute("data-pane")); };
+    });
     hideSheets("charModal");
     document.getElementById("charModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
@@ -5908,7 +5978,7 @@
       el.onclick = function () {
         if (el.getAttribute("data-slot") === "helmet") {
           openGiveSheet(lastProg || { stats: { sessions: 0, onPlanDays: 0, streakWeeks: 0 } });
-        } else { openCharacter(); }
+        } else { openCharacter("parts"); }
       };
     });
 
@@ -5953,7 +6023,7 @@
     if (states.length > room) chips.push('<span class="t9-chip more">+' + (states.length - room) + ' more</span>');
     var chipWrap = document.getElementById("t9Chips");
     chipWrap.innerHTML = chips.join("");
-    chipWrap.onclick = openCharacter;
+    chipWrap.onclick = function () { openCharacter("states"); };
 
     /* the reward */
     var btn = document.getElementById("rkDropBtn");
@@ -6010,17 +6080,33 @@
   /* The countdowns are the reason to open this twice in a day rather than once. */
   /* The countdowns are the reason to open this twice in a day rather than once. One
      line, and the thing that costs something wins the slot. */
+  /* The card used to carry two prompt rows stacked on each other: a countdown and a
+     make-up-a-walk button, each about sixty pixels of a card that was already taking
+     them out of the figure. They are the same kind of thing -- one line telling you
+     what to do next -- so there is one row, and this decides what goes in it. The
+     order is what it costs you to ignore: a streak you can still buy back, a streak
+     about to go, minutes already banked, a walk worth taking, then the soft nudges. */
+  var redeemNote = null;
+  function showNote(el, other) { other.hidden = true; el.hidden = false; return el; }
   function tickRank() {
     var note = document.getElementById("t9Note");
-    if (!note) return;
+    var rdm = document.getElementById("t9Redeem");
+    if (!note || !rdm) return;
     var pr = lastProg;
-    if (!pr || dateKey(selectedDate) !== dateKey(new Date())) { note.hidden = true; return; }
+    if (!pr || dateKey(selectedDate) !== dateKey(new Date())) { note.hidden = true; rdm.hidden = true; return; }
     var now = new Date();
+    function sayRedeem() {
+      if (!redeemNote) return false;
+      showNote(rdm, note);
+      rdm.className = redeemNote.cls;
+      rdm.innerHTML = redeemNote.html;
+      return true;
+    }
 
     /* A run that broke yesterday and could still be bought back. Spending is a choice
        the player makes, not something that happens quietly on their behalf. */
     if (!pr.run && pr.brokenRun >= 3 && pr.missedYesterday && GAME.shields > 0) {
-      note.hidden = false;
+      showNote(note, rdm);
       note.innerHTML = "Your <b>" + pr.brokenRun + "-day streak</b> broke on " +
         fmtLabel(new Date(pr.missedYesterday + "T12:00:00")) +
         '. <button type="button" id="rkRestore" style="margin-left:6px;border:none;border-radius:8px;' +
@@ -6038,18 +6124,28 @@
 
     /* loss aversion, shown only once the day is genuinely at risk */
     if (pr.run > 0 && !pr.loggedToday && now.getHours() >= 16) {
-      note.hidden = false;
+      showNote(note, rdm);
       note.innerHTML = "<b>" + pr.run + "-day streak</b> and <b>" + pr.mult + "\u00d7</b> end in <b>" +
         hms(msUntilHour(now, 24)) + "</b>" +
         (GAME.shields ? " \u2014 a spare day covers it." : " \u2014 log anything.");
       return;
     }
 
+    /* Minutes already banked are worth more than a countdown: they are a thing to go
+       and spend, and they stop being worth anything at midnight. */
+    if (redeemNote && redeemNote.spare && sayRedeem()) return;
+
     var w = activeWindow(now);
-    note.hidden = false;
-    note.innerHTML = w
-      ? "<b>" + w.what + "</b> \u00b7 " + hms(msUntilHour(now, w.to)) + " left"
-      : (function () { var n = nextWindow(now); return n.what + " in <b>" + hms(msUntilHour(now, n.from)) + "</b>"; })();
+    if (w) {
+      showNote(note, rdm);
+      note.innerHTML = "<b>" + w.what + "</b> \u00b7 " + hms(msUntilHour(now, w.to)) + " left";
+      return;
+    }
+    /* No window open: a walk worth taking beats "opens in four hours". */
+    if (sayRedeem()) return;
+    var n = nextWindow(now);
+    showNote(note, rdm);
+    note.innerHTML = n.what + " in <b>" + hms(msUntilHour(now, n.from)) + "</b>";
   }
 
 
@@ -6082,7 +6178,7 @@
     m.querySelector(".drop-sub").textContent = prize.shield
       ? "A spare day covers one day you miss without breaking your streak. It is used automatically."
       : "Banked. Next one tomorrow.";
-    document.getElementById("exHistoryModal").style.display = "none";
+    document.getElementById("setEditModal").style.display = "none";
     document.getElementById("mealEditModal").style.display = "none";
     document.getElementById("planModal").style.display = "none";
     document.getElementById("charModal").style.display = "none";
@@ -6125,7 +6221,7 @@
       var key = dateKey(selectedDate);
       var val = document.getElementById("weightInput").value;
       var doc = await mutateDay(key, function (d) { d.weight = val === "" ? null : Number(val); });
-      document.getElementById("weightSaved").textContent = "Logged";
+
       /* Three of the four cards made a noise when you logged something and this one
          did not, which made the weigh-in feel like the one that did not count. */
       if (doc.weight != null) {
@@ -6147,12 +6243,11 @@
       var doc = await mutateDay(key, function (d) {
         d.cardio = { min: min, incline: incline, speed: speed, calories: calories };
       });
-      document.getElementById("cardioSaved").textContent = "Logged";
       var cpg = document.getElementById("cardioPage");
       cpg.dataset.logged = min == null ? "" : min;
       paintPagerTabs(); drawHill();
       sfx("logged"); burstFrom(document.getElementById("saveCardioBtn"), ["#6FD0FF", "#2E6BFF", "#FFFFFF"], 16);
-      document.getElementById("cardioCalEst").textContent = calories != null ? calories + " kcal" : "—";
+      document.getElementById("cardioCalEst").textContent = calories != null ? "  \u00b7  \u2248" + calories + " kcal" : "";
       if (doc.cardio.min != null) fireFeedback("cardio", free
         ? "Logged " + doc.cardio.min + " minutes on her feet -- a walk or housework, which count the same here -- roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction."
         : "Logged " + doc.cardio.min + " minutes of incline cardio at " + (doc.cardio.incline || "?") + "% incline, " + (doc.cardio.speed || "?") + " mph, roughly " + calories + " kcal burned. Give a brief, specific, encouraging reaction.");
@@ -6179,7 +6274,9 @@
       var setCount = 0;
       if (doc.sets) Object.keys(doc.sets).forEach(function(en){ if (!Array.isArray(doc.sets[en])) return; doc.sets[en].forEach(function(s){ if (s && s.done) setCount++; }); });
       if (setCount > 0) metaParts.push(setCount + " sets");
-      row.innerHTML = '<div><div class="hist-date">' + fmtLabel(new Date(k + "T12:00:00")) + '</div><div class="hist-meta">' + (metaParts.join(" · ") || "—") + '</div></div><div class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</div>';
+      row.innerHTML = '<span class="hist-date">' + fmtLabel(new Date(k + "T12:00:00")) + '</span>' +
+        '<span class="hist-weight">' + (doc.weight != null ? doc.weight + " lb" : "—") + '</span>' +
+        '<span class="hist-meta">' + (metaParts.join(" · ") || "—") + '</span>';
       histList.appendChild(row);
     }
   }
@@ -7014,23 +7111,19 @@
      unspent, which is a thing to go and do now; and a day that could still be saved if
      you went for a walk, which is a reason to go for one. Both open the ledger. */
   async function renderRedeemBanner() {
-    var el = document.getElementById("t9Redeem");
-    if (!el) return;
     var st;
-    try { st = await redeemState(); } catch (e) { el.hidden = true; return; }
-    if (!st.days.length) { el.hidden = true; return; }
+    try { st = await redeemState(); } catch (e) { redeemNote = null; tickRank(); return; }
+    if (!st.days.length) { redeemNote = null; tickRank(); return; }
     var nearest = st.days[0];                       // the most recent short day
     /* One line, because the figure is what the card is for and this is a prompt, not a
        paragraph. The ledger behind it has the full story. */
     var when = DAY_ABBR[nearest.date.getDay()] + " " + nearest.date.getDate();
-    if (st.spare > 0) {
-      el.className = "t9-redeem ready";
-      el.innerHTML = "\u21ba <b>" + st.spare + " min spare</b> \u2192 make up " + when;
-    } else {
-      el.className = "t9-redeem earn";
-      el.innerHTML = "\u21ba Walk <b>" + nearest.short + " min</b> extra to make up " + when;
-    }
-    el.hidden = false;
+    redeemNote = st.spare > 0
+      ? { cls: "t9-redeem ready", spare: true,
+          html: "\u21ba <b>" + st.spare + " min spare</b> \u2192 make up " + when }
+      : { cls: "t9-redeem earn", spare: false,
+          html: "\u21ba Walk <b>" + nearest.short + " min</b> extra to make up " + when };
+    tickRank();
   }
 
   /* ---- the week, as something you can change ----
@@ -7270,20 +7363,10 @@
       });
     }
   }
-  function setLabsLabel() {
-    var el = document.getElementById("labsBtnLabel");
-    if (el) el.textContent = MY_LABS.length ? MY_LABS.length + " on file" : "none yet";
-  }
+  /* Nothing of its own left to label: the panel count rides on the body button,
+     which setBodyLabel builds. */
+  function setLabsLabel() { setBodyLabel(); }
   function wireLabs() {
-    document.getElementById("labsBtn").onclick = function () {
-      renderLabs();
-      hideSheets("labsModal");
-      document.getElementById("labsModal").style.display = "block";
-      document.getElementById("modalOverlay").classList.add("open");
-    };
-    document.getElementById("labsCloseBtn").onclick = function () {
-      document.getElementById("modalOverlay").classList.remove("open");
-    };
     document.getElementById("labsFileInput").addEventListener("change", async function (e) {
       var file = e.target.files[0]; e.target.value = "";
       if (!file) return;
@@ -7310,9 +7393,9 @@
        after the "had this again" sheet left both of them in the overlay at once and the
        flex row squeezed the controls off the side of the screen. One list, and adding a
        sheet means adding it here and nowhere else. */
-    ["exHistoryModal","mealEditModal","planModal","dropModal","charModal","giveModal",
-     "againModal","redeemModal","bodyModal","labsModal","progModal","setupModal",
-     "setEditModal", "weekModal"].forEach(function (id) {
+    ["mealEditModal","planModal","dropModal","charModal","giveModal",
+     "againModal","redeemModal","bodyModal","progModal","setupModal",
+     "setEditModal"].forEach(function (id) {
       if (id === except) return;
       var el = document.getElementById(id); if (el) el.style.display = "none";
     });
@@ -7344,6 +7427,7 @@
     if (BODY.heightIn) bits.push(Math.floor(BODY.heightIn / 12) + "\u2032" + Math.round(BODY.heightIn % 12) + "\u2033");
     var a = ageFrom(BODY.born); if (a != null) bits.push(a);
     bits.push(fmtInt(effectiveMaintenance()) + " kcal");
+    if (MY_LABS && MY_LABS.length) bits.push(MY_LABS.length + " panel" + (MY_LABS.length === 1 ? "" : "s"));
     el.textContent = bits.join(" \u00b7 ");
   }
   function openBody() {
@@ -7358,6 +7442,7 @@
     }).join("");
     document.getElementById("bodyTrack").checked = PLAN.trackWeight !== false;
     bodyWorking();
+    renderLabs();
     hideSheets("bodyModal");
     document.getElementById("bodyModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
@@ -7849,17 +7934,8 @@
       ? ps.map(function (x) { return "<p>" + esc(x) + "</p>"; }).join("")
       : "<p>" + esc(t.logged ? "Reading the week\u2026" : "Nothing logged in the last seven days yet.") + "</p>";
   }
-  function openWeekSheet() {
-    hideSheets("weekModal");
-    paintWeekSheet();
-    document.getElementById("weekModal").style.display = "block";
-    document.getElementById("modalOverlay").classList.add("open");
-  }
+  function openWeekSheet() { return openCharacter("week"); }
   function wireWeek() {
-    document.getElementById("weekCloseBtn").onclick = function () {
-      document.getElementById("modalOverlay").classList.remove("open");
-      document.getElementById("weekModal").style.display = "none";
-    };
     document.getElementById("t9WeekBtn").onclick = openWeekSheet;
     var coachEl = document.getElementById("scCoach");
     if (coachEl) coachEl.onclick = openWeekSheet;
@@ -7886,7 +7962,7 @@
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireBody(); wireLabs(); wireProg(); wireSetup();
-    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireWeek(); wireExerciseHistoryModal(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireWeek(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
