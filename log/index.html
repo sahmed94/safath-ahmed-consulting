@@ -146,6 +146,8 @@
      carry more light. */
   .t9-verdict.grade { font-size: 44px; letter-spacing: .01em; }
   .t9-verdict.grade.a { text-shadow: 0 0 26px rgba(125,240,184,0.5); }
+  .t9-verdict.grade.rest { font-size: 30px; letter-spacing: .06em; color: #7DF0B8; }
+  .c9-compact .t9-verdict.grade.rest { font-size: 24px; }
   .t9-verdict.grade.s { color: #FFD166; text-shadow: 0 0 16px rgba(255,209,102,0.75), 0 0 40px rgba(255,209,102,0.45); }
   .c9-compact .t9-verdict.grade { font-size: 34px; }
   .t9-verdict.lose { color: #FF8F6B; } .t9-verdict.blank { color: rgba(255,255,255,0.5); }
@@ -371,6 +373,7 @@
   .wk-row .wk-sc { text-align: right; font-family: var(--font-head); font-size: 13px; }
   .wk-row.won .wk-sc { color: var(--teal); }
   .wk-miss { color: rgba(255,255,255,0.3); }
+  .wk-rest { color: var(--teal); font-style: normal; }
   .wk-read { font-size: 12.5px; line-height: 1.55; color: var(--ink-dim); }
   .wk-read p { margin: 0 0 9px; }
   .wk-read p:last-child { margin-bottom: 0; }
@@ -736,6 +739,28 @@
   .f9-targets > div { background: var(--surface-2); border-radius: 11px; padding: 7px 6px; text-align: center; }
   .f9-targets b { display: block; font-family: var(--font-head); font-size: 13px; }
   .f9-targets span { font-size: 9px; color: var(--ink-faint); letter-spacing: .03em; }
+  /* A rolling window, so it is a bar rather than a tile: the tiles above it are all
+     about today and this one is not. */
+  .f9-hg { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; width: 100%;
+    border: 1px solid rgba(111,208,255,0.3); background: rgba(111,208,255,0.09);
+    color: var(--ink-dim); border-radius: 11px; padding: 6px 10px; cursor: pointer;
+    font-size: 11px; text-align: left; font-family: var(--font-body); }
+  .f9-hg[hidden] { display: none; }
+  .f9-hg b { font-family: var(--font-head); font-size: 12.5px; color: #9BDCFF; }
+  .f9-hg .hg-track { flex: 1 1 auto; height: 5px; border-radius: 20px;
+    background: rgba(255,255,255,0.12); overflow: hidden; min-width: 30px; }
+  .f9-hg .hg-track i { display: block; height: 100%; border-radius: 20px; background: #6FD0FF; }
+  .f9-hg.near { border-color: rgba(255,209,102,0.45); background: rgba(255,209,102,0.1); }
+  .f9-hg.near b { color: #FFD166; } .f9-hg.near .hg-track i { background: #FFD166; }
+  .f9-hg.over { border-color: rgba(255,107,74,0.5); background: rgba(255,107,74,0.12); }
+  .f9-hg.over b { color: #FF8F6B; } .f9-hg.over .hg-track i { background: #FF8F6B; }
+  .c9-compact .f9-hg { padding: 5px 8px; font-size: 10px; }
+  .hg-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 7px 0; border-top: 1px solid var(--line); }
+  .hg-row:first-child { border-top: 0; }
+  .hg-row b { font-family: var(--font-head); font-size: 13px; }
+  .hg-row span { font-size: 11px; color: var(--ink-faint); }
+  .hg-row em { font-style: normal; font-family: var(--font-head); font-size: 13px; color: #9BDCFF; }
   .f9-actions { display: flex; gap: 8px; }
   /* The four-up row: icon over word, so a cell a quarter of the card wide still
      names itself instead of clipping "Choose photo" to "Choose p". */
@@ -805,6 +830,12 @@
     color: var(--teal); border-radius: 9px; padding: 7px 9px; font-size: 11.5px;
     font-family: var(--font-head); cursor: pointer; white-space: nowrap; }
   .rd-go:disabled { border-color: var(--line); background: rgba(255,255,255,0.04); color: var(--ink-faint); cursor: default; }
+  .t2-rest { flex: 0 0 auto; border: 1px solid var(--line); background: transparent; cursor: pointer;
+    color: var(--ink-faint); border-radius: 99px; padding: 5px 11px; font-size: 11.5px;
+    font-family: var(--font-head); letter-spacing: .03em; white-space: nowrap; }
+  .t2-rest[hidden] { display: none; }
+  .t2-rest[aria-pressed="true"] { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
+  .c9-compact .t2-rest { padding: 4px 9px; font-size: 10.5px; }
   .t2-edit { flex: 0 0 auto; width: 32px; height: 32px; display: inline-flex; align-items: center;
     justify-content: center; border-radius: 9px; border: 1px solid rgba(255,255,255,0.14);
     background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); cursor: pointer; }
@@ -1081,6 +1112,9 @@
   .ss-pair > .ss-half + .ss-half { border-left: 1px solid var(--line); padding-left: 10px; margin-left: 10px; }
   .ss-pair .ex-name { font-size: 15px; }
   .ss-pair .ex-target { font-size: 10px; }
+  /* A day you have taken off: the walk is still loggable, it is just no longer
+     being asked for, and the page should look like that. */
+  .panel.resting .cardio-page .hill9, .panel.resting .cardio-page .ring-title { opacity: .45; }
   .ss-pair .ring-cap { display: none; }
   .ss-pair .ring-acts { flex-wrap: nowrap; gap: 5px; }
   .ss-pair .ring-act { font-size: 9.5px; padding: 3px 6px; white-space: nowrap; }
@@ -1600,6 +1634,7 @@
   /* A dozen sessions is a list that would push the sheet past the bottom of a phone.
      It gets a box of its own and the sheet keeps its shape. */
   .exh-scroll { max-height: 34vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #hgList { max-height: 32vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .state-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; margin-bottom: 6px; }
   .state-row.good { background: rgba(125,240,184,0.14); box-shadow: inset 0 0 0 1px rgba(125,240,184,0.34); }
   .state-row.bad { background: rgba(255,107,74,0.14); box-shadow: inset 0 0 0 1px rgba(255,107,74,0.38); }
@@ -1822,6 +1857,8 @@
             <div class="t2-name" id="liftSessionName"></div>
             <div class="t2-sub" id="liftSessionSub"></div>
           </div>
+          <!-- Only on a day that asks for no lifting: see canRest. -->
+          <button class="t2-rest" type="button" id="restBtn" aria-pressed="false" hidden>Rest day</button>
           <button class="t2-edit" type="button" id="progBtn" aria-label="Edit your week" title="Edit your week">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
@@ -1880,6 +1917,9 @@
           <div><b id="planMaintLabel">&mdash;</b><span>maintenance</span></div>
         </div>
         <div class="f9-macrowrap"><div class="today-macros" id="todayMacros"></div></div>
+        <!-- Only ever on screen when there is fish in the last seven days, which on
+             most weeks is never: see renderMercury. -->
+        <button class="f9-hg" id="foodHg" type="button" hidden></button>
         <div class="meal-picker" id="mealPicker"></div>
         <div class="field">
           <label>Describe it &mdash; ingredients, portion, how it was cooked</label>
@@ -2038,6 +2078,11 @@
   <!-- Eating plan -->
   <div class="modal-inner plan-sheet" id="planModal" style="display:none;">
     <h3>Eating plan</h3>
+    <div class="rv-tabs">
+      <button type="button" class="rv-tab" data-pane="targets">Targets</button>
+      <button type="button" class="rv-tab" data-pane="hg">Mercury</button>
+    </div>
+    <div class="rv-pane" data-pane="targets">
     <div class="field-row" style="margin-bottom:8px;">
       <div class="field"><label>Maintenance (kcal/day)</label><input type="number" id="planMaint"></div>
       <div class="field"><label>Daily deficit</label><input type="number" id="planDeficit" step="50"></div>
@@ -2058,6 +2103,11 @@
     <button class="ghost-btn" id="planBodyBtn" style="width:100%; margin-top:8px;">Height &amp; date of birth &rarr;</button>
     <div class="plan-math" id="planMath"></div>
     <div class="plan-warn" id="planWarn" hidden></div>
+    </div>
+    <div class="rv-pane" data-pane="hg" hidden>
+      <div class="plan-math" id="hgMath"></div>
+      <div id="hgList"></div>
+    </div>
     <div class="modal-actions">
       <button class="close-btn" id="planCancelBtn">Cancel</button>
       <button class="primary-btn" id="planSaveBtn">Save plan</button>
@@ -2244,6 +2294,10 @@
     <div class="field-row" style="margin-top:8px;">
       <div class="field"><label>Fibre (g)</label><input type="number" id="mealEditFiber"></div>
       <div class="field"><label>Caffeine (mg)</label><input type="number" id="mealEditCaff" step="5"></div>
+    </div>
+    <div class="field-row" style="margin-top:8px;">
+      <div class="field"><label>Mercury (&micro;g)</label><input type="number" id="mealEditHg" step="1"></div>
+      <div class="field"></div>
     </div>
     <button class="ghost-btn" id="mealRerunBtn" style="width:100%; margin-top:12px;">Estimate with AI</button>
     <div class="modal-actions">
@@ -3032,8 +3086,23 @@
     "Estimate fibre from the visible vegetables, pulses, fruit and whole grains; a plate with none of those has close to zero. " +
     "When the true amount is uncertain, deliberately estimate toward the HIGHER end of the plausible range for calories, protein, carbs, and fat — it is better for this user to overestimate than underestimate, since they are tracking against a daily calorie target and underestimating would let them silently overeat. Do not lowball portion sizes or ingredient amounts. " +
     "Respond with ONLY a JSON object, no other text, in this exact shape: " +
-    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "caffeine_mg": <integer>, "confidence": "low"|"medium"|"high"}. ' +
+    '{"food": "short description, under 6 words", "calories": <integer>, "protein_g": <integer>, "carbs_g": <integer>, "fat_g": <integer>, "fiber_g": <integer>, "caffeine_mg": <integer>, "mercury_mcg": <integer>, "confidence": "low"|"medium"|"high"}. ' +
     "caffeine_mg is the caffeine in it: coffee, tea, energy drinks, cola, dark chocolate and pre-workout all carry some; anything else is 0. " +
+    /* Mercury is the one number here that is about safety rather than a target, and
+       it is the one the model is most likely to invent. So it gets the arithmetic
+       spelled out and a table of the species that actually matter: micrograms per
+       portion is parts-per-million times grams, and anything without fish in it is
+       zero. Rounding up is right for calories; here it is right too, for a
+       different reason. */
+    "mercury_mcg is methylmercury, and it is ONLY ever above 0 if the meal contains fish or shellfish. " +
+    "Anything with no fish in it is 0 \u2014 do not guess a small number for a meal without fish. " +
+    "Work it out as (mean mercury in parts per million) x (grams of fish in the portion), which gives micrograms. " +
+    "Typical mean ppm: swordfish 1.0, shark 0.98, king mackerel 0.73, bigeye tuna 0.69, marlin 0.49, " +
+    "orange roughy 0.57, Chilean sea bass 0.35, albacore/white canned tuna 0.35, yellowfin tuna 0.35, " +
+    "halibut 0.24, snapper 0.17, cod 0.11, light canned tuna 0.13, crab 0.07, lobster 0.17, " +
+    "tilapia 0.01, salmon 0.02, sardines 0.01, shrimp 0.01, scallops 0.003, oysters 0.01, catfish 0.02, trout 0.07. " +
+    "A restaurant fish portion is roughly 150-200g; a can of tuna is about 140g drained. " +
+    "If you cannot tell which species it is, assume the commonest one for that dish and say confidence low. " +
     "Never comment on whether the meal is healthy or unhealthy, never mention body weight or appearance, just estimate.";
   /* The same guardrails, minus the photo. Describing a meal in words is a weaker
      signal than seeing it, so the instruction to round up matters more here, not less. */
@@ -3054,7 +3123,52 @@
      everything else follows it. Scaling always works from the estimate as first made
      rather than from the last scaled figure, so stepping up and back down returns the
      numbers you started with instead of drifting on rounding. */
-  var MACRO_KEYS = ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg"];
+  var MACRO_KEYS = ["calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg", "mercury_mcg"];
+
+  /* ---- mercury ----
+
+     Every other number on the food card is a target you are trying to reach or a cap
+     you are trying to stay under today. Mercury is neither. It builds up: the half
+     life in blood is around fifty days, so what matters is not this meal but the run
+     of them, and a single tuna steak is fine in a way that a tuna steak every day is
+     not. So it is the only reading in the app that is a rolling window rather than a
+     day.
+
+     The line is the EPA reference dose, 0.1 micrograms of methylmercury per kilogram
+     of bodyweight per day -- the intake considered to carry no appreciable risk over
+     a lifetime, not a threshold where harm starts. Seven days of it is the window.
+     A reference dose scales with the person, so it is read off the last weight on
+     the scale; with no weight logged it falls back to seventy kilos and says so.
+
+     This is a tracker, not advice. It shows the number and where the number came
+     from, and it leaves the deciding alone. */
+  var HG_WINDOW_DAYS = 7;
+  var HG_PER_KG_DAY = 0.1;          // EPA reference dose, micrograms per kg per day
+  var HG_DEFAULT_KG = 70;
+  function mercuryLimit() {
+    var kg = latestWeightLb != null ? latestWeightLb / 2.20462 : HG_DEFAULT_KG;
+    return { kg: kg, guessed: latestWeightLb == null,
+             week: Math.round(HG_PER_KG_DAY * kg * HG_WINDOW_DAYS) };
+  }
+  /* Every meal in the window that carried any, newest first, so the readout can say
+     which fish rather than only how much. */
+  function mercuryWeek(endKey) {
+    var end = new Date((endKey || dateKey(new Date())) + "T12:00:00");
+    var start = new Date(end); start.setDate(start.getDate() - (HG_WINDOW_DAYS - 1));
+    var lo = dateKey(start), hi = dateKey(end), total = 0, rows = [];
+    foodCache.forEach(function (f) {
+      if (f.date < lo || f.date > hi) return;
+      var mcg = (f.estimate && Number(f.estimate.mercury_mcg)) || 0;
+      if (mcg <= 0) return;
+      total += mcg;
+      rows.push({ date: f.date, mcg: Math.round(mcg),
+                  what: (f.estimate && f.estimate.food) || f.userNote || "a meal" });
+    });
+    rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+    var lim = mercuryLimit();
+    return { total: Math.round(total), limit: lim.week, kg: lim.kg, guessed: lim.guessed,
+             share: lim.week ? total / lim.week : 0, rows: rows, from: lo, to: hi };
+  }
   function baseOf(est) {
     if (est && est.base) return est.base;
     var b = {};
@@ -3971,7 +4085,12 @@
     var W = el.clientWidth, H = el.clientHeight;
     if (!(W > 60) || !(H > 60)) return;
     var ask = parseInt(pg.dataset.ask, 10) || 0;
-    var got = parseInt((document.getElementById("cardioMin") || {}).value, 10) || 0;
+    var typed = pg.dataset.typed === "1";
+    var logged = pg.dataset.logged === "" || pg.dataset.logged == null
+                 ? null : parseInt(pg.dataset.logged, 10);
+    var got = typed || logged != null
+      ? (parseInt((document.getElementById("cardioMin") || {}).value, 10) || 0)
+      : 0;
     var free = document.getElementById("cardioFields").classList.contains("free");
     var inc = free ? 0 : (parseFloat((document.getElementById("cardioIncline") || {}).value) || 0);
 
@@ -4018,11 +4137,28 @@
   var REST_DAY = { name: "Rest day", type: "cardio", cardio: { min: 0 }, ex: [] };
   function renderLiftingPanel(prog, doc, key) {
     prog = prog || REST_DAY;        // a programme need not name every day of the week
-    document.getElementById("liftSessionName").textContent = prog.name;
-    document.getElementById("liftSessionSub").textContent = cardioFree(prog)
-      ? "Half an hour on your feet"
-      : (prog.type === "cardio" ? "Rest from lifting — cardio only"
-         : prog.ex.reduce(function (a, e) { return a + e.sets; }, 0) + " total sets across " + prog.ex.length + " exercises");
+    var mayRest = canRest(prog), resting = mayRest && isRestDay(doc);
+    document.getElementById("liftSessionName").textContent = resting ? "Rest day" : prog.name;
+    document.getElementById("liftSessionSub").textContent = resting
+      ? "Taken off. The day still counts."
+      : cardioFree(prog)
+        ? "Half an hour on your feet"
+        : (prog.type === "cardio" ? "Rest from lifting — cardio only"
+           : prog.ex.reduce(function (a, e) { return a + e.sets; }, 0) + " total sets across " + prog.ex.length + " exercises");
+    /* The button is only there on a day there is nothing to skip but the walk. */
+    var restBtn = document.getElementById("restBtn");
+    if (restBtn) {
+      restBtn.hidden = !mayRest;
+      restBtn.setAttribute("aria-pressed", resting ? "true" : "false");
+      restBtn.textContent = resting ? "Resting" : "Rest day";
+      restBtn.onclick = async function () {
+        var next = !isRestDay(await getDayDoc(key));
+        await setRestDay(key, next);
+        if (next) { sfx("logged"); vibrate([12, 30, 12]); burstFrom(restBtn, ["#3FE0A8", "#FFFFFF"], 16); }
+        renderAll();
+      };
+    }
+    document.getElementById("panel-train").classList.toggle("resting", resting);
     document.getElementById("liftHeroIcon").style.background = prog.type === "cardio" ? "var(--ink-faint)" : "var(--coral)";
 
     /* The session is a sequence, so the screen is a pager: one exercise per page,
@@ -4263,7 +4399,7 @@
         "Above that, more of what comes off is muscle.";
     } else { warn.hidden = true; }
   }
-  function openPlanSheet() {
+  function openPlanSheet(pane) {
     document.getElementById("planMaint").value = PLAN.maintenance;
     document.getElementById("planDeficit").value = PLAN.deficit;
     document.getElementById("planFloor").value = PLAN.floor;
@@ -4273,12 +4409,14 @@
     document.getElementById("planCarbs").value = PLAN.carbs;
     document.getElementById("planCaffeine").value = PLAN.caffeine;
     planMathText();
+    paintMercurySheet();
+    wirePanes("planModal", pane || "targets");
     hideSheets("planModal");
     document.getElementById("planModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
   }
   function wirePlanSheet() {
-    document.getElementById("planBtn").onclick = openPlanSheet;
+    document.getElementById("planBtn").onclick = function () { openPlanSheet("targets"); };
     ["planMaint","planDeficit","planFloor","planProtein","planFat","planCarbs"].forEach(function (id) {
       document.getElementById(id).addEventListener("input", planMathText);
     });
@@ -4414,6 +4552,7 @@
     var cpg = document.getElementById("cardioPage");
     cpg.dataset.ask = prog.cardio.min || 0;
     cpg.dataset.logged = (doc.cardio && doc.cardio.min != null) ? doc.cardio.min : "";
+    cpg.dataset.typed = "";          // a redraw of the day starts from what is logged
     drawHill();
     document.getElementById("cardioIncline").value = (doc.cardio && doc.cardio.incline != null) ? doc.cardio.incline : (prog.cardio.incline != null ? prog.cardio.incline : "");
     document.getElementById("cardioSpeed").value = (doc.cardio && doc.cardio.speed != null) ? doc.cardio.speed : (prog.cardio.speed != null ? prog.cardio.speed : "");
@@ -4603,6 +4742,31 @@
      the day being made up -- a map of which day the minutes came from to how many -- so
      the ledger is readable from the data alone and no minute can be spent twice.
      Cardio only. Sets are not minutes and cannot be moved around like this. */
+  /* A rest day you chose.
+
+     Resting is part of training, and a programme that only ever counts what you did
+     teaches you to train through a day you should have taken off. So a day can be
+     marked rest, and a rest day is won.
+
+     It is only offered on a day the programme asks no lifting of -- a cardio-only
+     day. That is the guard that keeps it from becoming a button that wins the week:
+     you cannot rest your way through a session the week is built around, only
+     through the walking. It also stops the make-up ledger nagging you to pay back
+     minutes you deliberately did not walk. */
+  var REST_SLOT = "__rest";
+  function isRestDay(doc) { return !!(doc && doc.sets && doc.sets[REST_SLOT]); }
+  function canRest(prog) {
+    if (!prog) return false;
+    if (prog.type !== "cardio") return false;
+    return !(prog.ex && prog.ex.length);
+  }
+  async function setRestDay(key, on) {
+    await mutateDay(key, function (doc) {
+      if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
+      if (on) doc.sets[REST_SLOT] = 1; else delete doc.sets[REST_SLOT];
+    });
+  }
+
   var REDEEM_SLOT = "__redeem";
   var REDEEM_WINDOW = 7;
   function redeemMap(doc) {
@@ -4626,6 +4790,9 @@
   /* What one day asked for and what it got, in both currencies -- the one place that
      works it out, so the score, the banner and the ledger cannot disagree. */
   function dayShortfall(prog, doc) {
+    if (canRest(prog) && isRestDay(doc)) {
+      return { wantMin: 0, gotMin: 0, shortMin: 0, wantSets: 0, gotSets: 0, shortSets: 0, resting: true };
+    }
     var wantMin = (prog && prog.cardio && prog.cardio.min) || 0;
     var gotMin = ((doc.cardio && doc.cardio.min) || 0) + redeemedMinutes(doc);
     var wantSets = 0, gotSets = 0;
@@ -4724,6 +4891,7 @@
     return { share: MEAL_UNDER_SHARE, why: fmtInt(PLAN.floor - cal) + " under the floor" };
   }
   function dayBlows(prog, doc, foodRows) {
+    var resting = canRest(prog) && isRestDay(doc);
     var isLift = !!(prog && prog.type !== "cardio");
     var cardioW = isLift ? 30 : 45, liftW = isLift ? 30 : 0,
         mealW   = isLift ? 25 : 35, weighW = isLift ? 15 : 20;
@@ -4732,7 +4900,7 @@
        a win line of eighty -- a day you could not win however well you did it. The
        share goes to the parts the day actually asks for, so a hundred stays reachable
        whatever the programme looks like. */
-    var wantMinEarly = (prog && prog.cardio && prog.cardio.min) || 0;
+    var wantMinEarly = resting ? 0 : ((prog && prog.cardio && prog.cardio.min) || 0);
     if (!wantMinEarly && cardioW) {
       var rest = liftW + mealW + weighW;
       if (rest > 0) {
@@ -4754,7 +4922,7 @@
       rows.forEach(function (r) { if (r && r.done) { doneSets++; doneReps += Number(r.reps) || 0; } });
     });
 
-    var wantMin = (prog && prog.cardio && prog.cardio.min) || 0;
+    var wantMin = resting ? 0 : ((prog && prog.cardio && prog.cardio.min) || 0);
     var walkedMin = (doc.cardio && doc.cardio.min) || 0;
     /* Minutes walked on a later day and credited back to this one. They live in the
        day's own record, so the score stays what it has always been -- a pure function
@@ -4794,14 +4962,17 @@
       movesAsked++;
       if (x >= DONE_AT) movesDone++;
     });
-    var grade = gradeFor(movesAsked, movesDone, onPlan);
+    /* A rest day asks for nothing, so it is won by having been chosen. It grades on
+       the eating alone, which is the only thing a rest day can still get wrong. */
+    var grade = resting ? (onPlan ? "S" : "REST") : gradeFor(movesAsked, movesDone, onPlan);
+    var won = resting || movesDone >= 1;
     /* What share of the training the day asked for actually got done -- sets on a
        lifting day, minutes on a cardio one. The ledger and the card both pay on this
        rather than on a finished session, so half a session is half the credit instead
        of none, and both of them read it from here rather than working it out again. */
     var trainShare = isLift ? (totalSets ? Math.min(1, doneSets / totalSets) : 0)
                             : (wantMin ? Math.min(1, actualMin / wantMin) : 0);
-    return { blows: blows, score: score, won: movesDone >= 1, grade: grade, isLift: isLift,
+    return { blows: blows, score: score, won: won, resting: resting, grade: grade, isLift: isLift,
              movesAsked: movesAsked, movesDone: movesDone,
              cardioShare: cardioShare, liftShare: liftShare,
              wantMin: wantMin, actualMin: actualMin, madeUp: madeUp,
@@ -6239,7 +6410,9 @@
        the same two words every time, and the line under it says the only two things
        that decide it. */
     v.textContent = bl.won ? bl.grade : near ? "ALMOST" : blank ? "NOTHING YET" : "NOT YET";
-    v.className = "t9-verdict " + (bl.won ? ("win grade" + (bl.grade === "S" ? " s" : bl.grade === "A+" ? " a" : ""))
+    v.className = "t9-verdict " + (bl.won ? ("win grade" +
+                                            (bl.grade === "S" ? " s" : bl.grade === "A+" ? " a" :
+                                             bl.grade === "REST" ? " rest" : ""))
                                           : near ? "near" : blank ? "blank" : "lose");
     var moves = [];
     if (bl.cardioShare != null)
@@ -6248,7 +6421,8 @@
       moves.push((bl.liftShare >= DONE_AT ? "\u2713 " : "") + "Lifting " + bl.doneSets + "/" + bl.totalSets);
     document.getElementById("t9Score").textContent =
       (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " \u00b7 ") +
-      (moves.length ? moves.join("  \u00b7  ") : "a rest day");
+      (bl.resting ? "Taken off, and it counts"
+                  : moves.length ? moves.join("  \u00b7  ") : "a rest day");
     var fill = document.getElementById("t9Fill");
     fill.style.width = Math.min(100, bl.score) + "%";
     fill.style.background = bl.won ? "#7DF0B8" : near ? "#FFD166" : blank ? "rgba(255,255,255,0.3)" : "#FF8F6B";
@@ -6614,7 +6788,12 @@
   function wireCardioHill() {
     ["cardioMin", "cardioIncline", "cardioSpeed"].forEach(function (id) {
       var el = document.getElementById(id); if (!el) return;
-      el.addEventListener("input", drawHill);
+      el.addEventListener("input", function () {
+        /* Touching the box makes it the thing the picture follows. */
+        var pg = document.getElementById("cardioPage");
+        if (pg) pg.dataset.typed = "1";
+        drawHill();
+      });
     });
   }
   function wireQuickSaves() {
@@ -6809,6 +6988,7 @@
     if (protEl) protEl.textContent = any ? prot + " / " + PLAN.protein : "\u2014";
     /* Every target in one line, each saying how far through it the day is, so a target
        nobody can see is not a target. Over the cap reads amber rather than green. */
+    renderMercury();
     var macEl = document.getElementById("todayMacros");
     if (macEl) {
       var bits = [
@@ -6833,6 +7013,43 @@
     }
     renderMealPicker(todayItems);
   }
+  /* The bar is absent rather than empty when there is no fish in the window: a
+     reading of zero out of sixty-eight is a row of the card spent saying nothing. */
+  function renderMercury() {
+    var el = document.getElementById("foodHg");
+    if (!el) return;
+    var hg = mercuryWeek();
+    if (!hg.total) { el.hidden = true; return; }
+    el.hidden = false;
+    el.className = "f9-hg" + (hg.share > 1 ? " over" : hg.share >= 0.8 ? " near" : "");
+    el.innerHTML = '<b>' + fmtInt(hg.total) + '/' + fmtInt(hg.limit) + '\u00b5g</b>' +
+      '<span class="hg-track"><i style="width:' + Math.min(100, hg.share * 100).toFixed(0) + '%"></i></span>' +
+      '<span>mercury \u00b7 7 days</span>';
+    el.onclick = function () { openPlanSheet("hg"); };
+  }
+
+  /* The pane behind the bar: the figure, where the figure comes from, and every
+     meal in the window that put anything into it. */
+  function paintMercurySheet() {
+    var m = document.getElementById("hgMath"), list = document.getElementById("hgList");
+    if (!m || !list) return;
+    var hg = mercuryWeek();
+    m.innerHTML =
+      "<b>" + fmtInt(hg.total) + "</b> of <b>" + fmtInt(hg.limit) + " \u00b5g</b> over 7 days." +
+      "<br>The line is the EPA reference dose: 0.1\u00b5g of methylmercury per kg of " +
+      "bodyweight a day, at <b>" + Math.round(hg.kg) + " kg</b>" +
+      (hg.guessed ? " (assumed \u2014 log a weight and this follows you)" : "") + "." +
+      "<br>It builds up over months, so the window is the week rather than the day." +
+      "<br>Estimated from what you logged, like the calories are.";
+    list.innerHTML = hg.rows.length
+      ? hg.rows.map(function (r) {
+          return '<div class="hg-row"><span><b>' + esc(r.what) + '</b><br>' +
+            fmtLabel(new Date(r.date + "T12:00:00")) + '</span>' +
+            '<em>' + fmtInt(r.mcg) + ' \u00b5g</em></div>';
+        }).join("")
+      : '<div class="empty">No fish logged in the last seven days.</div>';
+  }
+
   function wireFoodUpload() {
     /* One path for both, because a meal is a row either way: with a photo the estimate
        comes from the picture, without one it comes from the words. */
@@ -6974,6 +7191,7 @@
     document.getElementById("mealEditFat").value   = est.fat_g     != null ? est.fat_g     : "";
     document.getElementById("mealEditFiber").value = est.fiber_g   != null ? est.fiber_g   : "";
     document.getElementById("mealEditCaff").value  = est.caffeine_mg != null ? est.caffeine_mg : "";
+    document.getElementById("mealEditHg").value   = est.mercury_mcg != null ? est.mercury_mcg : "";
   }
   /* The stepper and the calories box are two ways of saying the same thing: a portion
      multiplier. Typing a bigger number in the box is "I had more of this", so the
@@ -6982,8 +7200,8 @@
     editPortion = Math.max(0.25, Math.round(portion * 4) / 4);
     var scaled = scaleEstimate({ base: editBase }, editPortion);
     if (fromCalories) {
-      ["protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg"].forEach(function (k) {
-        var el = { protein_g: "mealEditProt", carbs_g: "mealEditCarb", fat_g: "mealEditFat", fiber_g: "mealEditFiber", caffeine_mg: "mealEditCaff" }[k];
+      ["protein_g", "carbs_g", "fat_g", "fiber_g", "caffeine_mg", "mercury_mcg"].forEach(function (k) {
+        var el = { protein_g: "mealEditProt", carbs_g: "mealEditCarb", fat_g: "mealEditFat", fiber_g: "mealEditFiber", caffeine_mg: "mealEditCaff", mercury_mcg: "mealEditHg" }[k];
         document.getElementById(el).value = scaled[k];
       });
     } else {
@@ -7078,6 +7296,7 @@
         fat_g: numOrNull(document.getElementById("mealEditFat").value) || 0,
         fiber_g: numOrNull(document.getElementById("mealEditFiber").value) || 0,
         caffeine_mg: numOrNull(document.getElementById("mealEditCaff").value) || 0,
+        mercury_mcg: numOrNull(document.getElementById("mealEditHg").value) || 0,
         base: editBase, portion: editPortion,
         confidence: "manual"
       };
@@ -8150,12 +8369,12 @@
       days.push({
         blows: bl.blows, key: k, dow: d.getDay(),
         label: d.toLocaleDateString(undefined, { weekday: "short" }),
-        name: prog.name, isLift: bl.isLift, score: bl.score, won: bl.won,
+        name: prog.name, isLift: bl.isLift, score: bl.score, won: bl.won, resting: bl.resting,
         doneSets: bl.doneSets, totalSets: bl.totalSets,
         cardioMin: walked, cardioWant: (prog.cardio && prog.cardio.min) || 0,
         cal: est ? Math.round(cal) : null, protein: est ? Math.round(pro) : null,
         meals: rows.length, mealWhy: bl.mealWhy, weight: doc.weight,
-        touched: bl.score > 0 || rows.length > 0 || doc.weight != null
+        touched: bl.score > 0 || rows.length > 0 || doc.weight != null || bl.resting
       });
       d.setDate(d.getDate() + 1);
     }
@@ -8348,8 +8567,11 @@
           '<span class="wk-miss">\u2014</span><span class="wk-miss">\u2014</span>' +
           '<span class="wk-miss">\u2014</span><span class="wk-sc">\u2014</span></div>';
         return '<div class="wk-row' + (x.won ? " won" : "") + '"><b>' + esc(x.label) + '</b>' +
-          '<span>' + (x.isLift ? x.doneSets + "/" + x.totalSets : '<i class="wk-miss">rest</i>') + '</span>' +
-          '<span>' + (x.cardioWant ? x.cardioMin + "/" + x.cardioWant : x.cardioMin || 0) + ' min</span>' +
+          '<span>' + (x.resting ? '<i class="wk-rest">taken off</i>'
+                              : x.isLift ? x.doneSets + "/" + x.totalSets
+                                         : '<i class="wk-miss">rest</i>') + '</span>' +
+          '<span>' + (x.resting ? (x.cardioMin ? x.cardioMin + ' min' : '<i class="wk-miss">\u2014</i>')
+                                : (x.cardioWant ? x.cardioMin + "/" + x.cardioWant : x.cardioMin || 0) + ' min') + '</span>' +
           '<span>' + (x.cal == null ? '<i class="wk-miss">none</i>' : fmtInt(x.cal)) + '</span>' +
           '<span class="wk-sc">' + x.score + '</span></div>';
       }).join("");
