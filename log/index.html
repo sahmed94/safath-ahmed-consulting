@@ -3150,6 +3150,100 @@
     return { kg: kg, guessed: latestWeightLb == null,
              week: Math.round(HG_PER_KG_DAY * kg * HG_WINDOW_DAYS) };
   }
+  /* Reading mercury out of a meal that was logged before the app knew to ask for it.
+
+     Every estimate already in the log has no mercury on it, so on the day this
+     shipped the tracker had nothing to show anybody -- a tracker that only starts
+     counting from the day you install it is not much of a tracker when the thing it
+     counts accumulates over months. The descriptions are still there, though, and a
+     description that says "grilled salmon" carries the same information it carried
+     when it was written.
+
+     So: the same arithmetic the model is asked to do, done here from the words.
+     Mean parts per million by species, times the grams the text implies. It is a
+     coarser instrument than the model with a photo in front of it -- it only knows
+     the species it has been told about, and it is guessing the portion -- so a
+     derived figure says so on the sheet and can be corrected in the editor.
+
+     Figures are FDA/EPA mean mercury concentrations in commercial fish, ppm. */
+  var FISH_PPM = [
+    { ppm: 1.00, names: ["swordfish"] },
+    { ppm: 0.98, names: ["shark", "mako"] },
+    { ppm: 0.73, names: ["king mackerel"] },
+    { ppm: 0.69, names: ["bigeye", "big eye tuna", "toro", "ahi"] },
+    { ppm: 0.57, names: ["orange roughy"] },
+    { ppm: 0.49, names: ["marlin"] },
+    { ppm: 0.45, names: ["tilefish"] },
+    { ppm: 0.36, names: ["grouper"] },
+    { ppm: 0.35, names: ["chilean sea bass", "patagonian toothfish"] },
+    { ppm: 0.35, names: ["albacore", "white tuna", "yellowfin", "tuna steak", "seared tuna"] },
+    { ppm: 0.29, names: ["spanish mackerel"] },
+    { ppm: 0.24, names: ["halibut"] },
+    { ppm: 0.22, names: ["sablefish", "black cod"] },
+    { ppm: 0.19, names: ["monkfish"] },
+    { ppm: 0.17, names: ["snapper", "lobster"] },
+    { ppm: 0.16, names: ["bluefish"] },
+    { ppm: 0.15, names: ["sea bass", "striped bass"] },
+    { ppm: 0.14, names: ["carp", "perch"] },
+    { ppm: 0.13, names: ["light tuna", "skipjack", "canned tuna", "tuna salad",
+                         "tuna sandwich", "tuna mayo", "tuna melt", "tuna"] },
+    { ppm: 0.11, names: ["cod", "fish and chips", "fish & chips"] },
+    { ppm: 0.09, names: ["mahi", "dolphinfish"] },
+    { ppm: 0.08, names: ["hake", "whiting", "pollock", "fish finger", "fish stick", "fishcake", "fish cake"] },
+    { ppm: 0.07, names: ["crab", "trout", "herring", "haddock", "flounder", "sole", "plaice"] },
+    { ppm: 0.05, names: ["squid", "calamari", "octopus", "clam", "mussel", "crawfish", "crayfish"] },
+    { ppm: 0.03, names: ["anchov", "mackerel"] },
+    { ppm: 0.02, names: ["salmon", "catfish", "tilapia", "pangasius", "basa"] },
+    { ppm: 0.01, names: ["sardine", "shrimp", "prawn", "oyster"] },
+    { ppm: 0.003, names: ["scallop"] }
+  ];
+  /* What the words imply is on the plate. A can is a can; a sandwich or a salad has
+     fish in it rather than being it; anything else is a portion. */
+  function fishGrams(t) {
+    var m = /(\d+(?:\.\d+)?)\s*(g|gram|grams)\b/.exec(t);
+    if (m) return Math.min(600, Number(m[1]));
+    m = /(\d+(?:\.\d+)?)\s*(oz|ounce|ounces)\b/.exec(t);
+    if (m) return Math.min(600, Number(m[1]) * 28.35);
+    if (/\b(can|tin|canned|tinned|pouch)\b/.test(t)) return 140;
+    if (/\b(sushi|sashimi|nigiri|roll|poke|maki)\b/.test(t)) return 70;
+    if (/\b(sandwich|salad|wrap|taco|pasta|curry|soup|stew|chowder|pie|roll)\b/.test(t)) return 90;
+    return 150;                       // a plate of fish
+  }
+  /* A name has to start a word. Plain indexOf found "hake" inside "protein shake"
+     and put twelve micrograms of mercury in a protein shake -- the whole failure
+     mode of this approach in one word. The END is left open on purpose, so that one
+     entry covers sardine/sardines and anchov/anchovy/anchovies. */
+  function mentions(t, n) {
+    for (var i = t.indexOf(n); i !== -1; i = t.indexOf(n, i + 1)) {
+      if (i === 0 || !/[a-z0-9]/.test(t.charAt(i - 1))) return true;
+    }
+    return false;
+  }
+  /* The strongest match wins rather than the first, so "bigeye tuna" is not read as
+     plain tuna and a plate with two fish on it is counted at the worse one. */
+  function mercuryFromText(text) {
+    var t = (text || "").toLowerCase();
+    if (!t) return 0;
+    var worst = null;
+    FISH_PPM.forEach(function (f) {
+      f.names.forEach(function (n) {
+        if (!mentions(t, n)) return;
+        if (!worst || f.ppm > worst.ppm) worst = f;
+      });
+    });
+    if (!worst) return 0;
+    return Math.round(worst.ppm * fishGrams(t));
+  }
+  /* What the model said, or failing that what the words say. A stored number always
+     wins, including a stored zero -- that is the model or the user having looked at
+     this meal and decided there is no fish in it. */
+  function mercuryOf(entry) {
+    var e = entry && entry.estimate;
+    if (e && typeof e.mercury_mcg === "number") return { mcg: e.mercury_mcg, derived: false };
+    var said = [(e && e.food) || "", (entry && entry.userNote) || ""].join(" ");
+    return { mcg: mercuryFromText(said), derived: true };
+  }
+
   /* Every meal in the window that carried any, newest first, so the readout can say
      which fish rather than only how much. */
   function mercuryWeek(endKey) {
@@ -3158,10 +3252,10 @@
     var lo = dateKey(start), hi = dateKey(end), total = 0, rows = [];
     foodCache.forEach(function (f) {
       if (f.date < lo || f.date > hi) return;
-      var mcg = (f.estimate && Number(f.estimate.mercury_mcg)) || 0;
-      if (mcg <= 0) return;
-      total += mcg;
-      rows.push({ date: f.date, mcg: Math.round(mcg),
+      var got = mercuryOf(f);
+      if (!(got.mcg > 0)) return;
+      total += got.mcg;
+      rows.push({ date: f.date, mcg: Math.round(got.mcg), derived: got.derived,
                   what: (f.estimate && f.estimate.food) || f.userNote || "a meal" });
     });
     rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
@@ -7040,11 +7134,16 @@
       "bodyweight a day, at <b>" + Math.round(hg.kg) + " kg</b>" +
       (hg.guessed ? " (assumed \u2014 log a weight and this follows you)" : "") + "." +
       "<br>It builds up over months, so the window is the week rather than the day." +
-      "<br>Estimated from what you logged, like the calories are.";
+      "<br>Estimated from what you logged, like the calories are." +
+      (hg.rows.some(function (r) { return r.derived; })
+        ? "<br>A \u00b7 is one read back out of the description, for a meal logged before " +
+          "the app asked about mercury. Tap the meal to correct it."
+        : "");
     list.innerHTML = hg.rows.length
       ? hg.rows.map(function (r) {
           return '<div class="hg-row"><span><b>' + esc(r.what) + '</b><br>' +
-            fmtLabel(new Date(r.date + "T12:00:00")) + '</span>' +
+            fmtLabel(new Date(r.date + "T12:00:00")) +
+            (r.derived ? ' \u00b7' : '') + '</span>' +
             '<em>' + fmtInt(r.mcg) + ' \u00b5g</em></div>';
         }).join("")
       : '<div class="empty">No fish logged in the last seven days.</div>';
@@ -7191,7 +7290,8 @@
     document.getElementById("mealEditFat").value   = est.fat_g     != null ? est.fat_g     : "";
     document.getElementById("mealEditFiber").value = est.fiber_g   != null ? est.fiber_g   : "";
     document.getElementById("mealEditCaff").value  = est.caffeine_mg != null ? est.caffeine_mg : "";
-    document.getElementById("mealEditHg").value   = est.mercury_mcg != null ? est.mercury_mcg : "";
+    var hgNow = mercuryOf(item);
+    document.getElementById("mealEditHg").value = hgNow.mcg || (hgNow.derived ? "" : 0);
   }
   /* The stepper and the calories box are two ways of saying the same thing: a portion
      multiplier. Typing a bigger number in the box is "I had more of this", so the
