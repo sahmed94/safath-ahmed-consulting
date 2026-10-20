@@ -676,6 +676,9 @@
   .hill-walker { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
   .hill-walker circle { fill: var(--ink); stroke: none; }
   .hill-big { position: absolute; left: 2px; top: 0; text-align: left; pointer-events: none; line-height: 1; }
+  /* see drawHill: it swaps sides so the walker never stands on the words */
+  .hill-big.right { left: auto; right: 2px; text-align: right; }
+  .c9-tiny .hill-big.right { right: auto; text-align: left; }
   .hill-big b { font-family: var(--font-head); font-size: 44px; font-weight: 400; }
   .hill-big em { font-style: normal; font-family: var(--font-head); font-size: 21px; opacity: .45; }
   .hill-big span { display: block; font-size: 10px; letter-spacing: .1em; color: var(--ink-faint); margin-top: 4px; }
@@ -3527,6 +3530,7 @@
 
     renderLiftingPanel(prog, doc, key);
     await renderCardioPanel(prog, doc);
+    paintPagerTabs();                 // the cardio tab's ask is only known by now
     renderSessionTimerUI(doc);
     renderPlanLabels();
     renderRateFromCache();
@@ -4222,6 +4226,8 @@
         ' L' + xw.toFixed(1) + ' ' + yw.toFixed(1) + '"/>' : "") +
       walker;
 
+    var bigEl = document.querySelector("#cardioHill .hill-big");
+    if (bigEl) bigEl.classList.toggle("right", frac < 0.45);
     document.getElementById("cardioBigMin").textContent = got;
     document.getElementById("cardioBigAsk").textContent = ask ? "/" + ask : "";
     document.getElementById("cardioBigCap").textContent =
@@ -4261,7 +4267,14 @@
        rebuild clears only the exercise pages and puts the cardio back on the end. */
     var list = document.getElementById("exerciseList");
     var cardioPage = document.getElementById("cardioPage");
-    Array.from(list.querySelectorAll(".ex-block")).forEach(function (n) { n.remove(); });
+    /* Everything but the cardio page goes, rather than everything with a known
+       class on it. A superset page is a WRAPPER around two exercise pages, so
+       removing the .ex-blocks emptied it and left it behind: a day with no lifting
+       in it inherited one blank swipe page per superset of the day you had been
+       looking at, each a tab reading "Page 1, 0 of 0". Naming the things to delete
+       means every new kind of page has to remember to add itself to that list.
+       Naming the one thing to keep does not. */
+    Array.from(list.children).forEach(function (n) { if (n !== cardioPage) n.remove(); });
     if (prog.type === "cardio") { renderPagerDots(); return; }
 
     /* Two moves with no rest between them are a superset: you go A, B, A, B and the
