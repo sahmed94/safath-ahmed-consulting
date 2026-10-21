@@ -1352,6 +1352,72 @@
   nav.tabbar button svg { width: 19px; height: 19px; stroke: var(--ink-faint); }
   nav.tabbar button.active { color: var(--blue); } nav.tabbar button.active svg { stroke: var(--blue); }
 
+  /* Above the tab bar, clear of the exercise strip at the top of the card. */
+  #restPop { position: fixed; left: 12px; right: 12px; z-index: 45;
+    bottom: calc(64px + 14px + env(safe-area-inset-bottom, 0px));
+    max-width: 440px; margin: 0 auto; display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 16px; color: #fff;
+    background: linear-gradient(120deg, #15102B, #241640);
+    box-shadow: inset 0 0 0 1.5px rgba(63,224,168,0.5), 0 14px 38px rgba(8,4,24,0.6), 0 0 34px -8px rgba(63,224,168,0.5);
+    animation: rpIn .34s cubic-bezier(.34,1.56,.64,1); }
+  #restPop[hidden] { display: none; }
+  @keyframes rpIn { from { transform: translateY(18px) scale(.96); opacity: 0; } }
+  .rp-ring { position: relative; flex: 0 0 48px; width: 48px; height: 48px; }
+  .rp-ring svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+  .rp-ring circle { fill: none; stroke-width: 4; }
+  .rp-track { stroke: rgba(255,255,255,0.14); }
+  /* 2*pi*19, so the dash can be driven straight from the seconds left */
+  .rp-fill { stroke: var(--teal); stroke-linecap: round; stroke-dasharray: 119.4;
+    transition: stroke-dashoffset .9s linear; }
+  .rp-ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-head); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .rp-text { flex: 1 1 auto; min-width: 0; }
+  .rp-text span { display: block; font-family: var(--font-head); font-size: 13.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rp-text i { display: block; font-style: normal; font-size: 11px; color: rgba(255,255,255,0.58); }
+  .rp-btn { flex: 0 0 auto; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.07);
+    color: var(--ink-dim); border-radius: 10px; padding: 8px 10px; font-size: 11.5px;
+    font-family: var(--font-head); cursor: pointer; white-space: nowrap; }
+  .rp-btn.go { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
+  .c9-compact #restPop { padding: 8px 10px; gap: 9px; }
+  .c9-compact .rp-ring, .c9-compact .rp-ring svg { flex-basis: 42px; width: 42px; height: 42px; }
+  .c9-compact .rp-text span { font-size: 12.5px; }
+  @media (prefers-reduced-motion: reduce) { #restPop { animation: none; } }
+
+  /* The stamp. It lands rather than fades: a hard overshoot, a flash behind it, and
+     two rings going out. Nothing in it takes a tap, so it never gets in the way. */
+  #clearStamp { position: fixed; inset: 0; z-index: 70; pointer-events: none;
+    display: flex; align-items: center; justify-content: center; }
+  #clearStamp[hidden] { display: none; }
+  .cs-wave { position: absolute; width: 180px; height: 180px; border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(255,209,102,0.75); animation: csWave 1s cubic-bezier(.16,.9,.3,1) forwards; }
+  .cs-wave.two { animation-delay: .13s; box-shadow: 0 0 0 2px rgba(125,240,184,0.7); }
+  @keyframes csWave { from { transform: scale(.25); opacity: .95; } to { transform: scale(3.1); opacity: 0; } }
+  .cs-mark { position: relative; text-align: center; transform-origin: 50% 50%;
+    animation: csSlam .85s cubic-bezier(.2,1.5,.35,1) forwards; }
+  .cs-mark b { display: block; font-family: var(--font-head); line-height: 1; white-space: nowrap;
+    font-size: clamp(30px, 12vw, 104px); letter-spacing: .04em; color: #FFD166; -webkit-text-stroke: 2px rgba(8,4,24,0.5);
+    text-shadow: 0 0 26px rgba(255,209,102,0.9), 0 0 70px rgba(255,143,107,0.6), 0 6px 0 rgba(8,4,24,0.35); }
+  .cs-mark i { display: block; font-style: normal; font-family: var(--font-head);
+    font-size: 13px; letter-spacing: .22em; text-transform: uppercase; margin-top: 8px;
+    color: rgba(255,255,255,0.85); text-shadow: 0 2px 10px rgba(8,4,24,0.8); }
+  @keyframes csSlam {
+    0%   { transform: scale(3.4) rotate(-20deg); opacity: 0; filter: blur(6px); }
+    38%  { transform: scale(.88) rotate(-7deg);  opacity: 1; filter: blur(0); }
+    52%  { transform: scale(1.06) rotate(-7deg); }
+    78%  { transform: scale(1) rotate(-7deg); opacity: 1; }
+    100% { transform: scale(1.04) rotate(-7deg); opacity: 0; }
+  }
+  /* The flash is the whole screen going pale for a sixth of a second. */
+  #clearStamp::before { content: ""; position: absolute; inset: 0; background: #FFF4D6;
+    animation: csFlash .5s ease-out forwards; }
+  @keyframes csFlash { from { opacity: .5; } to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mark, .cs-wave, #clearStamp::before { animation-duration: .01ms; animation-iteration-count: 1; }
+    .cs-mark { opacity: 1; transform: none; }
+  }
+
+
   #feedbackWrap { position: fixed; left: 0; right: 0; bottom: calc(64px + 50px + 60px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: flex; justify-content: center; pointer-events: none; padding: 0 16px; }
   .fb-toast { max-width: 460px; width: 100%; background: #221A3C; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; box-shadow: 0 10px 30px rgba(20,10,60,0.3); transform: translateY(12px); opacity: 0; transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .35s; pointer-events: auto; }
   .fb-toast.show { transform: translateY(0); opacity: 1; }
@@ -1993,6 +2059,35 @@
     <button class="tab-btn" data-panel="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10h4M2 14h4M18 10h4M18 14h4"/><rect x="6" y="9" width="12" height="6" rx="1"/></svg>Train</button>
     <button class="tab-btn" data-panel="weight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"/><path d="M6 20V8h12v12"/><path d="M12 4v4"/><path d="M8.5 16l3.5-5 3.5 5"/></svg>Weight</button>
   </nav>
+</div>
+
+<!-- The rest countdown used to be fifteen pixels of text in the middle of the
+     shape, which the record toast landed on top of and which you could miss
+     anyway. It is a thing with a job: a ring that drains, the time, what is next,
+     and the two buttons anybody actually wants while resting. It sits above the tab
+     bar so it is nowhere near the exercise strip at the top -- the thing the old
+     floating bar used to cover. -->
+<div id="restPop" hidden>
+  <div class="rp-ring">
+    <svg viewBox="0 0 44 44" aria-hidden="true">
+      <circle class="rp-track" cx="22" cy="22" r="19"></circle>
+      <circle class="rp-fill" id="restPopArc" cx="22" cy="22" r="19"></circle>
+    </svg>
+    <b id="restPopTime">0:00</b>
+  </div>
+  <div class="rp-text">
+    <span id="restPopWhat">Rest</span>
+    <i id="restPopNext"></i>
+  </div>
+  <button class="rp-btn" type="button" id="restPopAdd">+30s</button>
+  <button class="rp-btn go" type="button" id="restPopSkip">Skip</button>
+</div>
+
+<!-- Clearing an exercise is the loudest thing that happens on this screen, and it
+     used to be a word changing from SETS DONE to CLEARED. -->
+<div id="clearStamp" hidden aria-hidden="true">
+  <div class="cs-wave"></div><div class="cs-wave two"></div>
+  <div class="cs-mark"><b>CLEARED</b><i id="clearStampSub"></i></div>
 </div>
 
 <div id="feedbackWrap"></div>
@@ -3751,6 +3846,9 @@
   }
 
   function stopSessionTimerUI() {
+    /* Changing day leaves the session, and a countdown for a set you logged
+       yesterday is a countdown about nothing. */
+    stopRestTimer();
     clearInterval(sessionTimerInterval); sessionTimerInterval = null;
     clearInterval(sessionFlushTimer); sessionFlushTimer = null;
     sessionTimerStart = null;
@@ -3835,22 +3933,79 @@
     var el = restTimerBlock && restTimerBlock.querySelector(".ring-rest");
     if (el) el.textContent = text;
   }
+  /* The popup. The countdown lived in the middle of the shape, where the record
+     toast landed on top of it and where fifteen pixels of text is easy to miss
+     anyway. It gets its own thing above the tab bar -- nowhere near the exercise
+     strip at the top of the card, which is what the old floating bar used to
+     cover -- with a ring that drains and the two buttons you want while resting. */
+  var REST_ARC = 2 * Math.PI * 19;
+  function paintRestPop() {
+    var pop = document.getElementById("restPop");
+    if (!pop) return;
+    if (restTimerInterval == null) { pop.hidden = true; return; }
+    pop.hidden = false;
+    document.getElementById("restPopTime").textContent = fmtTime(Math.max(0, restTimerRemaining));
+    var arc = document.getElementById("restPopArc");
+    var left = restTimerTotal ? Math.max(0, restTimerRemaining) / restTimerTotal : 0;
+    arc.style.strokeDashoffset = (REST_ARC * (1 - left)).toFixed(1);
+  }
   function stopRestTimer() {
     clearInterval(restTimerInterval); restTimerInterval = null;
     paintRest(""); restTimerBlock = null;
+    paintRestPop();
   }
-  function startRestTimer(seconds, block) {
+  function startRestTimer(seconds, block, what, nextSet) {
     clearInterval(restTimerInterval);
     paintRest("");
     restTimerBlock = block || null;
     restTimerTotal = seconds; restTimerRemaining = seconds;
+    restTimerInterval = -1;                     // so the first paint knows it is running
+    var pop = document.getElementById("restPop");
+    if (pop) {
+      document.getElementById("restPopWhat").textContent = what || "Rest";
+      document.getElementById("restPopNext").textContent =
+        nextSet ? "set " + nextSet + " next" : "last set done";
+      /* The ring is full at the start, and a transition from a stale offset would
+         animate it round the wrong way, so it is set without one. */
+      var arc = document.getElementById("restPopArc");
+      arc.style.transition = "none";
+      arc.style.strokeDashoffset = "0";
+      void arc.getBoundingClientRect();
+      arc.style.transition = "";
+    }
     function tick() {
-      if (restTimerRemaining <= 0) { stopRestTimer(); vibrate([30,50,30,50,30]); return; }
+      if (restTimerRemaining <= 0) {
+        stopRestTimer(); vibrate([30,50,30,50,30]); sfx("set");
+        return;
+      }
       paintRest("rest " + fmtTime(restTimerRemaining));
+      paintRestPop();
       restTimerRemaining--;
     }
     tick();
-    restTimerInterval = setInterval(tick, 1000);
+    if (restTimerInterval === -1) restTimerInterval = setInterval(tick, 1000);
+  }
+  function wireRestPop() {
+    var add = document.getElementById("restPopAdd"), skip = document.getElementById("restPopSkip");
+    if (add) add.onclick = function () {
+      if (restTimerInterval == null) return;
+      restTimerRemaining += 30; restTimerTotal += 30; paintRestPop(); vibrate(10);
+    };
+    if (skip) skip.onclick = function () { stopRestTimer(); vibrate(12); };
+  }
+
+  /* Clearing an exercise is the loudest thing that happens on this screen, and it
+     used to be a word changing from SETS DONE to CLEARED. */
+  var stampTimer = null;
+  function stampCleared(what) {
+    var el = document.getElementById("clearStamp");
+    if (!el) return;
+    document.getElementById("clearStampSub").textContent = what || "";
+    /* Restarting an animation means taking the node out of the flow and putting it
+       back, or the second clear of a session plays nothing. */
+    el.hidden = true; void el.offsetWidth; el.hidden = false;
+    clearTimeout(stampTimer);
+    stampTimer = setTimeout(function () { el.hidden = true; }, 1200);
   }
 
   /* ===================== LAST PERFORMANCE / HISTORY ===================== */
@@ -4355,13 +4510,26 @@
         row.classList.toggle("done-row", !on);
         if (!on) {
           vibrate(18);
+          var doneSoFar = rows.filter(function (r) {
+            return r.querySelector(".mini-done").getAttribute("data-done") === "1";
+          }).length;
           /* A superset's first move asks for no rest: straight into the pair. */
-          if (exx.restSec > 0) startRestTimer(exx.restSec, block); else stopRestTimer();
+          if (exx.restSec > 0) startRestTimer(exx.restSec, block, exx.name,
+                                              doneSoFar < rows.length ? doneSoFar + 1 : 0);
+          else stopRestTimer();
           var nodeEl = block.querySelector('[data-node="' + idx + '"]');
           var tier = EX_GROUP_COLOR[exArt(exx.name).g];
           /* the shape filling is the reward; the last corner of a lift is a bigger one */
           var doneNow = rows.filter(function (r) { return r.querySelector(".mini-done").getAttribute("data-done") === "1"; }).length;
-          if (doneNow >= rows.length) { sfx("exercise"); burstFrom(block.querySelector(".ring9"), [tier.c, "#FFD166", "#FFFFFF"], 34); }
+          if (doneNow >= rows.length) {
+            sfx("exercise"); vibrate([25, 60, 25, 60, 80]);
+            stampCleared(exx.name);
+            burstFrom(block.querySelector(".ring9"), [tier.c, "#FFD166", "#FFFFFF"], 34);
+            setTimeout(function () {
+              burstFrom(document.querySelector("#clearStamp .cs-mark") || document.body,
+                        ["#FFD166", "#FF8F6B", "#7DF0B8", "#FFFFFF"], 56);
+            }, 180);
+          }
           else { sfx("set"); burstFrom(nodeEl, [tier.c, "#FFFFFF"], 12); }
         } else { stopRestTimer(); }
         drawRing(block);
@@ -8723,7 +8891,7 @@
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireBody(); wireLabs(); wireProg(); wireSetup();
-    wireSessionTimer(); wireSetEdit(); wireCardioHill(); wireWeek(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    wireSessionTimer(); wireRestPop(); wireSetEdit(); wireCardioHill(); wireWeek(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
