@@ -1023,6 +1023,8 @@
   .stat-sub { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
 
   .field-row { display: flex; gap: 10px; align-items: flex-end; }
+  .field-row.three { gap: 7px; }
+  .field-row.three label { font-size: 10px; }
   .field { flex: 1; }
   .field label { display: block; font-size: 11px; color: var(--ink-faint); margin-bottom: 5px; font-weight: 500; }
   .field input, .field select { width: 100%; background: var(--surface-2); border: 1.5px solid var(--line); color: var(--ink); padding: 10px 11px; border-radius: 10px; font-size: 15px; font-family: var(--font-body); }
@@ -1651,6 +1653,8 @@
   .c9-compact .modal-inner .field input, .c9-compact .modal-inner .field select {
     padding: 7px 10px; font-size: 14px; }
   .c9-compact .modal-inner .field-row { margin-bottom: 6px !important; }
+  .c9-compact .modal-inner > .field { margin-bottom: 6px !important; }
+  .c9-compact #mealRerunBtn { margin-top: 8px !important; }
   .c9-compact .modal-inner h3 { margin-bottom: 9px; }
   .c9-compact .modal-actions { margin-top: 9px; }
   .c9-compact .modal-actions button { padding: 9px; }
@@ -1672,6 +1676,7 @@
   .c9-compact .meal-reassign button { padding: 5px 4px; }
   /* And on the shortest screen of all, one rung tighter again. */
   .c9-tiny .modal-inner { padding: 9px; }
+  .c9-tiny .modal-inner .ghost-btn { padding: 8px 12px; font-size: 13px; }
   .c9-tiny .char-head { gap: 8px; margin-bottom: 0; }
   .c9-tiny .rk-badges { gap: 4px; }
   .c9-tiny .rk-badge { font-size: 9px; padding: 2px 6px; }
@@ -1685,6 +1690,8 @@
   .c9-tiny .modal-inner .field input, .c9-tiny .modal-inner .field select {
     padding: 5px 8px; font-size: 13px; }
   .c9-tiny .modal-inner .field-row { margin-bottom: 5px !important; }
+  .c9-tiny .modal-inner > .field { margin-bottom: 4px !important; }
+  .c9-tiny #mealRerunBtn { margin-top: 6px !important; }
   .c9-tiny .modal-actions { margin-top: 7px; }
   .c9-tiny .modal-actions button { padding: 7px; font-size: 12px; }
   .c9-tiny .rv-tabs { margin: 6px 0; padding: 2px; }
@@ -2228,8 +2235,12 @@
       <div class="field"><label>Carbs (g)</label><input type="number" id="planCarbs"></div>
       <div class="field"><label>Caffeine cap (mg)</label><input type="number" id="planCaffeine" step="10"></div>
     </div>
-    <button class="ghost-btn" id="planSuggestBtn" style="width:100%; margin-top:10px;">Suggest targets</button>
-    <button class="ghost-btn" id="planBodyBtn" style="width:100%; margin-top:8px;">Height &amp; date of birth &rarr;</button>
+    <!-- Side by side rather than stacked: two full-width buttons were eighty pixels
+         of a sheet that did not have eighty pixels to give. -->
+    <div class="field-row" style="margin-top:10px;">
+      <button class="ghost-btn" style="flex:1 1 0;" id="planSuggestBtn">Suggest targets</button>
+      <button class="ghost-btn" style="flex:1 1 0;" id="planBodyBtn">Your body &rarr;</button>
+    </div>
     <div class="plan-math" id="planMath"></div>
     <div class="plan-warn" id="planWarn" hidden></div>
     </div>
@@ -2431,13 +2442,13 @@
       <div class="field"><label>Carbs (g)</label><input type="number" id="mealEditCarb"></div>
       <div class="field"><label>Fat (g)</label><input type="number" id="mealEditFat"></div>
     </div>
-    <div class="field-row" style="margin-top:8px;">
+    <!-- Mercury arrived as a row of its own with an empty box beside it, which cost
+         a whole row of a sheet that was already past the bottom of a short screen.
+         The three small numbers share one. -->
+    <div class="field-row three" style="margin-top:8px;">
       <div class="field"><label>Fibre (g)</label><input type="number" id="mealEditFiber"></div>
       <div class="field"><label>Caffeine (mg)</label><input type="number" id="mealEditCaff" step="5"></div>
-    </div>
-    <div class="field-row" style="margin-top:8px;">
       <div class="field"><label>Mercury (&micro;g)</label><input type="number" id="mealEditHg" step="1"></div>
-      <div class="field"></div>
     </div>
     <button class="ghost-btn" id="mealRerunBtn" style="width:100%; margin-top:12px;">Estimate with AI</button>
     <div class="modal-actions">
@@ -7761,7 +7772,11 @@
     document.getElementById("mealEditFat").value   = est.fat_g     != null ? est.fat_g     : "";
     document.getElementById("mealEditFiber").value = est.fiber_g   != null ? est.fiber_g   : "";
     document.getElementById("mealEditCaff").value  = est.caffeine_mg != null ? est.caffeine_mg : "";
-    var hgNow = mercuryOf(item);
+    /* The mercury box reads the estimate like every other field here, falling back
+       to what the description implies when nothing was ever stored for it. This read
+       a variable that does not exist inside this function, so opening any meal threw
+       -- which also took down the portion stepper, the call right after it. */
+    var hgNow = mercuryOf({ estimate: est, userNote: editingMeal && editingMeal.userNote });
     document.getElementById("mealEditHg").value = hgNow.mcg || (hgNow.derived ? "" : 0);
   }
   /* The stepper and the calories box are two ways of saying the same thing: a portion
