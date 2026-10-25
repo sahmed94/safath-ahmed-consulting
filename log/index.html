@@ -1119,8 +1119,8 @@
      being asked for, and the page should look like that. */
   .panel.resting .cardio-page .hill9, .panel.resting .cardio-page .ring-title { opacity: .45; }
   .ss-pair .ring-cap { display: none; }
-  .ss-pair .ring-acts { flex-wrap: nowrap; gap: 5px; }
-  .ss-pair .ring-act { font-size: 9.5px; padding: 3px 6px; white-space: nowrap; }
+  .ss-pair .ring-acts { flex-wrap: nowrap; gap: 4px; }
+  .ss-pair .ring-act { font-size: 9.5px; padding: 3px 5px; white-space: nowrap; }
   .c9-compact .ss-pair .ex-name { font-size: 13.5px; }
   .c9-compact .ss-pair .ex-target { font-size: 9px; }
   .ring-title { flex: 0 0 auto; text-align: center; padding: 2px 0 0; }
@@ -1171,6 +1171,35 @@
     background: transparent; border: 1px solid var(--line); border-radius: 999px;
     padding: 6px 12px; cursor: pointer; }
   .ring-act:hover { color: var(--ink); border-color: rgba(255,255,255,0.3); }
+  /* Two words where there is room for two words and one where there is not. Three
+     chips on half a screen is thirty pixels more than half a screen has. */
+  .narrow-only { display: none; }
+  .ss-pair .wide-only, .c9-tiny .wide-only { display: none; }
+  .ss-pair .narrow-only, .c9-tiny .narrow-only { display: inline; }
+  .alt-act { letter-spacing: .02em; }
+  /* The cardio page has no history to open, so its title is the swap button. The
+     arrow is drawn by the stylesheet, not written into the heading: the pager tab
+     above reads the heading's text and would otherwise be called "Cardio arrow". */
+  .cardio-page .ex-name.alt-open::after { content: " \21C4"; font-size: .74em; color: var(--ink-faint); }
+  #exAltList { max-height: 40vh; }
+  /* A hard edge through the middle of a line of type reads as a broken app. The last
+     few pixels fade while there is more below, and stop fading at the bottom. */
+  .exh-scroll.cut { -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }
+  .alt-note { font-size: 11.5px; color: var(--ink-faint); margin: 2px 0 7px; }
+  .alt-row { display: flex; gap: 9px; align-items: flex-start; padding: 7px 0;
+    border-bottom: 1px solid var(--line); }
+  .alt-row:last-child { border-bottom: 0; }
+  .alt-row > em { flex: 0 0 18px; font-family: var(--font-head); font-style: normal;
+    font-size: 13px; color: var(--ink-faint); text-align: right; padding-top: 1px; }
+  .alt-row b { display: block; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .alt-row i { display: block; font-style: normal; font-size: 11.5px; color: var(--ink-faint);
+    margin-top: 2px; line-height: 1.35; }
+  .alt-k { margin-left: 6px; font-family: var(--font-head); font-size: 9px; font-weight: 400;
+    letter-spacing: .1em; text-transform: uppercase; padding: 2px 5px; border-radius: 5px;
+    vertical-align: 1px; border: 1px solid var(--line); color: var(--ink-faint); }
+  .alt-k.home { color: var(--teal); border-color: var(--teal-soft); background: var(--teal-soft); }
+  .alt-k.yours { color: #FFD166; border-color: rgba(255,209,102,0.3); }
   /* The set rows are still the record every write reads. They are not the view. */
   .ex-block .set-grid { display: none; }
   /* ---- a short card is mostly chrome unless you take it back ----
@@ -1202,7 +1231,8 @@
   .c9-tiny .ring-title .ex-target { display: none; }
   .c9-tiny .ring-title .ex-name { font-size: 16px; }
   .c9-tiny .ring-acts { padding: 2px 0 0; }
-  .c9-tiny .ring-act { font-size: 10px; padding: 3px 8px; }
+  .c9-tiny .ring-act { font-size: 10px; padding: 3px 6px; }
+  .c9-tiny .ss-pair .ring-act { padding: 3px 5px; }
   .c9-tiny .pager-nav { margin-bottom: 4px; }
   .c9-tiny .ex-tab { padding: 3px 8px 4px; }
   .c9-tiny .ex-tab b { font-size: 11px; }
@@ -1946,7 +1976,8 @@
         <div class="pager" id="exerciseList">
           <div class="page cardio-page" id="cardioPage" style="--tier:#12B886;">
             <div class="ring-title">
-              <div class="ex-name">Cardio</div>
+              <div class="ex-name alt-open" id="cardioAltBtn" role="button" tabindex="0"
+                   title="Other ways to do it">Cardio</div>
               <div class="ex-target"><span id="cardioExpectedMin"></span> &middot; <span id="cardioExpectedDetail"></span><span id="cardioCalEst"></span></div>
             </div>
             <div class="hill9" id="cardioHill">
@@ -2228,8 +2259,19 @@
       </div>
       <div class="f9-note" id="setEditGhost" style="margin-bottom:10px;"></div>
     </div>
-    <div class="char-section" id="setEditHistSec">Every time you did it</div>
-    <div id="exHistoryList" class="exh-scroll"></div>
+    <!-- What this exercise has done, and what else could do its job. Two panes
+         rather than two lists, so the sheet is the same height as it was. -->
+    <div class="rv-tabs" id="exSheetTabs">
+      <button type="button" class="rv-tab" data-pane="hist">Every time</button>
+      <button type="button" class="rv-tab" data-pane="alts">Other ways</button>
+    </div>
+    <div class="rv-pane" data-pane="hist">
+      <div id="exHistoryList" class="exh-scroll"></div>
+    </div>
+    <div class="rv-pane" data-pane="alts" hidden>
+      <div class="alt-note" id="exAltNote"></div>
+      <div id="exAltList" class="exh-scroll"></div>
+    </div>
     <div class="modal-actions">
       <button class="close-btn" id="setEditCancel">Cancel</button>
       <button class="primary-btn" id="setEditSave">Save</button>
@@ -3949,12 +3991,19 @@
     var left = restTimerTotal ? Math.max(0, restTimerRemaining) / restTimerTotal : 0;
     arc.style.strokeDashoffset = (REST_ARC * (1 - left)).toFixed(1);
   }
+  /* Is the countdown already running for this page, or for the other half of its
+     pair? A superset ticked in the other order used to start the rest and then
+     cancel it one tap later; the answer to this is why it no longer does. */
+  function restingFor(block) {
+    if (restTimerInterval == null || !restTimerBlock) return false;
+    return restTimerBlock === block || (block && restTimerBlock === block._pairOther);
+  }
   function stopRestTimer() {
     clearInterval(restTimerInterval); restTimerInterval = null;
     paintRest(""); restTimerBlock = null;
     paintRestPop();
   }
-  function startRestTimer(seconds, block, what, nextSet) {
+  function startRestTimer(seconds, block, what, nextSet, unit) {
     clearInterval(restTimerInterval);
     paintRest("");
     restTimerBlock = block || null;
@@ -3963,8 +4012,9 @@
     var pop = document.getElementById("restPop");
     if (pop) {
       document.getElementById("restPopWhat").textContent = what || "Rest";
+      var u = unit || "set";
       document.getElementById("restPopNext").textContent =
-        nextSet ? "set " + nextSet + " next" : "last set done";
+        nextSet ? u + " " + nextSet + " next" : "last " + u + " done";
       /* The ring is full at the start, and a transition from a stale offset would
          animate it round the wrong way, so it is set without one. */
       var arc = document.getElementById("restPopArc");
@@ -4006,6 +4056,186 @@
     el.hidden = true; void el.offsetWidth; el.hidden = false;
     clearTimeout(stampTimer);
     stampTimer = setTimeout(function () { el.hidden = true; }, 1200);
+  }
+
+  /* ===================== OTHER WAYS TO DO IT =====================
+     The week is built around the kit in the basement. A gym has better kit, and for
+     most of these moves the better kit is a straight upgrade: the same muscle, loaded
+     where it is longest, with enough stability that the set can be taken to failure
+     instead of to the point where the dumbbells start wandering. That is the whole
+     ordering of these lists -- best return first, not alphabetical and not easiest.
+     A swap is logged in the slot it replaces, so the history keeps counting sets and
+     reps and stays comparable across a machine, a dumbbell and a cable. */
+  var CARDIO_ALT_KEY = "__cardio";
+  var ALT_NOTE = "Best first · gym kit unless marked · log it in the same slot.";
+  var CARDIO_ALT_NOTE = "All of these count as the minutes. Hard enough that talking is work.";
+  var CARDIO_ALTS = [
+    ["Stair master, level 8–12", "gym", "The most work per minute in the building. Whole foot on the step, hands off the rails."],
+    ["Treadmill, 12–15% at 2.8–3.2 mph", "gym", "When 10% at 3.0 stops making you breathe, raise the hill before the speed — same heart rate, less knee."],
+    ["Incline intervals: 3 min at 15%, 2 min at 6%", "gym", "Eight rounds is forty minutes and it goes faster than forty flat ones."],
+    ["Rower, 20–30 min", "gym", "The one that trains the back as well. Legs first, arms last, every stroke."],
+    ["Elliptical, resistance 8 or more", "gym", "Kindest to the joints and the easiest to coast on. Only counts with the resistance up."],
+    ["Bike or assault bike", "gym", "No impact at all. Keep the cadence above 80 or it turns into sitting down."],
+    ["Hills outside", "home", "Same minutes, no machine. A 10% hill is a 10% incline."]
+  ];
+  var EX_ALTS = {
+    "Flat DB Bench": [
+      ["Machine chest press (converging)", "gym", "Fail the last rep with nobody spotting you. Most chest per set of anything here."],
+      ["Cable press, pulleys at hip height", "gym", "Tension never drops, and it is hardest where the chest is longest."],
+      ["Barbell bench", "gym", "The most load — but without a spotter you stop a rep or two early."],
+      ["Smith machine press", "gym", "Bar on rails, so all of the effort goes into pushing."],
+      ["Deficit push-up on handles", "home", "What is left when the bench is taken. Feet up to make it harder."]
+    ],
+    "Incline DB Bench": [
+      ["Incline machine or Smith press", "gym", "Upper chest with no wobble to manage. Load it and go."],
+      ["Low-to-high cable fly", "gym", "Same fibres, loaded at full stretch instead of at the top."],
+      ["Incline barbell press, 30°", "gym", "Heavy, but a spotter or you leave reps behind."],
+      ["Incline DB bench", "yours", "What the week asks for. Still a good one."]
+    ],
+    "Lat Pulldown": [
+      ["Pull-up, weighted or assisted", "gym", "Same pattern, more load per rep than any cable stack gives you."],
+      ["Chest-supported machine pulldown", "gym", "The pad takes the swing out, so the lats do all of it."],
+      ["Single-arm cable pulldown, kneeling", "gym", "A few more inches of stretch per rep, one side at a time."],
+      ["Straight-arm pulldown", "gym", "Lats only — the biceps stop stealing the set."]
+    ],
+    "DB Row": [
+      ["Chest-supported row (T-bar or machine)", "gym", "The pad means your lower back never ends the set first."],
+      ["Seated cable row, chest on the pad", "gym", "Smooth load and easy to add a rep every week."],
+      ["Single-arm cable row", "gym", "The longest stretch of the lot. Let the shoulder travel forward."],
+      ["Barbell row", "gym", "Heaviest option, but the lower back caps how hard you can push."]
+    ],
+    "Standing DB OHP": [
+      ["Seated DB press, back supported", "gym", "Sitting down turns a core exercise into a shoulder one."],
+      ["Shoulder press machine", "gym", "Fixed path, so the last two reps are shoulders and nothing else."],
+      ["Seated Smith or barbell press", "gym", "Load up; the rails keep it honest."],
+      ["Seated Arnold press", "gym", "More front-delt range if a straight press bothers the joint."]
+    ],
+    "Face Pull": [
+      ["Reverse pec-deck", "gym", "The best rear-delt machine there is, and nothing else is close."],
+      ["Single-arm cable rear fly, across the body", "gym", "Full arc, pulling from where the muscle actually ends."],
+      ["Chest-supported rear fly on an incline bench", "gym", "No cable needed. Light weight, high reps, pause at the top."],
+      ["Band pull-apart", "home", "Warm-up grade. Fine as a finisher, not as the work."]
+    ],
+    "Cable Curl": [
+      ["Bayesian curl (cable from behind you)", "gym", "Biceps loaded at full stretch, which is where it grows."],
+      ["Incline DB curl, arms hanging back", "gym", "The dumbbell version of the same stretch."],
+      ["Preacher curl machine", "gym", "Elbows pinned, no swing, straight to failure."],
+      ["EZ-bar curl", "gym", "Simple and heavy. Good when every cable is busy."]
+    ],
+    "Zottman Curl": [
+      ["Incline DB curl, then reverse cable curl", "gym", "Splits the two jobs so each one gets a proper load."],
+      ["Cross-body hammer curl", "gym", "Brachialis: a thicker arm seen from the side."],
+      ["Reverse EZ-bar curl", "gym", "Forearms, and heavier than you can Zottman."],
+      ["Rope hammer curl", "gym", "Easy on the wrists, good for high reps."]
+    ],
+    "DB Lateral Raise": [
+      ["Cable lateral raise, one arm", "gym", "Tension at the bottom, where a dumbbell has none."],
+      ["Lateral raise machine", "gym", "Pads on the arms, so you can fail without cheating the weight up."],
+      ["Lean-away DB raise, holding the rack", "gym", "Longer range than standing up straight."],
+      ["DB lateral raise", "yours", "What the week asks for. Light and slow beats heavy and swung."]
+    ],
+    "Skull Crushers": [
+      ["Overhead cable extension with a rope", "gym", "Long head under stretch: the part that adds size to the arm."],
+      ["Single-arm overhead cable extension", "gym", "Same idea, one side at a time, a little more range."],
+      ["Incline DB extension behind the head", "gym", "The dumbbell version of the overhead stretch."],
+      ["Close-grip bench or JM press", "gym", "Heavy triceps for when you would rather press than extend."]
+    ],
+    "Dips": [
+      ["Weighted dip on a belt", "gym", "Add plates and this stays in the 8–12 range for years."],
+      ["Assisted dip machine", "gym", "Takes weight off, so you pick the rep range instead of hoping for it."],
+      ["Close-grip machine or Smith press", "gym", "Same muscles, fixed path, no strain at the shoulder."],
+      ["Triceps pushdown", "gym", "When the shoulders are sore: isolate instead of pressing."]
+    ],
+    "DB Fly": [
+      ["Pec-deck", "gym", "Hardest at full stretch and safe to fail in. The best chest isolation there is."],
+      ["Mid cable fly, pulleys at shoulder height", "gym", "A pec-deck without the pad."],
+      ["Low-to-high cable fly", "gym", "Same move, biased to the upper chest."],
+      ["Incline DB fly", "gym", "More stretch than flat, and the same dumbbells."]
+    ],
+    "Belt Squat": [
+      ["Hack squat or pendulum squat", "gym", "The best quad builder in the building, and the spine carries nothing."],
+      ["Leg press", "gym", "Push to real failure without having to stand up afterwards."],
+      ["Smith machine squat", "gym", "The rails do the balancing, so you can go deeper."],
+      ["Bulgarian split squat", "home", "One leg at a time doubles whatever load you have."],
+      ["Barbell front squat", "gym", "Quad-heavy, but your upper back gives out before your legs do."]
+    ],
+    "Leg Curl": [
+      ["Seated leg curl", "gym", "Hip bent means hamstring long, which makes it the better of the two curls."],
+      ["Lying leg curl", "yours", "What you have, and still excellent. Toes pulled up."],
+      ["Nordic curl", "home", "Brutal, free, and needs nothing but something to hook your heels under."],
+      ["Cable or band curl", "home", "The fallback when there is no machine at all."]
+    ],
+    "Back Extension": [
+      ["Romanian deadlift, barbell or dumbbells", "gym", "Hamstrings loaded at full stretch: the biggest return in this slot."],
+      ["45° back extension", "gym", "Drive with the glutes, plate held at the chest."],
+      ["Glute-ham raise", "gym", "Works the hamstring at both of its ends in one rep."],
+      ["Hip thrust, barbell or machine", "gym", "Glutes only, and easy to load heavy."],
+      ["Reverse hyper", "gym", "Kind to a lower back that is already tired."]
+    ],
+    "Bent-Knee Calf Raise": [
+      ["Seated calf raise machine", "gym", "A bent knee is the soleus, and this is the machine built for it."],
+      ["Calf press on the leg press", "gym", "Heavy, and the knee angle is close enough."],
+      ["Smith machine seated raise", "gym", "Bar across the knees when the seated machine is taken."],
+      ["Standing calf raise", "gym", "Straight knee is the gastroc — a different muscle. Worth doing as well, not instead."]
+    ]
+  };
+  /* Is there more of the list below the fold? */
+  function markCut(el) {
+    if (!el) return;
+    el.classList.toggle("cut", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  }
+  function altsFor(exName) {
+    return exName === CARDIO_ALT_KEY ? CARDIO_ALTS : (EX_ALTS[exName] || []);
+  }
+  function fillAlts(exName) {
+    var el = document.getElementById("exAltList"); if (!el) return;
+    var note = document.getElementById("exAltNote");
+    if (note) note.textContent = exName === CARDIO_ALT_KEY ? CARDIO_ALT_NOTE : ALT_NOTE;
+    var list = altsFor(exName);
+    if (!list.length) { el.innerHTML = '<div class="empty">No swaps written for this one yet.</div>'; return; }
+    el.innerHTML = list.map(function (a, i) {
+      /* Nearly every one of them needs a gym, so saying so on every line says
+         nothing. The tag marks the exceptions: what you can already do at home, and
+         the one you are doing now. */
+      var tag = a[1] === "gym" ? "" : '<span class="alt-k ' + a[1] + '">' + esc(a[1]) + '</span>';
+      return '<div class="alt-row"><em>' + (i + 1) + '</em><div><b>' + esc(a[0]) + tag +
+        '</b><i>' + esc(a[2]) + '</i></div></div>';
+    }).join("");
+  }
+  /* The same sheet as the history, opened on the other pane. Cardio has no sets to
+     show a history of, so there the tabs go and the swaps are the whole sheet. */
+  function openAlts(exName) {
+    setEdit = null;
+    var cardio = exName === CARDIO_ALT_KEY;
+    document.getElementById("setEditTitle").textContent = cardio ? "Cardio" : exName;
+    document.getElementById("setEditFields").hidden = true;
+    document.getElementById("setEditSave").hidden = true;
+    document.getElementById("setEditCancel").textContent = "Close";
+    document.getElementById("exSheetTabs").hidden = cardio;
+    fillAlts(exName);
+    hideSheets("setEditModal");
+    document.getElementById("setEditModal").style.display = "block";
+    document.getElementById("modalOverlay").classList.add("open");
+    showPane("setEditModal", "alts");
+    requestAnimationFrame(function () { markCut(document.getElementById("exAltList")); });
+    if (!cardio) fillExerciseHistory(exName);
+  }
+  function wireAlts() {
+    wirePanes("setEditModal", "hist");
+    var list = document.getElementById("exAltList");
+    if (list) list.addEventListener("scroll", function () { markCut(list); });
+    var tab = document.querySelector('#exSheetTabs .rv-tab[data-pane="alts"]');
+    /* wirePanes owns the click; this rides along after it, once the pane has a size */
+    if (tab) tab.addEventListener("click", function () {
+      requestAnimationFrame(function () { markCut(list); });
+    });
+    var c = document.getElementById("cardioAltBtn");
+    if (c) {
+      c.onclick = function () { openAlts(CARDIO_ALT_KEY); };
+      c.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openAlts(CARDIO_ALT_KEY); }
+      };
+    }
   }
 
   /* ===================== LAST PERFORMANCE / HISTORY ===================== */
@@ -4292,9 +4522,12 @@
     document.getElementById("setEditFields").hidden = false;
     document.getElementById("setEditSave").hidden = false;
     document.getElementById("setEditCancel").textContent = "Cancel";
+    document.getElementById("exSheetTabs").hidden = false;
+    fillAlts(exx.name);
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
+    showPane("setEditModal", "hist");
     fillExerciseHistory(exx.name);
   }
   function wireSetEdit() {
@@ -4444,6 +4677,18 @@
         isSecond[pi + 1] = true;
       }
     }
+    /* Both directions, so either half can find the other, plus the rest the round
+       earns and the name to put on the countdown. */
+    var pairWith = {}, pairRest = {}, pairName = {};
+    Object.keys(partnerOf).forEach(function (k) {
+      var a = Number(k), b = partnerOf[k];
+      var r = Math.max(prog.ex[a].restSec, prog.ex[b].restSec) || 60;
+      var nm = prog.ex[a].name + " + " + prog.ex[b].name;
+      pairWith[a] = b; pairWith[b] = a;
+      pairRest[a] = pairRest[b] = r;
+      pairName[a] = pairName[b] = nm;
+    });
+    var blockOf = {};
     var pairHost = {};
     prog.ex.forEach(function (exx, exIdx) {
       var host = pairHost[exIdx];
@@ -4456,6 +4701,11 @@
       }
       var block = document.createElement("div");
       block.className = "ex-block " + (host ? "ss-half" : "page");
+      var ssRest = pairRest[exIdx] || 0;
+      /* "no rest" was true of the move and false of the round: you do rest, after
+         the pair. Per round, in the same few characters the old line took. */
+      var restWord = ssRest ? " \u00b7 " + ssRest + "s/round"
+                   : (exx.restSec > 0 ? " \u00b7 rest " + exx.restSec + "s" : "");
       var savedSets = (doc.sets && doc.sets[exx.name]) || [];
       var wUnit = exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
       var doneFlags = [];
@@ -4468,7 +4718,7 @@
         var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : (exx.weightDefault == null ? "" : exx.weightDefault);
         var done = doneFlags[s];
         setsHtml += '<div class="set-split-row' + (done ? " done-row" : "") + '" data-set="' + s + '">' +
-          '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + ' · ' + (exx.restSec > 0 ? "Rest " + exx.restSec + "s" : "no rest") + '<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
+          '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + (ssRest ? ' · rest ' + ssRest + 's/round' : (exx.restSec > 0 ? ' · rest ' + exx.restSec + 's' : '')) + '<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
           '<div class="ssr-input">' +
             '<input type="number" placeholder="reps" class="mini-field reps-input" value="' + repsVal + '">' +
             '<input type="number" step="0.5" placeholder="' + (exx.weightDefault == null ? "bw" : "lb") + '" class="mini-field wt-input" value="' + wtVal + '" ' + (exx.weightDefault == null ? 'disabled' : '') + '>' +
@@ -4485,21 +4735,29 @@
         '<div class="ring-title">' +
           '<div class="ex-name" data-exname="' + attrSafe(exx.name) + '">' + esc(exx.name) + '</div>' +
           '<div class="ex-target">' + exx.repLo + '\u2013' + exx.repHi + ' reps \u00b7 ' + esc(wUnit) +
-            (exx.restSec > 0 ? ' \u00b7 rest ' + exx.restSec + 's' : ' \u00b7 no rest') + '</div>' +
+            restWord + '</div>' +
         '</div>' +
         ringHTML(exx) +
         '<div class="ring-acts">' +
-          '<button type="button" class="ring-act same-last-btn" data-exname="' + attrSafe(exx.name) + '">Same as last time</button>' +
+          '<button type="button" class="ring-act same-last-btn" title="Same as last time" data-exname="' + attrSafe(exx.name) + '">' +
+            '<span class="wide-only">Same as last time</span><span class="narrow-only">Last</span></button>' +
           '<button type="button" class="ring-act hist-act" data-exname="' + attrSafe(exx.name) + '">History</button>' +
+          '<button type="button" class="ring-act alt-act" data-exname="' + attrSafe(exx.name) + '"' +
+            ' title="Other ways to do it" aria-label="Other ways to do it">\u21C4<span class="wide-only"> Swap</span></button>' +
         '</div>' +
         '<div class="set-grid">' + setsHtml + '</div>';
       if (host) host.appendChild(block); else list.insertBefore(block, cardioPage);
 
       block.querySelector(".ex-name").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
       block.querySelector(".hist-act").onclick = function () { openExerciseHistory(this.getAttribute("data-exname")); };
+      block.querySelector(".alt-act").onclick = function () { openAlts(this.getAttribute("data-exname")); };
       block.querySelector(".same-last-btn").onclick = function () { fillFromLastTime(this.getAttribute("data-exname"), block, key); };
 
       var rows = Array.from(block.querySelectorAll(".set-split-row"));
+      block._rows = rows;
+      block._pairRest = ssRest;
+      block._pairName = pairName[exIdx] || exx.name;
+      blockOf[exIdx] = block;
       /* One place that flips a set, whichever control was tapped. */
       function toggleSet(idx) {
         var row = rows[idx]; if (!row) return;
@@ -4513,9 +4771,32 @@
           var doneSoFar = rows.filter(function (r) {
             return r.querySelector(".mini-done").getAttribute("data-done") === "1";
           }).length;
-          /* A superset's first move asks for no rest: straight into the pair. */
-          if (exx.restSec > 0) startRestTimer(exx.restSec, block, exx.name,
-                                              doneSoFar < rows.length ? doneSoFar + 1 : 0);
+          /* A superset rests once, at the end of the round -- and the old rule hung
+             that rest on whichever of the two moves had a rest written against it.
+             Tick the pair in the other order and the countdown started on the first
+             tap and was killed by the second, which read "no rest" and stopped it.
+             The rest belongs to the round: it starts when both halves of this set
+             are ticked, whichever half you tick last, and a rest already running
+             for the pair is left alone rather than restarted. */
+          var other = block._pairOther;
+          if (other) {
+            var mate = other._rows && other._rows[idx];
+            var mateDone = !!(mate && mate.querySelector(".mini-done").getAttribute("data-done") === "1");
+            if (!mateDone) stopRestTimer();
+            else if (!restingFor(block)) {
+              var rounds = 0;
+              for (var ri = 0; ri < rows.length; ri++) {
+                var mine = rows[ri].querySelector(".mini-done").getAttribute("data-done") === "1";
+                var theirs = other._rows[ri] &&
+                  other._rows[ri].querySelector(".mini-done").getAttribute("data-done") === "1";
+                if (mine && theirs) rounds++;
+              }
+              startRestTimer(block._pairRest, block, block._pairName,
+                             rounds < rows.length ? rounds + 1 : 0, "round");
+            }
+          }
+          else if (exx.restSec > 0) startRestTimer(exx.restSec, block, exx.name,
+                                                   doneSoFar < rows.length ? doneSoFar + 1 : 0);
           else stopRestTimer();
           var nodeEl = block.querySelector('[data-node="' + idx + '"]');
           var tier = EX_GROUP_COLOR[exArt(exx.name).g];
@@ -4574,6 +4855,12 @@
         });
       });
     });
+    /* Both halves exist now, so each can be told about the other: the rest after a
+       round is only knowable from the pair, not from either move on its own. */
+    Object.keys(pairWith).forEach(function (k) {
+      var a = blockOf[k], b = blockOf[pairWith[k]];
+      if (a && b) a._pairOther = b;
+    });
     list.appendChild(cardioPage);          // cardio closes the session, so it closes the pager
     list.scrollLeft = 0;
     renderPagerDots();
@@ -4605,9 +4892,12 @@
     document.getElementById("setEditFields").hidden = true;
     document.getElementById("setEditSave").hidden = true;
     document.getElementById("setEditCancel").textContent = "Close";
+    document.getElementById("exSheetTabs").hidden = false;
+    fillAlts(exName);
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
     document.getElementById("modalOverlay").classList.add("open");
+    showPane("setEditModal", "hist");
     return fillExerciseHistory(exName);
   }
   async function fillExerciseHistory(exName) {
@@ -8891,7 +9181,7 @@
   async function boot() {
     wireQuickSaves(); wireFoodUpload(); wireCardioPhoto(); wireMealTypes(); wireTabs(); wireShare();
     wireBody(); wireLabs(); wireProg(); wireSetup();
-    wireSessionTimer(); wireRestPop(); wireSetEdit(); wireCardioHill(); wireWeek(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
+    wireSessionTimer(); wireRestPop(); wireSetEdit(); wireAlts(); wireCardioHill(); wireWeek(); wireMealEditModal(); wireAuth(); wirePlanSheet(); wireDrop();
     document.getElementById("dropCloseBtn").onclick = function () { document.getElementById("modalOverlay").classList.remove("open"); };
     setMuted(MUTED);
     document.getElementById("muteBtn").onclick = function () { setMuted(!MUTED); if (!MUTED) sfx("tick"); };
