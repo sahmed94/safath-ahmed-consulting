@@ -618,6 +618,12 @@
   /* TRAIN */
   .train9 { gap: 8px; }
   .t2-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* The title, the rest toggle and the pencil share the first line and the clock takes
+     the second. Adding the toggle pushed the pencil onto a line of its own, which reads
+     as a broken card: the name gives up the width instead, and the clock is told to
+     start a line rather than leaving it to how much room is left. */
+  .train9 .t2-name, .train9 .t2-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .train9 .t2-head > .timer-row { flex: 1 0 100%; }
   .t2-icon { flex: 0 0 38px; height: 38px; border-radius: 11px; background: var(--coral); display: flex; align-items: center; justify-content: center; }
   .t2-icon svg { width: 20px; height: 20px; stroke: #fff; }
   .t2-text { flex: 1 1 auto; min-width: 0; }
@@ -1188,6 +1194,15 @@
      few pixels fade while there is more below, and stop fading at the bottom. */
   .exh-scroll.cut { -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent);
     mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }
+  .sheet-head { display: flex; align-items: center; gap: 10px; }
+  .sheet-head h3 { margin: 0; }
+  .sheet-crest { flex: 0 0 62px; width: 62px; height: 62px; fill: none; stroke-width: 3.6;
+    stroke: var(--crest, var(--blue)); stroke-linecap: round; stroke-linejoin: round;
+    border: 1px solid var(--line); border-radius: 11px; padding: 2px;
+    background: rgba(255,255,255,0.03); }
+  .sheet-crest[hidden] { display: none; }
+  @media (min-width: 420px) { .sheet-crest { flex-basis: 72px; width: 72px; height: 72px; } }
+  .c9-tiny .sheet-crest { flex-basis: 46px; width: 46px; height: 46px; }
   .alt-note { font-size: 11.5px; color: var(--ink-faint); margin: 2px 0 7px; }
   .alt-row { display: flex; gap: 9px; align-items: flex-start; padding: 7px 0;
     border-bottom: 1px solid var(--line); }
@@ -1201,7 +1216,7 @@
     letter-spacing: .1em; text-transform: uppercase; padding: 2px 5px; border-radius: 5px;
     vertical-align: 1px; border: 1px solid var(--line); color: var(--ink-faint); }
   .alt-k.home { color: var(--teal); border-color: var(--teal-soft); background: var(--teal-soft); }
-  .alt-k.yours { color: #FFD166; border-color: rgba(255,209,102,0.3); }
+  .alt-k.gym { color: #C9A8FF; border-color: rgba(201,168,255,0.3); background: rgba(201,168,255,0.12); }
   /* The set rows are still the record every write reads. They are not the view. */
   .ex-block .set-grid { display: none; }
   /* ---- a short card is mostly chrome unless you take it back ----
@@ -1963,8 +1978,8 @@
             <div class="t2-name" id="liftSessionName"></div>
             <div class="t2-sub" id="liftSessionSub"></div>
           </div>
-          <!-- Only on a day that asks for no lifting: see canRest. -->
-          <button class="t2-rest" type="button" id="restBtn" aria-pressed="false" hidden>Rest day</button>
+          <!-- Marks today as rest: see canRest. -->
+          <button class="t2-rest" type="button" id="restBtn" aria-pressed="false" hidden>Rest</button>
           <button class="t2-edit" type="button" id="progBtn" aria-label="Edit your week" title="Edit your week">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
@@ -2262,7 +2277,13 @@
        history that says whether it is going up. The fields hide when the sheet is
        opened from the exercise name rather than from a set. -->
   <div class="modal-inner" id="setEditModal" style="display:none;">
-    <h3 id="setEditTitle">Set</h3>
+    <!-- The machine, drawn, next to its name: the sheet is the one place big enough
+         to carry it on a phone, and knowing what to walk towards is half of using a
+         gym you do not know. -->
+    <div class="sheet-head">
+      <svg class="sheet-crest" id="setEditCrest" viewBox="6 16 88 80" aria-hidden="true"></svg>
+      <h3 id="setEditTitle">Set</h3>
+    </div>
     <div id="setEditFields">
       <div class="field-row" style="margin-bottom:8px;">
         <div class="field"><label>Reps</label><input type="number" id="setEditReps" inputmode="numeric"></div>
@@ -2463,36 +2484,70 @@
 (function () {
   "use strict";
 
+  /* Three kinds of weight a plan can ask for: a number to start from, bodyweight,
+     and "take it to RPE 8-9" -- a machine whose stack reads differently in every gym,
+     so the plan asks for effort and you write down what the pin said. The third one
+     is an empty box you type into, not a box that says bodyweight and refuses. */
+  var RPE = "rpe";
+  function isRpe(exx) { return exx && exx.weightDefault === RPE; }
+  function weightBodyOnly(exx) { return exx.weightDefault == null && !isRpe(exx); }
+  function weightText(exx) {
+    if (isRpe(exx)) return "RPE 8\u20139";
+    return exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
+  }
+  function weightStart(exx) { return weightBodyOnly(exx) || isRpe(exx) ? "" : exx.weightDefault; }
   function ex(name, sets, repLo, repHi, weight, weightLabel, div, restSec) {
     return { name: name, sets: sets, repLo: repLo, repHi: repHi, repDefault: repLo, weightDefault: weight, weightLabel: weightLabel || "lb", div: !!div, restSec: restSec == null ? 60 : restSec };
   }
   /* Six moving days and two cardio days, every one of them forty minutes on the
      treadmill or eighty. A rest of 0 is a superset: that move goes straight into the
      one under it, and the pair rests together at the end. */
+  /* Seven days in a gym rather than five in a basement, and no supersets in it: every
+     set has its own rest, ninety seconds on the heavy compounds and sixty on the rest.
+     Every day lifts and every day walks -- forty minutes after the weights, seven days
+     a week, instead of eighty on two days of their own. Most of the machine work asks
+     for RPE 8-9 rather than a number, because a plate stack reads differently in every
+     gym; the box starts empty and you write down what the pin said. */
   var PROGRAM_SAFATH = {
-    6: { name: "Upper", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Flat DB Bench", 3, 8, 12, 50, "lb/hand", false, 0), ex("Lat Pulldown", 3, 8, 12, 95.5, "lb", true, 90),
-            ex("Standing DB OHP", 3, 8, 12, 35, "lb/hand", false, 0), ex("Face Pull", 3, 12, 20, 59, "lb", true, 90),
-            ex("DB Row", 3, 8, 12, 65, "lb", true, 0), ex("Cable Curl", 3, 10, 15, 79, "lb", false, 90),
-            ex("DB Lateral Raise", 3, 12, 20, 17.5, "lb/hand", false, 60) ]},
-    0: { name: "Lower", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 5, 12, 20, 123, "lb", false, 90),
-            ex("Leg Curl", 4, 10, 15, 90, "lb", true, 0), ex("Back Extension", 4, 12, 15, 44, "lb", false, 60),
-            ex("Bent-Knee Calf Raise", 3, 15, 25, 64, "lb", true, 60) ]},
-    1: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] },
-    2: { name: "Push", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Incline DB Bench", 4, 8, 12, 50, "lb/hand", false, 90),
-            ex("DB Fly", 4, 10, 15, 17.5, "lb/hand", false, 0), ex("DB Lateral Raise", 4, 12, 20, 17.5, "lb/hand", true, 60),
-            ex("Skull Crushers", 3, 12, 18, 20, "lb/hand", false, 0), ex("Dips", 3, 10, 15, null, "bodyweight", false, 90) ]},
-    3: { name: "Pull", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 0), ex("DB Row", 4, 8, 12, 65, "lb", true, 90),
-            ex("Face Pull", 4, 12, 20, 59, "lb", true, 0), ex("Zottman Curl", 4, 10, 15, 20, "lb/hand", false, 60),
-            ex("Cable Curl", 3, 10, 15, 79, "lb", false, 60) ]},
-    4: { name: "Legs", type: "lift", cardio: { min: 40, incline: 10, speed: 3.0 },
-      ex: [ ex("Belt Squat", 5, 12, 20, 123, "lb", false, 90),
-            ex("Leg Curl", 4, 10, 15, 90, "lb", true, 0), ex("Back Extension", 3, 12, 15, 44, "lb", false, 60),
-            ex("Bent-Knee Calf Raise", 4, 15, 25, 64, "lb", true, 60) ]},
-    5: { name: "Cardio only", type: "cardio", cardio: { min: 80, incline: 10, speed: 3.0 }, ex: [] }
+    1: { name: "Upper A", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Incline Chest Press", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Lat Pulldown", 4, 8, 12, 95.5, "lb", true, 90),
+            ex("T-Bar Row", 4, 8, 12, RPE, "lb", false, 90),
+            ex("Machine Lateral Raise", 3, 12, 20, RPE, "lb", false, 60),
+            ex("Reverse Pec Deck", 3, 12, 20, RPE, "lb", false, 60) ]},
+    2: { name: "Lower A", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Hack Squat", 5, 10, 15, RPE, "lb", false, 90),
+            ex("Seated Leg Curl", 4, 10, 15, RPE, "lb", false, 90),
+            ex("Leg Extension", 4, 12, 15, RPE, "lb", false, 60),
+            ex("Seated Calf Raise", 3, 15, 25, 64, "lb", true, 60),
+            ex("Back Extension", 2, 12, 15, 44, "lb", false, 60) ]},
+    3: { name: "Push", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Flat Chest Press", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Machine Lateral Raise", 5, 12, 20, RPE, "lb", false, 60),
+            ex("Pec Deck", 4, 10, 15, RPE, "lb", false, 60),
+            ex("Overhead Extension", 5, 10, 15, RPE, "lb", false, 60) ]},
+    4: { name: "Pull", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Wide-Grip Pulldown", 5, 8, 12, 95.5, "lb", true, 90),
+            ex("Iso-Lateral Row", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Reverse Pec Deck", 4, 12, 20, RPE, "lb", false, 60),
+            ex("Zottman Curl", 5, 10, 15, 20, "lb/hand", false, 60) ]},
+    5: { name: "Legs", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Hack Squat", 4, 8, 12, RPE, "lb", false, 90),
+            ex("Seated Leg Curl", 4, 10, 15, RPE, "lb", false, 90),
+            ex("Hip Thrust", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Standing Calf Raise", 3, 10, 15, RPE, "lb", false, 60),
+            ex("Back Extension", 2, 12, 15, 44, "lb", false, 60) ]},
+    6: { name: "Delts & arms", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Standing DB OHP", 5, 8, 12, 35, "lb/hand", false, 90),
+            ex("Machine Lateral Raise", 3, 12, 20, RPE, "lb", false, 60),
+            ex("Skull Crushers", 4, 10, 15, 20, "lb/hand", false, 60),
+            ex("Incline DB Curl", 5, 10, 15, RPE, "lb/hand", false, 60),
+            ex("Reverse Pec Deck", 3, 12, 20, RPE, "lb", false, 60) ]},
+    0: { name: "Lower C", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
+      ex: [ ex("Seated Leg Curl", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Hip Thrust", 5, 10, 15, RPE, "lb", false, 90),
+            ex("Back Extension", 5, 12, 15, 44, "lb", false, 60),
+            ex("Seated Calf Raise", 3, 15, 25, 64, "lb", true, 60) ]}
   };
 
   /* Ifhrad's week: upper, lower, push, pull, legs from Monday, then the weekend walked
@@ -4078,90 +4133,205 @@
      A swap is logged in the slot it replaces, so the history keeps counting sets and
      reps and stays comparable across a machine, a dumbbell and a cable. */
   var CARDIO_ALT_KEY = "__cardio";
-  var ALT_NOTE = "Best first · gym kit unless marked · log it in the same slot.";
-  var CARDIO_ALT_NOTE = "All of these count as the minutes. Hard enough that talking is work.";
+  var ALT_NOTE = "Best first \u00b7 HOME is kit you already own \u00b7 log it in the same slot.";
+  var CARDIO_ALT_NOTE = "Forty minutes after the weights, every day. All of these count.";
   var CARDIO_ALTS = [
-    ["Stair master, level 8–12", "gym", "The most work per minute in the building. Whole foot on the step, hands off the rails."],
-    ["Treadmill, 12–15% at 2.8–3.2 mph", "gym", "When 10% at 3.0 stops making you breathe, raise the hill before the speed — same heart rate, less knee."],
-    ["Incline intervals: 3 min at 15%, 2 min at 6%", "gym", "Eight rounds is forty minutes and it goes faster than forty flat ones."],
-    ["Rower, 20–30 min", "gym", "The one that trains the back as well. Legs first, arms last, every stroke."],
+    ["Treadmill, 3.0 mph at 12%", "home", "What the plan asks for. Forty minutes, straight after the last set."],
+    ["StairMaster, 40\u201345 steps a minute", "gym", "The other half of the plan. Whole foot on the step, hands off the rails."],
+    ["Treadmill, 14\u201315% at 2.8\u20133.0 mph", "home", "When 12% at 3.0 stops making you breathe, raise the hill before the speed \u2014 same heart rate, less knee."],
+    ["Incline intervals: 3 min at 15%, 2 min at 6%", "home", "Eight rounds is forty minutes, and it goes faster than forty flat ones."],
+    ["Rower, 20\u201330 min", "gym", "The one that trains the back as well. Legs first, arms last, every stroke."],
     ["Elliptical, resistance 8 or more", "gym", "Kindest to the joints and the easiest to coast on. Only counts with the resistance up."],
     ["Bike or assault bike", "gym", "No impact at all. Keep the cadence above 80 or it turns into sitting down."],
-    ["Hills outside", "home", "Same minutes, no machine. A 10% hill is a 10% incline."]
+    ["Hills outside", "home", "Same minutes, no machine. A 12% hill is a 12% incline."]
   ];
   var EX_ALTS = {
+    /* ---- the week as it stands ---- */
+    "Incline Chest Press": [
+      ["Incline DB press, 50 lb/hand", "home", "The alternate on the plan. The same job with the dumbbells you own."],
+      ["Smith machine incline press", "gym", "Rails do the balancing, so the last two reps are chest and nothing else."],
+      ["Low-to-high cable fly", "home", "Loaded at full stretch rather than at the top, where it is easy."],
+      ["Incline barbell press, 30\u00b0", "gym", "Heavy, but you need a spotter to train anywhere near failure."]
+    ],
+    "Flat Chest Press": [
+      ["Flat DB bench, 50 lb/hand", "home", "The alternate on the plan. The same press, your own dumbbells."],
+      ["Machine chest press (converging)", "gym", "The arc closes as you push, and you can fail the last rep safely."],
+      ["Smith machine flat press", "gym", "Bar on rails, so all of the effort goes into pushing."],
+      ["Cable press from hip height", "home", "Tension never drops through the range."],
+      ["Deficit push-up on handles", "home", "Bodyweight fallback. Feet up when it stops being hard."]
+    ],
+    "Pec Deck": [
+      ["Cable fly, pulleys at shoulder height", "home", "The alternate on the plan. A pec deck without the pad."],
+      ["Low-to-high cable fly", "home", "The same move, biased to the upper chest."],
+      ["Incline DB fly", "home", "More stretch than flat, and the same dumbbells."],
+      ["Flat DB fly", "home", "Light, slow, and stop where the shoulder says."]
+    ],
+    "Lat Pulldown": [
+      ["Neutral-grip pulldown", "home", "The alternate on the plan: a V-handle on the same stack, easier on the elbows."],
+      ["Weighted or assisted pull-up", "gym", "More load per rep than any cable stack will give you."],
+      ["Chest-supported machine pulldown", "gym", "The pad takes the swing out, so the lats do all of it."],
+      ["Single-arm cable pulldown, kneeling", "home", "A few more inches of stretch per rep, one side at a time."],
+      ["Straight-arm pulldown", "home", "Lats only \u2014 the biceps stop stealing the set."]
+    ],
+    "Wide-Grip Pulldown": [
+      ["Assisted pull-up", "gym", "The alternate on the plan. Same pattern, and the machine picks the load."],
+      ["Weighted pull-up", "gym", "When bodyweight stops being eight hard reps, add a belt."],
+      ["Neutral-grip pulldown", "home", "Easier on the elbows, slightly more biceps in the pull."],
+      ["Chest-supported machine pulldown", "gym", "No swing at all, so the lats end the set."],
+      ["Band-assisted pull-up", "home", "No machine needed: a band under the knee does the same job."]
+    ],
+    "T-Bar Row": [
+      ["Seated cable row, chest on the pad", "home", "The alternate on the plan. The same pull on your own stack."],
+      ["Plate-loaded iso-lateral row", "gym", "One side at a time, so neither arm covers for the other."],
+      ["Single-arm cable row", "home", "The longest stretch of the lot. Let the shoulder travel forward."],
+      ["One-arm DB row, 65 lb", "home", "Dumbbell fallback; brace a hand on the bench."],
+      ["Barbell row", "gym", "Heaviest of them, but the lower back is what caps it."]
+    ],
+    "Iso-Lateral Row": [
+      ["One-arm DB row, 65 lb", "home", "The alternate on the plan. Brace on the bench, row to the hip."],
+      ["Chest-supported T-bar row", "gym", "Both sides at once with the lower back taken out of it."],
+      ["Single-arm cable row", "home", "The stretch at the front of the rep is the point of it."],
+      ["Seated cable row", "home", "Smooth load, and easy to add a rep every week."]
+    ],
+    "Machine Lateral Raise": [
+      ["Cable lateral raise, one arm", "home", "The alternate on the plan. Tension at the bottom, where a dumbbell has none."],
+      ["DB lateral raise, 17.5 lb/hand", "home", "Light and slow beats heavy and swung, every time."],
+      ["Lean-away DB raise, holding the rack", "home", "Longer range than standing up straight."],
+      ["Cable upright row to the collarbone", "home", "Delt and trap together, for when the raises are cooked."]
+    ],
+    "Reverse Pec Deck": [
+      ["Cable rear-delt fly, across the body", "home", "The alternate on the plan. Full arc, pulling from where the muscle ends."],
+      ["Face pull, 59 lb", "home", "The other alternate: rear delt and mid-back in one."],
+      ["Chest-supported DB rear fly on an incline", "home", "Light weight, high reps, pause at the top."],
+      ["Band pull-apart", "home", "Warm-up grade. Fine as a finisher, not as the work."]
+    ],
+    "Standing DB OHP": [
+      ["Machine shoulder press", "gym", "The alternate on the plan. Fixed path, so you can fail without the wobble."],
+      ["Seated DB press, back supported", "home", "Sitting down turns a core exercise into a shoulder one."],
+      ["Seated Smith or barbell press", "gym", "Load up; the rails keep the path honest."],
+      ["Seated Arnold press", "home", "More front-delt range if a straight press nags the joint."]
+    ],
+    "Overhead Extension": [
+      ["Skull crushers, 20 lb/hand", "home", "The alternate on the plan. The same long-head stretch, lying down."],
+      ["Single-arm overhead cable extension", "home", "One side at a time, and a little more range."],
+      ["Incline DB extension behind the head", "home", "The dumbbell version of the overhead stretch."],
+      ["Machine triceps extension", "gym", "Fixed path for a day when the elbows are sore."],
+      ["Close-grip bench or JM press", "gym", "Heavy triceps for when you would rather press than extend."]
+    ],
+    "Skull Crushers": [
+      ["Machine triceps extension", "gym", "The alternate on the plan. Fixed path, straight to failure."],
+      ["Overhead cable extension with a rope", "home", "Long head under stretch: the part that adds size to the arm."],
+      ["Single-arm overhead cable extension", "home", "The same idea, one side at a time."],
+      ["Incline DB extension behind the head", "home", "The dumbbell version of the overhead stretch."],
+      ["Close-grip bench or JM press", "gym", "Heavy triceps when you would rather press."]
+    ],
+    "Incline DB Curl": [
+      ["Machine preacher curl", "gym", "The alternate on the plan. Elbows pinned, no swing, straight to failure."],
+      ["Bayesian curl (cable from behind you)", "home", "The same stretch with tension that never drops."],
+      ["Cable curl, 79 lb", "home", "Simple and constant; good when the arms are already fried."],
+      ["EZ-bar curl", "gym", "Heavy and quick when the cables are busy."]
+    ],
+    "Zottman Curl": [
+      ["Cross-body hammer curl", "home", "The alternate on the plan. Brachialis: a thicker arm seen from the side."],
+      ["Incline DB curl, then reverse cable curl", "home", "Splits the two jobs so each one gets a proper load."],
+      ["Reverse EZ-bar curl", "gym", "Forearms, and heavier than you can Zottman."],
+      ["Rope hammer curl", "home", "Easy on the wrists, good for high reps."]
+    ],
+    "Hack Squat": [
+      ["Pendulum squat", "gym", "The plan's first choice where there is one: the kindest path for the knee."],
+      ["45\u00b0 leg press", "gym", "The alternate on the plan. Push to real failure without having to stand up after."],
+      ["Smith machine squat", "gym", "The rails do the balancing, so you can go deeper."],
+      ["Belt squat", "home", "What you have at home, and the spine carries nothing."],
+      ["Bulgarian split squat", "home", "One leg at a time doubles whatever load you own."]
+    ],
+    "Leg Extension": [
+      ["DB split squat", "home", "The alternate on the plan. Quad-heavy, and you own the weights."],
+      ["Sissy squat", "home", "Quads at full stretch with no machine at all."],
+      ["Hack squat, feet low", "gym", "Bias the quad on the squat if the machine is taken."],
+      ["Belt squat, narrow stance", "home", "Quads with nothing on the spine."]
+    ],
+    "Seated Leg Curl": [
+      ["Lying leg curl, 90 lb", "home", "The alternate on the plan. Same muscle, hip straight instead of bent."],
+      ["Nordic curl", "home", "Brutal, free, and needs nothing but something to hook your heels under."],
+      ["Cable or band curl", "home", "The fallback when there is no machine at all."],
+      ["Romanian deadlift", "home", "The hamstring at the hip rather than the knee. Worth doing as well."]
+    ],
+    "Hip Thrust": [
+      ["Smith machine hip thrust", "gym", "The alternate on the plan. Loads far heavier than you can hold."],
+      ["Barbell hip thrust", "gym", "The classic; a pad and a bench is all it takes."],
+      ["DB glute bridge", "home", "Dumbbell across the hips, shoulders on the bench."],
+      ["Single-leg hip thrust", "home", "No load at all and still hard."]
+    ],
+    "Back Extension": [
+      ["Lumbar extension machine", "gym", "The alternate on the plan. Everything pinned, so nothing swings."],
+      ["Roman chair with a plate, 44 lb", "home", "Round the back, drive with the glutes, plate at the chest."],
+      ["Romanian deadlift", "home", "Hamstrings at full stretch: the biggest return in this slot."],
+      ["Glute-ham raise", "gym", "Works the hamstring at both of its ends in one rep."],
+      ["Reverse hyper", "gym", "Kind to a lower back that is already tired."]
+    ],
+    "Seated Calf Raise": [
+      ["Calf press on the leg press", "gym", "The alternate on the plan. Heavy, and the knee angle is close enough."],
+      ["Smith machine seated raise", "gym", "Bar across the knees when the machine is taken."],
+      ["Standing calf raise", "home", "Straight knee is the gastroc \u2014 a different muscle, worth its own sets."],
+      ["Single-leg DB raise off a step", "home", "No machine, and a full stretch at the bottom."]
+    ],
+    "Standing Calf Raise": [
+      ["Calf press on the leg press", "gym", "The alternate on the plan. Heavy and easy to control."],
+      ["Smith machine standing raise", "gym", "Bar on the back, full stretch at the bottom."],
+      ["Single-leg DB raise off a step", "home", "No machine, and the stretch is the point."],
+      ["Seated calf raise", "gym", "Bent knee is the soleus \u2014 a different muscle, worth its own sets."]
+    ],
+    /* ---- moves the week has had before, kept for the days they come back ---- */
     "Flat DB Bench": [
-      ["Machine chest press (converging)", "gym", "Fail the last rep with nobody spotting you. Most chest per set of anything here."],
-      ["Cable press, pulleys at hip height", "gym", "Tension never drops, and it is hardest where the chest is longest."],
-      ["Barbell bench", "gym", "The most load — but without a spotter you stop a rep or two early."],
+      ["Machine chest press (converging)", "gym", "Fail the last rep with nobody spotting you."],
+      ["Plate-loaded flat chest press", "gym", "What the week asks for now; press and nothing else."],
+      ["Cable press, pulleys at hip height", "home", "Tension never drops, and it is hardest where the chest is longest."],
       ["Smith machine press", "gym", "Bar on rails, so all of the effort goes into pushing."],
       ["Deficit push-up on handles", "home", "What is left when the bench is taken. Feet up to make it harder."]
     ],
     "Incline DB Bench": [
-      ["Incline machine or Smith press", "gym", "Upper chest with no wobble to manage. Load it and go."],
-      ["Low-to-high cable fly", "gym", "Same fibres, loaded at full stretch instead of at the top."],
-      ["Incline barbell press, 30°", "gym", "Heavy, but a spotter or you leave reps behind."],
-      ["Incline DB bench", "yours", "What the week asks for. Still a good one."]
-    ],
-    "Lat Pulldown": [
-      ["Pull-up, weighted or assisted", "gym", "Same pattern, more load per rep than any cable stack gives you."],
-      ["Chest-supported machine pulldown", "gym", "The pad takes the swing out, so the lats do all of it."],
-      ["Single-arm cable pulldown, kneeling", "gym", "A few more inches of stretch per rep, one side at a time."],
-      ["Straight-arm pulldown", "gym", "Lats only — the biceps stop stealing the set."]
+      ["Plate-loaded incline chest press", "gym", "What the week asks for now. Upper chest with no wobble to manage."],
+      ["Incline machine or Smith press", "gym", "Fixed path, so load it and go."],
+      ["Low-to-high cable fly", "home", "The same fibres, loaded at full stretch."],
+      ["Incline barbell press, 30\u00b0", "gym", "Heavy, but a spotter or you leave reps behind."]
     ],
     "DB Row": [
       ["Chest-supported row (T-bar or machine)", "gym", "The pad means your lower back never ends the set first."],
-      ["Seated cable row, chest on the pad", "gym", "Smooth load and easy to add a rep every week."],
-      ["Single-arm cable row", "gym", "The longest stretch of the lot. Let the shoulder travel forward."],
-      ["Barbell row", "gym", "Heaviest option, but the lower back caps how hard you can push."]
-    ],
-    "Standing DB OHP": [
-      ["Seated DB press, back supported", "gym", "Sitting down turns a core exercise into a shoulder one."],
-      ["Shoulder press machine", "gym", "Fixed path, so the last two reps are shoulders and nothing else."],
-      ["Seated Smith or barbell press", "gym", "Load up; the rails keep it honest."],
-      ["Seated Arnold press", "gym", "More front-delt range if a straight press bothers the joint."]
-    ],
-    "Face Pull": [
-      ["Reverse pec-deck", "gym", "The best rear-delt machine there is, and nothing else is close."],
-      ["Single-arm cable rear fly, across the body", "gym", "Full arc, pulling from where the muscle actually ends."],
-      ["Chest-supported rear fly on an incline bench", "gym", "No cable needed. Light weight, high reps, pause at the top."],
-      ["Band pull-apart", "home", "Warm-up grade. Fine as a finisher, not as the work."]
-    ],
-    "Cable Curl": [
-      ["Bayesian curl (cable from behind you)", "gym", "Biceps loaded at full stretch, which is where it grows."],
-      ["Incline DB curl, arms hanging back", "gym", "The dumbbell version of the same stretch."],
-      ["Preacher curl machine", "gym", "Elbows pinned, no swing, straight to failure."],
-      ["EZ-bar curl", "gym", "Simple and heavy. Good when every cable is busy."]
-    ],
-    "Zottman Curl": [
-      ["Incline DB curl, then reverse cable curl", "gym", "Splits the two jobs so each one gets a proper load."],
-      ["Cross-body hammer curl", "gym", "Brachialis: a thicker arm seen from the side."],
-      ["Reverse EZ-bar curl", "gym", "Forearms, and heavier than you can Zottman."],
-      ["Rope hammer curl", "gym", "Easy on the wrists, good for high reps."]
-    ],
-    "DB Lateral Raise": [
-      ["Cable lateral raise, one arm", "gym", "Tension at the bottom, where a dumbbell has none."],
-      ["Lateral raise machine", "gym", "Pads on the arms, so you can fail without cheating the weight up."],
-      ["Lean-away DB raise, holding the rack", "gym", "Longer range than standing up straight."],
-      ["DB lateral raise", "yours", "What the week asks for. Light and slow beats heavy and swung."]
-    ],
-    "Skull Crushers": [
-      ["Overhead cable extension with a rope", "gym", "Long head under stretch: the part that adds size to the arm."],
-      ["Single-arm overhead cable extension", "gym", "Same idea, one side at a time, a little more range."],
-      ["Incline DB extension behind the head", "gym", "The dumbbell version of the overhead stretch."],
-      ["Close-grip bench or JM press", "gym", "Heavy triceps for when you would rather press than extend."]
-    ],
-    "Dips": [
-      ["Weighted dip on a belt", "gym", "Add plates and this stays in the 8–12 range for years."],
-      ["Assisted dip machine", "gym", "Takes weight off, so you pick the rep range instead of hoping for it."],
-      ["Close-grip machine or Smith press", "gym", "Same muscles, fixed path, no strain at the shoulder."],
-      ["Triceps pushdown", "gym", "When the shoulders are sore: isolate instead of pressing."]
+      ["Plate-loaded iso-lateral row", "gym", "One side at a time; neither arm covers for the other."],
+      ["Seated cable row, chest on the pad", "home", "Smooth load and easy to add a rep every week."],
+      ["Single-arm cable row", "home", "The longest stretch of the lot."],
+      ["Barbell row", "gym", "Heaviest, but the lower back caps how hard you can push."]
     ],
     "DB Fly": [
-      ["Pec-deck", "gym", "Hardest at full stretch and safe to fail in. The best chest isolation there is."],
-      ["Mid cable fly, pulleys at shoulder height", "gym", "A pec-deck without the pad."],
-      ["Low-to-high cable fly", "gym", "Same move, biased to the upper chest."],
-      ["Incline DB fly", "gym", "More stretch than flat, and the same dumbbells."]
+      ["Pec deck", "gym", "Hardest at full stretch and safe to fail in. The best chest isolation there is."],
+      ["Mid cable fly, pulleys at shoulder height", "home", "A pec deck without the pad."],
+      ["Low-to-high cable fly", "home", "The same move, biased to the upper chest."],
+      ["Incline DB fly", "home", "More stretch than flat, and the same dumbbells."]
+    ],
+    "DB Lateral Raise": [
+      ["Cable lateral raise, one arm", "home", "Tension at the bottom, where a dumbbell has none."],
+      ["Plate-loaded lateral raise", "gym", "Pads on the arms, so you can fail without cheating the weight up."],
+      ["Lean-away DB raise, holding the rack", "home", "Longer range than standing up straight."],
+      ["Cable upright row to the collarbone", "home", "Delt and trap together when the raises are cooked."]
+    ],
+    "Face Pull": [
+      ["Reverse pec deck", "gym", "The best rear-delt machine there is, and nothing else is close."],
+      ["Single-arm cable rear fly, across the body", "home", "Full arc, pulling from where the muscle actually ends."],
+      ["Chest-supported rear fly on an incline bench", "home", "No cable needed. Light, high reps, pause at the top."],
+      ["Band pull-apart", "home", "Warm-up grade; a finisher, not the work."]
+    ],
+    "Cable Curl": [
+      ["Bayesian curl (cable from behind you)", "home", "Biceps loaded at full stretch, which is where it grows."],
+      ["Incline DB curl, arms hanging back", "home", "The dumbbell version of the same stretch."],
+      ["Machine preacher curl", "gym", "Elbows pinned, no swing, straight to failure."],
+      ["EZ-bar curl", "gym", "Simple and heavy. Good when every cable is busy."]
+    ],
+    "Dips": [
+      ["Weighted dip on a belt", "gym", "Add plates and this stays in the 8\u201312 range for years."],
+      ["Assisted dip machine", "gym", "Takes weight off, so you pick the rep range instead of hoping for it."],
+      ["Close-grip machine or Smith press", "gym", "Same muscles, fixed path, no strain at the shoulder."],
+      ["Bodyweight dips", "home", "Lean forward for chest, stay upright for triceps."],
+      ["Triceps pushdown", "home", "When the shoulders are sore: isolate instead of pressing."]
     ],
     "Belt Squat": [
       ["Hack squat or pendulum squat", "gym", "The best quad builder in the building, and the spine carries nothing."],
@@ -4172,28 +4342,31 @@
     ],
     "Leg Curl": [
       ["Seated leg curl", "gym", "Hip bent means hamstring long, which makes it the better of the two curls."],
-      ["Lying leg curl", "yours", "What you have, and still excellent. Toes pulled up."],
-      ["Nordic curl", "home", "Brutal, free, and needs nothing but something to hook your heels under."],
+      ["Lying leg curl", "home", "What you have, and still excellent. Toes pulled up."],
+      ["Nordic curl", "home", "Brutal, free, and needs something to hook your heels under."],
       ["Cable or band curl", "home", "The fallback when there is no machine at all."]
-    ],
-    "Back Extension": [
-      ["Romanian deadlift, barbell or dumbbells", "gym", "Hamstrings loaded at full stretch: the biggest return in this slot."],
-      ["45° back extension", "gym", "Drive with the glutes, plate held at the chest."],
-      ["Glute-ham raise", "gym", "Works the hamstring at both of its ends in one rep."],
-      ["Hip thrust, barbell or machine", "gym", "Glutes only, and easy to load heavy."],
-      ["Reverse hyper", "gym", "Kind to a lower back that is already tired."]
     ],
     "Bent-Knee Calf Raise": [
       ["Seated calf raise machine", "gym", "A bent knee is the soleus, and this is the machine built for it."],
       ["Calf press on the leg press", "gym", "Heavy, and the knee angle is close enough."],
       ["Smith machine seated raise", "gym", "Bar across the knees when the seated machine is taken."],
-      ["Standing calf raise", "gym", "Straight knee is the gastroc — a different muscle. Worth doing as well, not instead."]
+      ["Standing calf raise", "home", "Straight knee is the gastroc \u2014 a different muscle. Worth doing as well, not instead."]
     ]
   };
   /* Is there more of the list below the fold? */
   function markCut(el) {
     if (!el) return;
     el.classList.toggle("cut", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  }
+  /* The crest beside the sheet title, in the colour of whatever it trains. */
+  function paintSheetCrest(exName) {
+    var el = document.getElementById("setEditCrest");
+    if (!el) return;
+    var art = EX_ART[exName];
+    if (!art) { el.hidden = true; el.innerHTML = ""; return; }
+    el.hidden = false;
+    el.style.setProperty("--crest", (EX_GROUP_COLOR[art.g] || EX_GROUP_COLOR.arms).c);
+    el.innerHTML = art.d.map(function (d) { return '<path d="' + d + '"/>'; }).join("");
   }
   function altsFor(exName) {
     return exName === CARDIO_ALT_KEY ? CARDIO_ALTS : (EX_ALTS[exName] || []);
@@ -4205,10 +4378,9 @@
     var list = altsFor(exName);
     if (!list.length) { el.innerHTML = '<div class="empty">No swaps written for this one yet.</div>'; return; }
     el.innerHTML = list.map(function (a, i) {
-      /* Nearly every one of them needs a gym, so saying so on every line says
-         nothing. The tag marks the exceptions: what you can already do at home, and
-         the one you are doing now. */
-      var tag = a[1] === "gym" ? "" : '<span class="alt-k ' + a[1] + '">' + esc(a[1]) + '</span>';
+      /* Both kinds are marked, on every line: half the point of the list is knowing
+         which of them you could do tonight without leaving the house. */
+      var tag = '<span class="alt-k ' + a[1] + '">' + esc(a[1]) + '</span>';
       return '<div class="alt-row"><em>' + (i + 1) + '</em><div><b>' + esc(a[0]) + tag +
         '</b><i>' + esc(a[2]) + '</i></div></div>';
     }).join("");
@@ -4223,6 +4395,7 @@
     document.getElementById("setEditSave").hidden = true;
     document.getElementById("setEditCancel").textContent = "Close";
     document.getElementById("exSheetTabs").hidden = cardio;
+    paintSheetCrest(exName);
     fillAlts(exName);
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
@@ -4299,6 +4472,22 @@
     return s;
   }
   function gPulley(x, y) { return "M" + x + " " + y + "m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"; }
+  function gRoll(x, y, r) {               // a padded roller, seen end on
+    return "M" + x + " " + y + "m-" + r + " 0a" + r + " " + r + " 0 1 0 " + (2*r) +
+           " 0a" + r + " " + r + " 0 1 0 -" + (2*r) + " 0";
+  }
+  function gHorn(x, y, w) {               // the plate horn of a plate-loaded machine
+    var d = w > 0 ? 1 : -1;
+    return "M" + x + " " + y + "h" + w +
+      "M" + (x + 4*d) + " " + (y-7) + "v14M" + (x + 9*d) + " " + (y-5) + "v10";
+  }
+  function gArc(x1, y1, x2, y2, bow, head) {   // a curved arrow showing which way it swings
+    var mx = (x1+x2)/2 + bow, my = (y1+y2)/2 - Math.abs(bow)/2;
+    var s = "M" + x1 + " " + y1 + "Q" + mx + " " + my + " " + x2 + " " + y2;
+    if (head) s += "M" + (x2 + head[0]) + " " + (y2 + head[1]) + "L" + x2 + " " + y2 +
+                   "L" + (x2 + head[2]) + " " + (y2 + head[3]);
+    return s;
+  }
 
   /* group decides the crest colour: push, pull, legs, arms, posterior. */
   var EX_ART = {
@@ -4328,6 +4517,70 @@
     post: { c: "#12B886", soft: "rgba(18,184,134,0.16)", glow: "rgba(18,184,134,0.55)" }
   };
   var HEX_PATH = "M50 4 92 27 92 73 50 96 8 73 8 27Z";
+  /* The machines, drawn as the machines. An icon that is a dumbbell on a bench tells
+     you what the muscle is and nothing about what to walk towards; these are side
+     elevations of the thing itself -- the angled sled of a hack squat, the two arms
+     of a pec deck, the tower and bar of a pulldown -- so the picture on the page is
+     what you are looking for on the floor. */
+  var MACHINE_ART = {
+    "Hack Squat": { g: "legs", d: [
+      "M10 88H90", "M24 84L74 30", "M14 74H46", "M20 74V84",
+      "M34 56L58 32", "M38 60L41 65", "M54 36L57 41", gRoll(62, 28, 5) ]},
+    "Leg Extension": { g: "legs", d: [
+      "M24 32V62", "M24 62H58", "M20 84H40", "M30 84V62", "M58 62L64 80", gRoll(64, 84, 5),
+      gArc(76, 84, 84, 56, 8, [-5, 4, 4, 5]) ]},
+    "Seated Leg Curl": { g: "legs", d: [
+      "M20 32V62", "M20 62H52", "M40 48H64", "M46 48V58", "M20 80H34", "M27 80V62",
+      "M52 62H70", "M70 62L76 76", gRoll(76, 80, 5), gArc(86, 62, 88, 80, 6, [-5, -4, 4, -3]) ]},
+    "Seated Calf Raise": { g: "legs", d: [
+      "M18 54V76", "M18 76H48", "M38 50H66", "M44 50V60", "M62 50V60",
+      "M66 88H84", "M66 88V80", gArrowV(76, 80, 58) ]},
+    "Standing Calf Raise": { g: "legs", d: [
+      "M34 24V84", "M22 30H46", gRoll(22, 30, 5), gRoll(46, 30, 5),
+      "M18 84H58", "M58 84V76H76", gArrowV(68, 74, 50) ]},
+    "Hip Thrust": { g: "post", d: [
+      "M10 88H90", "M14 66H50", "M20 66V86", "M44 66V86",
+      "M42 44H72", "M48 44V56", "M66 44V56", "M78 86V62", "M70 86H88",
+      gArrowV(57, 40, 24) ]},
+    "Pec Deck": { g: "push", d: [
+      "M50 26V80", "M36 84H64", "M24 40V64", "M76 40V64", "M24 40Q38 30 50 32",
+      "M76 40Q62 30 50 32", gArrowH(72, 16, 34), gArrowH(72, 84, 66) ]},
+    "Reverse Pec Deck": { g: "pull", d: [
+      "M50 26V80", "M36 84H64", "M24 40V64", "M76 40V64", "M24 40Q38 30 50 32",
+      "M76 40Q62 30 50 32", gArrowH(72, 34, 14), gArrowH(72, 66, 86) ]},
+    "Machine Lateral Raise": { g: "arms", d: [
+      "M50 28V76", "M34 80H66", "M42 80V88", gRoll(50, 52, 5),
+      "M24 62H44", "M56 62H76", gArrowV(30, 56, 36), gArrowV(70, 56, 36) ]},
+    "Lat Pulldown": { g: "pull", d: [
+      "M20 14V86", "M20 14H66", gPulley(66, 20), "M66 27V38", "M46 38H86",
+      "M50 38V44", "M82 38V44", "M30 72H56", "M36 62H58", "M42 72V84",
+      gStack(20, 38, 4), gArrowV(66, 48, 64) ]},
+    "Wide-Grip Pulldown": { g: "pull", d: [
+      "M20 14V86", "M20 14H66", gPulley(66, 20), "M66 27V36", "M40 42L48 36H86L92 44",
+      "M30 72H56", "M36 62H58", "M42 72V84", gStack(20, 38, 4), gArrowV(66, 50, 66) ]},
+    "T-Bar Row": { g: "pull", d: [
+      "M12 88H88", "M18 84L50 58", gRoll(18, 84, 4), "M50 58H70", "M62 58V66",
+      "M26 46L54 68", "M36 62V88" ]},
+    "Iso-Lateral Row": { g: "pull", d: [
+      "M14 88H86", "M20 70H46", "M28 70V86", "M48 38V70",
+      "M58 46H74", "M68 46V54", "M58 62H74", "M68 62V70", gArrowH(54, 88, 70) ]},
+    "Incline Chest Press": { g: "push", d: [
+      "M12 88H88", "M18 76H44", "M26 76V86", "M30 74L54 44",
+      "M60 50H78", "M70 50V58", gArrowH(64, 82, 96) ]},
+    "Flat Chest Press": { g: "push", d: [
+      "M12 88H88", "M22 74H48", "M28 74V86", "M30 36V72",
+      "M56 46H76", "M68 46V54", "M56 62H76", "M68 62V70", gArrowH(54, 82, 96) ]},
+    "Overhead Extension": { g: "arms", d: [
+      "M20 14V86", gPulley(20, 20), "M20 20H58", "M58 20V40", "M52 46L58 40L64 46",
+      "M58 46V56", gStack(20, 40, 4), gArc(58, 60, 74, 74, 8, [-6, -3, 1, -7]) ]},
+    "Incline DB Curl": { g: "arms", d: [
+      "M12 88H88", "M18 82H42", "M26 82V88", "M30 80L54 44", gDB(70, 68, 11),
+      gArc(84, 62, 78, 38, 8, [-5, 4, 5, 4]) ]}
+  };
+  MACHINE_ART["__cardio"] = { g: "post", d: [
+    "M12 80H74", "M18 80L26 56H72L80 80", "M74 56V22", "M62 22H86", "M66 28H82",
+    gArrowH(68, 34, 58) ]};
+  Object.keys(MACHINE_ART).forEach(function (k) { EX_ART[k] = MACHINE_ART[k]; });
   function exArt(name) { return EX_ART[name] || { g: "arms", d: [gDB(50,50,16), gArrowV(50,74,30)] }; }
 
   /* Node k sits on the rim, starting at the top and going clockwise. Positions are a
@@ -4454,6 +4707,9 @@
     var uid = "rg" + (drawRing._n = (drawRing._n || 0) + 1);
     /* The equipment only earns its place when there is a middle to put it in. On a
        short ring it is a smudge behind the count, so it waits for a taller screen. */
+    /* The equipment only earns its place when there is a middle to put it in. On a
+       short ring it is a smudge behind the count, so it waits for a taller screen --
+       and on a phone the sheet carries it instead, at a size you can actually read. */
     var showGlyph = ry >= 108 && rx >= 108;
     var g = Math.min(rx, ry) * 1.3, gx = cx - g / 2, gy = cy - g / 2;
     var glyph = !showGlyph ? "" : '<g class="ring-glyph" transform="translate(' + gx.toFixed(1) + ',' + gy.toFixed(1) +
@@ -4534,6 +4790,7 @@
     document.getElementById("setEditSave").hidden = false;
     document.getElementById("setEditCancel").textContent = "Cancel";
     document.getElementById("exSheetTabs").hidden = false;
+    paintSheetCrest(exx.name);
     fillAlts(exx.name);
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
@@ -4649,7 +4906,7 @@
     if (restBtn) {
       restBtn.hidden = !mayRest;
       restBtn.setAttribute("aria-pressed", resting ? "true" : "false");
-      restBtn.textContent = resting ? "Resting" : "Rest day";
+      restBtn.textContent = resting ? "Resting" : "Rest";
       restBtn.onclick = async function () {
         var next = !isRestDay(await getDayDoc(key));
         await setRestDay(key, next);
@@ -4718,7 +4975,7 @@
       var restWord = ssRest ? " \u00b7 " + ssRest + "s/round"
                    : (exx.restSec > 0 ? " \u00b7 rest " + exx.restSec + "s" : "");
       var savedSets = (doc.sets && doc.sets[exx.name]) || [];
-      var wUnit = exx.weightDefault == null ? "bodyweight" : exx.weightDefault + " " + exx.weightLabel;
+      var wUnit = weightText(exx);
       var doneFlags = [];
       for (var i = 0; i < exx.sets; i++) doneFlags.push(!!(savedSets[i] && savedSets[i].done));
 
@@ -4726,13 +4983,13 @@
       for (var s = 0; s < exx.sets; s++) {
         var sv = savedSets[s];
         var repsVal = sv && sv.reps != null ? sv.reps : exx.repDefault;
-        var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : (exx.weightDefault == null ? "" : exx.weightDefault);
+        var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : weightStart(exx);
         var done = doneFlags[s];
         setsHtml += '<div class="set-split-row' + (done ? " done-row" : "") + '" data-set="' + s + '">' +
           '<div class="ssr-expected">Set ' + (s+1) + ' — <b>' + exx.repLo + '–' + exx.repHi + ' reps</b> @ ' + wUnit + (ssRest ? ' · rest ' + ssRest + 's/round' : (exx.restSec > 0 ? ' · rest ' + exx.restSec + 's' : '')) + '<span class="ghost" data-ghost-slot="' + s + '"></span></div>' +
           '<div class="ssr-input">' +
             '<input type="number" placeholder="reps" class="mini-field reps-input" value="' + repsVal + '">' +
-            '<input type="number" step="0.5" placeholder="' + (exx.weightDefault == null ? "bw" : "lb") + '" class="mini-field wt-input" value="' + wtVal + '" ' + (exx.weightDefault == null ? 'disabled' : '') + '>' +
+            '<input type="number" step="0.5" placeholder="' + (weightBodyOnly(exx) ? "bw" : "lb") + '" class="mini-field wt-input" value="' + wtVal + '" ' + (weightBodyOnly(exx) ? 'disabled' : '') + '>' +
             '<div class="mini-done ' + (done ? "on" : "") + '" data-done="' + (done ? "1" : "0") + '">&#10003;</div>' +
           '</div></div>';
       }
@@ -4904,6 +5161,7 @@
     document.getElementById("setEditSave").hidden = true;
     document.getElementById("setEditCancel").textContent = "Close";
     document.getElementById("exSheetTabs").hidden = false;
+    paintSheetCrest(exName);
     fillAlts(exName);
     hideSheets("setEditModal");
     document.getElementById("setEditModal").style.display = "block";
@@ -5331,11 +5589,13 @@
      minutes you deliberately did not walk. */
   var REST_SLOT = "__rest";
   function isRestDay(doc) { return !!(doc && doc.sets && doc.sets[REST_SLOT]); }
-  function canRest(prog) {
-    if (!prog) return false;
-    if (prog.type !== "cardio") return false;
-    return !(prog.ex && prog.ex.length);
-  }
+  /* This used to mean "a day that is only a walk": the week had two of those and
+     either could be taken as rest instead. The week now lifts seven days out of
+     seven, so that day does not exist and the toggle would never appear -- which
+     would quietly take away the thing it was built for. Any day can be called a
+     rest day now. The day still has to be told, and the ledger still knows what it
+     asked for, so a rest is a decision rather than a gap. */
+  function canRest(prog) { return !!prog; }
   async function setRestDay(key, on) {
     await mutateDay(key, function (doc) {
       if (!doc.sets || typeof doc.sets !== "object") doc.sets = {};
@@ -6375,7 +6635,8 @@
       (PROGRAM[d].ex || []).forEach(function (exx) {
         if (seen[exx.name]) return;
         seen[exx.name] = 1;
-        out.push({ name: exx.name, base: exx.weightDefault, label: exx.weightLabel, bodyweight: exx.weightDefault == null });
+        out.push({ name: exx.name, base: isRpe(exx) ? null : exx.weightDefault,
+                   label: exx.weightLabel, bodyweight: weightBodyOnly(exx) });
       });
     });
     return out;
@@ -8349,7 +8610,7 @@
   var PROG_SLOT = "__prog";
   /* Bump this whenever a coded programme changes and the change should reach people
      who have edited a day. Stored edits older than it are dropped once. */
-  var PROGRAM_VERSION = 2;
+  var PROGRAM_VERSION = 3;
   var MY_PROG = null;
   var progDay = 1, progDraft = null;
 
@@ -8406,8 +8667,9 @@
           '<div><label>Sets</label><input type="number" class="pe-sets" min="1" max="20" value="' + (e.sets || 3) + '"></div>' +
           '<div><label>Reps from</label><input type="number" class="pe-lo" min="1" max="60" value="' + (e.repLo || 8) + '"></div>' +
           '<div><label>to</label><input type="number" class="pe-hi" min="1" max="60" value="' + (e.repHi || 12) + '"></div>' +
-          '<div><label>Weight</label><input type="number" step="0.5" class="pe-w" value="' +
-            (e.weightDefault == null ? "" : e.weightDefault) + '"></div>' +
+          '<div><label>Weight</label><input type="number" step="0.5" class="pe-w" placeholder="' +
+            (e.weightDefault === RPE ? "RPE" : (e.weightDefault == null ? "bw" : "")) + '" value="' +
+            (e.weightDefault == null || e.weightDefault === RPE ? "" : e.weightDefault) + '"></div>' +
         '</div></div>';
     }).join("");
     Array.prototype.forEach.call(list.querySelectorAll(".pe-del"), function (b) {
@@ -8437,10 +8699,14 @@
           name: r.querySelector(".pe-name").value.trim() || ("Exercise " + (i + 1)),
           sets: Math.max(1, Number(r.querySelector(".pe-sets").value) || 1),
           repLo: lo, repHi: Math.max(lo, hi), repDefault: lo,
-          weightDefault: w === "" ? null : Number(w),
+          /* An empty box means whatever it meant before it was emptied: an RPE
+             exercise stays an RPE exercise rather than turning into a bodyweight one. */
+          weightDefault: w === "" ? (old.weightDefault === RPE ? RPE : null) : Number(w),
           weightLabel: old.weightLabel || "lb",
           div: !!old.div,
-          restSec: old.restSec || 60
+          /* A superset is a rest of nought, and `|| 60` turned every one of them into
+             a minute the first time the week was opened in the editor. */
+          restSec: old.restSec == null ? 60 : old.restSec
         };
       });
     }
