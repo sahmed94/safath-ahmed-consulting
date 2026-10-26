@@ -2534,7 +2534,7 @@
     5: { name: "Legs", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
       ex: [ ex("Hack Squat", 4, 8, 12, RPE, "lb", false, 90),
             ex("Seated Leg Curl", 4, 10, 15, RPE, "lb", false, 90),
-            ex("Hip Thrust", 5, 8, 12, RPE, "lb", false, 90),
+            ex("Leg Press", 5, 8, 12, RPE, "lb", false, 90),
             ex("Standing Calf Raise", 3, 10, 15, RPE, "lb", false, 60),
             ex("Back Extension", 2, 12, 15, 44, "lb", false, 60) ]},
     6: { name: "Delts & arms", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
@@ -2545,7 +2545,7 @@
             ex("Reverse Pec Deck", 3, 12, 20, RPE, "lb", false, 60) ]},
     0: { name: "Lower C", type: "lift", cardio: { min: 40, incline: 12, speed: 3.0 },
       ex: [ ex("Seated Leg Curl", 5, 8, 12, RPE, "lb", false, 90),
-            ex("Hip Thrust", 5, 10, 15, RPE, "lb", false, 90),
+            ex("Leg Press", 5, 10, 15, RPE, "lb", false, 90),
             ex("Back Extension", 5, 12, 15, 44, "lb", false, 60),
             ex("Seated Calf Raise", 3, 15, 25, 64, "lb", true, 60) ]}
   };
@@ -4256,6 +4256,13 @@
       ["Cable or band curl", "home", "The fallback when there is no machine at all."],
       ["Romanian deadlift", "home", "The hamstring at the hip rather than the knee. Worth doing as well."]
     ],
+    "Leg Press": [
+      ["Hack squat, feet high", "gym", "The same high-and-wide bias with more depth at the hip."],
+      ["Pendulum squat", "gym", "The kindest path for the knee, and it loads the glute hard at the bottom."],
+      ["Smith machine squat, feet forward", "gym", "The rails do the balancing; sit back into the heels."],
+      ["Bulgarian split squat", "home", "One leg at a time doubles whatever load you own."],
+      ["Belt squat, wide stance", "home", "What you have at home, and the spine carries nothing."]
+    ],
     "Hip Thrust": [
       ["Smith machine hip thrust", "gym", "The alternate on the plan. Loads far heavier than you can hold."],
       ["Barbell hip thrust", "gym", "The classic; a pad and a bench is all it takes."],
@@ -4538,6 +4545,9 @@
     "Standing Calf Raise": { g: "legs", d: [
       "M34 24V84", "M22 30H46", gRoll(22, 30, 5), gRoll(46, 30, 5),
       "M18 84H58", "M58 84V76H76", gArrowV(68, 74, 50) ]},
+    "Leg Press": { g: "legs", d: [
+      "M12 88H88", "M20 84V72", "M15 72H42", "M19 72L13 54",
+      "M42 70L76 38", "M38 78L72 46", "M66 28L86 48" ]},
     "Hip Thrust": { g: "post", d: [
       "M10 88H90", "M14 66H50", "M20 66V86", "M44 66V86",
       "M42 44H72", "M48 44V56", "M66 44V56", "M78 86V62", "M70 86H88",
