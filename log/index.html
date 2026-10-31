@@ -2555,29 +2555,31 @@
      sets them, and everything after that is measured against what he actually lifted.
      No cardio is asked for on a lifting day, which the scoring has to cope with: see
      the weight redistribution in dayBlows. */
+  /* The week moved a day earlier: Upper was Monday and is Sunday, the last lifting
+     day was Friday and is Thursday, and the two runs follow on Friday and Saturday. */
   var PROGRAM_IFHRAD = {
-    1: { name: "Upper", type: "lift", cardio: { min: 0 },
+    0: { name: "Upper", type: "lift", cardio: { min: 0 },
       ex: [ ex("Bench Press", 4, 8, 12, null, "lb", false, 90), ex("Shoulder Press", 3, 8, 12, null, "lb", false, 90),
             ex("Triceps Overhead", 3, 8, 12, null, "lb", false, 60), ex("Bicep Curls", 3, 8, 12, null, "lb", false, 60),
             ex("Lat Pulldowns", 3, 8, 12, null, "lb", false, 60) ]},
-    2: { name: "Lower", type: "lift", cardio: { min: 0 },
+    1: { name: "Lower", type: "lift", cardio: { min: 0 },
       ex: [ ex("Leg Press", 4, 8, 12, null, "lb", false, 90), ex("Leg Extension", 3, 8, 12, null, "lb", false, 60),
             ex("Seated Leg Curls", 3, 8, 12, null, "lb", false, 60), ex("Hip Abductions", 3, 8, 12, null, "lb", false, 60),
             ex("Hip Adductors", 3, 8, 12, null, "lb", false, 60) ]},
-    3: { name: "Push", type: "lift", cardio: { min: 0 },
+    2: { name: "Push", type: "lift", cardio: { min: 0 },
       ex: [ ex("Bench Press", 4, 8, 12, null, "lb", false, 90), ex("Shoulder Press", 3, 8, 12, null, "lb", false, 90),
             ex("Lateral Raises", 3, 8, 12, null, "lb", false, 60), ex("Triceps Overhead", 3, 8, 12, null, "lb", false, 60),
             ex("Triceps Pulldowns", 3, 8, 12, null, "lb", false, 60) ]},
-    4: { name: "Pull", type: "lift", cardio: { min: 0 },
+    3: { name: "Pull", type: "lift", cardio: { min: 0 },
       ex: [ ex("Bicep Curls", 3, 8, 12, null, "lb", false, 60), ex("Lat Pulldowns", 3, 8, 12, null, "lb", false, 60),
             ex("Seated Rows", 3, 8, 12, null, "lb", false, 60), ex("Hammer Curls", 3, 8, 12, null, "lb", false, 60),
             ex("Assisted Pull-ups", 3, 8, 12, null, "lb assist", false, 90) ]},
-    5: { name: "Legs", type: "lift", cardio: { min: 0 },
+    4: { name: "Legs", type: "lift", cardio: { min: 0 },
       ex: [ ex("Leg Press", 4, 8, 12, null, "lb", false, 90), ex("Leg Extension", 3, 8, 12, null, "lb", false, 60),
             ex("Seated Leg Curls", 3, 8, 12, null, "lb", false, 60), ex("Hip Abductions", 3, 8, 12, null, "lb", false, 60),
             ex("Hip Adductors", 3, 8, 12, null, "lb", false, 60) ]},
-    6: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] },
-    0: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] }
+    5: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] },
+    6: { name: "2 miles", type: "cardio", cardio: { min: 20, incline: 0, speed: 6.0 }, ex: [] }
   };
 
   /* Ifhrad: 6'0", eighteen, lifting five days a week with two miles at the weekend.
