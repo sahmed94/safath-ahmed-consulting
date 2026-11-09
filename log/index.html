@@ -2877,7 +2877,12 @@
   var selectedMeal = "breakfast";
   var cache = {};
   var foodCache = [];
-  var restTimerInterval = null, restTimerRemaining = 0, restTimerTotal = 60;
+  /* The countdown is a deadline, not a number being decremented once a second. A
+     phone that locks, or a tab that goes to the back, stops firing intervals: the old
+     counter simply froze, and came back claiming the ninety seconds you had actually
+     waited through were still to come. The clock does not stop, so the time left is
+     worked out from it every time anything repaints. */
+  var restTimerInterval = null, restTimerRemaining = 0, restTimerTotal = 60, restTimerEnd = 0;
   var sessionTimerInterval = null, sessionTimerStart = null, sessionTimerElapsed = 0;
 
   function dateKey(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
@@ -4000,6 +4005,27 @@
     input.addEventListener("blur", function () { commit(true); });
   }
 
+  /* Everything that has to be caught up when the app starts being drawn again: a
+     phone coming off the lock screen, a tab coming back to the front, a rotation.
+     Intervals stop while any of those are true; the clock does not, so both timers
+     work out where they really are rather than carrying on from where they were. */
+  function resumeTimers() {
+    restTick(true);
+    var display = document.getElementById("sessionTimerDisplay");
+    if (!display) return;
+    var st = readSession(dateKey(selectedDate));
+    if (!st || !st.startedAt || st.finished) return;
+    if (!display.classList.contains("editing")) display.textContent = fmtTime(sessionTotal(st));
+    /* The seconds were never lost -- the clock is banked against wall time -- but the
+       number on screen is as old as the lock until its interval is running again.
+       Started afresh rather than only when the handle is empty: a suspended interval
+       still has a handle, so "is it null" answers whether we ever made one, not
+       whether it is still firing. Clearing first means there is never a second. */
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = setInterval(tickSessionTimer, 1000);
+    clearInterval(sessionFlushTimer);
+    sessionFlushTimer = setInterval(flushSession, FLUSH_MS);
+  }
   function wireSessionTimer() {
     document.getElementById("sessionTimerBtn").onclick = async function () {
       var key = dateKey(selectedDate);
@@ -4025,12 +4051,15 @@
     document.addEventListener("visibilitychange", function () {
       var key = dateKey(selectedDate);
       if (document.visibilityState === "hidden") { bankSessionQuietly(); return; }
+      resumeTimers();
       adoptRemoteSession(key);
       /* Coming back to a tab is the moment it is most likely to be wrong: the other
          screen has had it all to itself. */
       pollSelectedDay();
     });
-    window.addEventListener("focus", function () { pollSelectedDay(); });
+    /* iOS restoring a page from its back-forward cache fires neither of the above. */
+    window.addEventListener("pageshow", resumeTimers);
+    window.addEventListener("focus", function () { resumeTimers(); pollSelectedDay(); });
     setInterval(pollSelectedDay, DAY_POLL_MS);
   }
 
@@ -4067,6 +4096,27 @@
     if (restTimerInterval == null || !restTimerBlock) return false;
     return restTimerBlock === block || (block && restTimerBlock === block._pairOther);
   }
+  /* One tick, wherever it is called from: the interval, coming back to the app, or
+     the screen turning the right way up. */
+  function restTick(resumed) {
+    if (restTimerInterval == null) return;
+    /* Only when coming back from a lock, and never from inside the interval itself:
+       a suspended interval still has a handle, so there is no way to ask whether it
+       is still firing -- the one that fires from here is one we just made. */
+    if (resumed && restTimerInterval !== -1) {
+      clearInterval(restTimerInterval);
+      restTimerInterval = setInterval(restTick, 1000);
+    }
+    restTimerRemaining = Math.max(0, Math.round((restTimerEnd - Date.now()) / 1000));
+    if (restTimerRemaining <= 0) {
+      /* If the rest ran out while the phone was locked, it ended then rather than now:
+         it still ends, and it still buzzes, but it does not pretend to owe you time. */
+      stopRestTimer(); vibrate([30,50,30,50,30]); sfx("set");
+      return;
+    }
+    paintRest("rest " + fmtTime(restTimerRemaining));
+    paintRestPop();
+  }
   function stopRestTimer() {
     clearInterval(restTimerInterval); restTimerInterval = null;
     paintRest(""); restTimerBlock = null;
@@ -4077,6 +4127,7 @@
     paintRest("");
     restTimerBlock = block || null;
     restTimerTotal = seconds; restTimerRemaining = seconds;
+    restTimerEnd = Date.now() + seconds * 1000;
     restTimerInterval = -1;                     // so the first paint knows it is running
     var pop = document.getElementById("restPop");
     if (pop) {
@@ -4092,23 +4143,15 @@
       void arc.getBoundingClientRect();
       arc.style.transition = "";
     }
-    function tick() {
-      if (restTimerRemaining <= 0) {
-        stopRestTimer(); vibrate([30,50,30,50,30]); sfx("set");
-        return;
-      }
-      paintRest("rest " + fmtTime(restTimerRemaining));
-      paintRestPop();
-      restTimerRemaining--;
-    }
-    tick();
-    if (restTimerInterval === -1) restTimerInterval = setInterval(tick, 1000);
+    restTick();
+    if (restTimerInterval === -1) restTimerInterval = setInterval(restTick, 1000);
   }
   function wireRestPop() {
     var add = document.getElementById("restPopAdd"), skip = document.getElementById("restPopSkip");
     if (add) add.onclick = function () {
       if (restTimerInterval == null) return;
-      restTimerRemaining += 30; restTimerTotal += 30; paintRestPop(); vibrate(10);
+      restTimerRemaining += 30; restTimerTotal += 30; restTimerEnd += 30000;
+      paintRestPop(); vibrate(10);
     };
     if (skip) skip.onclick = function () { stopRestTimer(); vibrate(12); };
   }
@@ -4822,17 +4865,20 @@
       var wt = document.getElementById("setEditWt");
       e.row.querySelector(".reps-input").value = reps;
       if (!wt.disabled) e.row.querySelector(".wt-input").value = wt.value;
-      /* Correcting a set is saying you did it. Anything else means typing the numbers
-         and then going back to the corner to say so, which nobody would do twice. */
-      var mark = e.row.querySelector(".mini-done");
-      if (mark.getAttribute("data-done") !== "1") {
-        mark.setAttribute("data-done", "1"); mark.classList.add("on");
-        e.row.classList.add("done-row");
-      }
+      /* Out of the way first, so what happens next is not behind the sheet. */
       document.getElementById("modalOverlay").classList.remove("open");
       document.getElementById("setEditModal").style.display = "none";
-      drawRing(e.block);
-      await persistSet(e.key, e.exx.name, e.row);
+      /* Correcting a set is saying you did it -- and saying you did it has to mean
+         the same thing here as it does at the corner. This used to tick the box by
+         hand and stop there: no rest countdown, no CLEARED when it was the last set,
+         no sound and no buzz. It goes through the one function that lands a set now,
+         so the set you logged the careful way is not the quiet one. */
+      var landed = e.row.querySelector(".mini-done").getAttribute("data-done") !== "1";
+      if (landed && e.block._toggleSet) e.block._toggleSet(e.idx);
+      else {
+        drawRing(e.block);
+        await persistSet(e.key, e.exx.name, e.row);
+      }
       setEdit = null;
     };
   }
@@ -4993,8 +5039,12 @@
       for (var i = 0; i < exx.sets; i++) doneFlags.push(!!(savedSets[i] && savedSets[i].done));
 
       var setsHtml = "";
+      /* Which rows the day has no record for. Those are the ones last time's numbers
+         are allowed to fill in; anything already logged today stays as logged. */
+      var fresh = [];
       for (var s = 0; s < exx.sets; s++) {
         var sv = savedSets[s];
+        fresh.push(!sv);
         var repsVal = sv && sv.reps != null ? sv.reps : exx.repDefault;
         var wtVal = sv && sv.weight !== undefined && sv.weight !== null ? sv.weight : weightStart(exx);
         var done = doneFlags[s];
@@ -5134,6 +5184,26 @@
           var slot = block.querySelector('[data-ghost-slot="' + idx + '"]');
           if (slot && s) slot.textContent = "Last time: " + (s.reps != null ? s.reps + " reps" : "") + (s.weight != null ? " @ " + s.weight : "");
         });
+        /* And the boxes themselves start where you finished last time, rather than at
+           the bottom of the range the plan wrote down months ago. Hitting a corner
+           then records what you actually did last time by default, which is the floor
+           to beat rather than a number to re-type every session. Only rows this day
+           has nothing for: a set already logged today is never overwritten, and nor
+           is one you have typed into, because typing persists it. */
+        var moved = false;
+        rows.forEach(function (row, idx) {
+          if (!fresh[idx]) return;
+          var was = last.sets[idx] || last.sets[last.sets.length - 1];
+          if (!was) return;
+          /* This lands a moment after the page does. If a box is under the cursor by
+             then, the person typing in it outranks last week. */
+          if (row.contains(document.activeElement)) return;
+          if (was.reps != null) { row.querySelector(".reps-input").value = was.reps; moved = true; }
+          var w = row.querySelector(".wt-input");
+          if (was.weight != null && !w.disabled) { w.value = was.weight; moved = true; }
+        });
+        /* The numbers under the corners are read off those boxes. */
+        if (moved) drawRing(block);
       });
     });
     /* Both halves exist now, so each can be told about the other: the rest after a
@@ -5577,9 +5647,21 @@
      The hundred-point score still exists and still drives the points; it is the
      detail now, not the judge. */
   var DONE_AT = 0.8;       // a discipline counts as done at four fifths of the ask
+  /* movesDone is a count of disciplines but it is not a whole number any more: a
+     discipline you did part of is worth that part. A day is still won by a
+     discipline's worth of work, so half a walk and half a session now add up to the
+     win that neither of them was worth on its own. */
+  /* One place decides what a discipline's line is marked with, so the card and the
+     share picture cannot disagree about what counts as done. */
+  function shareMark(share) {
+    if (share >= DONE_AT) return "\u2713 ";
+    /* Part done is now part credited, so the line says so rather than looking the
+       same as not started. */
+    return share > 0 ? "\u25D0 " : "";
+  }
   function gradeFor(movesAsked, movesDone, onPlan) {
-    if (!movesAsked || !movesDone) return null;
-    if (movesDone < movesAsked) return "B";
+    if (!movesAsked || movesDone < 1) return null;
+    if (movesDone + 1e-9 < movesAsked) return "B";
     return onPlan ? "S" : "A+";
   }
   /* ---- making up a missed walk ----
@@ -5809,12 +5891,17 @@
     [cardioShare, liftShare].forEach(function (x) {
       if (x == null) return;
       movesAsked++;
-      if (x >= DONE_AT) movesDone++;
+      /* Four fifths of the ask still counts as the whole thing, as it always has.
+         Below that you get the part you did rather than nothing at all: thirty
+         minutes of a forty minute walk is three quarters of a move, not none. The
+         walk was the one that felt all-or-nothing, because a session is twenty taps
+         and a walk is one number that was either big enough or wasted. */
+      movesDone += x >= DONE_AT ? 1 : x;
     });
     /* A rest day asks for nothing, so it is won by having been chosen. It grades on
        the eating alone, which is the only thing a rest day can still get wrong. */
     var grade = resting ? (onPlan ? "S" : "REST") : gradeFor(movesAsked, movesDone, onPlan);
-    var won = resting || movesDone >= 1;
+    var won = resting || movesDone >= 1 - 1e-9;
     /* What share of the training the day asked for actually got done -- sets on a
        lifting day, minutes on a cardio one. The ledger and the card both pay on this
        rather than on a finished session, so half a session is half the credit instead
@@ -6946,6 +7033,13 @@
     var panel = document.querySelector("section.panel.active");
     var tabs = document.querySelector("nav.tabbar");
     if (!panel || !tabs) return;
+    /* Which exercise is in front of you, before anything moves. The pager is a strip
+       scrolled sideways and a page is one card wide, so changing the card's width --
+       which is what turning the phone, or the keyboard opening, does -- leaves the
+       scroll offset pointing at a position that is now some other exercise. That is
+       the "exercises switch randomly": nothing chose them, the ruler changed. */
+    var pager = document.getElementById("exerciseList");
+    var heldPage = (pager && pager.children.length) ? currentPage() : -1;
     var pr = panel.getBoundingClientRect(), tr = tabs.getBoundingClientRect();
     /* Measuring beats arithmetic here: the gap between where the card starts and where
        the tab bar begins already has the header, the date row and the safe areas taken
@@ -6999,6 +7093,9 @@
     fitFigure();
     fitFood();
     drawAllRings();
+    /* After the new width has been laid out, not before. */
+    if (heldPage >= 0) requestAnimationFrame(function () { snapToPage(heldPage); });
+    resumeTimers();
   }
 
   /* The macro strip is the first thing to go when the food card cannot hold its fixed
@@ -7061,6 +7158,14 @@
     }).filter(Boolean);
     if (ns.length) return ns.join(" + ");
     return pg.id === "cardioPage" ? "Cardio" : "Page " + (i + 1);
+  }
+  /* Put the pager on a page without animating: for a rotation, where the page has to
+     be where it was before the width changed rather than slide there. */
+  function snapToPage(i) {
+    var list = document.getElementById("exerciseList");
+    if (!list || !list.children[i]) return;
+    list.scrollLeft = Math.max(0, list.children[i].offsetLeft - list.offsetLeft);
+    markPagerDot();
   }
   function gotoPage(i) {
     var list = document.getElementById("exerciseList");
@@ -7266,9 +7371,9 @@
                                           : near ? "near" : blank ? "blank" : "lose");
     var moves = [];
     if (bl.cardioShare != null)
-      moves.push((bl.cardioShare >= DONE_AT ? "\u2713 " : "") + "Cardio " + bl.actualMin + "/" + bl.wantMin);
+      moves.push(shareMark(bl.cardioShare) + "Cardio " + bl.actualMin + "/" + bl.wantMin);
     if (bl.liftShare != null)
-      moves.push((bl.liftShare >= DONE_AT ? "\u2713 " : "") + "Lifting " + bl.doneSets + "/" + bl.totalSets);
+      moves.push(shareMark(bl.liftShare) + "Lifting " + bl.doneSets + "/" + bl.totalSets);
     document.getElementById("t9Score").textContent =
       (isToday(selectedDate) ? "" : fmtLabel(selectedDate) + " \u00b7 ") +
       (bl.resting ? "Taken off, and it counts"
